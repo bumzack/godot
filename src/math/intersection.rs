@@ -31,20 +31,20 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
 pub trait IntersectionListOps<'a> {
     fn new() -> IntersectionList<'a>;
-    fn add(&mut self, i: Intersection);
+    fn add(&mut self, i: Intersection<'a>);
 }
 
-//impl<'a> IntersectionListOps for IntersectionList<'a> {
-//    fn new<'a>( ) -> IntersectionList<'a> {
-//        IntersectionList  {
-//            l: Vec::new(),
-//        }
-//    }
-//
-//    fn add(&mut self, i: Intersection) {
-//        self.l.push(i);
-//    }
-//}
+impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
+    fn new() -> IntersectionList<'a> {
+        IntersectionList {
+            l: Vec::new(),
+        }
+    }
+
+    fn add(&mut self, i: Intersection<'a>) {
+        self.l.push(i);
+    }
+}
 
 
 #[test]
@@ -67,6 +67,9 @@ fn test_new_intersectionlist() {
     let t2: f32 = 3.5;
     let o2 = CommonShape::Sphere(s2);
     let i2 = Intersection::new(t2, &o2);
+
+    let i_list = IntersectionList::new();
+
 
 //    let mut il = IntersectionList::new();
 //    il.add(i1);
