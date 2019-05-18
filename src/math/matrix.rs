@@ -34,6 +34,7 @@ pub trait MatrixOps {
     fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix;
     fn minor(m: &Matrix, row: usize, col: usize) -> f32;
     fn cofactor(m: &Matrix, row: usize, col: usize) -> f32;
+    fn invert(m: &Matrix) -> Option<Matrix>;
 }
 
 impl MatrixOps for Matrix {
@@ -205,6 +206,26 @@ impl MatrixOps for Matrix {
             return -minor;
         }
         minor
+    }
+
+    fn invert(m: &Matrix) -> Option<Matrix> {
+        let mut inv = Matrix {
+            rows: m.rows,
+            cols: m.cols,
+            m: vec![vec![0.0; m.rows]; m.cols],
+        };
+        if float_equal(Self::determinant(&m), 0.0) {
+            return None;
+        }
+
+        let det = Self::determinant(&m);
+        for row in 0..m.rows {
+            for col in 0..m.cols {
+                let c = Self::cofactor(&m, row, col);
+                inv.m[col][row] = c / det;
+            }
+        }
+        Some(inv)
     }
 }
 
@@ -565,5 +586,70 @@ fn test_matrix_determinant_4x4() {
 
     assert_eq!(float_equal(det_a, -4071.0), true);
 }
+
+
+#[test]
+fn test_matrix_inversion() {
+    let a = Matrix::new_matrix_4x4(6.0, 4.0, 4.0, 4.0,
+                                   5.0, 5.0, 7.0, 6.0,
+                                   4.0, -9.0, 3.0, -7.0,
+                                   9.0, 1.0, 7.0, -6.0);
+
+    let det_a = Matrix::determinant(&a);
+
+    assert_eq!(float_equal(det_a, -2120.0), true);
+
+    let a = Matrix::new_matrix_4x4(-4.0, 2.0, -2.0, -3.0,
+                                   9.0, 6.0, 2.0, 6.0,
+                                   0.0, -5.0, 1.0, -5.0,
+                                   0.0, 0.0, 0.0, 0.0);
+
+    let det_a = Matrix::determinant(&a);
+
+    assert_eq!(float_equal(det_a, 0.0), true);
+
+
+    let a = Matrix::new_matrix_4x4(-5.0, 2.0, 6.0, -8.0,
+                                   1.0, -5.0, 1.0, 8.0,
+                                   7.0, 7.0, -6.0, -7.0,
+                                   1.0, -3.0, 7.0, 4.0);
+
+    // wolfram alpha  can use this {{-5.0, 2.0, 6.0, -8.},{1.0, -5.0, 1.0, 8.0},{7.0, 7.0, -6.0, -7.0},{1.0, -3.0, 7.0, 4.}}
+
+    let b = Matrix::invert(&a).unwrap();
+
+    let det_a = Matrix::determinant(&a);
+    let cofactor_a1 = Matrix::cofactor(&a, 2, 3);
+    let cofactor_a2 = Matrix::cofactor(&a, 3, 2);
+
+    assert_eq!(float_equal(det_a, 532.0), true);
+
+    assert_eq!(float_equal(cofactor_a1, -160.0), true);
+    assert_eq!(float_equal(cofactor_a2, 105.0), true);
+
+    assert_eq!(float_equal(b.m[3][2], -160.0 / 532.0), true);
+    assert_eq!(float_equal(b.m[2][3], 105.0 / 532.0), true);
+
+    assert_eq!(float_equal(b.m[0][0], 0.21805), true);
+    assert_eq!(float_equal(b.m[0][1], 0.45113), true);
+    assert_eq!(float_equal(b.m[0][2], 0.24060), true);
+    assert_eq!(float_equal(b.m[0][3], -0.04511), true);
+
+    assert_eq!(float_equal(b.m[1][0], -0.80827), true);
+    assert_eq!(float_equal(b.m[1][1], -1.45677), true);
+    assert_eq!(float_equal(b.m[1][2], -0.44361), true);
+    assert_eq!(float_equal(b.m[1][3], 0.52068), true);
+
+    assert_eq!(float_equal(b.m[2][0], -0.07895), true);
+    assert_eq!(float_equal(b.m[2][1], -0.22368), true);
+    assert_eq!(float_equal(b.m[2][2], -0.05263), true);
+    assert_eq!(float_equal(b.m[2][3], 0.19737), true);
+
+    assert_eq!(float_equal(b.m[3][0], -0.52256), true);
+    assert_eq!(float_equal(b.m[3][1], -0.81391), true);
+    assert_eq!(float_equal(b.m[3][2], -0.30075), true);
+    assert_eq!(float_equal(b.m[3][3], 0.30639), true);
+}
+
 
 
