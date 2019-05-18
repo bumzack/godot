@@ -32,6 +32,8 @@ pub trait MatrixOps {
     fn determinant(m: &Matrix) -> f32;
 
     fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix;
+    fn minor(m: &Matrix, row: usize, col: usize) -> f32;
+    fn cofactor(m: &Matrix, row: usize, col: usize) -> f32;
 }
 
 impl MatrixOps for Matrix {
@@ -142,10 +144,19 @@ impl MatrixOps for Matrix {
     fn determinant(m: &Matrix) -> f32 {
         if m.rows == 2 {
             return m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0];
-        } else {
-            return 0.0;
+        } else if m.rows == 3 {
+            return m.m[0][0] * m.m[1][1] * m.m[2][2] +
+                m.m[0][1] * m.m[1][2] * m.m[0][2] +
+                m.m[0][2] * m.m[1][0] * m.m[2][1] -
+                m.m[0][2] * m.m[1][1] * m.m[2][0] -
+                m.m[0][0] * m.m[1][2] * m.m[2][1] -
+                m.m[0][1] * m.m[1][0] * m.m[2][2];
         }
-        0.0
+        let mut det = 0.0;
+        for col in 0..m.cols {
+            det += m.m[0][col] * Self::cofactor(&m, 0, col);
+        }
+        det
     }
 
     fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix {
@@ -181,6 +192,19 @@ impl MatrixOps for Matrix {
         }
 
         sub_matrix
+    }
+
+    fn minor(m: &Matrix, row: usize, col: usize) -> f32 {
+        let sub = Self::sub_matrix(m, row, col);
+        Self::determinant(&sub)
+    }
+
+    fn cofactor(m: &Matrix, row: usize, col: usize) -> f32 {
+        let minor = Self::minor(m, row, col);
+        if (row + col) % 2 != 0 {
+            return -minor;
+        }
+        minor
     }
 }
 
@@ -449,5 +473,97 @@ fn test_matrix_submatrix() {
     assert_eq!(float_equal(b.m[0][1], 2.0), true);
     assert_eq!(float_equal(b.m[1][0], 0.0), true);
     assert_eq!(float_equal(b.m[1][1], 6.0), true);
+
+    let a = Matrix::new_matrix_4x4(-6.0, 1.0, 1.0, 6.0,
+                                   -8.0, 5.0, 8.0, 6.0,
+                                   -1.0, 0.0, 8.0, 2.0,
+                                   -7.0, 1.0, -1.0, 1.0);
+    let b = Matrix::sub_matrix(&a, 2, 1);
+
+    assert_eq!(float_equal(b.m[0][0], -6.0), true);
+    assert_eq!(float_equal(b.m[0][1], 1.0), true);
+    assert_eq!(float_equal(b.m[0][2], 6.0), true);
+
+    assert_eq!(float_equal(b.m[1][0], -8.0), true);
+    assert_eq!(float_equal(b.m[1][1], 8.0), true);
+    assert_eq!(float_equal(b.m[1][2], 6.0), true);
+
+    assert_eq!(float_equal(b.m[2][0], -7.0), true);
+    assert_eq!(float_equal(b.m[2][1], -1.0), true);
+    assert_eq!(float_equal(b.m[2][2], 1.0), true);
 }
+
+
+#[test]
+fn test_matrix_minor() {
+    let a = Matrix::new_matrix_3x3(3.0, 5.0, 0.0,
+                                   3.0, -1.0, -7.0,
+                                   6.0, -1.0, 5.0);
+    let b = Matrix::sub_matrix(&a, 1, 0);
+    let det_b = Matrix::determinant(&b);
+    let minor_a = Matrix::minor(&a, 1, 0);
+
+    assert_eq!(float_equal(det_b, 25.0), true);
+    assert_eq!(float_equal(minor_a, 25.0), true);
+}
+
+#[test]
+fn test_matrix_cofactor() {
+    let a = Matrix::new_matrix_3x3(3.0, 5.0, 0.0,
+                                   3.0, -1.0, -7.0,
+                                   6.0, -1.0, 5.0);
+    let minor_a = Matrix::minor(&a, 0, 0);
+    let cofactor_a = Matrix::cofactor(&a, 0, 0);
+
+    assert_eq!(float_equal(minor_a, -12.0), true);
+    assert_eq!(float_equal(cofactor_a, -12.0), true);
+
+    let minor_a = Matrix::minor(&a, 1, 0);
+    let cofactor_a = Matrix::cofactor(&a, 1, 0);
+
+    assert_eq!(float_equal(minor_a, 25.0), true);
+    assert_eq!(float_equal(cofactor_a, -25.0), true);
+}
+
+#[test]
+fn test_matrix_determinant_3x3() {
+    let a = Matrix::new_matrix_3x3(1.0, 2.0, 6.0,
+                                   -5.0, 8.0, -4.0,
+                                   2.0, 6.0, 4.0);
+    let cofactor_a1 = Matrix::cofactor(&a, 0, 0);
+    let cofactor_a2 = Matrix::cofactor(&a, 0, 1);
+    let cofactor_a3 = Matrix::cofactor(&a, 0, 2);
+
+    let det_a = Matrix::determinant(&a);
+
+    assert_eq!(float_equal(cofactor_a1, 56.0), true);
+    assert_eq!(float_equal(cofactor_a2, 12.0), true);
+    assert_eq!(float_equal(cofactor_a3, -46.0), true);
+
+    assert_eq!(float_equal(det_a, 196.0), true);
+}
+
+
+#[test]
+fn test_matrix_determinant_4x4() {
+    let a = Matrix::new_matrix_4x4(-2.0, -8.0, 3.0, 5.0,
+                                   -3.0, 1.0, 7.0, 3.0,
+                                   1.0, 2.0, -9.0, 6.0,
+                                   -6.0, 7.0, 7.0, -9.0);
+
+    let cofactor_a1 = Matrix::cofactor(&a, 0, 0);
+    let cofactor_a2 = Matrix::cofactor(&a, 0, 1);
+    let cofactor_a3 = Matrix::cofactor(&a, 0, 2);
+    let cofactor_a4 = Matrix::cofactor(&a, 0, 3);
+
+    let det_a = Matrix::determinant(&a);
+
+    assert_eq!(float_equal(cofactor_a1, 690.0), true);
+    assert_eq!(float_equal(cofactor_a2, 447.0), true);
+    assert_eq!(float_equal(cofactor_a3, 210.0), true);
+    assert_eq!(float_equal(cofactor_a4, 51.0), true);
+
+    assert_eq!(float_equal(det_a, -4071.0), true);
+}
+
 

@@ -1,5 +1,7 @@
 use std::ops::{Add, Div, Mul, Sub};
 
+use crate::math::common::float_equal;
+
 #[derive(Clone)]
 pub struct Color {
     pub  r: f32,
