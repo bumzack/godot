@@ -146,7 +146,7 @@ impl MatrixOps for Matrix {
             return m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0];
         } else if m.rows == 3 {
             return m.m[0][0] * m.m[1][1] * m.m[2][2] +
-                m.m[0][1] * m.m[1][2] * m.m[0][2] +
+                m.m[0][1] * m.m[1][2] * m.m[2][0] +
                 m.m[0][2] * m.m[1][0] * m.m[2][1] -
                 m.m[0][2] * m.m[1][1] * m.m[2][0] -
                 m.m[0][0] * m.m[1][2] * m.m[2][1] -
@@ -530,6 +530,7 @@ fn test_matrix_determinant_3x3() {
     let a = Matrix::new_matrix_3x3(1.0, 2.0, 6.0,
                                    -5.0, 8.0, -4.0,
                                    2.0, 6.0, 4.0);
+
     let cofactor_a1 = Matrix::cofactor(&a, 0, 0);
     let cofactor_a2 = Matrix::cofactor(&a, 0, 1);
     let cofactor_a3 = Matrix::cofactor(&a, 0, 2);
@@ -540,9 +541,8 @@ fn test_matrix_determinant_3x3() {
     assert_eq!(float_equal(cofactor_a2, 12.0), true);
     assert_eq!(float_equal(cofactor_a3, -46.0), true);
 
-    assert_eq!(float_equal(det_a, 196.0), true);
+    assert_eq!(float_equal(det_a, -196.0), true);
 }
-
 
 #[test]
 fn test_matrix_determinant_4x4() {
