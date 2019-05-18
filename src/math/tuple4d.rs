@@ -2,7 +2,7 @@ use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 
 use crate::math::common::float_equal;
 
-struct Tuple4D {
+pub struct Tuple4D {
     x: f32,
     y: f32,
     z: f32,

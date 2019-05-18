@@ -1,4 +1,3 @@
-
 mod math;
 
 fn main() {
