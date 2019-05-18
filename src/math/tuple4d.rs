@@ -121,6 +121,19 @@ impl Sub for Tuple4D {
     }
 }
 
+impl<'a, 'b> Sub<&'b Tuple4D> for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn sub(self, rhs: &'b Tuple4D) -> Tuple4D {
+        Tuple4D {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+            w: self.w - rhs.w,
+        }
+    }
+}
+
 impl Neg for Tuple4D {
     type Output = Tuple4D;
 
@@ -181,6 +194,13 @@ impl BitXor for Tuple4D {
     }
 }
 
+impl<'a, 'b> BitXor<&'b Tuple4D> for &'a Tuple4D {
+    type Output = f32;
+
+    fn bitxor(self, rhs: &'b Tuple4D) -> f32 {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
+    }
+}
 
 impl Div<f32> for Tuple4D {
     type Output = Tuple4D;
