@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 
 struct Tuple4D {
     x: f32,
@@ -110,6 +110,31 @@ impl Sub for Tuple4D {
     }
 }
 
+impl Neg for Tuple4D {
+    type Output = Tuple4D;
+
+    fn neg(self) -> Tuple4D {
+        Tuple4D {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
+    }
+}
+
+impl Mul<f32> for Tuple4D {
+    type Output = Tuple4D;
+
+    fn mul(self, rhs: f32) -> Tuple4D {
+        Tuple4D {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
+    }
+}
 
 #[test]
 fn test_blaaaaaaa() {
@@ -154,7 +179,7 @@ fn test_add_tuple4d() {
 }
 
 #[test]
-fn test_sub_vec_vec() {
+fn test_sub_point_point() {
     let a = Tuple4D::new_point(3., 2., 1.);
     let b = Tuple4D::new_point(5., 6., 7.);
     let c = a - b;
@@ -169,7 +194,7 @@ fn test_sub_vec_vec() {
 fn test_sub_vec_point() {
     let p = Tuple4D::new_point(3., 2., 1.);
     let v = Tuple4D::new_vector(5., 6., 7.);
-    let c = p-v;
+    let c = p - v;
 
     assert_eq!(c.x, -2.0);
     assert_eq!(c.y, -4.0);
@@ -177,3 +202,46 @@ fn test_sub_vec_point() {
     assert_eq!(Tuple4D::is_point(&c), true);
 }
 
+
+#[test]
+fn test_sub_vec_vec() {
+    let v1 = Tuple4D::new_vector(3., 2., 1.);
+    let v2 = Tuple4D::new_vector(5., 6., 7.);
+    let c = v1 - v2;
+
+    assert_eq!(c.x, -2.0);
+    assert_eq!(c.y, -4.0);
+    assert_eq!(c.z, -6.0);
+    assert_eq!(Tuple4D::is_vector(&c), true);
+}
+
+#[test]
+fn test_neg_tuple() {
+    let v1 = Tuple4D::new(1., -2., 3., 4.);
+    let v2 = -v1;
+
+
+    assert_eq!(v2.x, -1.0);
+    assert_eq!(v2.y, 2.0);
+    assert_eq!(v2.z, -3.0);
+    assert_eq!(v2.w, -4.0);
+}
+
+#[test]
+fn test_mul_tuple_scalar() {
+    let v1 = Tuple4D::new(1., -2., 3., -4.);
+    let v2 = v1  * 3.5;
+
+    assert_eq!(v2.x, 3.5);
+    assert_eq!(v2.y, -7.0);
+    assert_eq!(v2.z, 10.5);
+    assert_eq!(v2.w, -14.0);
+
+    let v1 = Tuple4D::new(1., -2., 3., -4.);
+    let v2 = v1 * 0.5;
+
+    assert_eq!(v2.x, 0.5);
+    assert_eq!(v2.y, -1.0);
+    assert_eq!(v2.z, 1.5);
+    assert_eq!(v2.w, -2.0);
+}
