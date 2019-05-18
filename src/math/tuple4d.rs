@@ -95,6 +95,19 @@ impl Add for Tuple4D {
     }
 }
 
+impl<'a, 'b> Add<&'b Tuple4D> for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn add(self, rhs: &'b Tuple4D) -> Tuple4D {
+        Tuple4D {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+            w: self.w + rhs.w,
+        }
+    }
+}
+
 impl Sub for Tuple4D {
     type Output = Tuple4D;
 
@@ -122,6 +135,19 @@ impl Neg for Tuple4D {
 }
 
 impl Mul<f32> for Tuple4D {
+    type Output = Tuple4D;
+
+    fn mul(self, rhs: f32) -> Tuple4D {
+        Tuple4D {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
+    }
+}
+
+impl<'a> Mul<f32> for &'a Tuple4D {
     type Output = Tuple4D;
 
     fn mul(self, rhs: f32) -> Tuple4D {

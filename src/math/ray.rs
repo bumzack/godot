@@ -13,6 +13,7 @@ pub struct Ray {
 
 pub trait RayOps {
     fn new(origin: Tuple4D, direction: Tuple4D) -> Ray;
+    fn position(r: &Ray, t: f32) -> Tuple4D;
 }
 
 impl RayOps for Ray {
@@ -21,16 +22,20 @@ impl RayOps for Ray {
         assert!(Tuple4D::is_vector(&direction));
         Ray {
             origin,
-            direction
+            direction,
         }
+    }
+
+    fn position(r: &Ray, t: f32) -> Tuple4D {
+        &r.origin + &(&r.direction * t)
     }
 }
 
 
 #[test]
 fn test_ray_new() {
-    let o = Tuple4D::new_point(1.0,2.0,3.0);
-    let d = Tuple4D::new_vector(4.0,5.0,6.0);
+    let o = Tuple4D::new_point(1.0, 2.0, 3.0);
+    let d = Tuple4D::new_vector(4.0, 5.0, 6.0);
 
     let r = Ray::new(o, d);
 
@@ -46,7 +51,39 @@ fn test_ray_new() {
     assert_eq!(float_equal(r.direction.z, 6.0), true);
 }
 
+#[test]
+fn test_ray_position() {
+    let o = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let d = Tuple4D::new_vector(1.0, 0.0, 0.0);
 
+    let r = Ray::new(o, d);
+
+    let p1 = Ray::position(&r, 0.0);
+    let p2 = Ray::position(&r, 1.0);
+    let p3 = Ray::position(&r, -1.0);
+    let p4 = Ray::position(&r, 2.5);
+
+    assert_eq!(Tuple4D::is_point(&p1), true);
+    assert_eq!(Tuple4D::is_point(&p2), true);
+    assert_eq!(Tuple4D::is_point(&p3), true);
+    assert_eq!(Tuple4D::is_point(&p4), true);
+
+    assert_eq!(float_equal(p1.x, 2.0), true);
+    assert_eq!(float_equal(p1.y, 3.0), true);
+    assert_eq!(float_equal(p1.z, 4.0), true);
+
+    assert_eq!(float_equal(p2.x, 3.0), true);
+    assert_eq!(float_equal(p2.y, 3.0), true);
+    assert_eq!(float_equal(p2.z, 4.0), true);
+
+    assert_eq!(float_equal(p3.x, 1.0), true);
+    assert_eq!(float_equal(p3.y, 3.0), true);
+    assert_eq!(float_equal(p3.z, 4.0), true);
+
+    assert_eq!(float_equal(p4.x, 4.5), true);
+    assert_eq!(float_equal(p4.y, 3.0), true);
+    assert_eq!(float_equal(p4.z, 4.0), true);
+}
 
 
 
