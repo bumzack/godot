@@ -3,5 +3,5 @@ pub mod color;
 pub mod common;
 pub mod canvas;
 pub mod matrix;
-
+pub mod ray;
 

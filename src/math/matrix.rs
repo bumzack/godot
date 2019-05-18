@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::ops::Mul;
 
 use crate::math::common::float_equal;
@@ -36,8 +37,12 @@ pub trait MatrixOps {
     fn cofactor(m: &Matrix, row: usize, col: usize) -> f32;
     fn invert(m: &Matrix) -> Option<Matrix>;
 
-    fn transformation(tx: f32, ty: f32, tz: f32) -> Matrix;
+    fn translation(tx: f32, ty: f32, tz: f32) -> Matrix;
     fn scale(sx: f32, sy: f32, sz: f32) -> Matrix;
+    fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix;
+    fn rotate_x(rad: f32) -> Matrix;
+    fn rotate_y(rad: f32) -> Matrix;
+    fn rotate_z(rad: f32) -> Matrix;
 }
 
 impl MatrixOps for Matrix {
@@ -231,7 +236,7 @@ impl MatrixOps for Matrix {
         Some(inv)
     }
 
-    fn transformation(tx: f32, ty: f32, tz: f32) -> Matrix {
+    fn translation(tx: f32, ty: f32, tz: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][3] = tx;
         m.m[1][3] = ty;
@@ -245,6 +250,47 @@ impl MatrixOps for Matrix {
         m.m[0][0] = sx;
         m.m[1][1] = sy;
         m.m[2][2] = sz;
+
+        m
+    }
+
+    fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix {
+        let mut m = Self::new_identity_4x4();
+        m.m[0][1] = xy;
+        m.m[0][2] = xz;
+        m.m[1][0] = yx;
+        m.m[1][2] = yz;
+        m.m[2][0] = zx;
+        m.m[2][1] = zy;
+        m
+    }
+
+    fn rotate_x(rad: f32) -> Matrix {
+        let mut m = Self::new_identity_4x4();
+        m.m[1][1] = rad.cos();
+        m.m[1][2] = -rad.sin();
+        m.m[2][1] = rad.sin();
+        m.m[2][2] = rad.cos();
+
+        m
+    }
+
+    fn rotate_y(rad: f32) -> Matrix {
+        let mut m = Self::new_identity_4x4();
+        m.m[0][0] = rad.cos();
+        m.m[0][2] = rad.sin();
+        m.m[2][0] = -rad.sin();
+        m.m[2][2] = rad.cos();
+
+        m
+    }
+
+    fn rotate_z(rad: f32) -> Matrix {
+        let mut m = Self::new_identity_4x4();
+        m.m[0][0] = rad.cos();
+        m.m[0][1] = -rad.sin();
+        m.m[1][0] = rad.sin();
+        m.m[1][1] = rad.cos();
 
         m
     }
@@ -816,7 +862,7 @@ fn test_matrix_inversion5() {
 
 #[test]
 fn test_matrix_transformation() {
-    let transform = Matrix::transformation(5.0, -3.0, 2.0);
+    let transform = Matrix::translation(5.0, -3.0, 2.0);
     let p = Tuple4D::new_point(-3.0, 4.0, 5.0);
 
     let p_transformed = &transform * &p;
@@ -830,7 +876,7 @@ fn test_matrix_transformation() {
 
 #[test]
 fn test_matrix_transformation_invert() {
-    let transform = Matrix::transformation(5.0, -3.0, 2.0);
+    let transform = Matrix::translation(5.0, -3.0, 2.0);
     let inv = Matrix::invert(&transform).unwrap();
 
     let p = Tuple4D::new_point(-3.0, 4.0, 5.0);
@@ -845,7 +891,7 @@ fn test_matrix_transformation_invert() {
 
 #[test]
 fn test_matrix_transformation_vector() {
-    let transform = Matrix::transformation(5.0, -3.0, 2.0);
+    let transform = Matrix::translation(5.0, -3.0, 2.0);
     let v = Tuple4D::new_vector(-3.0, 4.0, 5.0);
 
     let v_transformed = &transform * &v;
@@ -910,6 +956,205 @@ fn test_matrix_scale_vector_reflection() {
     assert_eq!(float_equal(p_transformed.z, 4.0), true);
     assert_eq!(Tuple4D::is_point(&p_transformed), true);
 }
+
+#[test]
+fn test_matrix_rotation_x() {
+    let p = Tuple4D::new_point(0.0, 1.0, 0.0);
+    let half_quarter = Matrix::rotate_x(PI / 4.0);
+    let full_quarter = Matrix::rotate_x(PI / 2.0);
+
+    let half = &half_quarter * &p;
+    let full = &full_quarter * &p;
+
+    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+
+    assert_eq!(float_equal(half.x, 0.0), true);
+    assert_eq!(float_equal(half.y, sqrt2_half), true);
+    assert_eq!(float_equal(half.z, sqrt2_half), true);
+    assert_eq!(Tuple4D::is_point(&half), true);
+
+    assert_eq!(float_equal(full.x, 0.0), true);
+    assert_eq!(float_equal(full.y, 0.0), true);
+    assert_eq!(float_equal(full.z, 1.0), true);
+    assert_eq!(Tuple4D::is_point(&full), true);
+}
+
+
+#[test]
+fn test_matrix_rotation_x_invert() {
+    let p = Tuple4D::new_point(0.0, 1.0, 0.0);
+    let half_quarter = Matrix::rotate_x(PI / 4.0);
+    let inv = Matrix::invert(&half_quarter).unwrap();
+
+    let half = &inv * &p;
+
+    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+
+    assert_eq!(float_equal(half.x, 0.0), true);
+    assert_eq!(float_equal(half.y, sqrt2_half), true);
+    assert_eq!(float_equal(half.z, -sqrt2_half), true);
+    assert_eq!(Tuple4D::is_point(&half), true);
+}
+
+
+#[test]
+fn test_matrix_rotation_y() {
+    let p = Tuple4D::new_point(0.0, 0.0, 1.0);
+    let half_quarter = Matrix::rotate_y(PI / 4.0);
+    let full_quarter = Matrix::rotate_y(PI / 2.0);
+
+    let half = &half_quarter * &p;
+    let full = &full_quarter * &p;
+
+    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+
+    assert_eq!(float_equal(half.x, sqrt2_half), true);
+    assert_eq!(float_equal(half.y, 0.0), true);
+    assert_eq!(float_equal(half.z, sqrt2_half), true);
+    assert_eq!(Tuple4D::is_point(&half), true);
+
+    assert_eq!(float_equal(full.x, 1.0), true);
+    assert_eq!(float_equal(full.y, 0.0), true);
+    assert_eq!(float_equal(full.z, 0.0), true);
+    assert_eq!(Tuple4D::is_point(&full), true);
+}
+
+
+#[test]
+fn test_matrix_rotation_z() {
+    let p = Tuple4D::new_point(0.0, 1.0, 0.0);
+    let half_quarter = Matrix::rotate_z(PI / 4.0);
+    let full_quarter = Matrix::rotate_z(PI / 2.0);
+
+    let half = &half_quarter * &p;
+    let full = &full_quarter * &p;
+
+    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+
+    assert_eq!(float_equal(half.x, -sqrt2_half), true);
+    assert_eq!(float_equal(half.y, sqrt2_half), true);
+    assert_eq!(float_equal(half.z, 0.0), true);
+    assert_eq!(Tuple4D::is_point(&half), true);
+
+    assert_eq!(float_equal(full.x, -1.0), true);
+    assert_eq!(float_equal(full.y, 0.0), true);
+    assert_eq!(float_equal(full.z, 0.0), true);
+    assert_eq!(Tuple4D::is_point(&full), true);
+}
+
+
+#[test]
+fn test_matrix_shear1() {
+    let transform = Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 5.0), true);
+    assert_eq!(float_equal(p_transformed.y, 3.0), true);
+    assert_eq!(float_equal(p_transformed.z, 4.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+
+
+    let transform = Matrix::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 6.0), true);
+    assert_eq!(float_equal(p_transformed.y, 3.0), true);
+    assert_eq!(float_equal(p_transformed.z, 4.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+
+    let transform = Matrix::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 2.0), true);
+    assert_eq!(float_equal(p_transformed.y, 5.0), true);
+    assert_eq!(float_equal(p_transformed.z, 4.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+
+    let transform = Matrix::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 2.0), true);
+    assert_eq!(float_equal(p_transformed.y, 7.0), true);
+    assert_eq!(float_equal(p_transformed.z, 4.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+
+    let transform = Matrix::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 2.0), true);
+    assert_eq!(float_equal(p_transformed.y, 3.0), true);
+    assert_eq!(float_equal(p_transformed.z, 6.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+
+    let transform = Matrix::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 2.0), true);
+    assert_eq!(float_equal(p_transformed.y, 3.0), true);
+    assert_eq!(float_equal(p_transformed.z, 7.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+}
+
+
+#[test]
+fn test_matrix_transformation_sequential() {
+    let p = Tuple4D::new_point(1.0, 0.0, 1.0);
+    let a = Matrix::rotate_x(PI / 2.0);
+    let b = Matrix::scale(5.0, 5.0, 5.0);
+    let c = Matrix::translation(10.0, 5.0, 7.0);
+
+    let p2 = &a * &p;
+    let p3 = &b * &p2;
+    let p4 = &c * &p3;
+
+    assert_eq!(float_equal(p2.x, 1.0), true);
+    assert_eq!(float_equal(p2.y, -1.0), true);
+    assert_eq!(float_equal(p2.z, 0.0), true);
+    assert_eq!(Tuple4D::is_point(&p2), true);
+
+    assert_eq!(float_equal(p3.x, 5.0), true);
+    assert_eq!(float_equal(p3.y, -5.0), true);
+    assert_eq!(float_equal(p3.z, 0.0), true);
+    assert_eq!(Tuple4D::is_point(&p3), true);
+
+    assert_eq!(float_equal(p4.x, 15.0), true);
+    assert_eq!(float_equal(p4.y, 0.0), true);
+    assert_eq!(float_equal(p4.z, 7.0), true);
+    assert_eq!(Tuple4D::is_point(&p4), true);
+}
+
+
+#[test]
+fn test_matrix_transformation_chained() {
+    let p = Tuple4D::new_point(1.0, 0.0, 1.0);
+    let a = Matrix::rotate_x(PI / 2.0);
+    let b = Matrix::scale(5.0, 5.0, 5.0);
+    let c = Matrix::translation(10.0, 5.0, 7.0);
+
+
+    let t = &(&c * &b) * &a;
+
+    let p2 = &t * &p;
+
+    assert_eq!(float_equal(p2.x, 15.0), true);
+    assert_eq!(float_equal(p2.y, 0.0), true);
+    assert_eq!(float_equal(p2.z, 7.0), true);
+    assert_eq!(Tuple4D::is_point(&p2), true);
+}
+
+
+
+
+
+
+
+
 
 
 
