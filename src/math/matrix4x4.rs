@@ -1,4 +1,4 @@
-use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
+use std::ops::Mul;
 
 use crate::math::common::float_equal;
 use crate::math::tuple4d::Tuple;
@@ -30,11 +30,13 @@ pub trait MatrixOps {
     fn transpose(m: &Matrix) -> Matrix;
 
     fn determinant(m: &Matrix) -> f32;
+
+    fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix;
 }
 
 impl MatrixOps for Matrix {
     fn new(row: usize, col: usize) -> Matrix {
-        let mut m = Matrix {
+        let m = Matrix {
             rows: row,
             cols: col,
             m: vec![vec![0.0; row]; col],
@@ -139,11 +141,46 @@ impl MatrixOps for Matrix {
 
     fn determinant(m: &Matrix) -> f32 {
         if m.rows == 2 {
-            return (m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0]);
+            return m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0];
         } else {
             return 0.0;
         }
-        0.0;
+        0.0
+    }
+
+    fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix {
+        let mut sub_matrix = Matrix {
+            rows: m.rows - 1,
+            cols: m.cols - 1,
+            m: vec![vec![0.0; m.rows - 1]; m.cols - 1],
+        };
+
+        let mut dest_row = 0;
+        let mut src_row = 0;
+
+        while src_row < m.rows {
+            if src_row == row {
+                src_row += 1;
+                continue;
+            }
+
+            let mut dest_col = 0;
+            let mut src_col = 0;
+
+            while src_col < m.cols {
+                if src_col == col {
+                    src_col += 1;
+                    continue;
+                }
+                sub_matrix.m[dest_row][dest_col] = m.m[src_row][src_col];
+                src_col += 1;
+                dest_col += 1;
+            }
+            dest_row += 1;
+            src_row += 1;
+        }
+
+        sub_matrix
     }
 }
 
@@ -194,10 +231,7 @@ impl Mul<Tuple4D> for Matrix {
         assert!(self.rows == 4);
         let mut t = Tuple4D::empty();
 
-        let mut sum: f32 = 0.0;
-
         // TODO: not a generic code for general matrix dimensions
-
         t.x = self.m[0][0] * rhs.x + self.m[0][1] * rhs.y + self.m[0][2] * rhs.z + self.m[0][3] * rhs.w;
         t.y = self.m[1][0] * rhs.x + self.m[1][1] * rhs.y + self.m[1][2] * rhs.z + self.m[1][3] * rhs.w;
         t.z = self.m[2][0] * rhs.x + self.m[2][1] * rhs.y + self.m[2][2] * rhs.z + self.m[2][3] * rhs.w;
@@ -404,5 +438,16 @@ fn test_matrix_determinant() {
     assert_eq!(float_equal(b, 17.0), true);
 }
 
+#[test]
+fn test_matrix_submatrix() {
+    let a = Matrix::new_matrix_3x3(1.0, 5.0, 0.0,
+                                   -3.0, 2.0, 7.0,
+                                   0.0, 6.0, -3.0);
+    let b = Matrix::sub_matrix(&a, 0, 2);
 
+    assert_eq!(float_equal(b.m[0][0], -3.0), true);
+    assert_eq!(float_equal(b.m[0][1], 2.0), true);
+    assert_eq!(float_equal(b.m[1][0], 0.0), true);
+    assert_eq!(float_equal(b.m[1][1], 6.0), true);
+}
 

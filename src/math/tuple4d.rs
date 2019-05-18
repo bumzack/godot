@@ -1,7 +1,5 @@
 use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 
-use crate::math::common::float_equal;
-
 pub struct Tuple4D {
     pub x: f32,
     pub y: f32,

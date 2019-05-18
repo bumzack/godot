@@ -1,6 +1,3 @@
-use crate::math::canvas::{Canvas, CanvasOps};
-use crate::math::color::Color;
-use crate::math::color::ColorOps;
 use crate::math::matrix4x4::Matrix;
 use crate::math::matrix4x4::MatrixOps;
 
@@ -22,12 +19,17 @@ fn main() {
 //    c.write_pixel(9, 9, green);
 //
 //    c.write_ppm("test_output.ppm");
+//
+//    let a = Matrix::new_matrix_3x3(-3.0, 5.0, 0.0,
+//                                   1.0, -2.0, -7.0,
+//                                   0.0, 1.0, 1.0);
+//
+//    assert_eq!(a.m[0][0], -3.0);
+//    assert_eq!(a.m[1][1], -2.0);
+//    assert_eq!(a.m[2][2], 1.0);
 
-    let a = Matrix::new_matrix_3x3(-3.0, 5.0, 0.0,
-                                   1.0, -2.0, -7.0,
-                                   0.0, 1.0, 1.0);
-
-    assert_eq!(a.m[0][0], -3.0);
-    assert_eq!(a.m[1][1], -2.0);
-    assert_eq!(a.m[2][2], 1.0);
+    let a = Matrix::new_matrix_3x3(1.0, 5.0, 0.0,
+                                   -3.0, 2.0, 7.0,
+                                   0.0, 6.0, -3.0);
+    let _b = Matrix::sub_matrix(&a, 0, 2);
 }

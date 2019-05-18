@@ -1,6 +1,4 @@
-use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
-
-use crate::math::common::float_equal;
+use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Clone)]
 pub struct Color {
