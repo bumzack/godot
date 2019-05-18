@@ -1,4 +1,6 @@
-use std::ops::{Add, Mul, Neg, Sub};
+use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
+
+use crate::math::common::float_equal;
 
 struct Tuple4D {
     x: f32,
@@ -8,18 +10,9 @@ struct Tuple4D {
 }
 
 
-fn float_equal(a: f32, b: f32) -> bool {
-    let EPSILON = 0.00001;
-
-    if (a - b).abs() < EPSILON {
-        return true;
-    }
-    false
-}
-
 trait Tuple {
-    fn add(a: &Tuple4D, b: &Tuple4D) -> Tuple4D;
-    fn mul_by_scalar(a: &Tuple4D, f: f32) -> Tuple4D;
+    fn magnitude(a: &Tuple4D) -> f32;
+    fn normalize(a: &Tuple4D) -> Tuple4D;
 
     fn new_vector(x: f32, y: f32, z: f32) -> Tuple4D;
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D;
@@ -30,21 +23,17 @@ trait Tuple {
 }
 
 impl Tuple for Tuple4D {
-    fn add(a: &Tuple4D, b: &Tuple4D) -> Tuple4D {
-        Tuple4D {
-            x: a.x + b.x,
-            y: a.y + b.y,
-            z: a.z + b.z,
-            w: 0.0,
-        }
+    fn magnitude(a: &Tuple4D) -> f32 {
+        (a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w).sqrt()
     }
 
-    fn mul_by_scalar(a: &Tuple4D, f: f32) -> Tuple4D {
+    fn normalize(a: &Tuple4D) -> Tuple4D {
+        let m = Tuple4D::magnitude(a);
         Tuple4D {
-            x: a.x * f,
-            y: a.y * f,
-            z: a.z * f,
-            w: 0.0,
+            x: a.x / m,
+            y: a.y / m,
+            z: a.z / m,
+            w: a.w / m,
         }
     }
 
@@ -136,15 +125,41 @@ impl Mul<f32> for Tuple4D {
     }
 }
 
-#[test]
-fn test_blaaaaaaa() {
-    let a = Tuple4D::new_vector(1.0, 2.0, 3.0);
-    let b = Tuple4D::mul_by_scalar(&a, 2.0);
+impl Mul for Tuple4D {
+    type Output = Tuple4D;
 
-    assert_eq!(b.x, 2.0);
-    assert_eq!(b.y, 4.0);
-    assert_eq!(b.z, 6.0);
+    fn mul(self, rhs: Tuple4D) -> Tuple4D {
+        Tuple4D::new_vector(self.y * rhs.z - self.z * rhs.y,
+                            self.z * rhs.x - self.x * rhs.z,
+                            self.x * rhs.y - self.y * rhs.x)
+    }
 }
+
+
+// a ^ b
+impl BitXor for Tuple4D {
+    type Output = f32;
+
+    // rhs is the "right-hand side" of the expression `a ^ b`
+    fn bitxor(self, rhs: Self) -> f32 {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
+    }
+}
+
+
+impl Div<f32> for Tuple4D {
+    type Output = Tuple4D;
+
+    fn div(self, rhs: f32) -> Tuple4D {
+        Tuple4D {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+            w: self.w / rhs,
+        }
+    }
+}
+
 
 #[test]
 fn test_is_point() {
@@ -230,7 +245,7 @@ fn test_neg_tuple() {
 #[test]
 fn test_mul_tuple_scalar() {
     let v1 = Tuple4D::new(1., -2., 3., -4.);
-    let v2 = v1  * 3.5;
+    let v2 = v1 * 3.5;
 
     assert_eq!(v2.x, 3.5);
     assert_eq!(v2.y, -7.0);
@@ -244,4 +259,94 @@ fn test_mul_tuple_scalar() {
     assert_eq!(v2.y, -1.0);
     assert_eq!(v2.z, 1.5);
     assert_eq!(v2.w, -2.0);
+}
+
+#[test]
+fn test_div_tuple_scalar() {
+    let v1 = Tuple4D::new(1., -2., 3., -4.);
+    let v2 = v1 / 2.0;
+
+    assert_eq!(v2.x, 0.5);
+    assert_eq!(v2.y, -1.0);
+    assert_eq!(v2.z, 1.5);
+    assert_eq!(v2.w, -2.0);
+}
+
+#[test]
+fn test_magnitude() {
+    let v = Tuple4D::new_vector(1., 0., 0.);
+    let m = Tuple4D::magnitude(&v);
+    assert_eq!(m, 1.);
+
+    let v = Tuple4D::new_vector(0., 1., 0.);
+    let m = Tuple4D::magnitude(&v);
+    assert_eq!(m, 1.);
+
+    let v = Tuple4D::new_vector(0., 0., 1.);
+    let m = Tuple4D::magnitude(&v);
+    assert_eq!(m, 1.);
+
+
+    let expected: f32 = 14.0;
+
+    let v = Tuple4D::new_vector(1., 2., 3.);
+    let m = Tuple4D::magnitude(&v);
+    assert_eq!(float_equal(m, expected.sqrt()), true);
+
+    let v = Tuple4D::new_vector(-1., -2., -3.);
+    let m = Tuple4D::magnitude(&v);
+    assert_eq!(float_equal(m, expected.sqrt()), true);
+}
+
+
+#[test]
+fn test_normalize() {
+    let v = Tuple4D::new_vector(4., 0., 0.);
+    let n = Tuple4D::normalize(&v);
+    assert_eq!(float_equal(n.x, 1.), true);
+    assert_eq!(float_equal(n.y, 0.), true);
+    assert_eq!(float_equal(n.z, 0.), true);
+    assert_eq!(Tuple4D::is_vector(&n), true);
+
+    let expected: f32 = 14.0;
+
+    let v = Tuple4D::new_vector(1., 2., 3.);
+    let n = Tuple4D::normalize(&v);
+    assert_eq!(float_equal(n.x, 1. / expected.sqrt()), true);
+    assert_eq!(float_equal(n.y, 2. / expected.sqrt()), true);
+    assert_eq!(float_equal(n.z, 3. / expected.sqrt()), true);
+    assert_eq!(Tuple4D::is_vector(&n), true);
+
+
+    let v = Tuple4D::new_vector(1., 2., 3.);
+    let n = Tuple4D::normalize(&v);
+    let m = Tuple4D::magnitude(&n);
+    assert_eq!(float_equal(m, 1.), true);
+}
+
+#[test]
+fn test_dot_product() {
+    let a = Tuple4D::new_vector(1., 2., 3.);
+    let b = Tuple4D::new_vector(2., 3., 4.);
+    let c = a ^ b;
+    assert_eq!(float_equal(c, 20.), true);
+}
+
+
+#[test]
+fn test_cross_product() {
+    let a = Tuple4D::new_vector(1., 2., 3.);
+    let b = Tuple4D::new_vector(2., 3., 4.);
+
+    let c = a * b;
+    assert_eq!(c.x, -1.0);
+    assert_eq!(c.y, 2.0);
+    assert_eq!(c.z, -1.0);
+
+    let a = Tuple4D::new_vector(1., 2., 3.);
+    let b = Tuple4D::new_vector(2., 3., 4.);
+    let c = b * a;
+    assert_eq!(c.x, 1.0);
+    assert_eq!(c.y, -2.0);
+    assert_eq!(c.z, 1.0);
 }
