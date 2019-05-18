@@ -589,7 +589,7 @@ fn test_matrix_determinant_4x4() {
 
 
 #[test]
-fn test_matrix_inversion() {
+fn test_matrix_inversion1() {
     let a = Matrix::new_matrix_4x4(6.0, 4.0, 4.0, 4.0,
                                    5.0, 5.0, 7.0, 6.0,
                                    4.0, -9.0, 3.0, -7.0,
@@ -607,8 +607,11 @@ fn test_matrix_inversion() {
     let det_a = Matrix::determinant(&a);
 
     assert_eq!(float_equal(det_a, 0.0), true);
+}
 
 
+#[test]
+fn test_matrix_inversion2() {
     let a = Matrix::new_matrix_4x4(-5.0, 2.0, 6.0, -8.0,
                                    1.0, -5.0, 1.0, 8.0,
                                    7.0, 7.0, -6.0, -7.0,
@@ -652,4 +655,64 @@ fn test_matrix_inversion() {
 }
 
 
+#[test]
+fn test_matrix_inversion3() {
+    let a = Matrix::new_matrix_4x4(8.0, -5.0, 9.0, 2.0,
+                                   7.0, 5.0, 6.0, 1.0,
+                                   -6.0, 0.0, 9.0, 6.0,
+                                   -3.0, 0.0, -9.0, -4.0);
+
+    let b = Matrix::invert(&a).unwrap();
+
+    assert_eq!(float_equal(b.m[0][0], -0.15385), true);
+    assert_eq!(float_equal(b.m[0][1], -0.15385), true);
+    assert_eq!(float_equal(b.m[0][2], -0.28205), true);
+    assert_eq!(float_equal(b.m[0][3], -0.53846), true);
+
+    assert_eq!(float_equal(b.m[1][0], -0.07692), true);
+    assert_eq!(float_equal(b.m[1][1], 0.12308), true);
+    assert_eq!(float_equal(b.m[1][2], 0.02564), true);
+    assert_eq!(float_equal(b.m[1][3], 0.03077), true);
+
+    assert_eq!(float_equal(b.m[2][0], 0.35897), true);
+    assert_eq!(float_equal(b.m[2][1], 0.35897), true);
+    assert_eq!(float_equal(b.m[2][2], 0.43590), true);
+    assert_eq!(float_equal(b.m[2][3], 0.92308), true);
+
+    assert_eq!(float_equal(b.m[3][0], -0.69231), true);
+    assert_eq!(float_equal(b.m[3][1], -0.69231), true);
+    assert_eq!(float_equal(b.m[3][2], -0.76923), true);
+    assert_eq!(float_equal(b.m[3][3], -1.92308), true);
+}
+
+
+#[test]
+fn test_matrix_inversion4() {
+    let a = Matrix::new_matrix_4x4(9.0, 3.0, 0.0, 9.0,
+                                   -5.0, -2.0, -6.0, -3.0,
+                                   -4.0, 9.0, 6.0, 4.0,
+                                   -7.0, 6.0, 6.0, 2.0);
+
+    let b = Matrix::invert(&a).unwrap();
+
+    assert_eq!(float_equal(b.m[0][0], -0.04074), true);
+    assert_eq!(float_equal(b.m[0][1], -0.07778), true);
+    assert_eq!(float_equal(b.m[0][2], 0.14444), true);
+    assert_eq!(float_equal(b.m[0][3], -0.22222), true);
+
+    assert_eq!(float_equal(b.m[1][0], -0.07778), true);
+    assert_eq!(float_equal(b.m[1][1], 0.03333), true);
+    assert_eq!(float_equal(b.m[1][2], 0.36667), true);
+    assert_eq!(float_equal(b.m[1][3], -0.33333), true);
+
+    assert_eq!(float_equal(b.m[2][0], -0.02901), true);
+    assert_eq!(float_equal(b.m[2][1], -0.14630), true);
+    assert_eq!(float_equal(b.m[2][2], -0.10926), true);
+    assert_eq!(float_equal(b.m[2][3], 0.12963), true);
+
+    assert_eq!(float_equal(b.m[3][0], 0.17778), true);
+    assert_eq!(float_equal(b.m[3][1], 0.06667), true);
+    assert_eq!(float_equal(b.m[3][2], -0.26667), true);
+    assert_eq!(float_equal(b.m[3][3], 0.33333), true);
+}
 
