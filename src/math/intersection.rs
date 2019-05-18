@@ -32,6 +32,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 pub trait IntersectionListOps<'a> {
     fn new() -> IntersectionList<'a>;
     fn add(&mut self, i: Intersection<'a>);
+
+    fn hit(&self) -> Option<&Intersection<'a>>;
 }
 
 impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
@@ -43,6 +45,11 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
 
     fn add(&mut self, i: Intersection<'a>) {
         self.l.push(i);
+        self.l.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+    }
+
+    fn hit(&self) -> Option<&Intersection<'a>> {
+        self.l.iter().find(|&i| i.t >= 0.0)
     }
 }
 
@@ -71,13 +78,103 @@ fn test_new_intersectionlist() {
     let i_list = IntersectionList::new();
 
 
-//    let mut il = IntersectionList::new();
-//    il.add(i1);
-//    il.add(i2);
+    let mut il = IntersectionList::new();
+    il.add(i1);
+    il.add(i2);
 
     // TODO: test ???
 }
 
 
+#[test]
+fn test_intersection_hit() {
+    let s = Sphere::new();
+    let o = CommonShape::Sphere(s);
+
+    let t1: f32 = 1.0;
+    let i1 = Intersection::new(t1, &o);
+
+    let t2: f32 = 2.0;
+    let i2 = Intersection::new(t2, &o);
+
+    let mut il = IntersectionList::new();
+    il.add(i2);
+    il.add(i1);
+
+    let i = il.hit().unwrap();
+
+    assert_eq!(i.t, 1.0);
+}
 
 
+#[test]
+fn test_intersection_hit_neg() {
+    let s = Sphere::new();
+    let o = CommonShape::Sphere(s);
+
+    let t1: f32 = -1.0;
+    let i1 = Intersection::new(t1, &o);
+
+    let t2: f32 = 1.0;
+    let i2 = Intersection::new(t2, &o);
+
+    let mut il = IntersectionList::new();
+    il.add(i2);
+    il.add(i1);
+
+    let i = il.hit().unwrap();
+
+    assert_eq!(i.t, 1.0);
+}
+
+
+#[test]
+fn test_intersection_no_hit() {
+    let s = Sphere::new();
+    let o = CommonShape::Sphere(s);
+
+    let t1: f32 = -1.0;
+    let i1 = Intersection::new(t1, &o);
+
+    let t2: f32 = -2.0;
+    let i2 = Intersection::new(t2, &o);
+
+    let mut il = IntersectionList::new();
+    il.add(i2);
+    il.add(i1);
+
+    let i = il.hit();
+
+    // TODO - how to assert????
+    //  assert_eq!(i, None);
+}
+
+
+#[test]
+fn test_intersection_hit_from_list() {
+    let s = Sphere::new();
+    let o = CommonShape::Sphere(s);
+
+    let t1: f32 = 5.0;
+    let i1 = Intersection::new(t1, &o);
+
+    let t2: f32 = 7.0;
+    let i2 = Intersection::new(t2, &o);
+
+    let t3: f32 = -3.0;
+    let i3 = Intersection::new(t3, &o);
+
+    let t4: f32 = 2.0;
+    let i4 = Intersection::new(t4, &o);
+
+
+    let mut il = IntersectionList::new();
+    il.add(i2);
+    il.add(i1);
+    il.add(i3);
+    il.add(i4);
+
+    let i = il.hit().unwrap();
+
+    assert_eq!(i.t, 2.0);
+}
