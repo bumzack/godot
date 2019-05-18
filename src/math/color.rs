@@ -4,9 +4,9 @@ use crate::math::common::float_equal;
 
 #[derive(Clone)]
 pub struct Color {
-    r: f32,
-    g: f32,
-    b: f32,
+    pub  r: f32,
+    pub  g: f32,
+    pub b: f32,
 }
 
 pub trait ColorOps {
@@ -14,7 +14,7 @@ pub trait ColorOps {
 }
 
 impl ColorOps for Color {
-      fn new(r: f32, g: f32, b: f32) -> Color {
+    fn new(r: f32, g: f32, b: f32) -> Color {
         Color {
             r,
             g,
