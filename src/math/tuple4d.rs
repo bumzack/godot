@@ -3,20 +3,20 @@ use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 use crate::math::common::float_equal;
 
 pub struct Tuple4D {
-    x: f32,
-    y: f32,
-    z: f32,
-    w: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
-
-trait Tuple {
+pub trait Tuple {
     fn magnitude(a: &Tuple4D) -> f32;
     fn normalize(a: &Tuple4D) -> Tuple4D;
 
     fn new_vector(x: f32, y: f32, z: f32) -> Tuple4D;
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D;
     fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D;
+    fn empty() -> Tuple4D;
 
     fn is_point(a: &Tuple4D) -> bool;
     fn is_vector(a: &Tuple4D) -> bool;
@@ -61,6 +61,15 @@ impl Tuple for Tuple4D {
             y: y,
             z: z,
             w: w,
+        }
+    }
+
+    fn empty() -> Tuple4D {
+        Tuple4D {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 0.0,
         }
     }
 

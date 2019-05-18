@@ -55,23 +55,27 @@ impl<'a> CanvasOps<'a> for Canvas {
         let s = w + " " + &h + new_line;
 
         let header = String::from("P3")+new_line;
+        let max_pxiel_value = String::from("255")+new_line;
 
         file.write_all(header.as_bytes())?;
         file.write_all(s.as_bytes())?;
+        file.write_all(max_pxiel_value.as_bytes())?;
 
         for y in 0..self.height {
             let mut buf = vec![0; self.width * 3];
             let mut i = 0;
+            let mut row ="".to_owned();
             for x in 0..self.width {
                 let c = &self.pixel[self.calc_idx(x, y)];
-                buf[i] = (c.r * 255.0) as u8;
+                row = row.to_owned() + &format!("{} ", (c.r * 255.0) as u8);
                 i += 1;
-                buf[i] = (c.g * 255.0) as u8;
+                row = row.to_owned() + &format!("{} ", (c.r * 255.0) as u8);
                 i += 1;
-                buf[i] = (c.b * 255.0) as u8;
+                row = row.to_owned() + &format!("{} ", (c.r * 255.0) as u8);
                 i += 1;
             }
-            file.write_all(&buf)?;
+            row = row.to_owned() + new_line;
+            file.write_all(row.as_bytes())?;
         }
         Ok(())
     }
