@@ -35,6 +35,9 @@ pub trait MatrixOps {
     fn minor(m: &Matrix, row: usize, col: usize) -> f32;
     fn cofactor(m: &Matrix, row: usize, col: usize) -> f32;
     fn invert(m: &Matrix) -> Option<Matrix>;
+
+    fn transformation(tx: f32, ty: f32, tz: f32) -> Matrix;
+    fn scale(sx: f32, sy: f32, sz: f32) -> Matrix;
 }
 
 impl MatrixOps for Matrix {
@@ -227,6 +230,24 @@ impl MatrixOps for Matrix {
         }
         Some(inv)
     }
+
+    fn transformation(tx: f32, ty: f32, tz: f32) -> Matrix {
+        let mut m = Self::new_identity_4x4();
+        m.m[0][3] = tx;
+        m.m[1][3] = ty;
+        m.m[2][3] = tz;
+
+        m
+    }
+
+    fn scale(sx: f32, sy: f32, sz: f32) -> Matrix {
+        let mut m = Self::new_identity_4x4();
+        m.m[0][0] = sx;
+        m.m[1][1] = sy;
+        m.m[2][2] = sz;
+
+        m
+    }
 }
 
 impl PartialEq for Matrix {
@@ -269,10 +290,51 @@ impl Mul for Matrix {
     }
 }
 
+impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
+    type Output = Matrix;
+
+    fn mul(self, rhs: &'b Matrix) -> Matrix {
+        // TODO: thats not a generic check for matrices which are non-quadratic
+        assert!(self.rows == rhs.rows);
+        let mut m = Matrix::new(self.rows, self.cols);
+
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                let mut sum: f32 = 0.0;
+
+                // TODO: not a generic code for general matrix dimensions
+                for i in 0..self.cols {
+                    sum += self.m[row][i] * rhs.m[i][col];
+                }
+                m.m[row][col] = sum;
+            }
+        }
+        m
+    }
+}
+
+
 impl Mul<Tuple4D> for Matrix {
     type Output = Tuple4D;
 
     fn mul(self, rhs: Tuple4D) -> Tuple4D {
+        assert!(self.rows == 4);
+        let mut t = Tuple4D::empty();
+
+        // TODO: not a generic code for general matrix dimensions
+        t.x = self.m[0][0] * rhs.x + self.m[0][1] * rhs.y + self.m[0][2] * rhs.z + self.m[0][3] * rhs.w;
+        t.y = self.m[1][0] * rhs.x + self.m[1][1] * rhs.y + self.m[1][2] * rhs.z + self.m[1][3] * rhs.w;
+        t.z = self.m[2][0] * rhs.x + self.m[2][1] * rhs.y + self.m[2][2] * rhs.z + self.m[2][3] * rhs.w;
+        t.w = self.m[3][0] * rhs.x + self.m[3][1] * rhs.y + self.m[3][2] * rhs.z + self.m[3][3] * rhs.w;
+
+        t
+    }
+}
+
+impl<'a, 'b> Mul<&'b Tuple4D> for &'a Matrix {
+    type Output = Tuple4D;
+
+    fn mul(self, rhs: &'b Tuple4D) -> Tuple4D {
         assert!(self.rows == 4);
         let mut t = Tuple4D::empty();
 
@@ -383,7 +445,6 @@ fn test_matrix_mul() {
     assert_eq!(float_equal(c.m[3][3], 42.0), true);
 }
 
-
 #[test]
 fn test_matrix_tuple_mul() {
     let a = Matrix::new_matrix_4x4(1.0, 2.0, 3.0, 4.0,
@@ -393,14 +454,13 @@ fn test_matrix_tuple_mul() {
 
     let b = Tuple4D::new(1.0, 2.0, 3.0, 1.0);
 
-    let c = a * b;
+    let c = &a * &b;
 
     assert_eq!(float_equal(c.x, 18.0), true);
     assert_eq!(float_equal(c.y, 24.0), true);
     assert_eq!(float_equal(c.z, 33.0), true);
     assert_eq!(float_equal(c.w, 1.0), true);
 }
-
 
 #[test]
 fn test_matrix_mul_identity() {
@@ -433,7 +493,6 @@ fn test_matrix_mul_identity() {
     assert_eq!(float_equal(c.m[3][2], 0.0), true);
     assert_eq!(float_equal(c.m[3][3], 1.0), true);
 }
-
 
 #[test]
 fn test_matrix_transpose() {
@@ -715,4 +774,142 @@ fn test_matrix_inversion4() {
     assert_eq!(float_equal(b.m[3][2], -0.26667), true);
     assert_eq!(float_equal(b.m[3][3], 0.33333), true);
 }
+
+
+#[test]
+fn test_matrix_inversion5() {
+    let a = Matrix::new_matrix_4x4(3.0, -9.0, 7.0, 3.0,
+                                   3.0, -8.0, 2.0, -9.0,
+                                   -4.0, 4.0, 4.0, 1.0,
+                                   -6.0, 5.0, -1.0, 1.0);
+
+    let b = Matrix::new_matrix_4x4(8.0, 2.0, 2.0, 2.0,
+                                   3.0, -1.0, 7.0, 0.0,
+                                   7.0, 0.0, 5.0, 4.0,
+                                   6.0, -2.0, 0.0, 5.0);
+
+    let c = &a * &b;
+
+    let a2 = c * Matrix::invert(&b).unwrap();
+
+    assert_eq!(float_equal(a.m[0][0], a2.m[0][0]), true);
+    assert_eq!(float_equal(a.m[0][1], a2.m[0][1]), true);
+    assert_eq!(float_equal(a.m[0][2], a2.m[0][2]), true);
+    assert_eq!(float_equal(a.m[0][3], a2.m[0][3]), true);
+
+    assert_eq!(float_equal(a.m[1][0], a2.m[1][0]), true);
+    assert_eq!(float_equal(a.m[1][1], a2.m[1][1]), true);
+    assert_eq!(float_equal(a.m[1][2], a2.m[1][2]), true);
+    assert_eq!(float_equal(a.m[1][3], a2.m[1][3]), true);
+
+    assert_eq!(float_equal(a.m[2][0], a2.m[2][0]), true);
+    assert_eq!(float_equal(a.m[2][1], a2.m[2][1]), true);
+    assert_eq!(float_equal(a.m[2][2], a2.m[2][2]), true);
+    assert_eq!(float_equal(a.m[2][3], a2.m[2][3]), true);
+
+    assert_eq!(float_equal(a.m[3][0], a2.m[3][0]), true);
+    assert_eq!(float_equal(a.m[3][1], a2.m[3][1]), true);
+    assert_eq!(float_equal(a.m[3][2], a2.m[3][2]), true);
+    assert_eq!(float_equal(a.m[3][3], a2.m[3][3]), true);
+}
+
+
+#[test]
+fn test_matrix_transformation() {
+    let transform = Matrix::transformation(5.0, -3.0, 2.0);
+    let p = Tuple4D::new_point(-3.0, 4.0, 5.0);
+
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, 2.0), true);
+    assert_eq!(float_equal(p_transformed.y, 1.0), true);
+    assert_eq!(float_equal(p_transformed.z, 7.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+}
+
+
+#[test]
+fn test_matrix_transformation_invert() {
+    let transform = Matrix::transformation(5.0, -3.0, 2.0);
+    let inv = Matrix::invert(&transform).unwrap();
+
+    let p = Tuple4D::new_point(-3.0, 4.0, 5.0);
+
+    let p_transformed = &inv * &p;
+
+    assert_eq!(float_equal(p_transformed.x, -8.0), true);
+    assert_eq!(float_equal(p_transformed.y, 7.0), true);
+    assert_eq!(float_equal(p_transformed.z, 3.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+}
+
+#[test]
+fn test_matrix_transformation_vector() {
+    let transform = Matrix::transformation(5.0, -3.0, 2.0);
+    let v = Tuple4D::new_vector(-3.0, 4.0, 5.0);
+
+    let v_transformed = &transform * &v;
+
+    assert_eq!(float_equal(v_transformed.x, v.x), true);
+    assert_eq!(float_equal(v_transformed.y, v.y), true);
+    assert_eq!(float_equal(v_transformed.z, v.z), true);
+    assert_eq!(Tuple4D::is_vector(&v_transformed), true);
+}
+
+
+#[test]
+fn test_matrix_scale_point() {
+    let transform = Matrix::scale(2.0, 3.0, 4.0);
+    let p = Tuple4D::new_point(-4.0, 6.0, 8.0);
+
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, -8.0), true);
+    assert_eq!(float_equal(p_transformed.y, 18.0), true);
+    assert_eq!(float_equal(p_transformed.z, 32.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+}
+
+#[test]
+fn test_matrix_scale_vector() {
+    let transform = Matrix::scale(2.0, 3.0, 4.0);
+    let v = Tuple4D::new_point(-4.0, 6.0, 8.0);
+
+    let v_transformed = &transform * &v;
+
+    assert_eq!(float_equal(v_transformed.x, -8.0), true);
+    assert_eq!(float_equal(v_transformed.y, 18.0), true);
+    assert_eq!(float_equal(v_transformed.z, 32.0), true);
+    assert_eq!(Tuple4D::is_point(&v_transformed), true);
+}
+
+#[test]
+fn test_matrix_scale_vector_invert() {
+    let transform = Matrix::scale(2.0, 3.0, 4.0);
+    let inv = Matrix::invert(&transform).unwrap();
+
+    let v = Tuple4D::new_vector(-4.0, 6.0, 8.0);
+
+    let v_transformed = &inv * &v;
+
+    assert_eq!(float_equal(v_transformed.x, -2.0), true);
+    assert_eq!(float_equal(v_transformed.y, 2.0), true);
+    assert_eq!(float_equal(v_transformed.z, 2.0), true);
+    assert_eq!(Tuple4D::is_vector(&v_transformed), true);
+}
+
+#[test]
+fn test_matrix_scale_vector_reflection() {
+    let transform = Matrix::scale(-1.0, 1.0, 1.0);
+    let p = Tuple4D::new_point(2.0, 3.0, 4.0);
+
+    let p_transformed = &transform * &p;
+
+    assert_eq!(float_equal(p_transformed.x, -2.0), true);
+    assert_eq!(float_equal(p_transformed.y, 3.0), true);
+    assert_eq!(float_equal(p_transformed.z, 4.0), true);
+    assert_eq!(Tuple4D::is_point(&p_transformed), true);
+}
+
+
 
