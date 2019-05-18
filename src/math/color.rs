@@ -9,7 +9,6 @@ pub struct Color {
     b: f32,
 }
 
-
 pub trait ColorOps {
     fn new(r: f32, g: f32, b: f32) -> Color;
 }
