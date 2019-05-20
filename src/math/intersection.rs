@@ -3,21 +3,26 @@ use std::io::{Error, Write};
 
 use crate::math::color::Color;
 use crate::math::color::ColorOps;
+use crate::math::common::assert_float;
 use crate::math::commonshape::CommonShape;
+use crate::math::ray::Ray;
+use crate::math::ray::RayOps;
 use crate::math::sphere::Sphere;
 use crate::math::sphere::SphereOps;
+use crate::math::tuple4d::Tuple;
+use crate::math::tuple4d::Tuple4D;
 
 pub struct Intersection<'a> {
     t: f32,
     obj: &'a CommonShape,
 }
 
-pub struct IntersectionList<'a> {
-    l: Vec<Intersection<'a>>,
-}
-
 pub trait IntersectionOps<'a> {
     fn new(t: f32, obj: &CommonShape) -> Intersection;
+    fn intersect(obj: &'a CommonShape, r: &Ray) -> IntersectionList<'a>;
+
+    fn get_t(&self) -> f32;
+    fn get_obj(&self) -> &'a CommonShape;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
@@ -27,6 +32,38 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             obj,
         }
     }
+
+    fn intersect(obj: &'a CommonShape, r: &Ray) -> IntersectionList<'a> {
+        let mut intersection_list = IntersectionList::new();
+        let res = match obj {
+            CommonShape::Sphere(ref s) => {
+                let res = Sphere::intersect(s, r);
+                match res {
+                    Some(r) => {
+                        let i1 = Intersection::new(r[0], obj);
+                        let i2 = Intersection::new(r[1], obj);
+                        intersection_list.add(i1);
+                        intersection_list.add(i2);
+                    }
+                    None => {}
+                }
+                intersection_list
+            }
+        };
+        res
+    }
+
+    fn get_t(&self) -> f32 {
+        self.t
+    }
+
+    fn get_obj(&self) -> &'a CommonShape {
+        self.obj
+    }
+}
+
+pub struct IntersectionList<'a> {
+    l: Vec<Intersection<'a>>,
 }
 
 pub trait IntersectionListOps<'a> {
@@ -34,6 +71,8 @@ pub trait IntersectionListOps<'a> {
     fn add(&mut self, i: Intersection<'a>);
 
     fn hit(&self) -> Option<&Intersection<'a>>;
+
+    fn get_intersections(&self) -> &Vec<Intersection<'a>>;
 }
 
 impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
@@ -50,6 +89,10 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
 
     fn hit(&self) -> Option<&Intersection<'a>> {
         self.l.iter().find(|&i| i.t >= 0.0)
+    }
+
+    fn get_intersections(&self) -> &Vec<Intersection<'a>> {
+        &self.l
     }
 }
 
@@ -177,4 +220,19 @@ fn test_intersection_hit_from_list() {
     let i = il.hit().unwrap();
 
     assert_eq!(i.t, 2.0);
+}
+
+
+#[test]
+fn test_intersect() {
+    let o = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(o, d);
+
+    let s = Sphere::new();
+    let o = CommonShape::Sphere(s);
+
+    let i = Intersection::intersect(&o, &r);
+    let intersections = i.get_intersections();
+    assert_eq!(intersections.len(), 2);
 }

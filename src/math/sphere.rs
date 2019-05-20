@@ -1,7 +1,10 @@
 use std::f32::consts::PI;
 use std::ops::Mul;
 
-use crate::math::common::{assert_matrices, float_equal};
+use crate::math::common::{assert_float, assert_matrices, float_equal};
+use crate::math::commonshape::CommonShape;
+use crate::math::intersection::{Intersection, IntersectionListOps};
+use crate::math::intersection::IntersectionOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::ray::Ray;
@@ -129,6 +132,7 @@ fn test_ray_sphere_intersection_sphere_behind_origin() {
     assert_eq!(float_equal(intersections[1], -4.0), true);
 }
 
+
 #[test]
 fn test_sphere_transformation() {
     let mut s = Sphere::new();
@@ -139,5 +143,51 @@ fn test_sphere_transformation() {
     let m = Matrix::translation(2.0, 3.0, 4.0);
 
     assert_matrices(&s.transformation_matrix, &m);
+}
+
+
+#[test]
+fn test_sphere_scale() {
+    let o = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(o, d);
+
+    let mut s = Sphere::new();
+    let m = Matrix::scale(2.0, 2.0, 2.0);
+    s.set_transformation(m);
+
+    let sphere_shape = CommonShape::Sphere(s);
+    let is = Intersection::intersect(&sphere_shape, &r);
+
+    let intersections = is.get_intersections();
+
+    assert_eq!(intersections.len(), 2);
+
+    println!("intersections[0].get_t() {}", intersections[0].get_t());
+    println!("intersections[1].get_t() {}", intersections[1].get_t());
+    assert_float(intersections[0].get_t(), 3.0);
+    assert_float(intersections[1].get_t(), 7.0);
+
+}
+
+
+#[test]
+fn test_sphere_translated() {
+    let o = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(o, d);
+
+    let mut s = Sphere::new();
+    let m = Matrix::translation(5.0, 0.0, 0.0);
+    s.set_transformation(m);
+
+    let sphere_shape = CommonShape::Sphere(s);
+    let is = Intersection::intersect(&sphere_shape, &r);
+
+    let intersections = is.get_intersections();
+    println!("intersections[0].get_t() {}", intersections[0].get_t());
+    println!("intersections[1].get_t() {}", intersections[1].get_t());
+
+    assert_eq!(intersections.len(), 0);
 }
 
