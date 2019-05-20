@@ -1,22 +1,32 @@
 use std::f32::consts::PI;
 use std::ops::Mul;
 
-use crate::math::common::float_equal;
+use crate::math::common::{assert_matrices, float_equal};
+use crate::math::matrix::Matrix;
+use crate::math::matrix::MatrixOps;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-pub struct Sphere {}
+pub struct Sphere {
+    transformation_matrix: Matrix,
+    inverse_transformation_matrix: Matrix,
+}
 
 pub trait SphereOps {
     fn new() -> Sphere;
     fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f32>>;
+
+    fn set_transformation(&mut self, m: Matrix);
 }
 
 impl SphereOps for Sphere {
     fn new() -> Sphere {
-        Sphere {}
+        Sphere {
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+        }
     }
 
     fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f32>> {
@@ -36,6 +46,11 @@ impl SphereOps for Sphere {
         res.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
         Some(res)
+    }
+
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
+        self.transformation_matrix = m;
     }
 }
 
@@ -112,5 +127,17 @@ fn test_ray_sphere_intersection_sphere_behind_origin() {
 
     assert_eq!(float_equal(intersections[0], -6.0), true);
     assert_eq!(float_equal(intersections[1], -4.0), true);
+}
+
+#[test]
+fn test_sphere_transformation() {
+    let mut s = Sphere::new();
+    let m = Matrix::translation(2.0, 3.0, 4.0);
+
+    s.set_transformation(m);
+
+    let m = Matrix::translation(2.0, 3.0, 4.0);
+
+    assert_matrices(&s.transformation_matrix, &m);
 }
 

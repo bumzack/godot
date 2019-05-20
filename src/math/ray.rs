@@ -1,7 +1,10 @@
 use std::f32::consts::PI;
 use std::ops::Mul;
 
+use crate::math::common::assert_tuple;
 use crate::math::common::float_equal;
+use crate::math::matrix::Matrix;
+use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
@@ -14,6 +17,7 @@ pub struct Ray {
 pub trait RayOps {
     fn new(origin: Tuple4D, direction: Tuple4D) -> Ray;
     fn position(r: &Ray, t: f32) -> Tuple4D;
+    fn transform(r: &Ray, m: &Matrix) -> Ray;
 }
 
 impl RayOps for Ray {
@@ -28,6 +32,12 @@ impl RayOps for Ray {
 
     fn position(r: &Ray, t: f32) -> Tuple4D {
         &r.origin + &(&r.direction * t)
+    }
+
+    fn transform(r: &Ray, m: &Matrix) -> Ray {
+        let o_transformed = m * &r.origin;
+        let d_transformed = m * &r.direction;
+        Ray::new(o_transformed, d_transformed)
     }
 }
 
@@ -85,6 +95,41 @@ fn test_ray_position() {
     assert_eq!(float_equal(p4.z, 4.0), true);
 }
 
+
+#[test]
+fn test_ray_translation() {
+    let o = Tuple4D::new_point(1.0, 2.0, 3.0);
+    let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    let r = Ray::new(o, d);
+
+    let m = Matrix::translation(3.0, 4.0, 5.0);
+
+    let r2 = Ray::transform(&r, &m);
+
+    let o_expected = Tuple4D::new_point(4.0, 6.0, 8.0);
+    let d_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+    assert_tuple (&r2.origin, &o_expected);
+    assert_tuple (&r2.direction, &d_expected);
+}
+
+
+#[test]
+fn test_ray_rotation() {
+    let o = Tuple4D::new_point(1.0, 2.0, 3.0);
+    let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    let r = Ray::new(o, d);
+
+    let m = Matrix::scale(2.0, 3.0, 4.0);
+
+    let r2 = Ray::transform(&r, &m);
+
+    let o_expected = Tuple4D::new_point(2.0, 6.0, 12.0);
+    let d_expected = Tuple4D::new_vector(0.0, 3.0, 0.0);
+
+    assert_tuple (&r2.origin, &o_expected);
+    assert_tuple (&r2.direction, &d_expected);
+}
 
 
 
