@@ -37,7 +37,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut intersection_list = IntersectionList::new();
         let res = match obj {
             CommonShape::Sphere(ref s) => {
-                let res = Sphere::intersect(s, r);
+                let r2 = Ray::transform(r, s.get_inverse_transformation());
+                let res = Sphere::intersect(s, &r2);
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], obj);

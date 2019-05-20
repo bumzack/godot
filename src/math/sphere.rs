@@ -22,6 +22,9 @@ pub trait SphereOps {
     fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f32>>;
 
     fn set_transformation(&mut self, m: Matrix);
+    fn get_transformation(&self) -> &Matrix;
+    fn get_inverse_transformation(&self) -> &Matrix;
+
 }
 
 impl SphereOps for Sphere {
@@ -54,6 +57,13 @@ impl SphereOps for Sphere {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
         self.transformation_matrix = m;
+    }
+
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
+    fn get_inverse_transformation(&self) -> &Matrix{
+        &self.inverse_transformation_matrix
     }
 }
 
@@ -167,7 +177,6 @@ fn test_sphere_scale() {
     println!("intersections[1].get_t() {}", intersections[1].get_t());
     assert_float(intersections[0].get_t(), 3.0);
     assert_float(intersections[1].get_t(), 7.0);
-
 }
 
 
@@ -185,9 +194,6 @@ fn test_sphere_translated() {
     let is = Intersection::intersect(&sphere_shape, &r);
 
     let intersections = is.get_intersections();
-    println!("intersections[0].get_t() {}", intersections[0].get_t());
-    println!("intersections[1].get_t() {}", intersections[1].get_t());
-
     assert_eq!(intersections.len(), 0);
 }
 
