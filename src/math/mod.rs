@@ -7,3 +7,5 @@ pub mod ray;
 pub mod sphere;
 pub mod intersection;
 pub mod commonshape;
+pub mod scene;
+pub mod light;

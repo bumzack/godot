@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use std::ops::Mul;
 
-use crate::math::common::{assert_float, assert_matrices, float_equal};
+use crate::math::common::{assert_float, assert_matrices, assert_tuple, float_equal};
 use crate::math::commonshape::CommonShape;
 use crate::math::intersection::{Intersection, IntersectionListOps};
 use crate::math::intersection::IntersectionOps;
@@ -12,7 +12,7 @@ use crate::math::ray::RayOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
@@ -26,6 +26,7 @@ pub trait SphereOps {
     fn get_transformation(&self) -> &Matrix;
     fn get_inverse_transformation(&self) -> &Matrix;
 
+    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
 }
 
 impl SphereOps for Sphere {
@@ -63,8 +64,12 @@ impl SphereOps for Sphere {
     fn get_transformation(&self) -> &Matrix {
         &self.transformation_matrix
     }
-    fn get_inverse_transformation(&self) -> &Matrix{
+    fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
+    }
+
+    fn normal_at(&self, p: &Tuple4D) -> Tuple4D {
+        Tuple4D::normalize(&(p - &Tuple4D::new_point(0.0, 0.0, 0.0)))
     }
 }
 
@@ -196,5 +201,34 @@ fn test_sphere_translated() {
 
     let intersections = is.get_intersections();
     assert_eq!(intersections.len(), 0);
+}
+
+
+#[test]
+fn test_sphere_normal_at() {
+    let s = Sphere::new();
+
+    let p = Tuple4D::new_point(1.0, 0.0, 0.0);
+    let n = s.normal_at(&p);
+    let n_expected = Tuple4D::new_point(1.0, 0.0, 0.0);
+    assert_tuple(&n, &p);
+
+    let p = Tuple4D::new_point(0.0, 1.0, 0.0);
+    let n = s.normal_at(&p);
+    assert_tuple(&n, &p);
+
+    let p = Tuple4D::new_point(0.0, 0.0, 1.0);
+    let n = s.normal_at(&p);
+    assert_tuple(&n, &p);
+
+    let a = 3_f32.sqrt() / 3.0;
+    let p = Tuple4D::new_point(a, a, a);
+    let n = s.normal_at(&p);
+    assert_tuple(&n, &p);
+
+    let a = 3_f32.sqrt() / 3.0;
+    let p = Tuple4D::new_point(a, a, a);
+    let n = Tuple4D::normalize(&s.normal_at(&p));
+    assert_tuple(&n, &p);
 }
 
