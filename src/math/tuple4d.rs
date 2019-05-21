@@ -1,6 +1,9 @@
+use std::f32::consts::SQRT_2;
 use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 
 use crate::math::common::{assert_tuple, float_equal};
+
+pub const ORIGIN: Tuple4D = Tuple4D { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
 
 #[derive(Clone, Debug)]
 pub struct Tuple4D {
@@ -51,19 +54,19 @@ impl Tuple for Tuple4D {
 
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D {
         Tuple4D {
-            x: x,
-            y: y,
-            z: z,
+             x,
+             y,
+             z,
             w: 1.0,
         }
     }
 
     fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D {
         Tuple4D {
-            x: x,
-            y: y,
-            z: z,
-            w: w,
+            x,
+             y,
+             z,
+             w,
         }
     }
 
@@ -422,6 +425,18 @@ fn test_tuple_reflecting_45() {
     let r = Tuple4D::reflect(&v, &n);
 
     let r_expected = Tuple4D::new_vector(1., 1., 0.);
+
+    assert_tuple(&r, &r_expected);
+}
+
+#[test]
+fn test_tuple_reflecting() {
+    let v = Tuple4D::new_vector(0.0, -1.0, 0.);
+    let n = Tuple4D::new_vector(SQRT_2 / 2.0, SQRT_2 / 2.0, 0.);
+
+    let r = Tuple4D::reflect(&v, &n);
+
+    let r_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
 
     assert_tuple(&r, &r_expected);
 }

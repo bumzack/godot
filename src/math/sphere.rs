@@ -5,17 +5,20 @@ use crate::math::common::{assert_float, assert_matrices, assert_tuple, float_equ
 use crate::math::commonshape::CommonShape;
 use crate::math::intersection::{Intersection, IntersectionListOps};
 use crate::math::intersection::IntersectionOps;
+use crate::math::material::Material;
+use crate::math::material::MaterialOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;
-use crate::math::tuple4d::Tuple;
+use crate::math::tuple4d::{ORIGIN, Tuple};
 use crate::math::tuple4d::Tuple4D;
 
 #[derive(Clone, Debug)]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
+    material: Material,
 }
 
 pub trait SphereOps {
@@ -27,6 +30,9 @@ pub trait SphereOps {
     fn get_inverse_transformation(&self) -> &Matrix;
 
     fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
+
+    fn set_material(&mut self, m: Material);
+    fn get_material(&self)->&Material;
 }
 
 impl SphereOps for Sphere {
@@ -34,11 +40,12 @@ impl SphereOps for Sphere {
         Sphere {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            material: Material::new(),
         }
     }
 
     fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f32>> {
-        let sphere_to_ray = &r.origin - &Tuple4D::new_point(0.0, 0.0, 0.0);
+        let sphere_to_ray = &r.origin - &ORIGIN;
         let a = &r.direction ^ &r.direction;
         let b = 2.0 * (&r.direction ^ &sphere_to_ray);
         let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
@@ -70,10 +77,18 @@ impl SphereOps for Sphere {
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
         let p_object = &self.inverse_transformation_matrix * world_point;
-        let object_normal = &(p_object - Tuple4D::new_point(0.0, 0.0, 0.0));
+        let object_normal = &(p_object - ORIGIN);
         let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
+    }
+
+    fn set_material(&mut self, m: Material) {
+        self.material = m;
+    }
+
+    fn get_material(&self) -> &Material {
+        &self.material
     }
 }
 
@@ -249,7 +264,7 @@ fn test_sphere_normal_at_transformed() {
     let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
     let n = s.normal_at(&p);
     let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
-    println!("test_sphere_normal_at_transformed    n = {:#?}, n_expected = {:#?}",n,n_expected);
+    println!("test_sphere_normal_at_transformed    n = {:#?}, n_expected = {:#?}", n, n_expected);
     assert_tuple(&n, &n_expected);
 }
 

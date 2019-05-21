@@ -1,11 +1,14 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use crate::math::common::float_equal;
+use crate::math::common::{assert_color, float_equal};
 
-#[derive(Clone,Debug)]
+pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
+pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
+
+#[derive(Clone, Debug)]
 pub struct Color {
-    pub  r: f32,
-    pub  g: f32,
+    pub r: f32,
+    pub g: f32,
     pub b: f32,
 }
 
@@ -71,6 +74,30 @@ impl Mul<f32> for Color {
     }
 }
 
+impl<'a> Mul<f32> for &'a Color {
+    type Output = Color;
+
+    fn mul(self, rhs: f32) -> Color {
+        Color {
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
+        }
+    }
+}
+
+impl<'a, 'b> Mul<&'b Color> for &'a Color {
+    type Output = Color;
+
+    fn mul(self, rhs: &'b Color) -> Color {
+        Color {
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+        }
+    }
+}
+
 impl Div<f32> for Color {
     type Output = Color;
 
@@ -101,9 +128,12 @@ fn test_sub_color() {
     let c2 = Color::new(0.7, 0.1, 0.25);
     let c = c1 - c2;
 
-    assert_eq!(float_equal(c.r, 0.2), true);
-    assert_eq!(float_equal(c.g, 0.5), true);
-    assert_eq!(float_equal(c.b, 0.5), true);
+    let c_expected = Color::new(0.2, 0.5, 0.5);
+    assert_color(&c, &c_expected);
+
+//    assert_eq!(float_equal(c.r, 0.2), true);
+//    assert_eq!(float_equal(c.g, 0.5), true);
+//    assert_eq!(float_equal(c.b, 0.5), true);
 }
 
 #[test]
@@ -111,9 +141,12 @@ fn test_mul_color_scalar() {
     let c1 = Color::new(0.2, 0.3, 0.4);
     let c = c1 * 2.;
 
-    assert_eq!(float_equal(c.r, 0.4), true);
-    assert_eq!(float_equal(c.g, 0.6), true);
-    assert_eq!(float_equal(c.b, 0.8), true);
+    let c_expected = Color::new(0.4, 0.6, 0.8);
+    assert_color(&c, &c_expected);
+
+//    assert_eq!(float_equal(c.r, 0.4), true);
+//    assert_eq!(float_equal(c.g, 0.6), true);
+//    assert_eq!(float_equal(c.b, 0.8), true);
 }
 
 #[test]
@@ -122,8 +155,12 @@ fn test_mul_color_color() {
     let c2 = Color::new(0.9, 1.0, 0.1);
     let c = c1 * c2;
 
-    assert_eq!(float_equal(c.r, 0.9), true);
-    assert_eq!(float_equal(c.g, 0.2), true);
-    assert_eq!(float_equal(c.b, 0.04), true);
+    let c_expected = Color::new(0.9, 0.2, 0.04);
+    assert_color(&c, &c_expected);
+
+
+//    assert_eq!(float_equal(c.r, 0.9), true);
+//    assert_eq!(float_equal(c.g, 0.2), true);
+//    assert_eq!(float_equal(c.b, 0.04), true);
 }
 

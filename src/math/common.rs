@@ -1,3 +1,4 @@
+use crate::math::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::{Tuple, Tuple4D};
 
@@ -38,6 +39,12 @@ pub fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
     assert_eq!(float_equal(actual.y, expected.y), true);
     assert_eq!(float_equal(actual.z, expected.z), true);
     assert_eq!(float_equal(actual.w, expected.w), true);
+}
+
+pub fn assert_color(actual: &Color, expected: &Color) {
+    assert_eq!(float_equal(actual.r, expected.r), true);
+    assert_eq!(float_equal(actual.g, expected.g), true);
+    assert_eq!(float_equal(actual.b, expected.b), true);
 }
 
 pub fn assert_float(actual: f32, expected: f32) {

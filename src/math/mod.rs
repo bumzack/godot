@@ -9,3 +9,4 @@ pub mod intersection;
 pub mod commonshape;
 pub mod scene;
 pub mod light;
+pub mod material;

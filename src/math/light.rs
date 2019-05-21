@@ -6,25 +6,24 @@ use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
 #[derive(Clone, Debug)]
-pub struct Light {
-    position: Tuple4D,
-    direction: Tuple4D,
-    color: Color,
+pub struct PointLight {
+    pub  position: Tuple4D,
+    pub  intensitiy: Color,
 }
 
 pub trait LightOps {
-    fn new(position: Tuple4D, direction: Tuple4D, color: Color) -> Light;
+    fn new(position: Tuple4D, intensitiy: Color) -> PointLight;
 }
 
-impl LightOps for Light {
-    fn new(position: Tuple4D, direction: Tuple4D, color: Color) -> Light {
-        Light {
+impl LightOps for PointLight {
+    fn new(position: Tuple4D, intensitiy: Color) -> PointLight {
+        PointLight {
             position,
-            direction,
-            color,
+            intensitiy,
         }
     }
 }
+
 
 
 
