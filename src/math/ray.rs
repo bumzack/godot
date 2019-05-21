@@ -8,11 +8,11 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
+#[derive(Clone,Debug)]
 pub struct Ray {
     pub origin: Tuple4D,
     pub direction: Tuple4D,
 }
-
 
 pub trait RayOps {
     fn new(origin: Tuple4D, direction: Tuple4D) -> Ray;

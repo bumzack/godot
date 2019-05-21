@@ -37,8 +37,14 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut intersection_list = IntersectionList::new();
         let res = match obj {
             CommonShape::Sphere(ref s) => {
+
+                //TODO: this soooo important here to inverse the ray ...
+
+                // TODO: refactor the shit out of this
                 let r2 = Ray::transform(r, s.get_inverse_transformation());
                 let res = Sphere::intersect(s, &r2);
+                // println!("intersect: ray = {:#?}, sphere = {:#?}", r, s);
+
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], obj);

@@ -5,12 +5,12 @@ use crate::math::common::float_equal;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
+#[derive(Clone,Debug)]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
     pub  m: Vec<Vec<f32>>,
 }
-
 
 pub trait MatrixOps {
     fn new(row: usize, col: usize) -> Matrix;
