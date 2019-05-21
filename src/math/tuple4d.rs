@@ -1,6 +1,6 @@
 use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 
-use crate::math::common::float_equal;
+use crate::math::common::{assert_tuple, float_equal};
 
 #[derive(Clone, Debug)]
 pub struct Tuple4D {
@@ -21,6 +21,8 @@ pub trait Tuple {
 
     fn is_point(a: &Tuple4D) -> bool;
     fn is_vector(a: &Tuple4D) -> bool;
+
+    fn reflect(v: &Tuple4D, n: &Tuple4D) -> Tuple4D;
 }
 
 impl Tuple for Tuple4D {
@@ -80,6 +82,10 @@ impl Tuple for Tuple4D {
 
     fn is_vector(a: &Tuple4D) -> bool {
         a.w == 0.0
+    }
+
+    fn reflect(v: &Tuple4D, n: &Tuple4D) -> Tuple4D {
+        v - &((n * 2.0) * (v ^ n))
     }
 }
 
@@ -406,3 +412,17 @@ fn test_cross_product() {
     assert_eq!(c.y, -2.0);
     assert_eq!(c.z, 1.0);
 }
+
+
+#[test]
+fn test_tuple_reflecting_45() {
+    let v = Tuple4D::new_vector(1., -1., 0.);
+    let n = Tuple4D::new_vector(0., 1., 0.);
+
+    let r = Tuple4D::reflect(&v, &n);
+
+    let r_expected = Tuple4D::new_vector(1., 1., 0.);
+
+    assert_tuple(&r, &r_expected);
+}
+
