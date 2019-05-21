@@ -1,11 +1,11 @@
-use std::f32::consts::PI;
+use std::f32::consts::{PI, SQRT_2};
 use std::ops::Mul;
 
-use crate::math::common::float_equal;
+use crate::math::common::{assert_tuple, float_equal};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
@@ -988,7 +988,9 @@ fn test_matrix_rotation_x_invert() {
 
     let half = &inv * &p;
 
-    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+    let sqrt2_half = SQRT_2 / 2.0;
+    let expected = Tuple4D::new_point(0.0, sqrt2_half, -sqrt2_half);
+    assert_tuple(&half, &expected);
 
     assert_eq!(float_equal(half.x, 0.0), true);
     assert_eq!(float_equal(half.y, sqrt2_half), true);
@@ -1006,12 +1008,18 @@ fn test_matrix_rotation_y() {
     let half = &half_quarter * &p;
     let full = &full_quarter * &p;
 
-    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+    let sqrt2_half = SQRT_2 / 2.0;
+
+    let half_expected = Tuple4D::new_point( sqrt2_half, 0.0,sqrt2_half);
+    assert_tuple(&half, &half_expected);
 
     assert_eq!(float_equal(half.x, sqrt2_half), true);
     assert_eq!(float_equal(half.y, 0.0), true);
     assert_eq!(float_equal(half.z, sqrt2_half), true);
     assert_eq!(Tuple4D::is_point(&half), true);
+
+    let full_expected = Tuple4D::new_point( 1.0, 0.0,0.0);
+    assert_tuple(&full, &full_expected);
 
     assert_eq!(float_equal(full.x, 1.0), true);
     assert_eq!(float_equal(full.y, 0.0), true);
@@ -1029,12 +1037,18 @@ fn test_matrix_rotation_z() {
     let half = &half_quarter * &p;
     let full = &full_quarter * &p;
 
-    let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+    let sqrt2_half = SQRT_2 / 2.0;
+
+    let half_expected = Tuple4D::new_point( -sqrt2_half, sqrt2_half,0.0);
+    assert_tuple(&half, &half_expected);
 
     assert_eq!(float_equal(half.x, -sqrt2_half), true);
     assert_eq!(float_equal(half.y, sqrt2_half), true);
     assert_eq!(float_equal(half.z, 0.0), true);
     assert_eq!(Tuple4D::is_point(&half), true);
+
+    let full_expected = Tuple4D::new_point( -1.0, 0.0,0.0);
+    assert_tuple(&full, &full_expected);
 
     assert_eq!(float_equal(full.x, -1.0), true);
     assert_eq!(float_equal(full.y, 0.0), true);

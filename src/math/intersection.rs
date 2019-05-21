@@ -1,9 +1,6 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
-use crate::math::color::Color;
-use crate::math::color::ColorOps;
-use crate::math::common::assert_float;
 use crate::math::commonshape::CommonShape;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;

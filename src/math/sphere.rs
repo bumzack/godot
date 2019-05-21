@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 use std::ops::Mul;
 
 use crate::math::common::{assert_float, assert_matrices, assert_tuple, float_equal};
@@ -68,8 +68,12 @@ impl SphereOps for Sphere {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D {
-        Tuple4D::normalize(&(p - &Tuple4D::new_point(0.0, 0.0, 0.0)))
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        let p_object = &self.inverse_transformation_matrix * world_point;
+        let object_normal = &(p_object - Tuple4D::new_point(0.0, 0.0, 0.0));
+        let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * object_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
     }
 }
 
@@ -210,25 +214,55 @@ fn test_sphere_normal_at() {
 
     let p = Tuple4D::new_point(1.0, 0.0, 0.0);
     let n = s.normal_at(&p);
-    let n_expected = Tuple4D::new_point(1.0, 0.0, 0.0);
-    assert_tuple(&n, &p);
+    let n_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
+    assert_tuple(&n, &n_expected);
 
     let p = Tuple4D::new_point(0.0, 1.0, 0.0);
     let n = s.normal_at(&p);
-    assert_tuple(&n, &p);
+    let n_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    assert_tuple(&n, &n_expected);
 
     let p = Tuple4D::new_point(0.0, 0.0, 1.0);
     let n = s.normal_at(&p);
-    assert_tuple(&n, &p);
+    let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    assert_tuple(&n, &n_expected);
 
     let a = 3_f32.sqrt() / 3.0;
     let p = Tuple4D::new_point(a, a, a);
     let n = s.normal_at(&p);
-    assert_tuple(&n, &p);
+    let n_expected = Tuple4D::new_vector(a, a, a);
+    assert_tuple(&n, &n_expected);
 
     let a = 3_f32.sqrt() / 3.0;
     let p = Tuple4D::new_point(a, a, a);
     let n = Tuple4D::normalize(&s.normal_at(&p));
-    assert_tuple(&n, &p);
+    let n_expected = Tuple4D::new_vector(a, a, a);
+    assert_tuple(&n, &n_expected);
+}
+
+
+#[test]
+fn test_sphere_normal_at_transformed() {
+    let mut s = Sphere::new();
+    s.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
+
+    let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
+    let n = s.normal_at(&p);
+    let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
+    println!("test_sphere_normal_at_transformed    n = {:#?}, n_expected = {:#?}",n,n_expected);
+    assert_tuple(&n, &n_expected);
+}
+
+
+#[test]
+fn test_sphere_normal_at_scaled_rotated() {
+    let mut s = Sphere::new();
+    s.set_transformation(Matrix::scale(1.0, 0.5, 1.0) * Matrix::rotate_z(PI / 5.0));
+
+    let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
+    let n = s.normal_at(&p);
+    let n_expected = Tuple4D::new_vector(0.0, 0.97014, -0.24254);
+    println!("test_sphere_normal_at_scaled_rotated    n = {:#?}, n_expected = {:#?}", n, n_expected);
+    assert_tuple(&n, &n_expected);
 }
 

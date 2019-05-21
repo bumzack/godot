@@ -1,5 +1,4 @@
-use std::fs::File;
-use std::io::{Error, Write};
+use std::io::Error;
 
 use crate::math::canvas::{Canvas, CanvasOps};
 use crate::math::color::Color;
