@@ -4,6 +4,7 @@ use std::io::{Error, Write};
 use crate::math::color::Color;
 use crate::math::color::ColorOps;
 
+#[derive(Clone, Debug)]
 pub struct Canvas {
     width: usize,
     height: usize,

@@ -1,0 +1,6 @@
+das &mut Camera in
+    -) fn ray_for_pixel(c: &mut Camera, x: usize, y: usize) -> Ray;
+    -) fn render(c: &mut Camera, w: &World) -> Canvas;
+
+    entfernen und das calc_pixel im Konstruktor aufrufen
+
