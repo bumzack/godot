@@ -31,7 +31,8 @@ pub trait SphereOps {
     fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
 
     fn set_material(&mut self, m: Material);
-    fn get_material(&self)->&Material;
+    fn get_material(&self) -> &Material;
+    fn get_material_mut(&mut self) -> &mut Material;
 }
 
 impl SphereOps for Sphere {
@@ -75,8 +76,8 @@ impl SphereOps for Sphere {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let p_shape= &self.inverse_transformation_matrix * world_point;
-        let object_normal = &(p_shape- ORIGIN);
+        let p_shape = &self.inverse_transformation_matrix * world_point;
+        let object_normal = &(p_shape - ORIGIN);
         let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
@@ -88,6 +89,10 @@ impl SphereOps for Sphere {
 
     fn get_material(&self) -> &Material {
         &self.material
+    }
+
+    fn get_material_mut(&mut self) -> &mut Material {
+        &mut self.material
     }
 }
 

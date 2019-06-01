@@ -54,9 +54,9 @@ impl Tuple for Tuple4D {
 
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D {
         Tuple4D {
-             x,
-             y,
-             z,
+            x,
+            y,
+            z,
             w: 1.0,
         }
     }
@@ -64,9 +64,9 @@ impl Tuple for Tuple4D {
     fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D {
         Tuple4D {
             x,
-             y,
-             z,
-             w,
+            y,
+            z,
+            w,
         }
     }
 
@@ -209,6 +209,15 @@ impl Mul for Tuple4D {
     }
 }
 
+impl<'a, 'b> Mul<&'b Tuple4D> for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn mul(self, rhs: &'b Tuple4D) -> Tuple4D {
+        Tuple4D::new_vector(self.y * rhs.z - self.z * rhs.y,
+                            self.z * rhs.x - self.x * rhs.z,
+                            self.x * rhs.y - self.y * rhs.x)
+    }
+}
 
 // a ^ b
 impl BitXor for Tuple4D {

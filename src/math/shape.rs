@@ -20,5 +20,12 @@ impl Shape {
         };
         res
     }
+
+   pub fn get_material_mut(&mut self) -> &mut Material {
+        let res = match self {
+            Shape::Sphere(ref mut s) => { s.get_material_mut() }
+        };
+        res
+    }
 }
 

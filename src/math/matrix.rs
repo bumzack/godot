@@ -43,6 +43,8 @@ pub trait MatrixOps {
     fn rotate_x(rad: f32) -> Matrix;
     fn rotate_y(rad: f32) -> Matrix;
     fn rotate_z(rad: f32) -> Matrix;
+
+    fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix;
 }
 
 impl MatrixOps for Matrix {
@@ -293,6 +295,18 @@ impl MatrixOps for Matrix {
         m.m[1][1] = rad.cos();
 
         m
+    }
+
+    fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix {
+        let forward = Tuple4D::normalize(&(to - from));
+        let left = &forward * &Tuple4D::normalize(up);
+        let true_up = &left * &forward;
+
+        let orientation = Matrix::new_matrix_4x4(left.x, left.y, left.z, 0.0,
+                                                 true_up.x, true_up.y, true_up.z, 0.0,
+                                                 -forward.x, -forward.y, -forward.z, 0.0,
+                                                 0.0, 0.0, 0.0, 1.0);
+        orientation * Matrix::translation(-from.x, -from.y, -from.z)
     }
 }
 
@@ -1179,8 +1193,59 @@ fn test_matrix_transformation_chained() {
 }
 
 
+#[test]
+fn test_matrix_view_transform_default_direction() {
+    let from = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let to = Tuple4D::new_point(0.0, 0.0, -1.0);
+    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+    let v = Matrix::view_transform(&from, &to, &up);
+    let v_expected = Matrix::new_identity_4x4();
+
+    assert_matrices(&v, &v_expected);
+}
 
 
+#[test]
+fn test_matrix_view_transform_positive_z_direction() {
+    let from = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let to = Tuple4D::new_point(0.0, 0.0, 1.0);
+    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+    let v = Matrix::view_transform(&from, &to, &up);
+    let v_expected = Matrix::scale(-1.0, 1.0, -1.0);
+
+    assert_matrices(&v, &v_expected);
+}
+
+
+#[test]
+fn test_matrix_view_transform_translation() {
+    let from = Tuple4D::new_point(0.0, 0.0, 8.0);
+    let to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+    let v = Matrix::view_transform(&from, &to, &up);
+    let v_expected = Matrix::translation(0.0, 0.0, -8.0);
+
+    assert_matrices(&v, &v_expected);
+}
+
+#[test]
+fn test_matrix_view_transform_arbitrary() {
+    let from = Tuple4D::new_point(1.0, 3.0, 2.0);
+    let to = Tuple4D::new_point(4.0, -2.0, 8.0);
+    let up = Tuple4D::new_vector(1.0, 1.0, 0.0);
+
+    let v = Matrix::view_transform(&from, &to, &up);
+
+    let v_expected = Matrix::new_matrix_4x4(-0.50709, 0.50709, 0.67612, -2.36643,
+                                            0.76772, 0.60609, 0.12122, -2.82843,
+                                            -0.35857, 0.59761, -0.71714, 0.0,
+                                            0.0, 0.0, 0.0, 1.0);
+
+    assert_matrices(&v, &v_expected);
+}
 
 
 

@@ -20,12 +20,16 @@ pub struct Material {
 
 pub trait MaterialOps {
     fn new() -> Material;
+
     fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D) -> Color;
+
     fn set_color(&mut self, c: Color);
     fn set_diffuse(&mut self, d: f32);
     fn set_specular(&mut self, s: f32);
     fn set_shininess(&mut self, s: f32);
     fn set_ambient(&mut self, a: f32);
+
+    fn get_color(&self) -> &Color;
 }
 
 impl MaterialOps for Material {
@@ -78,6 +82,10 @@ impl MaterialOps for Material {
 
     fn set_ambient(&mut self, a: f32) {
         self.ambient = a;
+    }
+
+    fn get_color(&self) -> &Color {
+        &self.color
     }
 }
 
