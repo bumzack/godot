@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use crate::math::common::{assert_color, float_equal};
+use crate::math::common::{assert_color, assert_float};
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
@@ -117,9 +117,9 @@ fn test_add_color() {
     let c2 = Color::new(0.7, 0.1, 0.25);
     let c = c1 + c2;
 
-    assert_eq!(float_equal(c.r, 1.6), true);
-    assert_eq!(float_equal(c.g, 0.7), true);
-    assert_eq!(float_equal(c.b, 1.0), true);
+    assert_float(c.r, 1.6);
+    assert_float(c.g, 0.7);
+    assert_float(c.b, 1.0);
 }
 
 #[test]
@@ -130,10 +130,6 @@ fn test_sub_color() {
 
     let c_expected = Color::new(0.2, 0.5, 0.5);
     assert_color(&c, &c_expected);
-
-//    assert_eq!(float_equal(c.r, 0.2), true);
-//    assert_eq!(float_equal(c.g, 0.5), true);
-//    assert_eq!(float_equal(c.b, 0.5), true);
 }
 
 #[test]
@@ -143,10 +139,6 @@ fn test_mul_color_scalar() {
 
     let c_expected = Color::new(0.4, 0.6, 0.8);
     assert_color(&c, &c_expected);
-
-//    assert_eq!(float_equal(c.r, 0.4), true);
-//    assert_eq!(float_equal(c.g, 0.6), true);
-//    assert_eq!(float_equal(c.b, 0.8), true);
 }
 
 #[test]
@@ -157,10 +149,5 @@ fn test_mul_color_color() {
 
     let c_expected = Color::new(0.9, 0.2, 0.04);
     assert_color(&c, &c_expected);
-
-
-//    assert_eq!(float_equal(c.r, 0.9), true);
-//    assert_eq!(float_equal(c.g, 0.2), true);
-//    assert_eq!(float_equal(c.b, 0.04), true);
 }
 

@@ -1,5 +1,5 @@
+use crate::math::common::assert_float;
 use crate::math::common::assert_tuple;
-use crate::math::common::float_equal;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -57,16 +57,16 @@ fn test_ray_new() {
 
     let r = Ray::new(o, d);
 
-    assert_eq!(Tuple4D::is_point(&r.origin), true);
-    assert_eq!(Tuple4D::is_vector(&r.direction), true);
+    assert!(Tuple4D::is_point(&r.origin));
+    assert!(Tuple4D::is_vector(&r.direction));
 
-    assert_eq!(float_equal(r.origin.x, 1.0), true);
-    assert_eq!(float_equal(r.origin.y, 2.0), true);
-    assert_eq!(float_equal(r.origin.z, 3.0), true);
+    assert_float(r.origin.x, 1.0);
+    assert_float(r.origin.y, 2.0);
+    assert_float(r.origin.z, 3.0);
 
-    assert_eq!(float_equal(r.direction.x, 4.0), true);
-    assert_eq!(float_equal(r.direction.y, 5.0), true);
-    assert_eq!(float_equal(r.direction.z, 6.0), true);
+    assert_float(r.direction.x, 4.0);
+    assert_float(r.direction.y, 5.0);
+    assert_float(r.direction.z, 6.0);
 }
 
 #[test]
@@ -81,26 +81,26 @@ fn test_ray_position() {
     let p3 = Ray::position(&r, -1.0);
     let p4 = Ray::position(&r, 2.5);
 
-    assert_eq!(Tuple4D::is_point(&p1), true);
-    assert_eq!(Tuple4D::is_point(&p2), true);
-    assert_eq!(Tuple4D::is_point(&p3), true);
-    assert_eq!(Tuple4D::is_point(&p4), true);
+    assert!(Tuple4D::is_point(&p1));
+    assert!(Tuple4D::is_point(&p2));
+    assert!(Tuple4D::is_point(&p3));
+    assert!(Tuple4D::is_point(&p4));
 
-    assert_eq!(float_equal(p1.x, 2.0), true);
-    assert_eq!(float_equal(p1.y, 3.0), true);
-    assert_eq!(float_equal(p1.z, 4.0), true);
+    assert_float(p1.x, 2.0);
+    assert_float(p1.y, 3.0);
+    assert_float(p1.z, 4.0);
 
-    assert_eq!(float_equal(p2.x, 3.0), true);
-    assert_eq!(float_equal(p2.y, 3.0), true);
-    assert_eq!(float_equal(p2.z, 4.0), true);
+    assert_float(p2.x, 3.0);
+    assert_float(p2.y, 3.0);
+    assert_float(p2.z, 4.0);
 
-    assert_eq!(float_equal(p3.x, 1.0), true);
-    assert_eq!(float_equal(p3.y, 3.0), true);
-    assert_eq!(float_equal(p3.z, 4.0), true);
+    assert_float(p3.x, 1.0);
+    assert_float(p3.y, 3.0);
+    assert_float(p3.z, 4.0);
 
-    assert_eq!(float_equal(p4.x, 4.5), true);
-    assert_eq!(float_equal(p4.y, 3.0), true);
-    assert_eq!(float_equal(p4.z, 4.0), true);
+    assert_float(p4.x, 4.5);
+    assert_float(p4.y, 3.0);
+    assert_float(p4.z, 4.0);
 }
 
 

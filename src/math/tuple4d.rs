@@ -1,7 +1,7 @@
 use std::f32::consts::SQRT_2;
 use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 
-use crate::math::common::{assert_tuple, float_equal};
+use crate::math::common::{assert_float, assert_tuple};
 
 pub const ORIGIN: Tuple4D = Tuple4D { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
 
@@ -258,7 +258,7 @@ fn test_is_point() {
     assert_eq!(a.y, -4.2);
     assert_eq!(a.z, 3.1);
     assert_eq!(a.w, 1.0);
-    assert_eq!(Tuple4D::is_point(&a), true);
+    assert!(Tuple4D::is_point(&a));
 }
 
 #[test]
@@ -268,7 +268,7 @@ fn test_is_vector() {
     assert_eq!(a.y, -4.2);
     assert_eq!(a.z, 3.1);
     assert_eq!(a.w, 0.0);
-    assert_eq!(Tuple4D::is_vector(&a), true);
+    assert!(Tuple4D::is_vector(&a));
 }
 
 #[test]
@@ -292,7 +292,7 @@ fn test_sub_point_point() {
     assert_eq!(c.x, -2.0);
     assert_eq!(c.y, -4.0);
     assert_eq!(c.z, -6.0);
-    assert_eq!(Tuple4D::is_vector(&c), true);
+    assert!(Tuple4D::is_vector(&c));
 }
 
 #[test]
@@ -304,7 +304,7 @@ fn test_sub_vec_point() {
     assert_eq!(c.x, -2.0);
     assert_eq!(c.y, -4.0);
     assert_eq!(c.z, -6.0);
-    assert_eq!(Tuple4D::is_point(&c), true);
+    assert!(Tuple4D::is_point(&c));
 }
 
 
@@ -317,7 +317,7 @@ fn test_sub_vec_vec() {
     assert_eq!(c.x, -2.0);
     assert_eq!(c.y, -4.0);
     assert_eq!(c.z, -6.0);
-    assert_eq!(Tuple4D::is_vector(&c), true);
+    assert!(Tuple4D::is_vector(&c));
 }
 
 #[test]
@@ -381,11 +381,11 @@ fn test_magnitude() {
 
     let v = Tuple4D::new_vector(1., 2., 3.);
     let m = Tuple4D::magnitude(&v);
-    assert_eq!(float_equal(m, expected.sqrt()), true);
+    assert_float(m, expected.sqrt());
 
     let v = Tuple4D::new_vector(-1., -2., -3.);
     let m = Tuple4D::magnitude(&v);
-    assert_eq!(float_equal(m, expected.sqrt()), true);
+    assert_float(m, expected.sqrt());
 }
 
 
@@ -393,25 +393,25 @@ fn test_magnitude() {
 fn test_normalize() {
     let v = Tuple4D::new_vector(4., 0., 0.);
     let n = Tuple4D::normalize(&v);
-    assert_eq!(float_equal(n.x, 1.), true);
-    assert_eq!(float_equal(n.y, 0.), true);
-    assert_eq!(float_equal(n.z, 0.), true);
-    assert_eq!(Tuple4D::is_vector(&n), true);
+    assert_float(n.x, 1.);
+    assert_float(n.y, 0.);
+    assert_float(n.z, 0.);
+    Tuple4D::is_vector(&n);
 
     let expected: f32 = 14.0;
 
     let v = Tuple4D::new_vector(1., 2., 3.);
     let n = Tuple4D::normalize(&v);
-    assert_eq!(float_equal(n.x, 1. / expected.sqrt()), true);
-    assert_eq!(float_equal(n.y, 2. / expected.sqrt()), true);
-    assert_eq!(float_equal(n.z, 3. / expected.sqrt()), true);
-    assert_eq!(Tuple4D::is_vector(&n), true);
+    assert_float(n.x, 1. / expected.sqrt());
+    assert_float(n.y, 2. / expected.sqrt());
+    assert_float(n.z, 3. / expected.sqrt());
+    assert!(Tuple4D::is_vector(&n));
 
 
     let v = Tuple4D::new_vector(1., 2., 3.);
     let n = Tuple4D::normalize(&v);
     let m = Tuple4D::magnitude(&n);
-    assert_eq!(float_equal(m, 1.), true);
+    assert_float(m, 1.);
 }
 
 #[test]
@@ -419,7 +419,7 @@ fn test_dot_product() {
     let a = Tuple4D::new_vector(1., 2., 3.);
     let b = Tuple4D::new_vector(2., 3., 4.);
     let c = a ^ b;
-    assert_eq!(float_equal(c, 20.), true);
+    assert_float(c, 20.);
 }
 
 

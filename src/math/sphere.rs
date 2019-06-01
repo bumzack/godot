@@ -1,6 +1,6 @@
 use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
-use crate::math::common::{assert_float, assert_matrices, assert_tuple, float_equal};
+use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 use crate::math::intersection::{Intersection, IntersectionListOps};
 use crate::math::intersection::IntersectionOps;
 use crate::math::material::Material;
@@ -109,8 +109,8 @@ fn test_ray_sphere_intersection() {
 
     assert_eq!(intersections.len(), 2);
 
-    assert_eq!(float_equal(intersections[0], 4.0), true);
-    assert_eq!(float_equal(intersections[1], 6.0), true);
+    assert_float(intersections[0], 4.0);
+    assert_float(intersections[1], 6.0);
 
     let o = Tuple4D::new_point(0.0, 1.0, -5.0);
     let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
@@ -122,8 +122,8 @@ fn test_ray_sphere_intersection() {
 
     assert_eq!(intersections.len(), 2);
 
-    assert_eq!(float_equal(intersections[0], 5.0), true);
-    assert_eq!(float_equal(intersections[1], 5.0), true);
+    assert_float(intersections[0], 5.0);
+    assert_float(intersections[1], 5.0);
 }
 
 #[test]
@@ -151,8 +151,8 @@ fn test_ray_sphere_intersection_origin_inside_sphere() {
 
     assert_eq!(intersections.len(), 2);
 
-    assert_eq!(float_equal(intersections[0], -1.0), true);
-    assert_eq!(float_equal(intersections[1], 1.0), true);
+    assert_float(intersections[0], -1.0);
+    assert_float(intersections[1], 1.0);
 }
 
 #[test]
@@ -167,8 +167,8 @@ fn test_ray_sphere_intersection_sphere_behind_origin() {
 
     assert_eq!(intersections.len(), 2);
 
-    assert_eq!(float_equal(intersections[0], -6.0), true);
-    assert_eq!(float_equal(intersections[1], -4.0), true);
+    assert_float(intersections[0], -6.0);
+    assert_float(intersections[1], -4.0);
 }
 
 
@@ -181,7 +181,7 @@ fn test_sphere_transformation() {
 
     let m = Matrix::translation(2.0, 3.0, 4.0);
 
-    assert_matrices(&s.transformation_matrix, &m);
+    assert_matrix(&s.transformation_matrix, &m);
 }
 
 

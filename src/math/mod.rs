@@ -12,3 +12,4 @@ pub mod pointlight;
 pub mod material;
 pub mod light;
 pub mod precomputed_component;
+pub mod camera;
