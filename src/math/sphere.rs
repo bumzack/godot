@@ -1,8 +1,6 @@
 use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
-use std::ops::Mul;
 
 use crate::math::common::{assert_float, assert_matrices, assert_tuple, float_equal};
-use crate::math::commonshape::CommonShape;
 use crate::math::intersection::{Intersection, IntersectionListOps};
 use crate::math::intersection::IntersectionOps;
 use crate::math::material::Material;
@@ -11,6 +9,7 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;
+use crate::math::shape::Shape;
 use crate::math::tuple4d::{ORIGIN, Tuple};
 use crate::math::tuple4d::Tuple4D;
 
@@ -51,7 +50,7 @@ impl SphereOps for Sphere {
         let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
         let discriminant = b * b - 4.0 * a * c;
 
-        if (discriminant < 0.0) {
+        if discriminant < 0.0 {
             return None;
         }
         let mut res = vec![0.0; 2];
@@ -191,7 +190,7 @@ fn test_sphere_scale() {
     let m = Matrix::scale(2.0, 2.0, 2.0);
     s.set_transformation(m);
 
-    let sphere_shape = CommonShape::Sphere(s);
+    let sphere_shape = Shape::Sphere(s);
     let is = Intersection::intersect(&sphere_shape, &r);
 
     let intersections = is.get_intersections();
@@ -215,7 +214,7 @@ fn test_sphere_translated() {
     let m = Matrix::translation(5.0, 0.0, 0.0);
     s.set_transformation(m);
 
-    let sphere_shape = CommonShape::Sphere(s);
+    let sphere_shape = Shape::Sphere(s);
     let is = Intersection::intersect(&sphere_shape, &r);
 
     let intersections = is.get_intersections();

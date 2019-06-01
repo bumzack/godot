@@ -1,6 +1,6 @@
 use crate::math::color::Color;
 use crate::math::matrix::Matrix;
-use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::math::tuple4d:: Tuple4D;
 
 pub fn float_equal(a: f32, b: f32) -> bool {
     let EPSILON = 0.00001;

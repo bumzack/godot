@@ -1,5 +1,6 @@
 use crate::math::sphere::Sphere;
 
-pub enum CommonShape {
+pub enum Shape {
     Sphere(Sphere),
 }
+

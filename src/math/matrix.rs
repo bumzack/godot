@@ -1,7 +1,7 @@
 use std::f32::consts::{PI, SQRT_2};
 use std::ops::Mul;
 
-use crate::math::common::{assert_tuple, float_equal};
+use crate::math::common::{assert_matrices, assert_tuple, float_equal};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
@@ -690,6 +690,17 @@ fn test_matrix_determinant_4x4() {
     assert_eq!(float_equal(cofactor_a4, 51.0), true);
 
     assert_eq!(float_equal(det_a, -4071.0), true);
+
+    let m_inv = Matrix::invert(&a).unwrap();
+    let m_expected = Matrix::new_matrix_4x4(-0.169492, 0.0621469, -0.135593, -0.163842,
+                                            -0.109801, 0.0967821, 0.0338983, -0.006141,
+                                            -0.0515844, 0.105871, -0.0847458, -0.0498649,
+                                            -0.0125276, 0.116188, 0.0508475, -0.0454434);
+
+    println!("m_inv = {:#?}", m_inv);
+    println!("m_expected = {:#?}", m_expected);
+
+    assert_matrices(&m_inv, &m_expected);
 }
 
 
@@ -701,8 +712,13 @@ fn test_matrix_inversion1() {
                                    9.0, 1.0, 7.0, -6.0);
 
     let det_a = Matrix::determinant(&a);
+    let a_inv = Matrix::new_matrix_4x4(0.315094, -0.181132, 0.0377358, -0.0150943,
+                                       -0.0528302, -0.0160377, -0.132075, 0.10283,
+                                       -0.292453, 0.259434, 0.0188679, 0.0424528,
+                                       0.122642, 0.0283019, 0.0566038, -0.122642);
 
     assert_eq!(float_equal(det_a, -2120.0), true);
+    assert_matrices(&Matrix::invert(&a).unwrap(), &a_inv);
 
     let a = Matrix::new_matrix_4x4(-4.0, 2.0, -2.0, -3.0,
                                    9.0, 6.0, 2.0, 6.0,
@@ -1010,7 +1026,7 @@ fn test_matrix_rotation_y() {
 
     let sqrt2_half = SQRT_2 / 2.0;
 
-    let half_expected = Tuple4D::new_point( sqrt2_half, 0.0,sqrt2_half);
+    let half_expected = Tuple4D::new_point(sqrt2_half, 0.0, sqrt2_half);
     assert_tuple(&half, &half_expected);
 
     assert_eq!(float_equal(half.x, sqrt2_half), true);
@@ -1018,7 +1034,7 @@ fn test_matrix_rotation_y() {
     assert_eq!(float_equal(half.z, sqrt2_half), true);
     assert_eq!(Tuple4D::is_point(&half), true);
 
-    let full_expected = Tuple4D::new_point( 1.0, 0.0,0.0);
+    let full_expected = Tuple4D::new_point(1.0, 0.0, 0.0);
     assert_tuple(&full, &full_expected);
 
     assert_eq!(float_equal(full.x, 1.0), true);
@@ -1039,7 +1055,7 @@ fn test_matrix_rotation_z() {
 
     let sqrt2_half = SQRT_2 / 2.0;
 
-    let half_expected = Tuple4D::new_point( -sqrt2_half, sqrt2_half,0.0);
+    let half_expected = Tuple4D::new_point(-sqrt2_half, sqrt2_half, 0.0);
     assert_tuple(&half, &half_expected);
 
     assert_eq!(float_equal(half.x, -sqrt2_half), true);
@@ -1047,7 +1063,7 @@ fn test_matrix_rotation_z() {
     assert_eq!(float_equal(half.z, 0.0), true);
     assert_eq!(Tuple4D::is_point(&half), true);
 
-    let full_expected = Tuple4D::new_point( -1.0, 0.0,0.0);
+    let full_expected = Tuple4D::new_point(-1.0, 0.0, 0.0);
     assert_tuple(&full, &full_expected);
 
     assert_eq!(float_equal(full.x, -1.0), true);

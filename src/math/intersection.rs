@@ -1,39 +1,38 @@
-use std::fs::File;
-use std::io::{Error, Write};
-
-use crate::math::commonshape::CommonShape;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;
+use crate::math::shape::Shape;
 use crate::math::sphere::Sphere;
 use crate::math::sphere::SphereOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::math::world::World;
+use crate::math::world::WorldOps;
 
 pub struct Intersection<'a> {
     t: f32,
-    obj: &'a CommonShape,
+    obj: &'a Shape,
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f32, obj: &CommonShape) -> Intersection;
-    fn intersect(obj: &'a CommonShape, r: &Ray) -> IntersectionList<'a>;
-
+    fn new(t: f32, obj: &Shape) -> Intersection;
+    fn intersect(obj: &'a Shape, r: &Ray) -> IntersectionList<'a>;
+    fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f32;
-    fn get_obj(&self) -> &'a CommonShape;
+    fn get_obj(&self) -> &'a Shape;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
-    fn new(t: f32, obj: &CommonShape) -> Intersection {
+    fn new(t: f32, obj: &Shape) -> Intersection {
         Intersection {
             t,
             obj,
         }
     }
 
-    fn intersect(obj: &'a CommonShape, r: &Ray) -> IntersectionList<'a> {
+    fn intersect(obj: &'a Shape, r: &Ray) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
         let res = match obj {
-            CommonShape::Sphere(ref s) => {
+            Shape::Sphere(ref s) => {
 
                 //TODO: this soooo important here to inverse the ray ...
 
@@ -57,11 +56,23 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         res
     }
 
+    fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
+        let mut res = IntersectionList::new();
+        for obj in w.get_shapes().iter() {
+            let  mut tmp = Intersection::intersect(obj, r);
+            for is in tmp.get_intersections_mut().drain(..) {
+                res.add(is);
+            }
+        }
+        res.get_intersections_mut().sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+        res
+    }
+
     fn get_t(&self) -> f32 {
         self.t
     }
 
-    fn get_obj(&self) -> &'a CommonShape {
+    fn get_obj(&self) -> &'a Shape {
         self.obj
     }
 }
@@ -77,6 +88,7 @@ pub trait IntersectionListOps<'a> {
     fn hit(&self) -> Option<&Intersection<'a>>;
 
     fn get_intersections(&self) -> &Vec<Intersection<'a>>;
+    fn get_intersections_mut(&mut self) -> &mut Vec<Intersection<'a>>;
 }
 
 impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
@@ -98,6 +110,10 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
     fn get_intersections(&self) -> &Vec<Intersection<'a>> {
         &self.l
     }
+
+    fn get_intersections_mut(&mut self) -> &mut Vec<Intersection<'a>> {
+        &mut self.l
+    }
 }
 
 
@@ -105,7 +121,7 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
 fn test_new_intersection() {
     let s = Sphere::new();
     let t: f32 = 3.5;
-    let o = CommonShape::Sphere(s);
+    let o = Shape::Sphere(s);
     let i = Intersection::new(t, &o);
     assert_eq!(i.t, 3.5);
 }
@@ -114,12 +130,12 @@ fn test_new_intersection() {
 fn test_new_intersectionlist() {
     let s1 = Sphere::new();
     let t1: f32 = 3.5;
-    let o1 = CommonShape::Sphere(s1);
+    let o1 = Shape::Sphere(s1);
     let i1 = Intersection::new(t1, &o1);
 
     let s2 = Sphere::new();
     let t2: f32 = 3.5;
-    let o2 = CommonShape::Sphere(s2);
+    let o2 = Shape::Sphere(s2);
     let i2 = Intersection::new(t2, &o2);
 
     let i_list = IntersectionList::new();
@@ -136,7 +152,7 @@ fn test_new_intersectionlist() {
 #[test]
 fn test_intersection_hit() {
     let s = Sphere::new();
-    let o = CommonShape::Sphere(s);
+    let o = Shape::Sphere(s);
 
     let t1: f32 = 1.0;
     let i1 = Intersection::new(t1, &o);
@@ -157,7 +173,7 @@ fn test_intersection_hit() {
 #[test]
 fn test_intersection_hit_neg() {
     let s = Sphere::new();
-    let o = CommonShape::Sphere(s);
+    let o = Shape::Sphere(s);
 
     let t1: f32 = -1.0;
     let i1 = Intersection::new(t1, &o);
@@ -178,7 +194,7 @@ fn test_intersection_hit_neg() {
 #[test]
 fn test_intersection_no_hit() {
     let s = Sphere::new();
-    let o = CommonShape::Sphere(s);
+    let o = Shape::Sphere(s);
 
     let t1: f32 = -1.0;
     let i1 = Intersection::new(t1, &o);
@@ -200,7 +216,7 @@ fn test_intersection_no_hit() {
 #[test]
 fn test_intersection_hit_from_list() {
     let s = Sphere::new();
-    let o = CommonShape::Sphere(s);
+    let o = Shape::Sphere(s);
 
     let t1: f32 = 5.0;
     let i1 = Intersection::new(t1, &o);
@@ -234,7 +250,7 @@ fn test_intersect() {
     let r = Ray::new(o, d);
 
     let s = Sphere::new();
-    let o = CommonShape::Sphere(s);
+    let o = Shape::Sphere(s);
 
     let i = Intersection::intersect(&o, &r);
     let intersections = i.get_intersections();

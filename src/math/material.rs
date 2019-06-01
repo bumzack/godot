@@ -3,11 +3,9 @@ use std::f32::consts::SQRT_2;
 use crate::math::color::{BLACK, WHITE};
 use crate::math::color::Color;
 use crate::math::color::ColorOps;
-use crate::math::common::{assert_color, assert_float, assert_tuple};
-use crate::math::light::LightOps;
-use crate::math::light::PointLight;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
+use crate::math::common::{assert_color, assert_float};
+use crate::math::pointlight::LightOps;
+use crate::math::pointlight::PointLight;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
@@ -24,6 +22,10 @@ pub trait MaterialOps {
     fn new() -> Material;
     fn lighting(material: &Material, light: &PointLight, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D) -> Color;
     fn set_color(&mut self, c: Color);
+    fn set_diffuse(&mut self, d: f32);
+    fn set_specular(&mut self, s: f32);
+    fn set_shininess(&mut self, s: f32);
+    fn set_ambient(&mut self, a: f32);
 }
 
 impl MaterialOps for Material {
@@ -38,7 +40,7 @@ impl MaterialOps for Material {
     }
 
     fn lighting(material: &Material, light: &PointLight, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D) -> Color {
-        let effective_color = &material.color * &light.intensitiy;
+        let effective_color = &material.color * &light.intensity;
         let light_v = Tuple4D::normalize(&(&light.position - &point));
         let ambient = &effective_color * material.ambient;
         let light_dot_normal = &light_v ^ &n;
@@ -48,11 +50,11 @@ impl MaterialOps for Material {
             diffuse = &effective_color * material.diffuse * light_dot_normal;
             let reflect_v = Tuple4D::reflect(&(-light_v), &n);
             let reflect_dot_eye = &reflect_v ^ eye;
-            let mut specular = BLACK;
+            specular = BLACK;
 
             if reflect_dot_eye > 0.0 {
                 let factor = reflect_dot_eye.powf(material.shininess);
-                specular = &light.intensitiy * material.specular * factor;
+                specular = &light.intensity * material.specular * factor;
             }
         }
         ambient + diffuse + specular
@@ -60,6 +62,22 @@ impl MaterialOps for Material {
 
     fn set_color(&mut self, c: Color) {
         self.color = c;
+    }
+
+    fn set_diffuse(&mut self, d: f32) {
+        self.diffuse = d;
+    }
+
+    fn set_specular(&mut self, s: f32) {
+        self.specular = s;
+    }
+
+    fn set_shininess(&mut self, s: f32) {
+        self.shininess = s;
+    }
+
+    fn set_ambient(&mut self, a: f32) {
+        self.ambient = a;
     }
 }
 

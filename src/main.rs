@@ -3,18 +3,21 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use crate::math::common::assert_tuple;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::scene::{Scene, SceneOps};
 use crate::math::sphere::{Sphere, SphereOps};
+//use crate::math::sphere::{Sphere, SphereOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+//use crate::math::common::assert_tuple;
+//use crate::math::matrix::Matrix;
+//use crate::math::matrix::MatrixOps;
+use crate::math::world::{World, WorldOps};
 
 mod math;
 
 fn main() {
-    let mut s = Scene::new(500, 500);
-    s.render_scene();
-    s.write_ppm("blupp.ppm");
-
+    let mut w = World::new(500, 500);
+    w.render_scene();
+    w.write_ppm("blupp.ppm");
 
     let mut s = Sphere::new();
     s.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
