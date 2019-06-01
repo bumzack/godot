@@ -1,3 +1,5 @@
+use crate::math::common::assert_tuple;
+use crate::math::precomputed_component::PrecomputedComponent;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;
 use crate::math::shape::Shape;
@@ -19,6 +21,7 @@ pub trait IntersectionOps<'a> {
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f32;
     fn get_obj(&self) -> &'a Shape;
+    fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
@@ -59,7 +62,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
         let mut res = IntersectionList::new();
         for obj in w.get_shapes().iter() {
-            let  mut tmp = Intersection::intersect(obj, r);
+            let mut tmp = Intersection::intersect(obj, r);
             for is in tmp.get_intersections_mut().drain(..) {
                 res.add(is);
             }
@@ -74,6 +77,13 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
     fn get_obj(&self) -> &'a Shape {
         self.obj
+    }
+
+    fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
+        let p = Ray::position(r, self.t);
+        let normal_vector = self.obj.normal_at(&p);
+        let eye_vector = -r.get_direction();
+        PrecomputedComponent::new(self.get_t(), self.get_obj(), p, eye_vector, normal_vector)
     }
 }
 
@@ -256,3 +266,28 @@ fn test_intersect() {
     let intersections = i.get_intersections();
     assert_eq!(intersections.len(), 2);
 }
+
+#[test]
+fn test_precomputations() {
+    let o = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(o, d);
+
+    let s = Sphere::new();
+    let o = Shape::Sphere(s);
+
+    let i = Intersection::new(4.0, &o);
+
+    let c = Intersection::prepare_computations(&i, &r);
+
+
+    let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
+    let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+    let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+
+    assert_tuple(&point_expected, c.get_point());
+    assert_tuple(&eye_vector_expected, c.get_eye_vector());
+    assert_tuple(&normal_vector_expected, c.get_normal_vector());
+}
+
+

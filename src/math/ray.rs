@@ -5,7 +5,7 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Ray {
     pub origin: Tuple4D,
     pub direction: Tuple4D,
@@ -15,6 +15,9 @@ pub trait RayOps {
     fn new(origin: Tuple4D, direction: Tuple4D) -> Ray;
     fn position(r: &Ray, t: f32) -> Tuple4D;
     fn transform(r: &Ray, m: &Matrix) -> Ray;
+
+    fn get_direction(&self) -> &Tuple4D;
+    fn get_origin(&self) -> &Tuple4D;
 }
 
 impl RayOps for Ray {
@@ -35,6 +38,14 @@ impl RayOps for Ray {
         let o_transformed = m * &r.origin;
         let d_transformed = m * &r.direction;
         Ray::new(o_transformed, d_transformed)
+    }
+
+    fn get_direction(&self) -> &Tuple4D {
+        &self.direction
+    }
+
+    fn get_origin(&self) -> &Tuple4D {
+        &self.origin
     }
 }
 
@@ -106,8 +117,8 @@ fn test_ray_translation() {
     let o_expected = Tuple4D::new_point(4.0, 6.0, 8.0);
     let d_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
 
-    assert_tuple (&r2.origin, &o_expected);
-    assert_tuple (&r2.direction, &d_expected);
+    assert_tuple(&r2.origin, &o_expected);
+    assert_tuple(&r2.direction, &d_expected);
 }
 
 
@@ -124,8 +135,8 @@ fn test_ray_rotation() {
     let o_expected = Tuple4D::new_point(2.0, 6.0, 12.0);
     let d_expected = Tuple4D::new_vector(0.0, 3.0, 0.0);
 
-    assert_tuple (&r2.origin, &o_expected);
-    assert_tuple (&r2.direction, &d_expected);
+    assert_tuple(&r2.origin, &o_expected);
+    assert_tuple(&r2.direction, &d_expected);
 }
 
 

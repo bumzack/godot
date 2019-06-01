@@ -156,7 +156,7 @@ fn test_material_lightning_eye_in_path_of_reflecting_vector() {
 
     let result = Material::lighting(&m, &l, &p, &eye_v, &normal_v);
 
-    let result_expected = Color::new(1.6364, 1.6364, 1.6364);
+    let result_expected = Color::new(1.6363853, 1.6363853, 1.6363853);
     println!("test_material_lightning_eye_in_reflecing_path  result = {:#?}, expected = {:#?}", result, result_expected);
     assert_color(&result, &result_expected);
 }

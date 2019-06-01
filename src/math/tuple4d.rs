@@ -157,6 +157,22 @@ impl Neg for Tuple4D {
     }
 }
 
+//TODO: this returns a new Tuple!, but we want it to modify the reference?
+// or do we?
+impl<'a> Neg for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn neg(self) -> Tuple4D {
+        Tuple4D {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
+    }
+}
+
+
 impl Mul<f32> for Tuple4D {
     type Output = Tuple4D;
 
