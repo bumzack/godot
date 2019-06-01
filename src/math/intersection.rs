@@ -81,9 +81,15 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
         let p = Ray::position(r, self.t);
-        let normal_vector = self.obj.normal_at(&p);
+        let mut normal_vector = self.obj.normal_at(&p);
         let eye_vector = -r.get_direction();
-        PrecomputedComponent::new(self.get_t(), self.get_obj(), p, eye_vector, normal_vector)
+        let mut inside = true;
+        if (&normal_vector ^ &eye_vector) < 0.0 {
+            normal_vector = -normal_vector;
+        } else {
+            inside = false;
+        }
+        PrecomputedComponent::new(self.get_t(), self.get_obj(), p, eye_vector, normal_vector, inside)
     }
 }
 
@@ -290,4 +296,49 @@ fn test_precomputations() {
     assert_tuple(&normal_vector_expected, c.get_normal_vector());
 }
 
+#[test]
+fn test_precomputations_hit_outside() {
+    let o = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(o, d);
+
+    let s = Sphere::new();
+    let o = Shape::Sphere(s);
+
+    let i = Intersection::new(4.0, &o);
+
+    let c = Intersection::prepare_computations(&i, &r);
+
+    let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
+    let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+    let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+
+    assert_tuple(&point_expected, c.get_point());
+    assert_tuple(&eye_vector_expected, c.get_eye_vector());
+    assert_tuple(&normal_vector_expected, c.get_normal_vector());
+    assert_eq!(false, c.get_inside());
+}
+
+#[test]
+fn test_precomputations_hit_inside() {
+    let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(o, d);
+
+    let s = Sphere::new();
+    let o = Shape::Sphere(s);
+
+    let i = Intersection::new(1.0, &o);
+
+    let c = Intersection::prepare_computations(&i, &r);
+
+    let point_expected = Tuple4D::new_point(0.0, 0.0, 1.0);
+    let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+    let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+
+    assert_tuple(&point_expected, c.get_point());
+    assert_tuple(&eye_vector_expected, c.get_eye_vector());
+    assert_tuple(&normal_vector_expected, c.get_normal_vector());
+    assert_eq!(true, c.get_inside());
+}
 

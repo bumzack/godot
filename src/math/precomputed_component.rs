@@ -5,19 +5,20 @@ pub struct PrecomputedComponent<'a> {
     t: f32,
     obj: &'a Shape,
     point: Tuple4D,
-    eye_vector:  Tuple4D,
+    eye_vector: Tuple4D,
     normal_vector: Tuple4D,
+    inside: bool,
 }
 
 impl<'a> PrecomputedComponent<'a> {
-
-    pub fn new(t: f32, obj: &'a Shape, point: Tuple4D, eye_vector: Tuple4D, normal_vector: Tuple4D) -> PrecomputedComponent<'a>{
+    pub fn new(t: f32, obj: &'a Shape, point: Tuple4D, eye_vector: Tuple4D, normal_vector: Tuple4D, inside: bool) -> PrecomputedComponent<'a> {
         PrecomputedComponent {
             t,
             obj,
             point,
             eye_vector,
-            normal_vector
+            normal_vector,
+            inside,
         }
     }
 
@@ -35,5 +36,9 @@ impl<'a> PrecomputedComponent<'a> {
 
     pub fn get_normal_vector(&self) -> &Tuple4D {
         &self.normal_vector
+    }
+
+    pub fn get_inside(&self) -> bool {
+        self.inside
     }
 }
