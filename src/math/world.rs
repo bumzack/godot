@@ -20,16 +20,12 @@ use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
 pub struct World {
-    width: usize,
-    height: usize,
     shapes: Vec<Shape>,
-    origin: Tuple4D,
-    canvas: Canvas,
     light: Light,
 }
 
 pub trait WorldOps<'a> {
-    fn new(width: usize, height: usize) -> World;
+    fn new( ) -> World;
     fn set_light(&mut self, light: Light);
     fn add_shape(&mut self, shape: Shape);
     fn get_shapes(&self) -> &Vec<Shape>;
@@ -41,15 +37,11 @@ pub trait WorldOps<'a> {
 }
 
 impl<'a> WorldOps<'a> for World {
-    fn new(width: usize, height: usize) -> World {
+    fn new(  ) -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
         let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, 0.0), Color::new(0.0, 0.0, 0.0));
         World {
-            width,
-            height,
             shapes: Vec::new(),
-            origin: Tuple4D::new_point(0.0, 0.0, -10.0),
-            canvas: Canvas::new(width, height),
             light: Light::PointLight(pl),
         }
     }
@@ -92,7 +84,7 @@ impl<'a> WorldOps<'a> for World {
 }
 
 pub fn default_world() -> World {
-    let mut w = World::new(400, 400);
+    let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
     let light_intensity = Color::new(1.0, 1.0, 1.0);

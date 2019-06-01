@@ -52,7 +52,7 @@ impl MaterialOps for Material {
         let mut specular = BLACK;
         if light_dot_normal >= 0.0 {
             diffuse = &effective_color * material.diffuse * light_dot_normal;
-            let reflect_v = Tuple4D::reflect(&(-light_v), &n);
+            let reflect_v = Tuple4D::reflect(&(light_v * (-1.0_f32)), &n);
             let reflect_dot_eye = &reflect_v ^ eye;
             specular = BLACK;
 

@@ -4,7 +4,7 @@ use crate::math::camera::{Camera, CameraOps};
 use crate::math::canvas::CanvasOps;
 use crate::math::color::Color;
 use crate::math::color::ColorOps;
-use crate::math::common::assert_tuple;
+use crate::math::common::{assert_color, assert_tuple};
 use crate::math::light::Light;
 use crate::math::material::MaterialOps;
 use crate::math::matrix::Matrix;
@@ -18,11 +18,35 @@ use crate::math::tuple4d::Tuple4D;
 //use crate::math::common::assert_tuple;
 //use crate::math::matrix::Matrix;
 //use crate::math::matrix::MatrixOps;
-use crate::math::world::{World, WorldOps};
+use crate::math::world::{default_world, World, WorldOps};
 
 mod math;
-
 fn main() {
+    let w = default_world();
+    let mut c = Camera::new(11, 11, PI / 2.0);
+    c.calc_pixel_size();
+
+    let from = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+    c.set_transformation(Matrix::view_transform(&from, &to, &up));
+
+    let image = Camera::render(&c, &w);
+    // println!("image = {:#?}", image);
+
+    let c = image.pixel_at(5, 5);
+    let c_expected = Color::new(0.38066, 0.47583, 0.2855);
+
+    println!("c = {:#?}", c);
+    println!("c_expected = {:#?}", c_expected);
+    assert_color(c, &c_expected);
+}
+
+
+
+
+fn main1() {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -70,7 +94,7 @@ fn main() {
                              Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
-    let mut w = World::new(600, 400);
+    let mut w = World::new();
     w.set_light(l);
     w.add_shape(Shape::Sphere(floor));
     w.add_shape(Shape::Sphere(left_wall));
@@ -81,9 +105,11 @@ fn main() {
 
 
     let mut c = Camera::new(100, 50, PI / 3.0);
+    c.calc_pixel_size();
+
     c.set_transformation(Matrix::view_transform(&Tuple4D::new_point(0.0, 1.5, -5.0),
                                                 &Tuple4D::new_point(0.0, 1.0, 0.0),
-                                                &Tuple4D::new_point(0.0, 0.0, 0.0)));
+                                                &Tuple4D::new_point(0.0, 1.0, 0.0)));
 
     let canvas = Camera::render(&c, &w);
     canvas.write_ppm("wusch.ppm");

@@ -107,8 +107,17 @@ impl CameraOps for Camera {
         let world_y = c.get_half_height() - y_offset;
         // TODO: we unwrap here silently ...
         let pixel = Matrix::invert(c.get_transform()).unwrap() * Tuple4D::new_point(world_x, world_y, -1.0);
-        let origin = &Matrix::invert(c.get_transform()).unwrap() * &ORIGIN;
-        let direction = Tuple4D::normalize(&(pixel - ORIGIN));
+        let mut origin = &Matrix::invert(c.get_transform()).unwrap() * &ORIGIN;
+        let mut direction = Tuple4D::normalize(&(pixel - ORIGIN));
+
+        // println!("ray_for_pixel() pixel_size() = {}, half_widht= {}, half_height = {} ", c.get_pixel_size(), c.get_half_width(), c.get_half_height());
+        // println!("ray_for_pixel() world_x() = {}, world_y = {}", world_x, world_y);
+
+        println!("ray_for_pixel() origin = {:#?}, direction = {:#?}", origin, direction);
+
+        // so the assert in Ray::new don't panic
+        origin.w = 1.0;
+        direction.w = 0.0;
         Ray::new(origin, direction)
     }
 
@@ -123,10 +132,11 @@ impl CameraOps for Camera {
     fn render(c: &Camera, w: &World) -> Canvas {
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
-        for y in 0..c.get_hsize() {
-            for x in 0..c.get_vsize() {
+        for y in 5..6 {                         // 0..c.get_vsize() {
+            for x in 5..6 {                       // 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
                 let c = World::color_at(w, &r);
+                println!("render pixel ( {} / {} )    color = ( {} / {} / {} )", x, y, c.r, c.g, c.b);
                 canvas.write_pixel(x, y, c);
             }
         }
@@ -208,7 +218,7 @@ fn test_camera_render() {
     c.set_transformation(Matrix::view_transform(&from, &to, &up));
 
     let image = Camera::render(&c, &w);
-    println!("image = {:#?}", image);
+    // println!("image = {:#?}", image);
 
     let c = image.pixel_at(5, 5);
     let c_expected = Color::new(0.38066, 0.47583, 0.2855);

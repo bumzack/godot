@@ -82,14 +82,20 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
         let p = Ray::position(r, self.t);
         let mut normal_vector = self.shape.normal_at(&p);
-        let eye_vector = -r.get_direction();
+        let eye_vector = r.get_direction() * (-1.0_f32);
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
-            normal_vector = -normal_vector;
+            normal_vector = normal_vector * (-1.0_f32);
         } else {
             inside = false;
         }
-        PrecomputedComponent::new(self.get_t(), self.get_shape(), p, eye_vector, normal_vector, inside)
+        PrecomputedComponent::new(
+            self.get_t(),
+            self.get_shape(),
+            p,
+            eye_vector,
+            normal_vector,
+            inside)
     }
 }
 

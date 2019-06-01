@@ -40,7 +40,7 @@ pub fn assert_color(actual: &Color, expected: &Color) {
 pub fn assert_two_float(a: f32, b: f32) -> bool {
     let EPSILON = 0.00001;
 
-    println!("float_equal: a = {}, b = {}", a, b);
+    // println!("float_equal: a = {}, b = {}", a, b);
     if (a - b).abs() < EPSILON {
         return true;
     }
