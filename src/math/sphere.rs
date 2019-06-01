@@ -75,8 +75,8 @@ impl SphereOps for Sphere {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let p_object = &self.inverse_transformation_matrix * world_point;
-        let object_normal = &(p_object - ORIGIN);
+        let p_shape= &self.inverse_transformation_matrix * world_point;
+        let object_normal = &(p_shape- ORIGIN);
         let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)

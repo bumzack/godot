@@ -12,29 +12,29 @@ use crate::math::world::WorldOps;
 
 pub struct Intersection<'a> {
     t: f32,
-    obj: &'a Shape,
+    shape: &'a Shape,
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f32, obj: &Shape) -> Intersection;
-    fn intersect(obj: &'a Shape, r: &Ray) -> IntersectionList<'a>;
+    fn new(t: f32, shape: &Shape) -> Intersection;
+    fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f32;
-    fn get_obj(&self) -> &'a Shape;
+    fn get_shape(&self) -> &'a Shape;
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
-    fn new(t: f32, obj: &Shape) -> Intersection {
+    fn new(t: f32, shape: &Shape) -> Intersection {
         Intersection {
             t,
-            obj,
+            shape,
         }
     }
 
-    fn intersect(obj: &'a Shape, r: &Ray) -> IntersectionList<'a> {
+    fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
-        let res = match obj {
+        let res = match shape {
             Shape::Sphere(ref s) => {
 
                 //TODO: this soooo important here to inverse the ray ...
@@ -46,8 +46,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
                 match res {
                     Some(r) => {
-                        let i1 = Intersection::new(r[0], obj);
-                        let i2 = Intersection::new(r[1], obj);
+                        let i1 = Intersection::new(r[0], shape);
+                        let i2 = Intersection::new(r[1], shape);
                         intersection_list.add(i1);
                         intersection_list.add(i2);
                     }
@@ -61,8 +61,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
         let mut res = IntersectionList::new();
-        for obj in w.get_shapes().iter() {
-            let mut tmp = Intersection::intersect(obj, r);
+        for shape in w.get_shapes().iter() {
+            let mut tmp = Intersection::intersect(shape, r);
             for is in tmp.get_intersections_mut().drain(..) {
                 res.add(is);
             }
@@ -75,13 +75,13 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.t
     }
 
-    fn get_obj(&self) -> &'a Shape {
-        self.obj
+    fn get_shape(&self) -> &'a Shape {
+        self.shape
     }
 
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
         let p = Ray::position(r, self.t);
-        let mut normal_vector = self.obj.normal_at(&p);
+        let mut normal_vector = self.shape.normal_at(&p);
         let eye_vector = -r.get_direction();
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
@@ -89,7 +89,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         } else {
             inside = false;
         }
-        PrecomputedComponent::new(self.get_t(), self.get_obj(), p, eye_vector, normal_vector, inside)
+        PrecomputedComponent::new(self.get_t(), self.get_shape(), p, eye_vector, normal_vector, inside)
     }
 }
 

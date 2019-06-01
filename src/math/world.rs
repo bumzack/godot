@@ -3,13 +3,14 @@ use std::io::Error;
 use crate::math::canvas::{Canvas, CanvasOps};
 use crate::math::color::Color;
 use crate::math::color::ColorOps;
+use crate::math::common::assert_color;
 use crate::math::intersection::{Intersection, IntersectionListOps, IntersectionOps};
 use crate::math::light::Light;
 use crate::math::material::{Material, MaterialOps};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::pointlight::LightOps;
 use crate::math::pointlight::PointLight;
+use crate::math::precomputed_component::PrecomputedComponent;
 use crate::math::ray::Ray;
 use crate::math::ray::RayOps;
 use crate::math::shape::Shape;
@@ -23,28 +24,31 @@ pub struct World {
     shapes: Vec<Shape>,
     origin: Tuple4D,
     canvas: Canvas,
-    lights: Vec<Light>,
+    light: Light,
 }
 
 pub trait WorldOps<'a> {
     fn new(width: usize, height: usize) -> World;
     fn set_camera(&mut self, o: Tuple4D);
-    fn add_light(&mut self, light: Light);
+    fn set_light(&mut self, light: Light);
     fn add_shape(&mut self, shape: Shape);
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;
     fn render_scene(&mut self);
-    fn get_shapes(&self)  -> &Vec<Shape>;
+    fn get_shapes(&self) -> &Vec<Shape>;
+    fn shade_hit(&self, comp: &PrecomputedComponent) -> Color;
 }
 
 impl<'a> WorldOps<'a> for World {
     fn new(width: usize, height: usize) -> World {
+        // TODO: default light ?!?!?! hmm - where, color why not different solution
+        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, 0.0), Color::new(0.0, 0.0, 0.0));
         World {
             width,
             height,
             shapes: Vec::new(),
             origin: Tuple4D::new_point(0.0, 0.0, -10.0),
             canvas: Canvas::new(width, height),
-            lights: Vec::new(),
+            light: Light::PointLight(pl),
         }
     }
 
@@ -52,15 +56,15 @@ impl<'a> WorldOps<'a> for World {
         unimplemented!()
     }
 
-    fn add_light(&mut self, light: Light) {
-        self.lights.push(light);
+    fn set_light(&mut self, light: Light) {
+        self.light = light;
     }
 
     fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
 
-    fn get_shapes(&self)  -> &Vec<Shape> {
+    fn get_shapes(&self) -> &Vec<Shape> {
         &self.shapes
     }
 
@@ -89,7 +93,8 @@ impl<'a> WorldOps<'a> for World {
 
         let light_color = Color::new(1.0, 1.0, 1.0);
         let light_psoition = Tuple4D::new_point(10.0, 10.0, -10.0);
-        let l = PointLight::new(light_psoition, light_color);
+        let pl = PointLight::new(light_psoition, light_color);
+        let l = Light::PointLight(pl);
 
         for y in 0..canvas_pixel {
             let world_y = half - pixel_size * y as f32;
@@ -112,7 +117,7 @@ impl<'a> WorldOps<'a> for World {
                             Shape::Sphere(ref s) => s,
                         };
                         let normal = shape.normal_at(&p);
-                        let color = Material::lighting(&shape.get_material(), &l, &p, &ray_origin, &normal);
+                        let color = Material::lightning(&shape.get_material(), &l, &p, &ray_origin, &normal);
                         self.canvas.write_pixel(x, y, color);
                     }
                     None => {}
@@ -120,8 +125,15 @@ impl<'a> WorldOps<'a> for World {
             }
         }
     }
-}
 
+    fn shade_hit(&self, comp: &PrecomputedComponent) -> Color {
+        Material::lightning(comp.get_shape().get_material(),
+                               &self.light,
+                               comp.get_point(),
+                               comp.get_eye_vector(),
+                               comp.get_normal_vector())
+    }
+}
 
 fn default_world() -> World {
     let mut w = World::new(400, 400);
@@ -130,7 +142,7 @@ fn default_world() -> World {
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = Light::PointLight(pl);
-    w.add_light(light);
+    w.set_light(light);
 
     let mut m = Material::new();
     m.set_color(Color::new(0.8, 1., 0.6));
@@ -156,8 +168,8 @@ fn default_world() -> World {
 fn test_default_world() {
     let w = default_world();
 
-    let origin = Tuple4D::new_point(0.0,0.0,-5.0);
-    let direction = Tuple4D::new_vector(0.0,0.0,1.0);
+    let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
     let r = Ray::new(origin, direction);
     let tmp = Intersection::intersect_world(&w, &r);
     let xs = tmp.get_intersections();
@@ -167,6 +179,51 @@ fn test_default_world() {
     assert_eq!(xs[1].get_t(), 4.5);
     assert_eq!(xs[2].get_t(), 5.5);
     assert_eq!(xs[3].get_t(), 6.0);
+}
+
+
+#[test]
+fn test_shade_hit() {
+    let w = default_world();
+
+    let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(origin, direction);
+
+    let shapes = w.get_shapes();
+    let shape = shapes.get(0).unwrap();
+
+    let i = Intersection::new(4.0, &shape);
+
+    let comps = Intersection::prepare_computations(&i, &r);
+    let c = World::shade_hit(&w, &comps);
+
+    let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
+    assert_color(&c_expected, &c);
+}
+
+
+#[test]
+fn test_shade_hit_inside() {
+    let mut w = default_world();
+
+    let pl = PointLight::new(Tuple4D::new_point(0.0, 0.25, 0.0), Color::new(1.0, 1., 1.0));
+    w.set_light(Light::PointLight(pl));
+
+    let origin = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+    let r = Ray::new(origin, direction);
+
+    let shapes = w.get_shapes();
+    let shape = shapes.get(1).unwrap();
+
+    let i = Intersection::new(0.5, &shape);
+
+    let comps = Intersection::prepare_computations(&i, &r);
+    let c = World::shade_hit(&w, &comps);
+
+    let c_expected = Color::new(0.90498, 0.90498, 0.90498);
+    assert_color(&c_expected, &c);
 }
 
 
