@@ -1,5 +1,5 @@
-use crate::math::color::Color;
-use crate::math::pointlight::PointLight;
+use crate::basics::color::Color;
+use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple4D;
 
 pub enum Light {

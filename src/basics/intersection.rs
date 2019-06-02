@@ -1,14 +1,13 @@
+use crate::basics::precomputed_component::PrecomputedComponent;
+use crate::basics::ray::Ray;
+use crate::basics::ray::RayOps;
 use crate::math::common::assert_tuple;
-use crate::math::precomputed_component::PrecomputedComponent;
-use crate::math::ray::Ray;
-use crate::math::ray::RayOps;
-use crate::math::shape::Shape;
-use crate::math::sphere::Sphere;
-use crate::math::sphere::SphereOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::world::World;
-use crate::math::world::WorldOps;
+use crate::shape::shape::Shape;
+use crate::shape::sphere::{Sphere, SphereOps};
+use crate::world::world::World;
+use crate::world::world::WorldOps;
 
 pub struct Intersection<'a> {
     t: f32,
@@ -82,10 +81,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
         let p = Ray::position(r, self.t);
         let mut normal_vector = self.shape.normal_at(&p);
-        let eye_vector = r.get_direction() * (-1.0_f32);
+        let eye_vector = -r.get_direction();
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
-            normal_vector = normal_vector * (-1.0_f32);
+            normal_vector = -normal_vector;
         } else {
             inside = false;
         }
@@ -156,7 +155,7 @@ fn test_new_intersectionlist() {
     let i1 = Intersection::new(t1, &o1);
 
     let s2 = Sphere::new();
-    let t2: f32 = 3.5;
+    let t2: f32 = 4.5;
     let o2 = Shape::Sphere(s2);
     let i2 = Intersection::new(t2, &o2);
 
@@ -254,8 +253,8 @@ fn test_intersection_hit_from_list() {
 
 
     let mut il = IntersectionList::new();
-    il.add(i2);
     il.add(i1);
+    il.add(i2);
     il.add(i3);
     il.add(i4);
 

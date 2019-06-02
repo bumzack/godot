@@ -1,15 +1,4 @@
 pub mod tuple4d;
-pub mod color;
 pub mod common;
-pub mod canvas;
 pub mod matrix;
-pub mod ray;
-pub mod sphere;
-pub mod intersection;
-pub mod shape;
-pub mod world;
-pub mod pointlight;
-pub mod material;
-pub mod light;
-pub mod precomputed_component;
-pub mod camera;
+

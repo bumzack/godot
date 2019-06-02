@@ -144,33 +144,33 @@ impl<'a, 'b> Sub<&'b Tuple4D> for &'a Tuple4D {
     }
 }
 
-//impl Neg for Tuple4D {
-//    type Output = Tuple4D;
-//
-//    fn neg(self) -> Tuple4D {
-//        Tuple4D {
-//            x: -self.x,
-//            y: -self.y,
-//            z: -self.z,
-//            w: -self.w,
-//        }
-//    }
-//}
-//
-////TODO: this returns a new Tuple!, but we want it to modify the reference?
-//// or do we?
-//impl<'a> Neg for &'a Tuple4D {
-//    type Output = Tuple4D;
-//
-//    fn neg(self) -> Tuple4D {
-//        Tuple4D {
-//            x: -self.x,
-//            y: -self.y,
-//            z: -self.z,
-//            w: -self.w,
-//        }
-//    }
-//}
+impl Neg for Tuple4D {
+    type Output = Tuple4D;
+
+    fn neg(self) -> Tuple4D {
+        Tuple4D {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
+    }
+}
+
+//TODO: this returns a new Tuple!, but we want it to modify the reference?
+// or do we?
+impl<'a> Neg for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn neg(self) -> Tuple4D {
+        Tuple4D {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
+    }
+}
 
 
 impl Mul<f32> for Tuple4D {
@@ -323,9 +323,7 @@ fn test_sub_vec_vec() {
 #[test]
 fn test_neg_tuple() {
     let v1 = Tuple4D::new(1., -2., 3., 4.);
-   //  let v2 = -v1;
-    let v2 = v1 * (-1.0_f32);
-
+    let v2 = -v1;
 
     assert_eq!(v2.x, -1.0);
     assert_eq!(v2.y, 2.0);

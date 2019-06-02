@@ -1,17 +1,17 @@
 use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
+use crate::basics::intersection::{Intersection, IntersectionListOps};
+use crate::basics::intersection::IntersectionOps;
+use crate::basics::ray::Ray;
+use crate::basics::ray::RayOps;
+use crate::material::material::Material;
+use crate::material::material::MaterialOps;
 use crate::math::common::{assert_float, assert_matrix, assert_tuple};
-use crate::math::intersection::{Intersection, IntersectionListOps};
-use crate::math::intersection::IntersectionOps;
-use crate::math::material::Material;
-use crate::math::material::MaterialOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::ray::Ray;
-use crate::math::ray::RayOps;
-use crate::math::shape::Shape;
 use crate::math::tuple4d::{ORIGIN, Tuple};
 use crate::math::tuple4d::Tuple4D;
+use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug)]
 pub struct Sphere {
@@ -60,6 +60,7 @@ impl SphereOps for Sphere {
 
         res.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
+        // println!("res in intersect: {:?}", res);
         Some(res)
     }
 

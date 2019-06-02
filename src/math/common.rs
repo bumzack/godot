@@ -1,4 +1,4 @@
-use crate::math::color::Color;
+use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
 

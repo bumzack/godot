@@ -1,8 +1,7 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
-use crate::math::color::Color;
-use crate::math::color::ColorOps;
+use crate::basics::color::{Color, ColorOps};
 
 #[derive(Clone, Debug)]
 pub struct Canvas {

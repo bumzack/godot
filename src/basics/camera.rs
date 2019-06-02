@@ -1,18 +1,22 @@
 use std::f32::consts::{PI, SQRT_2};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Instant;
 
-use crate::math::canvas::{Canvas, CanvasOps};
-use crate::math::color::Color;
-use crate::math::color::ColorOps;
+use crate::basics::canvas::Canvas;
+use crate::basics::canvas::CanvasOps;
+use crate::basics::color::{Color, ColorOps};
+use crate::basics::ray::Ray;
+use crate::basics::ray::RayOps;
 use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::ray::{Ray, RayOps};
 use crate::math::tuple4d::ORIGIN;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::world::default_world;
-use crate::math::world::World;
-use crate::math::world::WorldOps;
+use crate::world::world::default_world;
+use crate::world::world::World;
+use crate::world::world::WorldOps;
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -44,6 +48,8 @@ pub trait CameraOps {
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
 
     fn render(c: &Camera, w: &World) -> Canvas;
+    // TODO: use rayon or crossbeam?
+    // fn render_parallel(c: &Camera, w: &World) -> Canvas;
 }
 
 impl CameraOps for Camera {
@@ -106,14 +112,17 @@ impl CameraOps for Camera {
         let world_x = c.get_half_width() - x_offset;
         let world_y = c.get_half_height() - y_offset;
         // TODO: we unwrap here silently ...
-        let pixel = Matrix::invert(c.get_transform()).unwrap() * Tuple4D::new_point(world_x, world_y, -1.0);
+
+        let inv = Matrix::invert(c.get_transform()).unwrap();
+        let p = Tuple4D::new_point(world_x, world_y, 1.0);
+        let pixel = inv * p;
         let mut origin = &Matrix::invert(c.get_transform()).unwrap() * &ORIGIN;
         let mut direction = Tuple4D::normalize(&(pixel - ORIGIN));
-
+        direction.z = -direction.z;
         // println!("ray_for_pixel() pixel_size() = {}, half_widht= {}, half_height = {} ", c.get_pixel_size(), c.get_half_width(), c.get_half_height());
         // println!("ray_for_pixel() world_x() = {}, world_y = {}", world_x, world_y);
 
-        println!("ray_for_pixel() origin = {:#?}, direction = {:#?}", origin, direction);
+        // println!("ray_for_pixel() origin = {:#?}\n direction = {:#?}", origin, direction);
 
         // so the assert in Ray::new don't panic
         origin.w = 1.0;
@@ -132,13 +141,16 @@ impl CameraOps for Camera {
     fn render(c: &Camera, w: &World) -> Canvas {
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
-        for y in 5..6 {                         // 0..c.get_vsize() {
-            for x in 5..6 {                       // 0..c.get_hsize() {
+        for y in 0..c.get_vsize() {// 5..6 {          // 0..c.get_vsize() {
+            for x in 0..c.get_hsize() {// 5..6 {            // 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
                 let c = World::color_at(w, &r);
-                println!("render pixel ( {} / {} )    color = ( {} / {} / {} )", x, y, c.r, c.g, c.b);
+                if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {
+                    println!("render pixel ( {} / {} )    color = ( {} / {} / {} )", x, y, c.r, c.g, c.b);
+                }
                 canvas.write_pixel(x, y, c);
             }
+            println!("render line  {}", y);
         }
         canvas
     }
@@ -201,6 +213,9 @@ fn test_camera_ray_for_pixel_transformed_camera() {
     c.set_transformation(Matrix::rotate_y(PI / 4.0) * Matrix::translation(0.0, -2.0, 5.0));
     let r = Camera::ray_for_pixel(&c, 100, 50);
 
+    println!("&r.get_origin() = {:#?}", &r.get_origin());
+    println!("&r.get_direction()= {:#?}", &r.get_direction());
+
     assert_tuple(&r.get_origin(), &Tuple4D::new_point(0.0, 2.0, -5.0));
     assert_tuple(&r.get_direction(), &Tuple4D::new_vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0));
 }
@@ -220,10 +235,45 @@ fn test_camera_render() {
     let image = Camera::render(&c, &w);
     // println!("image = {:#?}", image);
 
-    let c = image.pixel_at(5, 5);
+    let color = image.pixel_at(5, 5);
     let c_expected = Color::new(0.38066, 0.47583, 0.2855);
 
-    println!("c = {:#?}", c);
+    println!("color = {:#?}", color);
     println!("c_expected = {:#?}", c_expected);
-    assert_color(c, &c_expected);
+    assert_color(color, &c_expected);
 }
+
+
+//
+///// copy of sphere::test_ray_sphere_intersection()  but uses the render method
+//#[test]
+//fn test_ray_sphere_intersection() {
+//    let mut w = World::new();
+//
+//    let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
+//    let light_intensity = Color::new(1.0, 1.0, 1.0);
+//    let pl = PointLight::new(light_pos, light_intensity);
+//    let light = Light::PointLight(pl);
+//    w.set_light(light);
+//
+//    let mut s1 = Sphere::new();
+//    let shape1 = Shape::Sphere(s1);
+//
+//    w.add_shape(shape1);
+//
+//    let from = Tuple4D::new_point(0.0, 0.0, -5.0);
+//    let to = Tuple4D::new_point(0.0, 0.0, 0.0);
+//    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+//
+//    c.set_transformation(Matrix::view_transform(&from, &to, &up));
+//
+//    let image = Camera::render(&c, &w);
+//    // println!("image = {:#?}", image);
+//
+//    let c = image.pixel_at(5, 5);
+//    let c_expected = Color::new(0.38066, 0.47583, 0.2855);
+//
+//    println!("c = {:#?}", c);
+//    println!("c_expected = {:#?}", c_expected);
+//    assert_color(c, &c_expected);
+//}

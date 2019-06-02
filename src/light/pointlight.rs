@@ -1,5 +1,5 @@
-use crate::math::color::Color;
-use crate::math::light::LightOps;
+use crate::basics::color::Color;
+use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
 
 #[derive(Clone, Debug)]

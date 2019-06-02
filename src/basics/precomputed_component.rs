@@ -1,5 +1,5 @@
-use crate::math::shape::Shape;
 use crate::math::tuple4d::Tuple4D;
+use crate::shape::shape::Shape;
 
 pub struct PrecomputedComponent<'a> {
     t: f32,

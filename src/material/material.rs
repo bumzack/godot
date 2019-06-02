@@ -1,11 +1,11 @@
 use std::f32::consts::SQRT_2;
 
-use crate::math::color::{BLACK, WHITE};
-use crate::math::color::Color;
-use crate::math::color::ColorOps;
+use crate::basics::color::{BLACK, WHITE};
+use crate::basics::color::Color;
+use crate::basics::color::ColorOps;
+use crate::light::light::{Light, LightOps};
+use crate::light::pointlight::PointLight;
 use crate::math::common::{assert_color, assert_float};
-use crate::math::light::{Light, LightOps};
-use crate::math::pointlight::PointLight;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
@@ -52,7 +52,7 @@ impl MaterialOps for Material {
         let mut specular = BLACK;
         if light_dot_normal >= 0.0 {
             diffuse = &effective_color * material.diffuse * light_dot_normal;
-            let reflect_v = Tuple4D::reflect(&(light_v * (-1.0_f32)), &n);
+            let reflect_v = Tuple4D::reflect(&(-light_v), &n);
             let reflect_dot_eye = &reflect_v ^ eye;
             specular = BLACK;
 

@@ -1,23 +1,23 @@
 use std::io::Error;
 
-use crate::math::canvas::{Canvas, CanvasOps};
-use crate::math::color::BLACK;
-use crate::math::color::Color;
-use crate::math::color::ColorOps;
+use crate::basics::canvas::{Canvas, CanvasOps};
+use crate::basics::color::BLACK;
+use crate::basics::color::Color;
+use crate::basics::color::ColorOps;
+use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
+use crate::basics::precomputed_component::PrecomputedComponent;
+use crate::basics::ray::Ray;
+use crate::basics::ray::RayOps;
+use crate::light::light::Light;
+use crate::light::pointlight::PointLight;
+use crate::material::material::{Material, MaterialOps};
 use crate::math::common::assert_color;
-use crate::math::intersection::{Intersection, IntersectionListOps, IntersectionOps};
-use crate::math::light::Light;
-use crate::math::material::{Material, MaterialOps};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::pointlight::PointLight;
-use crate::math::precomputed_component::PrecomputedComponent;
-use crate::math::ray::Ray;
-use crate::math::ray::RayOps;
-use crate::math::shape::Shape;
-use crate::math::sphere::{Sphere, SphereOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::shape::shape::Shape;
+use crate::shape::sphere::{Sphere, SphereOps};
 
 pub struct World {
     shapes: Vec<Shape>,
