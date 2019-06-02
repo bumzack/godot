@@ -118,6 +118,10 @@ impl CameraOps for Camera {
         let pixel = inv * p;
         let mut origin = &Matrix::invert(c.get_transform()).unwrap() * &ORIGIN;
         let mut direction = Tuple4D::normalize(&(pixel - ORIGIN));
+
+        //TODO: this makes one test pass, but why?
+        // and another one still failing
+        // so direction is buggy?
         direction.z = -direction.z;
         // println!("ray_for_pixel() pixel_size() = {}, half_widht= {}, half_height = {} ", c.get_pixel_size(), c.get_half_width(), c.get_half_height());
         // println!("ray_for_pixel() world_x() = {}, world_y = {}", world_x, world_y);
