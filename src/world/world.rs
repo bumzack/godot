@@ -1,9 +1,9 @@
 use std::io::Error;
 
 use crate::basics::canvas::{Canvas, CanvasOps};
-use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::BLACK;
 use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
@@ -25,7 +25,7 @@ pub struct World {
 }
 
 pub trait WorldOps<'a> {
-    fn new( ) -> World;
+    fn new() -> World;
     fn set_light(&mut self, light: Light);
     fn add_shape(&mut self, shape: Shape);
     fn get_shapes(&self) -> &Vec<Shape>;
@@ -37,7 +37,7 @@ pub trait WorldOps<'a> {
 }
 
 impl<'a> WorldOps<'a> for World {
-    fn new(  ) -> World {
+    fn new() -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
         let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, 0.0), Color::new(0.0, 0.0, 0.0));
         World {
@@ -63,11 +63,13 @@ impl<'a> WorldOps<'a> for World {
     }
 
     fn shade_hit(&self, comp: &PrecomputedComponent) -> Color {
-        Material::lightning(comp.get_shape().get_material(),
-                            &self.light,
-                            comp.get_point(),
-                            comp.get_eye_vector(),
-                            comp.get_normal_vector())
+        Material::lightning(
+            comp.get_shape().get_material(),
+            &self.light,
+            comp.get_point(),
+            comp.get_eye_vector(),
+            comp.get_normal_vector(),
+        )
     }
 
     fn color_at(w: &World, r: &Ray) -> Color {
@@ -77,7 +79,7 @@ impl<'a> WorldOps<'a> for World {
                 let comp = Intersection::prepare_computations(&i, &r);
                 w.shade_hit(&comp)
             }
-            None => { BLACK }
+            None => BLACK,
         };
         res
     }
@@ -112,124 +114,122 @@ pub fn default_world() -> World {
     w
 }
 
-#[test]
-fn test_default_world() {
-    let w = default_world();
+#[cfg(test)]
+mod tests {
+    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
 
-    let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
-    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
-    let r = Ray::new(origin, direction);
-    let tmp = Intersection::intersect_world(&w, &r);
-    let xs = tmp.get_intersections();
+    use super::*;
 
-    assert_eq!(xs.len(), 4);
-    assert_eq!(xs[0].get_t(), 4.0);
-    assert_eq!(xs[1].get_t(), 4.5);
-    assert_eq!(xs[2].get_t(), 5.5);
-    assert_eq!(xs[3].get_t(), 6.0);
+    #[test]
+    fn test_default_world() {
+        let w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+        let tmp = Intersection::intersect_world(&w, &r);
+        let xs = tmp.get_intersections();
+
+        assert_eq!(xs.len(), 4);
+        assert_eq!(xs[0].get_t(), 4.0);
+        assert_eq!(xs[1].get_t(), 4.5);
+        assert_eq!(xs[2].get_t(), 5.5);
+        assert_eq!(xs[3].get_t(), 6.0);
+    }
+
+    #[test]
+    fn test_shade_hit() {
+        let w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let shapes = w.get_shapes();
+        let shape = shapes.get(0).unwrap();
+
+        let i = Intersection::new(4.0, &shape);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+        let c = World::shade_hit(&w, &comps);
+
+        let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
+        assert_color(&c_expected, &c);
+    }
+
+    #[test]
+    fn test_shade_hit_inside() {
+        let mut w = default_world();
+
+        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.25, 0.0), Color::new(1.0, 1., 1.0));
+        w.set_light(Light::PointLight(pl));
+
+        let origin = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let shapes = w.get_shapes();
+        let shape = shapes.get(1).unwrap();
+
+        let i = Intersection::new(0.5, &shape);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+        let c = World::shade_hit(&w, &comps);
+
+        let c_expected = Color::new(0.90498, 0.90498, 0.90498);
+        assert_color(&c_expected, &c);
+    }
+
+    #[test]
+    fn test_color_at_no_hit() {
+        let mut w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(origin, direction);
+
+        let c = World::color_at(&w, &r);
+
+        let c_expected = Color::new(0.0, 0.0, 0.0);
+        assert_color(&c_expected, &c);
+    }
+
+    #[test]
+    fn test_color_at_single_hit() {
+        let w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let c = World::color_at(&w, &r);
+
+        let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
+        assert_color(&c_expected, &c);
+    }
+
+    #[test]
+    fn test_color_at_inner_sphere() {
+        let mut w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, 0.75);
+        let direction = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let r = Ray::new(origin, direction);
+
+        let mut c_expected = Color::new(0.0, 0.0, 0.0);
+
+        let mut shapes = w.get_shapes_mut();
+        let outer_shape = shapes.get_mut(0).unwrap();
+        outer_shape.get_material_mut().set_ambient(1.0);
+
+        let inner_shape = shapes.get_mut(1).unwrap();
+        inner_shape.get_material_mut().set_ambient(1.0);
+
+        // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
+        c_expected = inner_shape.get_material_mut().get_color().clone();
+
+        let c = World::color_at(&w, &r);
+
+        assert_color(&c_expected, &c);
+    }
 }
-
-
-#[test]
-fn test_shade_hit() {
-    let w = default_world();
-
-    let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
-    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
-    let r = Ray::new(origin, direction);
-
-    let shapes = w.get_shapes();
-    let shape = shapes.get(0).unwrap();
-
-    let i = Intersection::new(4.0, &shape);
-
-    let comps = Intersection::prepare_computations(&i, &r);
-    let c = World::shade_hit(&w, &comps);
-
-    let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
-    assert_color(&c_expected, &c);
-}
-
-
-#[test]
-fn test_shade_hit_inside() {
-    let mut w = default_world();
-
-    let pl = PointLight::new(Tuple4D::new_point(0.0, 0.25, 0.0), Color::new(1.0, 1., 1.0));
-    w.set_light(Light::PointLight(pl));
-
-    let origin = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
-    let r = Ray::new(origin, direction);
-
-    let shapes = w.get_shapes();
-    let shape = shapes.get(1).unwrap();
-
-    let i = Intersection::new(0.5, &shape);
-
-    let comps = Intersection::prepare_computations(&i, &r);
-    let c = World::shade_hit(&w, &comps);
-
-    let c_expected = Color::new(0.90498, 0.90498, 0.90498);
-    assert_color(&c_expected, &c);
-}
-
-
-#[test]
-fn test_color_at_no_hit() {
-    let mut w = default_world();
-
-    let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
-    let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    let r = Ray::new(origin, direction);
-
-    let c = World::color_at(&w, &r);
-
-    let c_expected = Color::new(0.0, 0.0, 0.0);
-    assert_color(&c_expected, &c);
-}
-
-
-#[test]
-fn test_color_at_single_hit() {
-    let w = default_world();
-
-    let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
-    let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
-    let r = Ray::new(origin, direction);
-
-    let c = World::color_at(&w, &r);
-
-    let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
-    assert_color(&c_expected, &c);
-}
-
-
-#[test]
-fn test_color_at_inner_sphere() {
-    let mut w = default_world();
-
-    let origin = Tuple4D::new_point(0.0, 0.0, 0.75);
-    let direction = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let r = Ray::new(origin, direction);
-
-    let mut c_expected = Color::new(0.0, 0.0, 0.0);
-
-    let mut shapes = w.get_shapes_mut();
-    let outer_shape = shapes.get_mut(0).unwrap();
-    outer_shape.get_material_mut().set_ambient(1.0);
-
-    let inner_shape = shapes.get_mut(1).unwrap();
-    inner_shape.get_material_mut().set_ambient(1.0);
-
-    // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
-    c_expected = inner_shape.get_material_mut().get_color().clone();
-
-    let c = World::color_at(&w, &r);
-
-    assert_color(&c_expected, &c);
-}
-
-
-
-

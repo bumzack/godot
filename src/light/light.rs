@@ -12,16 +12,16 @@ pub trait LightOps {
 }
 
 impl LightOps for Light {
-    fn get_intensity(&self) ->  &Color {
+    fn get_intensity(&self) -> &Color {
         let res = match self {
-            Light::PointLight(ref pl) => { pl.get_intensity() }
+            Light::PointLight(ref pl) => pl.get_intensity(),
         };
         res
     }
 
     fn get_position(&self) -> &Tuple4D {
         let res = match self {
-            Light::PointLight(ref pl) => { pl.get_position() }
+            Light::PointLight(ref pl) => pl.get_position(),
         };
         res
     }

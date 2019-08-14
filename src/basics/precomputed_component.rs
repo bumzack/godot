@@ -11,7 +11,14 @@ pub struct PrecomputedComponent<'a> {
 }
 
 impl<'a> PrecomputedComponent<'a> {
-    pub fn new(t: f32, shape: &'a Shape, point: Tuple4D, eye_vector: Tuple4D, normal_vector: Tuple4D, inside: bool) -> PrecomputedComponent<'a> {
+    pub fn new(
+        t: f32,
+        shape: &'a Shape,
+        point: Tuple4D,
+        eye_vector: Tuple4D,
+        normal_vector: Tuple4D,
+        inside: bool,
+    ) -> PrecomputedComponent<'a> {
         PrecomputedComponent {
             t,
             shape,

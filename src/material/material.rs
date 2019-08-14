@@ -1,11 +1,10 @@
 use std::f32::consts::SQRT_2;
 
-use crate::basics::color::{BLACK, WHITE};
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::{BLACK, WHITE};
 use crate::light::light::{Light, LightOps};
 use crate::light::pointlight::PointLight;
-use crate::math::common::{assert_color, assert_float};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
@@ -89,103 +88,105 @@ impl MaterialOps for Material {
     }
 }
 
-fn setup() -> (Material, Tuple4D) {
-    let m = Material::new();
-    let p = Tuple4D::new_point(0.0, 0.0, 0.0);
-    (m, p)
+#[cfg(test)]
+mod tests {
+    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+
+    use super::*;
+
+    fn setup() -> (Material, Tuple4D) {
+        let m = Material::new();
+        let p = Tuple4D::new_point(0.0, 0.0, 0.0);
+        (m, p)
+    }
+
+    #[test]
+    fn test_material_new() {
+        let m = Material::new();
+        assert_float(m.ambient, 0.1);
+        assert_float(m.specular, 0.9);
+        assert_float(m.diffuse, 0.9);
+        assert_float(m.shininess, 200.0);
+
+        assert_color(&m.color, &WHITE);
+    }
+
+    #[test]
+    fn test_material_lightning_eye_between_light_and_surface() {
+        let (m, p) = setup();
+
+        let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+
+        let result_expected = Color::new(1.9, 1.9, 1.9);
+        println!(
+            "test_material_lightning_perpendicular  result = {:#?}, expected = {:#?}",
+            result, result_expected
+        );
+
+        assert_color(&result, &result_expected);
+    }
+
+    #[test]
+    fn test_material_lightning_eye_offset_45() {
+        let (m, p) = setup();
+
+        let eye_v = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+
+        let result_expected = Color::new(1.0, 1.0, 1.0);
+        assert_color(&result, &result_expected);
+    }
+
+    #[test]
+    fn test_material_lightning_light_opposite_eye() {
+        let (m, p) = setup();
+
+        let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+
+        let result_expected = Color::new(0.7364, 0.7364, 0.7364);
+        assert_color(&result, &result_expected);
+    }
+
+    #[test]
+    fn test_material_lightning_eye_in_path_of_reflecting_vector() {
+        let (m, p) = setup();
+
+        let eye_v = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, -SQRT_2 / 2.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+
+        let result_expected = Color::new(1.6363853, 1.6363853, 1.6363853);
+        println!(
+            "test_material_lightning_eye_in_reflecing_path  result = {:#?}, expected = {:#?}",
+            result, result_expected
+        );
+        assert_color(&result, &result_expected);
+    }
+
+    #[test]
+    fn test_material_lightning_light_behind_surface() {
+        let (m, p) = setup();
+
+        let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
+
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+
+        let result_expected = Color::new(0.1, 0.1, 0.1);
+        assert_color(&result, &result_expected);
+    }
 }
-
-
-#[test]
-fn test_material_new() {
-    let m = Material::new();
-    assert_float(m.ambient, 0.1);
-    assert_float(m.specular, 0.9);
-    assert_float(m.diffuse, 0.9);
-    assert_float(m.shininess, 200.0);
-
-    assert_color(&m.color, &WHITE);
-}
-
-
-#[test]
-fn test_material_lightning_eye_between_light_and_surface() {
-    let (m, p) = setup();
-
-    let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
-
-    let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
-
-    let result_expected = Color::new(1.9, 1.9, 1.9);
-    println!("test_material_lightning_perpendicular  result = {:#?}, expected = {:#?}", result, result_expected);
-
-    assert_color(&result, &result_expected);
-}
-
-#[test]
-fn test_material_lightning_eye_offset_45() {
-    let (m, p) = setup();
-
-    let eye_v = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
-    let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
-
-    let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
-
-    let result_expected = Color::new(1.0, 1.0, 1.0);
-    assert_color(&result, &result_expected);
-}
-
-
-#[test]
-fn test_material_lightning_light_opposite_eye() {
-    let (m, p) = setup();
-
-    let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-
-    let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
-
-    let result_expected = Color::new(0.7364, 0.7364, 0.7364);
-    assert_color(&result, &result_expected);
-}
-
-
-#[test]
-fn test_material_lightning_eye_in_path_of_reflecting_vector() {
-    let (m, p) = setup();
-
-    let eye_v = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, -SQRT_2 / 2.0);
-    let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-
-    let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
-
-    let result_expected = Color::new(1.6363853, 1.6363853, 1.6363853);
-    println!("test_material_lightning_eye_in_reflecing_path  result = {:#?}, expected = {:#?}", result, result_expected);
-    assert_color(&result, &result_expected);
-}
-
-
-#[test]
-fn test_material_lightning_light_behind_surface() {
-    let (m, p) = setup();
-
-    let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
-
-    let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
-
-    let result_expected = Color::new(0.1, 0.1, 0.1);
-    assert_color(&result, &result_expected);
-}
-
-
-
-
-
-

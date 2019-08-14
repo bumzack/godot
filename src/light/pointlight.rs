@@ -19,10 +19,7 @@ impl LightOps for PointLight {
 }
 
 impl PointLight {
-   pub fn new(position: Tuple4D, intensity: Color) -> PointLight {
-        PointLight {
-            position,
-            intensity,
-        }
+    pub fn new(position: Tuple4D, intensity: Color) -> PointLight {
+        PointLight { position, intensity }
     }
 }

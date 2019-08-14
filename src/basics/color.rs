@@ -18,11 +18,7 @@ pub trait ColorOps {
 
 impl ColorOps for Color {
     fn new(r: f32, g: f32, b: f32) -> Color {
-        Color {
-            r,
-            g,
-            b,
-        }
+        Color { r, g, b }
     }
 }
 
@@ -110,44 +106,49 @@ impl Div<f32> for Color {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
 
-#[test]
-fn test_add_color() {
-    let c1 = Color::new(0.9, 0.6, 0.75);
-    let c2 = Color::new(0.7, 0.1, 0.25);
-    let c = c1 + c2;
+    use super::*;
 
-    assert_float(c.r, 1.6);
-    assert_float(c.g, 0.7);
-    assert_float(c.b, 1.0);
+    #[test]
+    fn test_add_color() {
+        let c1 = Color::new(0.9, 0.6, 0.75);
+        let c2 = Color::new(0.7, 0.1, 0.25);
+        let c = c1 + c2;
+
+        assert_float(c.r, 1.6);
+        assert_float(c.g, 0.7);
+        assert_float(c.b, 1.0);
+    }
+
+    #[test]
+    fn test_sub_color() {
+        let c1 = Color::new(0.9, 0.6, 0.75);
+        let c2 = Color::new(0.7, 0.1, 0.25);
+        let c = c1 - c2;
+
+        let c_expected = Color::new(0.2, 0.5, 0.5);
+        assert_color(&c, &c_expected);
+    }
+
+    #[test]
+    fn test_mul_color_scalar() {
+        let c1 = Color::new(0.2, 0.3, 0.4);
+        let c = c1 * 2.;
+
+        let c_expected = Color::new(0.4, 0.6, 0.8);
+        assert_color(&c, &c_expected);
+    }
+
+    #[test]
+    fn test_mul_color_color() {
+        let c1 = Color::new(1.0, 0.2, 0.4);
+        let c2 = Color::new(0.9, 1.0, 0.1);
+        let c = c1 * c2;
+
+        let c_expected = Color::new(0.9, 0.2, 0.04);
+        assert_color(&c, &c_expected);
+    }
 }
-
-#[test]
-fn test_sub_color() {
-    let c1 = Color::new(0.9, 0.6, 0.75);
-    let c2 = Color::new(0.7, 0.1, 0.25);
-    let c = c1 - c2;
-
-    let c_expected = Color::new(0.2, 0.5, 0.5);
-    assert_color(&c, &c_expected);
-}
-
-#[test]
-fn test_mul_color_scalar() {
-    let c1 = Color::new(0.2, 0.3, 0.4);
-    let c = c1 * 2.;
-
-    let c_expected = Color::new(0.4, 0.6, 0.8);
-    assert_color(&c, &c_expected);
-}
-
-#[test]
-fn test_mul_color_color() {
-    let c1 = Color::new(1.0, 0.2, 0.4);
-    let c2 = Color::new(0.9, 1.0, 0.1);
-    let c = c1 * c2;
-
-    let c_expected = Color::new(0.9, 0.2, 0.04);
-    assert_color(&c, &c_expected);
-}
-
