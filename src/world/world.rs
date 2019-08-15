@@ -1,6 +1,6 @@
-use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::BLACK;
 use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
@@ -15,6 +15,8 @@ use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 
+pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
+
 pub struct World {
     shapes: Vec<Shape>,
     light: Light,
@@ -27,11 +29,11 @@ pub trait WorldOps<'a> {
     fn get_shapes(&self) -> &Vec<Shape>;
     fn get_shapes_mut(&mut self) -> &mut Vec<Shape>;
 
-    fn shade_hit(&self, comp: &PrecomputedComponent) -> Color;
+    fn shade_hit(&self, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
-    fn color_at(w: &World, r: &Ray) -> Color;
+    fn color_at(w: &World, r: &Ray, remaining: i32) -> Color;
 
-    fn reflected_color(w: &World, comp: &PrecomputedComponent) -> Color;
+    fn reflected_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
     fn is_shadowed(&self, p: &Tuple4D) -> bool;
 }
@@ -39,7 +41,7 @@ pub trait WorldOps<'a> {
 impl<'a> WorldOps<'a> for World {
     fn new() -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
-        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, 0.0), Color::new(0.0, 0.0, 0.0));
+        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, 0.0), Color::new(1.0, 1.0, 1.0));
         World {
             shapes: Vec::new(),
             light: Light::PointLight(pl),
@@ -62,9 +64,9 @@ impl<'a> WorldOps<'a> for World {
         &mut self.shapes
     }
 
-    fn shade_hit(&self, comp: &PrecomputedComponent) -> Color {
+    fn shade_hit(&self, comp: &PrecomputedComponent, remaining: i32) -> Color {
         let in_shadow = self.is_shadowed(comp.get_over_point());
-        Material::lightning(
+        let surface = Material::lightning(
             comp.get_shape().get_material(),
             comp.get_shape(),
             &self.light,
@@ -72,27 +74,35 @@ impl<'a> WorldOps<'a> for World {
             comp.get_eye_vector(),
             comp.get_normal_vector(),
             in_shadow,
-        )
+        );
+        let reflected = World::reflected_color(self, comp, remaining);
+        &surface + &reflected
     }
 
-    fn color_at(w: &World, r: &Ray) -> Color {
+    fn color_at(w: &World, r: &Ray, remaining: i32) -> Color {
         let xs = Intersection::intersect_world(w, r);
         let res = match xs.hit() {
             Some(i) => {
                 let comp = Intersection::prepare_computations(&i, &r);
-                w.shade_hit(&comp)
+                w.shade_hit(&comp, remaining)
             }
             None => BLACK,
         };
         res
     }
 
-    fn reflected_color(w: &World, comp: &PrecomputedComponent) -> Color {
+    fn reflected_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
+        if remaining <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
         if comp.get_shape().get_material().get_reflective() == 0.0 {
             return Color::new(0.0, 0.0, 0.0);
         }
-        let reflect_ray = Ray::new(Tuple4D::new_point_from(comp.get_over_point()), Tuple4D::new_vector_from(comp.get_reflected_vector()));
-        let color = World::color_at(w, &reflect_ray);
+        let reflect_ray = Ray::new(
+            Tuple4D::new_point_from(comp.get_over_point()),
+            Tuple4D::new_vector_from(comp.get_reflected_vector()),
+        );
+        let color = World::color_at(w, &reflect_ray, remaining - 1);
         &color * comp.get_shape().get_material().get_reflective()
     }
 
@@ -210,7 +220,7 @@ mod tests {
         let i = Intersection::new(4.0, &shape);
 
         let comps = Intersection::prepare_computations(&i, &r);
-        let c = World::shade_hit(&w, &comps);
+        let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
 
         let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
         assert_color(&c_expected, &c);
@@ -234,7 +244,7 @@ mod tests {
         let i = Intersection::new(0.5, &shape);
 
         let comps = Intersection::prepare_computations(&i, &r);
-        let c = World::shade_hit(&w, &comps);
+        let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
 
         let c_expected = Color::new(0.90498, 0.90498, 0.90498);
         assert_color(&c_expected, &c);
@@ -269,7 +279,7 @@ mod tests {
         let i = Intersection::new(4.0, &shape);
 
         let comps = Intersection::prepare_computations(&i, &r);
-        let c = World::shade_hit(&w, &comps);
+        let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let c_expected = Color::new(0.1, 0.1, 0.1);
 
         println!("expected color    = {:?}", c_expected);
@@ -305,7 +315,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(origin, direction);
 
-        let c = World::color_at(&w, &r);
+        let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
         let c_expected = Color::new(0.0, 0.0, 0.0);
         assert_color(&c_expected, &c);
@@ -320,7 +330,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let c = World::color_at(&w, &r);
+        let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
         let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
         assert_color(&c_expected, &c);
@@ -346,7 +356,7 @@ mod tests {
         // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
         let mut c_expected = inner_shape.get_material_mut().get_color().clone();
 
-        let c = World::color_at(&w, &r);
+        let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
         assert_color(&c_expected, &c);
     }
@@ -415,12 +425,12 @@ mod tests {
         let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(p, o);
 
-        let s =& w.get_shapes()[1];
+        let s = &w.get_shapes()[1];
         let i = Intersection::new(1.0, s);
 
         let comps = Intersection::prepare_computations(&i, &r);
 
-        let color = World::reflected_color(&w, &comps);
+        let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.0, 0.0, 0.0);
 
         assert_color(&color, &color_expected);
@@ -442,14 +452,104 @@ mod tests {
         let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
         let r = Ray::new(p, o);
 
-        let s =& w.get_shapes()[2];
+        let s = &w.get_shapes()[2];
         let i = Intersection::new(SQRT_2, s);
 
         let comps = Intersection::prepare_computations(&i, &r);
 
-        let color = World::reflected_color(&w, &comps);
+        let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.19032, 0.2379, 0.14274);
 
+        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+        // fix this, when the shadows work
+        assert_color(&color, &color_expected);
+    }
+
+    // page 145
+    #[test]
+    fn test_material_shade_hit_reflective_material() {
+        let mut w: World = default_world();
+
+        let mut p = Plane::new();
+        p.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        p.set_transformation(m);
+        let plane = Shape::Plane(p);
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+
+        let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
+        let color_expected = Color::new(0.87677, 0.92436, 0.82918);
+
+        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+        // fix this, when the shadows work
+        assert_color(&color, &color_expected);
+    }
+
+    // page 146
+    #[test]
+    fn test_material_shade_hit_handle_recursion() {
+        let mut w = World::new();
+
+        let mut l = Plane::new();
+        let m_lower = Matrix::translation(0.0, -1.0, 0.0);
+        l.set_transformation(m_lower);
+        l.get_material_mut().set_reflective(1.0);
+
+        let mut u = Plane::new();
+        let m_upper = Matrix::translation(0.0, 1.0, 0.0);
+        u.set_transformation(m_upper);
+        u.get_material_mut().set_reflective(1.0);
+
+        let lower = Shape::Plane(l);
+        let upper = Shape::Plane(u);
+
+        w.add_shape(lower);
+        w.add_shape(upper);
+
+        let p = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let o = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(p, o);
+
+        let color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        println!("bla");
+        assert!(true, false);
+    }
+
+    // page 147
+    #[test]
+    fn test_material_shade_hit_reflective_material_max_recursive_depth() {
+        let mut w: World = default_world();
+
+        let mut p = Plane::new();
+        p.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        p.set_transformation(m);
+        let plane = Shape::Plane(p);
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+
+        let color = World::reflected_color(&w, &comps, 0);
+        let color_expected = Color::new(0., 0., 0.);
+
+        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+        // fix this, when the shadows work
         assert_color(&color, &color_expected);
     }
 }

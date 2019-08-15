@@ -1,6 +1,6 @@
-use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::BLACK;
 use crate::light::light::{Light, LightOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
@@ -42,7 +42,7 @@ pub trait MaterialOps {
     fn set_pattern(&mut self, p: Pattern);
     fn get_pattern(&self) -> &Option<Pattern>;
 
-    fn get_reflective(&  self) -> f64;
+    fn get_reflective(&self) -> f64;
     fn set_reflective(&mut self, a: f64);
 }
 
@@ -143,7 +143,6 @@ impl MaterialOps for Material {
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
-    use std::panic::set_hook;
 
     use crate::basics::color::WHITE;
     use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
@@ -155,8 +154,8 @@ mod tests {
     use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
-    use crate::world::world::{default_world, WorldOps};
-    use crate::math::matrix::{Matrix, MatrixOps};
+    use crate::math::matrix::MatrixOps;
+    use crate::world::world::WorldOps;
 
     fn setup() -> (Material, Tuple4D) {
         let m = Material::new();

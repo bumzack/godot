@@ -10,6 +10,7 @@ use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
+use raytracer_challenge::patterns::checker3d_patterns::Checker3DPattern;
 use raytracer_challenge::patterns::gradient_patterns::GradientPattern;
 use raytracer_challenge::patterns::patterns::Pattern;
 use raytracer_challenge::patterns::ring_patterns::RingPattern;
@@ -17,7 +18,6 @@ use raytracer_challenge::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge::shape::shape::Shape;
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{World, WorldOps};
-use raytracer_challenge::patterns::checker3d_patterns::Checker3DPattern;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Plane::new();
@@ -41,7 +41,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
     left_wall.get_material_mut().set_pattern(p);
-
 
     let mut checker_3d = Checker3DPattern::new();
     checker_3d.set_color_a(Color::new(0.1, 0.8, 0.4));

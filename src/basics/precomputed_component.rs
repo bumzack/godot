@@ -64,6 +64,6 @@ impl<'a> PrecomputedComponent<'a> {
     }
 
     pub fn get_reflected_vector(&self) -> &Tuple4D {
-       & self.reflected_vector
+        &self.reflected_vector
     }
 }

@@ -68,10 +68,8 @@ impl RingPattern {
 
 #[cfg(test)]
 mod tests {
-    use crate::basics::color::ColorOps;
     use crate::math::common::assert_color;
     use crate::math::tuple4d::Tuple;
-    use crate::shape::sphere::SphereOps;
 
     use super::*;
 

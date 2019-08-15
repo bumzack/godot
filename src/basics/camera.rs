@@ -6,8 +6,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::world::world::World;
 use crate::world::world::WorldOps;
+use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -137,7 +137,7 @@ impl CameraOps for Camera {
         for y in 0..c.get_vsize() {
             for x in 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
-                let c = World::color_at(w, &r);
+                let c = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
                 if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
                 canvas.write_pixel(x, y, c);
             }

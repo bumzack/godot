@@ -4,12 +4,12 @@ use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::math::common::EPSILON;
+use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
-use crate::math::tuple4d::{Tuple4D, Tuple};
 
 pub struct Intersection<'a> {
     t: f64,

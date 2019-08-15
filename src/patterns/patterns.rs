@@ -1,11 +1,11 @@
 use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
+use crate::patterns::checker3d_patterns::Checker3DPattern;
 use crate::patterns::gradient_patterns::GradientPattern;
 use crate::patterns::ring_patterns::RingPattern;
 use crate::patterns::stripe_patterns::StripePattern;
 use crate::shape::shape::Shape;
-use crate::patterns::checker3d_patterns::Checker3DPattern;
 
 #[derive(Clone, Debug)]
 pub enum Pattern {
