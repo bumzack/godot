@@ -28,7 +28,11 @@ impl<'a> CanvasOps<'a> for Canvas {
         }
     }
 
-    fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
+    fn write_pixel(&mut self, x: usize, y: usize, mut c: Color) {
+        // TODO: do the value clamping somewhere more appropiate
+        if c.b > 1.0 { c.b = 1.0; }
+        if c.r > 1.0 { c.r = 1.0; }
+        if c.g > 1.0 { c.g = 1.0; }
         self.pixel[y * self.width + x] = c;
     }
 
@@ -107,7 +111,6 @@ impl<'a> CanvasOps<'a> for Canvas {
 //        }
 //    }
 //}
-
 #[cfg(test)]
 mod tests {
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};

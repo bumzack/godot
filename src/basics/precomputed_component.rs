@@ -1,10 +1,11 @@
-use crate::math::tuple4d::Tuple4D;
+use crate::math::tuple4d::{Tuple4D, Tuple};
 use crate::shape::shape::Shape;
 
 pub struct PrecomputedComponent<'a> {
     t: f64,
     shape: &'a Shape,
     point: Tuple4D,
+    over_point: Tuple4D,
     eye_vector: Tuple4D,
     normal_vector: Tuple4D,
     inside: bool,
@@ -15,6 +16,7 @@ impl<'a> PrecomputedComponent<'a> {
         t: f64,
         shape: &'a Shape,
         point: Tuple4D,
+        over_point: Tuple4D,
         eye_vector: Tuple4D,
         normal_vector: Tuple4D,
         inside: bool,
@@ -23,6 +25,7 @@ impl<'a> PrecomputedComponent<'a> {
             t,
             shape,
             point,
+            over_point,
             eye_vector,
             normal_vector,
             inside,
@@ -35,6 +38,10 @@ impl<'a> PrecomputedComponent<'a> {
 
     pub fn get_point(&self) -> &Tuple4D {
         &self.point
+    }
+
+    pub fn get_over_point(&self) -> &Tuple4D {
+        &self.over_point
     }
 
     pub fn get_eye_vector(&self) -> &Tuple4D {

@@ -8,6 +8,9 @@ use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
+use std::fmt;
+use crate::math::common::EPSILON;
+
 
 pub struct Intersection<'a> {
     t: f64,
@@ -32,12 +35,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut intersection_list = IntersectionList::new();
         let res = match shape {
             Shape::Sphere(ref s) => {
-                //TODO: this soooo important here to inverse the ray ...
-
-                // TODO: refactor the shit out of this
                 let r2 = Ray::transform(r, s.get_inverse_transformation());
                 let res = Sphere::intersect(s, &r2);
-                // println!("intersect: ray = {:#?}, sphere = {:#?}", r, s);
 
                 match res {
                     Some(r) => {
@@ -85,7 +84,14 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         } else {
             inside = false;
         }
-        PrecomputedComponent::new(self.get_t(), self.get_shape(), p, eye_vector, normal_vector, inside)
+        let over_point = &p +  &(&normal_vector *EPSILON);
+        PrecomputedComponent::new(self.get_t(), self.get_shape(), p, over_point, eye_vector, normal_vector, inside)
+    }
+}
+
+impl<'a> fmt::Debug for Intersection<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "is shape t = {}", self.t)
     }
 }
 
@@ -123,6 +129,15 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
 
     fn get_intersections_mut(&mut self) -> &mut Vec<Intersection<'a>> {
         &mut self.l
+    }
+}
+
+impl<'a> fmt::Debug for IntersectionList<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for i in self.l.iter() {
+            writeln!(f, "isl  {:?}", i);
+        }
+        writeln!(f, "")
     }
 }
 
@@ -220,7 +235,7 @@ mod tests {
         let i = il.hit();
 
         // TODO - how to assert????
-        //  assert_eq!(i, None);
+        assert_eq!(i.is_none(), true);
     }
 
     #[test]

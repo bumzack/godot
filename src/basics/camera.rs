@@ -1,14 +1,10 @@
 use std::f64::consts::{PI, SQRT_2};
-use std::sync::{Arc, Mutex};
-use std::thread;
-use std::time::Instant;
 
 use crate::basics::canvas::Canvas;
 use crate::basics::canvas::CanvasOps;
 use crate::basics::color::{Color, ColorOps};
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -47,6 +43,7 @@ pub trait CameraOps {
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
 
     fn render(c: &Camera, w: &World) -> Canvas;
+
     // TODO: use rayon or crossbeam?
     // fn render_parallel(c: &Camera, w: &World) -> Canvas;
 }
@@ -142,17 +139,10 @@ impl CameraOps for Camera {
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
         for y in 0..c.get_vsize() {
-            // 5..6 {          // 0..c.get_vsize() {
             for x in 0..c.get_hsize() {
-                // 5..6 {            // 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
                 let c = World::color_at(w, &r);
-                if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {
-//                    println!(
-//                        "render pixel ( {} / {} )    color = ( {} / {} / {} )",
-//                        x, y, c.r, c.g, c.b
-//                    );
-                }
+                if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
                 canvas.write_pixel(x, y, c);
             }
             println!("render line  {}", y);
@@ -263,6 +253,7 @@ mod tests {
         assert_tuple(&r.get_origin(), &expected_origin);
         assert_tuple(&r.get_direction(), &expected_direction);
     }
+
     // page 104
     #[test]
     fn test_camera_render() {

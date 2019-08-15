@@ -2,6 +2,9 @@ use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
 
+pub const EPSILON: f64 = 0.00001;
+
+
 pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
     assert_eq!(assert_two_float(actual.m[0][0], expected.m[0][0]), true);
     assert_eq!(assert_two_float(actual.m[0][1], expected.m[0][1]), true);
@@ -38,7 +41,6 @@ pub fn assert_color(actual: &Color, expected: &Color) {
 }
 
 pub fn assert_two_float(a: f64, b: f64) -> bool {
-    let EPSILON = 0.00001;
 
     // println!("float_equal: a = {}, b = {}", a, b);
     if (a - b).abs() < EPSILON {

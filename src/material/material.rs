@@ -1,8 +1,8 @@
 use std::f64::consts::SQRT_2;
 
+use crate::basics::color::{BLACK, WHITE};
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::{BLACK, WHITE};
 use crate::light::light::{Light, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple;
@@ -20,7 +20,7 @@ pub struct Material {
 pub trait MaterialOps {
     fn new() -> Material;
 
-    fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D) -> Color;
+    fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D, in_shadow: bool) -> Color;
 
     fn set_color(&mut self, c: Color);
     fn set_diffuse(&mut self, d: f64);
@@ -42,7 +42,7 @@ impl MaterialOps for Material {
         }
     }
 
-    fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D) -> Color {
+    fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D, in_shadow: bool) -> Color {
         let effective_color = &material.color * light.get_intensity();
         let light_v = Tuple4D::normalize(&(light.get_position() - &point));
         let ambient = &effective_color * material.ambient;
@@ -60,7 +60,11 @@ impl MaterialOps for Material {
                 specular = light.get_intensity() * material.specular * factor;
             }
         }
-        ambient + diffuse + specular
+        if in_shadow {
+            ambient
+        } else {
+            ambient + diffuse + specular
+        }
     }
 
     fn set_color(&mut self, c: Color) {
@@ -119,7 +123,7 @@ mod tests {
         let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
 
         let result_expected = Color::new(1.9, 1.9, 1.9);
         println!(
@@ -138,7 +142,7 @@ mod tests {
         let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
 
         let result_expected = Color::new(1.0, 1.0, 1.0);
         assert_color(&result, &result_expected);
@@ -152,7 +156,7 @@ mod tests {
         let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
 
         let result_expected = Color::new(0.7364, 0.7364, 0.7364);
         assert_color(&result, &result_expected);
@@ -166,7 +170,7 @@ mod tests {
         let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
 
         let result_expected = Color::new(1.6363961030678928, 1.6363961030678928, 1.6363961030678928);
         println!(
@@ -184,7 +188,23 @@ mod tests {
         let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
 
-        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
+
+        let result_expected = Color::new(0.1, 0.1, 0.1);
+        assert_color(&result, &result_expected);
+    }
+
+    // page 110 - shadows - yeah!
+    #[test]
+    fn test_material_lightning_with_surface_in_shadow() {
+        let (m, p) = setup();
+
+        let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+        let in_shadow = true;
+
+        let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v, in_shadow);
 
         let result_expected = Color::new(0.1, 0.1, 0.1);
         assert_color(&result, &result_expected);

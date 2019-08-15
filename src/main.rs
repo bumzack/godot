@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::f64::consts::{PI, SQRT_2};
+use std::f64::consts::PI;
 
 use crate::basics::camera::{Camera, CameraOps};
 use crate::basics::canvas::CanvasOps;
@@ -9,7 +9,7 @@ use crate::basics::ray::RayOps;
 use crate::light::light::Light;
 use crate::light::pointlight::PointLight;
 use crate::material::material::MaterialOps;
-use crate::math::common::{assert_color, assert_tuple};
+use crate::math::common::assert_color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;

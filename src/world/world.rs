@@ -1,14 +1,14 @@
 use std::io::Error;
 
 use crate::basics::canvas::{Canvas, CanvasOps};
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
-use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
+use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::light::light::Light;
+use crate::light::light::{Light, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
 use crate::math::common::assert_color;
@@ -34,6 +34,8 @@ pub trait WorldOps<'a> {
     fn shade_hit(&self, comp: &PrecomputedComponent) -> Color;
 
     fn color_at(w: &World, r: &Ray) -> Color;
+
+    fn is_shadowed(&self, p: &Tuple4D) -> bool;
 }
 
 impl<'a> WorldOps<'a> for World {
@@ -63,12 +65,14 @@ impl<'a> WorldOps<'a> for World {
     }
 
     fn shade_hit(&self, comp: &PrecomputedComponent) -> Color {
+        let in_shadow = self.is_shadowed(comp.get_over_point());
         Material::lightning(
             comp.get_shape().get_material(),
             &self.light,
             comp.get_point(),
             comp.get_eye_vector(),
             comp.get_normal_vector(),
+            in_shadow,
         )
     }
 
@@ -82,6 +86,36 @@ impl<'a> WorldOps<'a> for World {
             None => BLACK,
         };
         res
+    }
+
+    fn is_shadowed(&self, p: &Tuple4D) -> bool {
+        let v = self.light.get_position() - p;
+//        println!("light pos = {:?}" ,self.light.get_position());
+//        for s in  self.shapes.iter() {
+//            println!("shape pos = {:?}", s.get_transformation());
+//        }
+
+        let distance = Tuple4D::magnitude(&v);
+        let direction = Tuple4D::normalize(&v);
+
+        let point = Tuple4D::new_point_from(&v);
+        let r = Ray::new(point, direction);
+
+        let intersections = Intersection::intersect_world(self, &r);
+
+        println!("intersections = {:?}", intersections);
+
+        let h = intersections.hit();
+        println!("distance= {:?}", distance);
+        // println!("t = {:?}", h.unwrap().get_t());
+
+        if h.is_some() {
+            println!("t = {:?}", h.unwrap().get_t());
+            if h.unwrap().get_t() < distance {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -116,7 +150,7 @@ pub fn default_world() -> World {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float, EPSILON};
 
     use super::*;
 
@@ -183,6 +217,62 @@ mod tests {
         assert_color(&c_expected, &c);
     }
 
+    // page 114
+    #[test]
+    fn test_shade_hit_shadow() {
+        let mut w = World::new();
+
+        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+        w.set_light(Light::PointLight(pl));
+
+        let mut s1 = Sphere::new();
+        let shape1 = Shape::Sphere(s1);
+
+        let m = Matrix::translation(0.0, 0.0, 10.0);
+        let mut s2 = Sphere::new();
+        s2.set_transformation(m);
+        let shape2 = Shape::Sphere(s2);
+
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+
+        let origin = Tuple4D::new_point(0.0, 0.0, 5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let shapes = w.get_shapes();
+        let shape = shapes.get(1).unwrap();
+
+        let i = Intersection::new(4.0, &shape);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+        let c = World::shade_hit(&w, &comps);
+        let c_expected = Color::new(0.1, 0.1, 0.1);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+        assert_color(&c_expected, &c);
+    }
+
+    // page 115
+    #[test]
+    fn test_prepare_computations_shadow_offset() {
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let m = Matrix::translation(0.0, 0.0, 1.0);
+        let mut s1 = Sphere::new();
+        s1.set_transformation(m);
+        let shape1 = Shape::Sphere(s1);
+
+        let i = Intersection::new(5.0, &shape1);
+        let comps = Intersection::prepare_computations(&i, &r);
+
+        assert!(comps.get_over_point().z < -EPSILON / 2.0);
+        assert!(comps.get_point().z > comps.get_over_point().z);
+    }
+
     // page 96
     #[test]
     fn test_color_at_no_hit() {
@@ -236,5 +326,41 @@ mod tests {
         let c = World::color_at(&w, &r);
 
         assert_color(&c_expected, &c);
+    }
+
+    // page 111
+    #[test]
+    fn test_point_in_shadow_collinear() {
+        let mut w = default_world();
+        let p = Tuple4D::new_point(0.0, 10.0, 0.0);
+        let is_shadowed = w.is_shadowed(&p);
+        assert_eq!(is_shadowed, false);
+    }
+
+    // page 112 top
+    #[test]
+    fn test_point_in_shadow_object_between_point_and_light() {
+        let mut w = default_world();
+        let p = Tuple4D::new_point(10.0, -10.0, 10.0);
+        let is_shadowed = w.is_shadowed(&p);
+        assert_eq!(is_shadowed, true);
+    }
+
+    // page 112 center
+    #[test]
+    fn test_point_in_shadow_object_behind_light() {
+        let mut w = default_world();
+        let p = Tuple4D::new_point(-20.0, 20.0, -20.0);
+        let is_shadowed = w.is_shadowed(&p);
+        assert_eq!(is_shadowed, false);
+    }
+
+    // page 112 bottom
+    #[test]
+    fn test_point_in_shadow_object_behind_point() {
+        let mut w = default_world();
+        let p = Tuple4D::new_point(-2.0, 2.0, -2.0);
+        let is_shadowed = w.is_shadowed(&p);
+        assert_eq!(is_shadowed, false);
     }
 }
