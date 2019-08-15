@@ -1,16 +1,17 @@
+use std::fmt;
+
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::math::common::assert_tuple;
+use crate::math::common::EPSILON;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
-use std::fmt;
-use crate::math::common::EPSILON;
-
 
 pub struct Intersection<'a> {
     t: f64,
@@ -33,17 +34,28 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
     fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
+        let r2 = Ray::transform(r, shape.get_inverse_transformation());
+
         let res = match shape {
             Shape::Sphere(ref s) => {
-                let r2 = Ray::transform(r, s.get_inverse_transformation());
                 let res = Sphere::intersect(s, &r2);
-
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], shape);
                         let i2 = Intersection::new(r[1], shape);
                         intersection_list.add(i1);
                         intersection_list.add(i2);
+                    }
+                    None => {}
+                }
+                intersection_list
+            }
+            Shape::Plane(ref p) => {
+                let res = Plane::intersect(p, &r2);
+                match res {
+                    Some(r) => {
+                        let i1 = Intersection::new(r[0], shape);
+                        intersection_list.add(i1);
                     }
                     None => {}
                 }
@@ -84,7 +96,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         } else {
             inside = false;
         }
-        let over_point = &p +  &(&normal_vector *EPSILON);
+        let over_point = &p + &(&normal_vector * EPSILON);
         PrecomputedComponent::new(self.get_t(), self.get_shape(), p, over_point, eye_vector, normal_vector, inside)
     }
 }
