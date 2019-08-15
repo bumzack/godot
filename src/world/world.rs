@@ -1,9 +1,9 @@
 use std::io::Error;
 
 use crate::basics::canvas::{Canvas, CanvasOps};
-use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::BLACK;
 use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
@@ -90,10 +90,10 @@ impl<'a> WorldOps<'a> for World {
 
     fn is_shadowed(&self, p: &Tuple4D) -> bool {
         let v = self.light.get_position() - p;
-//        println!("light pos = {:?}" ,self.light.get_position());
-//        for s in  self.shapes.iter() {
-//            println!("shape pos = {:?}", s.get_transformation());
-//        }
+        //        println!("light pos = {:?}" ,self.light.get_position());
+        //        for s in  self.shapes.iter() {
+        //            println!("shape pos = {:?}", s.get_transformation());
+        //        }
 
         let distance = Tuple4D::magnitude(&v);
         let direction = Tuple4D::normalize(&v);

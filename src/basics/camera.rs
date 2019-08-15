@@ -278,36 +278,36 @@ mod tests {
 
     //
     // copy of sphere::test_ray_sphere_intersection()  but uses the render method
-//    #[test]
-//    fn test_ray_sphere_intersection_render() {
-//        let mut w = World::new();
-//
-//        let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
-//        let light_intensity = Color::new(1.0, 1.0, 1.0);
-//        let pl = PointLight::new(light_pos, light_intensity);
-//        let light = Light::PointLight(pl);
-//        w.set_light(light);
-//
-//        let mut s1 = Sphere::new();
-//        let shape1 = Shape::Sphere(s1);
-//
-//        w.add_shape(shape1);
-//
-//        let from = Tuple4D::new_point(0.0, 0.0, -5.0);
-//        let to = Tuple4D::new_point(0.0, 0.0, 0.0);
-//        let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
-//
-//        let mut c = Camera::new(11, 11, PI / 2.0);
-//        c.set_transformation(Matrix::view_transform(&from, &to, &up));
-//
-//        let image = Camera::render(&c, &w);
-//        // println!("image = {:#?}", image);
-//
-//        let c = image.pixel_at(5, 5);
-//        let c_expected = Color::new(0.38066, 0.47583, 0.2855);
-//
-//        println!("c = {:#?}", c);
-//        println!("c_expected = {:#?}", c_expected);
-//        assert_color(c, &c_expected);
-//    }
+    //    #[test]
+    //    fn test_ray_sphere_intersection_render() {
+    //        let mut w = World::new();
+    //
+    //        let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
+    //        let light_intensity = Color::new(1.0, 1.0, 1.0);
+    //        let pl = PointLight::new(light_pos, light_intensity);
+    //        let light = Light::PointLight(pl);
+    //        w.set_light(light);
+    //
+    //        let mut s1 = Sphere::new();
+    //        let shape1 = Shape::Sphere(s1);
+    //
+    //        w.add_shape(shape1);
+    //
+    //        let from = Tuple4D::new_point(0.0, 0.0, -5.0);
+    //        let to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    //        let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    //
+    //        let mut c = Camera::new(11, 11, PI / 2.0);
+    //        c.set_transformation(Matrix::view_transform(&from, &to, &up));
+    //
+    //        let image = Camera::render(&c, &w);
+    //        // println!("image = {:#?}", image);
+    //
+    //        let c = image.pixel_at(5, 5);
+    //        let c_expected = Color::new(0.38066, 0.47583, 0.2855);
+    //
+    //        println!("c = {:#?}", c);
+    //        println!("c_expected = {:#?}", c_expected);
+    //        assert_color(c, &c_expected);
+    //    }
 }

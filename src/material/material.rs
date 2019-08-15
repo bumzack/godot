@@ -1,8 +1,8 @@
 use std::f64::consts::SQRT_2;
 
-use crate::basics::color::{BLACK, WHITE};
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::{BLACK, WHITE};
 use crate::light::light::{Light, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple;
@@ -20,7 +20,14 @@ pub struct Material {
 pub trait MaterialOps {
     fn new() -> Material;
 
-    fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D, in_shadow: bool) -> Color;
+    fn lightning(
+        material: &Material,
+        light: &Light,
+        point: &Tuple4D,
+        eye: &Tuple4D,
+        n: &Tuple4D,
+        in_shadow: bool,
+    ) -> Color;
 
     fn set_color(&mut self, c: Color);
     fn set_diffuse(&mut self, d: f64);
@@ -42,7 +49,14 @@ impl MaterialOps for Material {
         }
     }
 
-    fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D, in_shadow: bool) -> Color {
+    fn lightning(
+        material: &Material,
+        light: &Light,
+        point: &Tuple4D,
+        eye: &Tuple4D,
+        n: &Tuple4D,
+        in_shadow: bool,
+    ) -> Color {
         let effective_color = &material.color * light.get_intensity();
         let light_v = Tuple4D::normalize(&(light.get_position() - &point));
         let ambient = &effective_color * material.ambient;

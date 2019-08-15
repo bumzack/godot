@@ -14,11 +14,17 @@ pub struct Color {
 
 pub trait ColorOps {
     fn new(r: f64, g: f64, b: f64) -> Color;
+
+    fn from_color(c: &Color) -> Color;
 }
 
 impl ColorOps for Color {
     fn new(r: f64, g: f64, b: f64) -> Color {
         Color { r, g, b }
+    }
+
+    fn from_color(c: &Color) -> Color {
+        Color { r: c.r, g: c.g, b: c.b }
     }
 }
 

@@ -1,17 +1,16 @@
-use std::error::Error;
-use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge::material::material::MaterialOps;
-use std::f64::consts::PI;
-use raytracer_challenge::light::pointlight::PointLight;
-use raytracer_challenge::light::light::Light;
-use raytracer_challenge::shape::shape::Shape;
-use raytracer_challenge::world::world::{World, WorldOps};
-use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
-use raytracer_challenge::basics::color::{Color, ColorOps};
-use raytracer_challenge::math::tuple4d::{Tuple4D, Tuple};
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::CanvasOps;
-
+use raytracer_challenge::basics::color::{Color, ColorOps};
+use raytracer_challenge::light::light::Light;
+use raytracer_challenge::light::pointlight::PointLight;
+use raytracer_challenge::material::material::MaterialOps;
+use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
+use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
+use raytracer_challenge::shape::shape::Shape;
+use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
+use raytracer_challenge::world::world::{World, WorldOps};
+use std::error::Error;
+use std::f64::consts::PI;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Sphere::new();
@@ -21,9 +20,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut left_wall = Sphere::new();
     left_wall.set_transformation(
-        &(&(&Matrix::translation(0.0, 0.0, 5.0)
-            * &Matrix::rotate_y(-PI / 4.0))
-            * &Matrix::rotate_x(PI / 2.0))
+        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.),
     );
     left_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -31,9 +28,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut right_wall = Sphere::new();
     right_wall.set_transformation(
-        &(&(&Matrix::translation(0.0, 0.0, 5.0)
-            * &Matrix::rotate_y(PI / 4.0))
-            * &Matrix::rotate_x(PI / 2.0))
+        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.0),
     );
     right_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -85,5 +80,3 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-
-

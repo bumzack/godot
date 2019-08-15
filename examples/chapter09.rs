@@ -21,19 +21,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut left_wall = Plane::new();
     left_wall.set_transformation(
-        &(&Matrix::translation(0.0, 0.0, 5.0)
-            * &Matrix::rotate_y(-PI / 4.0))
-            * &Matrix::rotate_x(PI / 2.0));
+        &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
+    );
     left_wall.get_material_mut().set_color(Color::new(0.0, 1., 0.0));
-    left_wall.get_material_mut().set_specular(0.0);
+    left_wall.get_material_mut().set_specular(0.5);
 
     let mut right_wall = Plane::new();
     right_wall.set_transformation(
-        &(&Matrix::translation(0.0, 0.0, 5.0)
-            * &Matrix::rotate_y(PI / 4.0))
-            * &Matrix::rotate_x(PI / 2.0));
+        &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
+    );
     right_wall.get_material_mut().set_color(Color::new(0.0, 0.0, 1.));
-    right_wall.get_material_mut().set_specular(0.0);
+    right_wall.get_material_mut().set_specular(1.0);
 
     let mut middle = Sphere::new();
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
@@ -81,5 +79,3 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-
-

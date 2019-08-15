@@ -97,7 +97,15 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             inside = false;
         }
         let over_point = &p + &(&normal_vector * EPSILON);
-        PrecomputedComponent::new(self.get_t(), self.get_shape(), p, over_point, eye_vector, normal_vector, inside)
+        PrecomputedComponent::new(
+            self.get_t(),
+            self.get_shape(),
+            p,
+            over_point,
+            eye_vector,
+            normal_vector,
+            inside,
+        )
     }
 }
 
