@@ -1,6 +1,6 @@
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
 use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
@@ -36,6 +36,8 @@ pub trait WorldOps<'a> {
     fn reflected_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
     fn is_shadowed(&self, p: &Tuple4D) -> bool;
+
+    fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 }
 
 impl<'a> WorldOps<'a> for World {
@@ -135,6 +137,13 @@ impl<'a> WorldOps<'a> for World {
         }
         false
     }
+
+    fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
+        if comp.get_shape().get_material().get_transparency() == 0.0 {
+          return  Color::new(0.0, 0.0, 0.0);
+        }
+        Color::new(1.0, 1.0, 1.0)
+    }
 }
 
 pub fn default_world() -> World {
@@ -184,6 +193,7 @@ mod tests {
 
     use crate::math::common::{assert_color, EPSILON};
     use crate::shape::plane::{Plane, PlaneOps};
+    use crate::shape::sphere::glass_sphere;
 
     use super::*;
 
@@ -559,5 +569,59 @@ mod tests {
         // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
         // fix this, when the shadows work
         assert_color(&color, &color_expected);
+    }
+
+    // page 154
+    #[test]
+    fn test_prepare_computations_under_point() {
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let mut s = glass_sphere();
+        let m_trans = Matrix::translation(0.0, 0.0, 1.0);
+        s.set_transformation(m_trans);
+
+        let shape1 = Shape::Sphere(s);
+
+        let i = Intersection::new(5.0, &shape1);
+        let i_clone = Intersection::new(5.0, &shape1);
+
+        let mut xs = IntersectionList::new();
+        xs.add(i_clone);
+
+        let comps = Intersection::prepare_computations(&i, &r, &xs);
+
+        assert!(comps.get_under_point().z > EPSILON / 2.0);
+        assert!(comps.get_point().z < comps.get_under_point().z);
+    }
+
+    // page 155
+    #[test]
+    fn test_refracted_color() {
+        let mut w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let s = &w.get_shapes()[0];
+
+        let i1 = Intersection::new(4.0, s);
+        let i2 = Intersection::new(6.0, &s);
+
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        xs.add(i2);
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+
+        let c = World::refracted_color(&w, &comps, 5);
+        let c_expected = Color::new(0.0, 0.0, 0.0);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+
+        assert_color(&c, &c_expected);
     }
 }

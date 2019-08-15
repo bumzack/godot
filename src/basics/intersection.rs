@@ -100,9 +100,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
         let over_point = &point + &(&normal_vector * EPSILON);
-
-        // TODO:
-        let under_point = &point + &(&normal_vector * EPSILON);
+        let under_point = &point - &(&normal_vector * EPSILON);
 
         let mut comp = PrecomputedComponent::new(
             self.get_t(),

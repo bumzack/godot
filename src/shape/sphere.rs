@@ -6,7 +6,7 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
@@ -91,6 +91,16 @@ impl SphereOps for Sphere {
         &mut self.material
     }
 }
+
+// helper
+// page 151
+pub fn glass_sphere() -> Sphere {
+    let mut s = Sphere::new();
+    s.get_material_mut().set_transparency(1.0);
+    s.get_material_mut().set_refractive_index(1.5);
+    s
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -291,14 +301,6 @@ mod tests {
         assert_tuple(&n, &n_expected);
     }
 
-    // helper
-    // page 151
-    fn glass_sphere() -> Sphere {
-        let mut s = Sphere::new();
-        s.get_material_mut().set_transparency(1.0);
-        s.get_material_mut().set_refractive_index(1.5);
-        s
-    }
 
     // page 152
     fn test_helper_n1_n2_calculations(index: usize, n1_expected: f64, n2_expected: f64) {
