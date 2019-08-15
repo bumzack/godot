@@ -1,12 +1,13 @@
 use std::f64::consts::SQRT_2;
 
+use crate::basics::color::{BLACK, WHITE};
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::{BLACK, WHITE};
 use crate::light::light::{Light, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::patterns::patterns::Pattern;
 
 #[derive(Clone, Debug)]
 pub struct Material {
@@ -15,6 +16,7 @@ pub struct Material {
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    pattern: Option<Pattern>,
 }
 
 pub trait MaterialOps {
@@ -36,6 +38,9 @@ pub trait MaterialOps {
     fn set_ambient(&mut self, a: f64);
 
     fn get_color(&self) -> &Color;
+
+    fn set_pattern(&mut self, p: Pattern);
+    fn get_pattern(&self) -> &Option<Pattern>;
 }
 
 impl MaterialOps for Material {
@@ -46,6 +51,7 @@ impl MaterialOps for Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.0,
+            pattern: None,
         }
     }
 
@@ -57,7 +63,14 @@ impl MaterialOps for Material {
         n: &Tuple4D,
         in_shadow: bool,
     ) -> Color {
-        let effective_color = &material.color * light.get_intensity();
+        let mut c: Color;
+        // TODO: a lot of color copying here ...
+        if material.get_pattern().is_some() {
+            c = material.get_pattern().as_ref().unwrap().stripe_at(point);
+        }else {
+            c = Color::from_color(&material.color);
+        }
+        let effective_color = &c * light.get_intensity();
         let light_v = Tuple4D::normalize(&(light.get_position() - &point));
         let ambient = &effective_color * material.ambient;
         let light_dot_normal = &light_v ^ &n;
@@ -103,6 +116,14 @@ impl MaterialOps for Material {
 
     fn get_color(&self) -> &Color {
         &self.color
+    }
+
+    fn set_pattern(&mut self, p: Pattern) {
+        self.pattern = Some(p);
+    }
+
+    fn get_pattern(&self) -> &Option<Pattern> {
+        &self.pattern
     }
 }
 
@@ -222,5 +243,32 @@ mod tests {
 
         let result_expected = Color::new(0.1, 0.1, 0.1);
         assert_color(&result, &result_expected);
+    }
+
+    // page 129
+    #[test]
+    fn test_material_with_pattern() {
+        let pattern = Pattern::new();
+
+        let mut m = Material::new();
+        m.set_pattern(pattern);
+        m.set_ambient(1.0);
+        m.set_diffuse(0.0);
+        m.set_specular(0.0);
+
+        let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+        let pl = Light::PointLight(l);
+
+        let p1 = Tuple4D::new_point(0.9, 0.0, 0.0);
+        let c1 = Material::lightning(&m, &pl, &p1, &eye_v, &normal_v, false);
+        let c1_expected = Color::new(1.0, 1.0, 1.0);
+        assert_color(&c1, &c1_expected);
+
+        let p2 = Tuple4D::new_point(1.1, 0.0, 0.0);
+        let c2 = Material::lightning(&m, &pl, &p2, &eye_v, &normal_v, false);
+        let c2_expected = Color::new(0.0, 0.0, 0.0);
+        assert_color(&c2, &c2_expected);
     }
 }

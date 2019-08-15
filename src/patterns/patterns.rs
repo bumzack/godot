@@ -23,7 +23,7 @@ pub struct Pattern {
 pub trait PatternOps {}
 
 impl Pattern {
-    fn new() -> Pattern {
+    pub(crate) fn new() -> Pattern {
         Pattern {
             color_a: WHITE,
             color_b: BLACK,
