@@ -1,75 +1,17 @@
 use std::error::Error;
+use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
+use raytracer_challenge::material::material::MaterialOps;
 use std::f64::consts::PI;
+use raytracer_challenge::light::pointlight::PointLight;
+use raytracer_challenge::light::light::Light;
+use raytracer_challenge::shape::shape::Shape;
+use raytracer_challenge::world::world::{World, WorldOps};
+use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
+use raytracer_challenge::basics::color::{Color, ColorOps};
+use raytracer_challenge::math::tuple4d::{Tuple4D, Tuple};
+use raytracer_challenge::basics::camera::{Camera, CameraOps};
+use raytracer_challenge::basics::canvas::CanvasOps;
 
-use crate::basics::camera::{Camera, CameraOps};
-use crate::basics::canvas::CanvasOps;
-use crate::basics::color::Color;
-use crate::basics::color::ColorOps;
-use crate::basics::ray::RayOps;
-use crate::light::light::Light;
-use crate::light::pointlight::PointLight;
-use crate::material::material::MaterialOps;
-use crate::math::common::assert_color;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
-use crate::shape::sphere::{Sphere, SphereOps};
-use crate::world::world::{default_world, World, WorldOps};
-
-mod basics;
-mod light;
-mod material;
-mod math;
-mod shape;
-mod world;
-
-fn main2() -> Result<(), Box<dyn Error>> {
-    let mut w = default_world();
-
-    let shapes = w.get_shapes();
-    let outer_shape = shapes.get(0).unwrap();
-    let inner_shape = shapes.get(1).unwrap();
-
-    println!(
-        "outer_shape.get_tranformation             {:#?}",
-        outer_shape.get_transformation()
-    );
-    println!(
-        "outer_shape.get_inverse_transformation    {:#?}",
-        outer_shape.get_inverse_transformation()
-    );
-    println!(
-        "inner_shape.get_tranformation             {:#?}",
-        inner_shape.get_transformation()
-    );
-    println!(
-        "inner_shape.get_inverse_transformation    {:#?}",
-        inner_shape.get_inverse_transformation()
-    );
-
-    let mut c = Camera::new(11, 11, PI / 2.0);
-    c.calc_pixel_size();
-
-    let from = Tuple4D::new_point(0.0, 0.0, -5.0);
-    let to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
-
-    c.set_transformation(Matrix::view_transform(&from, &to, &up));
-
-    let image = Camera::render(&c, &w);
-    // println!("image = {:#?}", image);
-
-    let color = image.pixel_at(5, 5);
-    let c_expected = Color::new(0.38066, 0.47583, 0.2855);
-
-    println!("color = {:#?}", color);
-    println!("c_expected = {:#?}", c_expected);
-    assert_color(color, &c_expected);
-
-    Ok(())
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Sphere::new();
