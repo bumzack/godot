@@ -9,6 +9,8 @@ use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
+use raytracer_challenge::patterns::gradient_patterns::GradientPattern;
+use raytracer_challenge::patterns::patterns::Pattern;
 use raytracer_challenge::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge::shape::shape::Shape;
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
@@ -16,8 +18,13 @@ use raytracer_challenge::world::world::{World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Plane::new();
-    floor.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
-    floor.get_material_mut().set_specular(0.0);
+    let mut p: GradientPattern = GradientPattern::new();
+    p.set_color_a(Color::new(1.0, 0.0, 0.0));
+    p.set_color_a(Color::new(1.0, 0.0, 1.0));
+    let m = Matrix::rotate_y(PI / 4.0);
+    p.set_transformation(m);
+    let p = Pattern::GradientPattern(p);
+    floor.get_material_mut().set_pattern(p);
 
     let mut left_wall = Plane::new();
     left_wall.set_transformation(
@@ -73,7 +80,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     ));
 
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("chapter09.ppm")?;
+    canvas.write_ppm("chapter10.ppm")?;
 
     println!("DONE");
 

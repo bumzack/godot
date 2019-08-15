@@ -94,13 +94,13 @@ impl SphereOps for Sphere {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 
     use super::*;
+    use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
     use crate::shape::shape::Shape;
-    use crate::basics::intersection::{Intersection, IntersectionOps, IntersectionListOps};
-    use std::f64::consts::{FRAC_1_SQRT_2, SQRT_2, PI};
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     #[test]
     fn test_ray_sphere_intersection() {

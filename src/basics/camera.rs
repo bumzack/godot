@@ -113,7 +113,7 @@ impl CameraOps for Camera {
 
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
 
-        let   pixel = &camera_transform_inv * &p;
+        let pixel = &camera_transform_inv * &p;
         let mut origin = &camera_transform_inv * &o;
         let mut direction = Tuple4D::normalize(&(&pixel - &origin));
 
@@ -152,9 +152,9 @@ mod tests {
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 
     use super::*;
-    use std::f64::consts::{PI, SQRT_2};
     use crate::basics::color::{Color, ColorOps};
     use crate::world::world::default_world;
+    use std::f64::consts::{PI, SQRT_2};
 
     // page 101
     #[test]

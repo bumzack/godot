@@ -74,7 +74,7 @@ impl<'a> CanvasOps<'a> for Canvas {
             for x in 0..self.width {
                 let c = &self.pixel[self.calc_idx(x, y)];
                 row = row.to_owned() + &format!("{} ", (c.r * 255.0) as u8);
-               // i += 1;
+                // i += 1;
                 row = row.to_owned() + &format!("{} ", (c.g * 255.0) as u8);
                 // i += 1;
                 row = row.to_owned() + &format!("{} ", (c.b * 255.0) as u8);

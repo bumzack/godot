@@ -1,8 +1,7 @@
-
 use crate::basics::ray::Ray;
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
-use crate::math::common::{ EPSILON};
+use crate::math::common::EPSILON;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -84,7 +83,7 @@ impl PlaneOps for Plane {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{  assert_float,  assert_tuple};
+    use crate::math::common::{assert_float, assert_tuple};
 
     use super::*;
     use crate::basics::ray::RayOps;

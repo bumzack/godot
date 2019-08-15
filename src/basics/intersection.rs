@@ -163,7 +163,7 @@ mod tests {
     use crate::math::common::assert_tuple;
 
     use super::*;
-    use crate::math::tuple4d::{Tuple4D, Tuple};
+    use crate::math::tuple4d::{Tuple, Tuple4D};
 
     #[test]
     fn test_new_intersection() {

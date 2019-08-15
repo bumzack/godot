@@ -439,7 +439,7 @@ mod tests {
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 
     use super::*;
-    use std::f64::consts::{SQRT_2, PI};
+    use std::f64::consts::{PI, SQRT_2};
 
     #[test]
     fn test_matrix_components() {

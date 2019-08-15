@@ -1,6 +1,5 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
@@ -39,10 +38,34 @@ impl Add for Color {
     }
 }
 
+impl<'a, 'b> Add<&'b Color> for &'a Color {
+    type Output = Color;
+
+    fn add(self, other: &'b Color) -> Color {
+        Color {
+            r: self.r + other.r,
+            g: self.g + other.g,
+            b: self.b + other.b,
+        }
+    }
+}
+
 impl Sub for Color {
     type Output = Color;
 
     fn sub(self, other: Color) -> Color {
+        Color {
+            r: self.r - other.r,
+            g: self.g - other.g,
+            b: self.b - other.b,
+        }
+    }
+}
+
+impl<'a, 'b> Sub<&'b Color> for &'a Color {
+    type Output = Color;
+
+    fn sub(self, other: &'b Color) -> Color {
         Color {
             r: self.r - other.r,
             g: self.g - other.g,

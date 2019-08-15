@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     ));
 
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("wusch.ppm")?;
+    canvas.write_ppm("chapter07.ppm")?;
 
     println!("DONE");
 

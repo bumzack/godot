@@ -64,6 +64,7 @@ impl<'a> WorldOps<'a> for World {
         let in_shadow = self.is_shadowed(comp.get_over_point());
         Material::lightning(
             comp.get_shape().get_material(),
+            comp.get_shape(),
             &self.light,
             comp.get_point(),
             comp.get_eye_vector(),

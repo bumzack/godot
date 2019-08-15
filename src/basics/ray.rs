@@ -45,7 +45,7 @@ impl RayOps for Ray {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{  assert_float, assert_tuple};
+    use crate::math::common::{assert_float, assert_tuple};
 
     use super::*;
     use crate::math::matrix::MatrixOps;
