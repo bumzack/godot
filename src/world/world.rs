@@ -1,6 +1,6 @@
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
 use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
@@ -30,6 +30,8 @@ pub trait WorldOps<'a> {
     fn shade_hit(&self, comp: &PrecomputedComponent) -> Color;
 
     fn color_at(w: &World, r: &Ray) -> Color;
+
+    fn reflected_color(w: &World, comp: &PrecomputedComponent) -> Color;
 
     fn is_shadowed(&self, p: &Tuple4D) -> bool;
 }
@@ -83,6 +85,15 @@ impl<'a> WorldOps<'a> for World {
             None => BLACK,
         };
         res
+    }
+
+    fn reflected_color(w: &World, comp: &PrecomputedComponent) -> Color {
+        if comp.get_shape().get_material().get_reflective() == 0.0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        let reflect_ray = Ray::new(Tuple4D::new_point_from(comp.get_over_point()), Tuple4D::new_vector_from(comp.get_reflected_vector()));
+        let color = World::color_at(w, &reflect_ray);
+        &color * comp.get_shape().get_material().get_reflective()
     }
 
     fn is_shadowed(&self, p: &Tuple4D) -> bool {
@@ -145,9 +156,24 @@ pub fn default_world() -> World {
     w
 }
 
+pub fn default_world_empty() -> World {
+    let mut w = World::new();
+
+    let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
+    let light_intensity = Color::new(1.0, 1.0, 1.0);
+    let pl = PointLight::new(light_pos, light_intensity);
+    let light = Light::PointLight(pl);
+    w.set_light(light);
+
+    w
+}
+
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
     use crate::math::common::{assert_color, EPSILON};
+    use crate::shape::plane::{Plane, PlaneOps};
 
     use super::*;
 
@@ -359,5 +385,71 @@ mod tests {
         let p = Tuple4D::new_point(-2.0, 2.0, -2.0);
         let is_shadowed = w.is_shadowed(&p);
         assert_eq!(is_shadowed, false);
+    }
+
+    // page 144 to
+    #[test]
+    fn test_material_precomputing_reflection_non_reflective_material() {
+        let mut w = default_world_empty();
+
+        // add the two shapes from "default_word" but set the required propertys
+        let mut m = Material::new();
+        m.set_color(Color::new(0.8, 1., 0.6));
+        m.set_diffuse(0.7);
+        m.set_specular(0.2);
+
+        let mut s1 = Sphere::new();
+        s1.set_material(m);
+        let shape1 = Shape::Sphere(s1);
+
+        let m = Matrix::scale(0.5, 0.5, 0.5);
+        let mut s2 = Sphere::new();
+        s2.set_transformation(m);
+        s2.get_material_mut().set_ambient(1.0);
+        let shape2 = Shape::Sphere(s2);
+
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+
+        let p = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(p, o);
+
+        let s =& w.get_shapes()[1];
+        let i = Intersection::new(1.0, s);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+
+        let color = World::reflected_color(&w, &comps);
+        let color_expected = Color::new(0.0, 0.0, 0.0);
+
+        assert_color(&color, &color_expected);
+    }
+
+    // page 144  bottom
+    #[test]
+    fn test_material_precomputing_reflection_reflective_material() {
+        let mut w: World = default_world();
+
+        let mut p = Plane::new();
+        p.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        p.set_transformation(m);
+        let plane = Shape::Plane(p);
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s =& w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+
+        let color = World::reflected_color(&w, &comps);
+        let color_expected = Color::new(0.19032, 0.2379, 0.14274);
+
+        assert_color(&color, &color_expected);
     }
 }

@@ -1,6 +1,6 @@
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
 use crate::light::light::{Light, LightOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
@@ -15,6 +15,7 @@ pub struct Material {
     specular: f64,
     shininess: f64,
     pattern: Option<Pattern>,
+    reflective: f64,
 }
 
 pub trait MaterialOps {
@@ -40,6 +41,9 @@ pub trait MaterialOps {
 
     fn set_pattern(&mut self, p: Pattern);
     fn get_pattern(&self) -> &Option<Pattern>;
+
+    fn get_reflective(&  self) -> f64;
+    fn set_reflective(&mut self, a: f64);
 }
 
 impl MaterialOps for Material {
@@ -51,6 +55,7 @@ impl MaterialOps for Material {
             specular: 0.9,
             shininess: 200.0,
             pattern: None,
+            reflective: 0.0,
         }
     }
 
@@ -125,19 +130,33 @@ impl MaterialOps for Material {
     fn get_pattern(&self) -> &Option<Pattern> {
         &self.pattern
     }
+
+    fn get_reflective(&self) -> f64 {
+        self.reflective
+    }
+
+    fn set_reflective(&mut self, a: f64) {
+        self.reflective = a;
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
+    use std::panic::set_hook;
 
+    use crate::basics::color::WHITE;
+    use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
+    use crate::basics::ray::{Ray, RayOps};
     use crate::light::pointlight::PointLight;
-    use crate::math::common::{assert_color, assert_float};
+    use crate::math::common::{assert_color, assert_float, assert_tuple};
+    use crate::patterns::stripe_patterns::StripePattern;
+    use crate::shape::plane::{Plane, PlaneOps};
+    use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
-    use crate::basics::color::WHITE;
-    use crate::patterns::stripe_patterns::StripePattern;
-    use crate::shape::sphere::{Sphere, SphereOps};
+    use crate::world::world::{default_world, WorldOps};
+    use crate::math::matrix::{Matrix, MatrixOps};
 
     fn setup() -> (Material, Tuple4D) {
         let m = Material::new();
@@ -152,6 +171,7 @@ mod tests {
         assert_float(m.specular, 0.9);
         assert_float(m.diffuse, 0.9);
         assert_float(m.shininess, 200.0);
+        assert_float(m.reflective, 0.0);
 
         assert_color(&m.color, &WHITE);
     }
@@ -297,5 +317,22 @@ mod tests {
         let c2 = Material::lightning(&m, &dummy_obj, &pl, &p2, &eye_v, &normal_v, false);
         let c2_expected = Color::new(0.0, 0.0, 0.0);
         assert_color(&c2, &c2_expected);
+    }
+
+    // page 143
+    #[test]
+    fn test_material_precomputing_reflection_vector() {
+        let p = Plane::new();
+        let shape = Shape::Plane(p);
+
+        let p = Tuple4D::new_point(0.0, 1.0, -1.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+        let i = Intersection::new(SQRT_2, &shape);
+
+        let comps = Intersection::prepare_computations(&i, &r);
+
+        let reflection_vector_expected = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0);
+        assert_tuple(comps.get_reflected_vector(), &reflection_vector_expected);
     }
 }

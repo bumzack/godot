@@ -9,6 +9,7 @@ use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
+use crate::math::tuple4d::{Tuple4D, Tuple};
 
 pub struct Intersection<'a> {
     t: f64,
@@ -93,6 +94,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         } else {
             inside = false;
         }
+        let reflective_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
+
         let over_point = &p + &(&normal_vector * EPSILON);
         PrecomputedComponent::new(
             self.get_t(),
@@ -101,6 +104,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             over_point,
             eye_vector,
             normal_vector,
+            reflective_vector,
             inside,
         )
     }

@@ -8,6 +8,7 @@ pub struct PrecomputedComponent<'a> {
     over_point: Tuple4D,
     eye_vector: Tuple4D,
     normal_vector: Tuple4D,
+    reflected_vector: Tuple4D,
     inside: bool,
 }
 
@@ -19,6 +20,7 @@ impl<'a> PrecomputedComponent<'a> {
         over_point: Tuple4D,
         eye_vector: Tuple4D,
         normal_vector: Tuple4D,
+        reflected_vector: Tuple4D,
         inside: bool,
     ) -> PrecomputedComponent<'a> {
         PrecomputedComponent {
@@ -28,6 +30,7 @@ impl<'a> PrecomputedComponent<'a> {
             over_point,
             eye_vector,
             normal_vector,
+            reflected_vector,
             inside,
         }
     }
@@ -58,5 +61,9 @@ impl<'a> PrecomputedComponent<'a> {
 
     pub fn get_shape(&self) -> &Shape {
         self.shape
+    }
+
+    pub fn get_reflected_vector(&self) -> &Tuple4D {
+       & self.reflected_vector
     }
 }
