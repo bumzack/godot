@@ -4,7 +4,7 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug,PartialEq)]
 pub struct Checker3DPattern {
     color_a: Color,
     color_b: Color,
@@ -68,7 +68,6 @@ impl Checker3DPattern {
 
 #[cfg(test)]
 mod tests {
-    use crate::basics::color::ColorOps;
     use crate::math::common::assert_color;
     use crate::math::tuple4d::Tuple;
 

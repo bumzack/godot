@@ -1,7 +1,7 @@
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
 use crate::basics::color::BLACK;
-use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
+use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
@@ -83,7 +83,7 @@ impl<'a> WorldOps<'a> for World {
         let xs = Intersection::intersect_world(w, r);
         let res = match xs.hit() {
             Some(i) => {
-                let comp = Intersection::prepare_computations(&i, &r);
+                let comp = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
                 w.shade_hit(&comp, remaining)
             }
             None => BLACK,
@@ -219,7 +219,7 @@ mod tests {
 
         let i = Intersection::new(4.0, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
 
         let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
@@ -231,7 +231,9 @@ mod tests {
     fn test_shade_hit_inside() {
         let mut w = default_world();
 
-        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.25, 0.0), Color::new(1.0, 1., 1.0));
+        let p = Tuple4D::new_point(0.0, 0.25, 0.0);
+        let c = Color::new(1.0, 1.0, 1.0);
+        let pl = PointLight::new(p, c);
         w.set_light(Light::PointLight(pl));
 
         let origin = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -243,10 +245,13 @@ mod tests {
 
         let i = Intersection::new(0.5, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r);
-        let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
+        let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let c_expected = Color::new(0.90498, 0.90498, 0.90498);
+
+        println!("expected color = {:?}", c_expected);
+        println!("actual   color = {:?}", c);
         assert_color(&c_expected, &c);
     }
 
@@ -255,7 +260,9 @@ mod tests {
     fn test_shade_hit_shadow() {
         let mut w = World::new();
 
-        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+        let point = Tuple4D::new_point(0.0, 0.0, -10.0);
+        let color = Color::new(1.0, 1.0, 1.0);
+        let pl = PointLight::new(point, color);
         w.set_light(Light::PointLight(pl));
 
         let mut s1 = Sphere::new();
@@ -278,12 +285,13 @@ mod tests {
 
         let i = Intersection::new(4.0, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let c_expected = Color::new(0.1, 0.1, 0.1);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
+
         assert_color(&c_expected, &c);
     }
 
@@ -300,7 +308,7 @@ mod tests {
         let shape1 = Shape::Sphere(s1);
 
         let i = Intersection::new(5.0, &shape1);
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         assert!(comps.get_over_point().z < -EPSILON / 2.0);
         assert!(comps.get_point().z > comps.get_over_point().z);
@@ -428,7 +436,7 @@ mod tests {
         let s = &w.get_shapes()[1];
         let i = Intersection::new(1.0, s);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.0, 0.0, 0.0);
@@ -455,7 +463,7 @@ mod tests {
         let s = &w.get_shapes()[2];
         let i = Intersection::new(SQRT_2, s);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.19032, 0.2379, 0.14274);
@@ -484,7 +492,7 @@ mod tests {
         let s = &w.get_shapes()[2];
         let i = Intersection::new(SQRT_2, s);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.87677, 0.92436, 0.82918);
@@ -543,7 +551,7 @@ mod tests {
         let s = &w.get_shapes()[2];
         let i = Intersection::new(SQRT_2, s);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::reflected_color(&w, &comps, 0);
         let color_expected = Color::new(0., 0., 0.);

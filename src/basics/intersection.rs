@@ -3,6 +3,7 @@ use std::fmt;
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
+use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON;
 use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::plane::{Plane, PlaneOps};
@@ -10,6 +11,8 @@ use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
+
+type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 
 pub struct Intersection<'a> {
     t: f64,
@@ -22,7 +25,7 @@ pub trait IntersectionOps<'a> {
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f64;
     fn get_shape(&self) -> &'a Shape;
-    fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent;
+    fn prepare_computations(&self, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
@@ -84,9 +87,9 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.shape
     }
 
-    fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
-        let p = Ray::position(r, self.t);
-        let mut normal_vector = self.shape.normal_at(&p);
+    fn prepare_computations(&self, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent {
+        let point = Ray::position(r, self.t);
+        let mut normal_vector = self.shape.normal_at(&point);
         let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
@@ -94,19 +97,62 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         } else {
             inside = false;
         }
-        let reflective_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
+        let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
-        let over_point = &p + &(&normal_vector * EPSILON);
-        PrecomputedComponent::new(
+        let over_point = &point + &(&normal_vector * EPSILON);
+
+        // TODO:
+        let under_point = &point + &(&normal_vector * EPSILON);
+
+        let mut comp = PrecomputedComponent::new(
             self.get_t(),
             self.get_shape(),
-            p,
+            point,
             over_point,
+            under_point,
             eye_vector,
             normal_vector,
-            reflective_vector,
+            reflected_vector,
             inside,
-        )
+        );
+
+        let mut container: Vec<&'a Shape> = Vec::new();
+
+        for i in list.get_intersections().iter() {
+            if i == self {
+                if container.is_empty() {
+                    comp.set_n1(1.0);
+                } else {
+                    let last = container.last().unwrap();
+                    comp.set_n1(last.get_material().get_refractive_index());
+                }
+            }
+
+            if container.contains(&comp.get_shape()) {
+                let index = container.iter().position(|&shape| shape == comp.get_shape()).unwrap();
+                container.remove(index);
+            } else {
+                container.push(i.get_shape());
+            }
+
+            if i == self{
+                if container.is_empty() {
+                    comp.set_n2(1.0);
+                } else {
+                    let last = container.last().unwrap();
+                    comp.set_n2(last.get_material().get_refractive_index());
+                }
+                break;
+            }
+        }
+
+        comp
+    }
+}
+
+impl <'a> PartialEq for Intersection<'a>  {
+    fn eq(&self, other: &Self) -> bool {
+        self.t == other.t && self.shape == other.shape
     }
 }
 
@@ -117,7 +163,7 @@ impl<'a> fmt::Debug for Intersection<'a> {
 }
 
 pub struct IntersectionList<'a> {
-    l: Vec<Intersection<'a>>,
+    l: IntersectionContainer<'a>,
 }
 
 pub trait IntersectionListOps<'a> {
@@ -126,8 +172,8 @@ pub trait IntersectionListOps<'a> {
 
     fn hit(&self) -> Option<&Intersection<'a>>;
 
-    fn get_intersections(&self) -> &Vec<Intersection<'a>>;
-    fn get_intersections_mut(&mut self) -> &mut Vec<Intersection<'a>>;
+    fn get_intersections(&self) -> &IntersectionContainer<'a>;
+    fn get_intersections_mut(&mut self) -> &mut IntersectionContainer<'a>;
 }
 
 impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
@@ -144,11 +190,11 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
         self.l.iter().find(|&i| i.t >= 0.0)
     }
 
-    fn get_intersections(&self) -> &Vec<Intersection<'a>> {
+    fn get_intersections(&self) -> &IntersectionContainer<'a> {
         &self.l
     }
 
-    fn get_intersections_mut(&mut self) -> &mut Vec<Intersection<'a>> {
+    fn get_intersections_mut(&mut self) -> &mut IntersectionContainer<'a> {
         &mut self.l
     }
 }
@@ -165,9 +211,9 @@ impl<'a> fmt::Debug for IntersectionList<'a> {
 #[cfg(test)]
 mod tests {
     use crate::math::common::assert_tuple;
+    use crate::math::tuple4d::{Tuple, Tuple4D};
 
     use super::*;
-    use crate::math::tuple4d::{Tuple, Tuple4D};
 
     #[test]
     fn test_new_intersection() {
@@ -260,6 +306,7 @@ mod tests {
         assert_eq!(i.is_none(), true);
     }
 
+    // page 66 top
     #[test]
     fn test_intersection_hit_from_list() {
         let s = Sphere::new();
@@ -286,6 +333,7 @@ mod tests {
         let i = il.hit().unwrap();
 
         assert_eq!(i.t, 2.0);
+        assert_eq!(i, &il.get_intersections()[1]);
     }
 
     #[test]
@@ -314,7 +362,7 @@ mod tests {
 
         let i = Intersection::new(4.0, &o);
 
-        let c = Intersection::prepare_computations(&i, &r);
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
         let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
@@ -337,16 +385,17 @@ mod tests {
 
         let i = Intersection::new(4.0, &o);
 
-        let c = Intersection::prepare_computations(&i, &r);
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
-        let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
-        let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
-        let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
-
-        assert_tuple(&point_expected, c.get_point());
-        assert_tuple(&eye_vector_expected, c.get_eye_vector());
-        assert_tuple(&normal_vector_expected, c.get_normal_vector());
         assert_eq!(false, c.get_inside());
+//
+//        let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
+//        let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+//        let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+//
+//        assert_tuple(&point_expected, c.get_point());
+//        assert_tuple(&eye_vector_expected, c.get_eye_vector());
+//        assert_tuple(&normal_vector_expected, c.get_normal_vector());
     }
 
     // page 95 top
@@ -361,7 +410,7 @@ mod tests {
 
         let i = Intersection::new(1.0, &o);
 
-        let c = Intersection::prepare_computations(&i, &r);
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let point_expected = Tuple4D::new_point(0.0, 0.0, 1.0);
         let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);

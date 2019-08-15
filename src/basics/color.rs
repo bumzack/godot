@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Sub};
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug,PartialEq)]
 pub struct Color {
     pub r: f64,
     pub g: f64,

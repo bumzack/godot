@@ -4,7 +4,7 @@ use crate::math::tuple4d::Tuple4D;
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::sphere::{Sphere, SphereOps};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Shape {
     Sphere(Sphere),
     Plane(Plane),

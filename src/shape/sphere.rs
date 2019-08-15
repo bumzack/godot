@@ -6,7 +6,7 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug,PartialEq)]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
@@ -49,8 +49,8 @@ impl SphereOps for Sphere {
             return None;
         }
         let mut res = vec![0.0; 2];
-        res[0] = (-b + discriminant.sqrt()) / (2.0 * a);
-        res[1] = (-b - discriminant.sqrt()) / (2.0 * a);
+        res[0] = (-b - discriminant.sqrt()) / (2.0 * a);
+        res[1] = (-b + discriminant.sqrt()) / (2.0 * a);
 
         res.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
@@ -94,13 +94,14 @@ impl SphereOps for Sphere {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+
+    use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
+    use crate::basics::ray::RayOps;
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
+    use crate::shape::shape::Shape;
 
     use super::*;
-    use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
-    use crate::basics::ray::RayOps;
-    use crate::shape::shape::Shape;
-    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     #[test]
     fn test_ray_sphere_intersection() {
@@ -288,5 +289,68 @@ mod tests {
             n, n_expected
         );
         assert_tuple(&n, &n_expected);
+    }
+
+    // helper
+    // page 151
+    fn glass_sphere() -> Sphere {
+        let mut s = Sphere::new();
+        s.get_material_mut().set_transparency(1.0);
+        s.get_material_mut().set_refractive_index(1.5);
+        s
+    }
+
+    // page 152
+    fn test_helper_n1_n2_calculations(index: usize, n1_expected: f64, n2_expected: f64) {
+        let mut a = glass_sphere();
+        let m_a = Matrix::scale(2.0, 2.0, 2.0);
+        a.set_transformation(m_a);
+        a.get_material_mut().set_refractive_index(1.5);
+
+        let mut b = glass_sphere();
+        let m_b = Matrix::translation(0.0, 0.0, -0.25);
+        b.set_transformation(m_b);
+        b.get_material_mut().set_refractive_index(2.0);
+
+        let mut c = glass_sphere();
+        let m_c = Matrix::translation(0.0, 0.0, 0.25);
+        c.set_transformation(m_c);
+        c.get_material_mut().set_refractive_index(2.5);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -4.0);
+        let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(p, o);
+
+        let a = Shape::Sphere(a);
+        let b = Shape::Sphere(b);
+        let c = Shape::Sphere(c);
+
+        let mut xs = IntersectionList::new();
+
+        xs.add(Intersection::new(2.0, &a));
+        xs.add(Intersection::new(2.75, &b));
+        xs.add(Intersection::new(3.25, &c));
+        xs.add(Intersection::new(4.75, &b));
+        xs.add(Intersection::new(5.25, &c));
+        xs.add(Intersection::new(6.0, &a));
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[index], &r, &xs);
+
+        println!("n1 = {}   n1_expected = {}", comps.get_n1(), n1_expected);
+        println!("n2 = {}   n2_expected = {}", comps.get_n2(), n2_expected);
+
+        assert_float(comps.get_n1(), n1_expected);
+        assert_float(comps.get_n2(), n2_expected);
+    }
+
+    // page 152
+    #[test]
+    fn test_n1_n2_calculations() {
+        test_helper_n1_n2_calculations(0, 1.0, 1.5);
+        test_helper_n1_n2_calculations(1, 1.5, 2.0);
+        test_helper_n1_n2_calculations(2, 2.0, 2.5);
+        test_helper_n1_n2_calculations(3, 2.5, 2.5);
+        test_helper_n1_n2_calculations(4, 2.5, 1.5);
+        test_helper_n1_n2_calculations(5, 1.5, 1.0);
     }
 }

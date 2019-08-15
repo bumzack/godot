@@ -4,7 +4,7 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug,PartialEq)]
 pub struct StripePattern {
     color_a: Color,
     color_b: Color,

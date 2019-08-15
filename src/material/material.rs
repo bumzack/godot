@@ -7,7 +7,13 @@ use crate::math::tuple4d::Tuple4D;
 use crate::patterns::patterns::Pattern;
 use crate::shape::shape::Shape;
 
-#[derive(Clone, Debug)]
+pub const REFRACTION_VACUUM: f64 = 1.0;
+pub const REFRACTION_AIR: f64 = 1.00029;
+pub const REFRACTION_WATER: f64 = 1.333;
+pub const REFRACTION_GLASS: f64 = 1.52;
+pub const REFRACTION_DIAMOND: f64 = 2.417;
+
+#[derive(Clone, Debug,PartialEq)]
 pub struct Material {
     color: Color,
     ambient: f64,
@@ -16,6 +22,8 @@ pub struct Material {
     shininess: f64,
     pattern: Option<Pattern>,
     reflective: f64,
+    transparency: f64,
+    refractive_index: f64,
 }
 
 pub trait MaterialOps {
@@ -44,6 +52,13 @@ pub trait MaterialOps {
 
     fn get_reflective(&self) -> f64;
     fn set_reflective(&mut self, a: f64);
+
+    fn get_transparency(&self) -> f64;
+
+    fn set_transparency(&mut self, transparency: f64);
+    fn get_refractive_index(&self) -> f64;
+
+    fn set_refractive_index(&mut self, refractive_index: f64);
 }
 
 impl MaterialOps for Material {
@@ -56,6 +71,8 @@ impl MaterialOps for Material {
             shininess: 200.0,
             pattern: None,
             reflective: 0.0,
+            transparency: 0.0,
+            refractive_index: 1.0,
         }
     }
 
@@ -138,6 +155,22 @@ impl MaterialOps for Material {
     fn set_reflective(&mut self, a: f64) {
         self.reflective = a;
     }
+
+    fn get_transparency(&self) -> f64 {
+        self.transparency
+    }
+
+    fn set_transparency(&mut self, transparency: f64) {
+        self.transparency = transparency;
+    }
+
+    fn get_refractive_index(&self) -> f64 {
+        self.refractive_index
+    }
+
+    fn set_refractive_index(&mut self, refractive_index: f64) {
+        self.refractive_index = refractive_index;
+    }
 }
 
 #[cfg(test)]
@@ -145,7 +178,7 @@ mod tests {
     use std::f64::consts::SQRT_2;
 
     use crate::basics::color::WHITE;
-    use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
+    use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::{Ray, RayOps};
     use crate::light::pointlight::PointLight;
     use crate::math::common::{assert_color, assert_float, assert_tuple};
@@ -154,8 +187,6 @@ mod tests {
     use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
-    use crate::math::matrix::MatrixOps;
-    use crate::world::world::WorldOps;
 
     fn setup() -> (Material, Tuple4D) {
         let m = Material::new();
@@ -171,6 +202,8 @@ mod tests {
         assert_float(m.diffuse, 0.9);
         assert_float(m.shininess, 200.0);
         assert_float(m.reflective, 0.0);
+        assert_float(m.transparency, 0.0);
+        assert_float(m.refractive_index, 1.0);
 
         assert_color(&m.color, &WHITE);
     }
@@ -329,7 +362,7 @@ mod tests {
         let r = Ray::new(p, o);
         let i = Intersection::new(SQRT_2, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let reflection_vector_expected = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0);
         assert_tuple(comps.get_reflected_vector(), &reflection_vector_expected);
