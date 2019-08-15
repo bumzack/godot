@@ -1,4 +1,8 @@
 shadows are broken - the result of hit() does not look promising
+everything starting at shadows is broken ...
+
+missing: test page 159
+page 161 to 166 missing
 
 
 das &mut Camera in

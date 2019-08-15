@@ -1,6 +1,6 @@
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
 use crate::light::light::{Light, LightOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
@@ -13,7 +13,7 @@ pub const REFRACTION_WATER: f64 = 1.333;
 pub const REFRACTION_GLASS: f64 = 1.52;
 pub const REFRACTION_DIAMOND: f64 = 2.417;
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Material {
     color: Color,
     ambient: f64,

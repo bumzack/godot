@@ -7,7 +7,7 @@ use crate::patterns::ring_patterns::RingPattern;
 use crate::patterns::stripe_patterns::StripePattern;
 use crate::shape::shape::Shape;
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Pattern {
     StripePattern(StripePattern),
     GradientPattern(GradientPattern),

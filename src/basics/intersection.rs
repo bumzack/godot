@@ -6,6 +6,7 @@ use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON;
 use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::shape::cube::{Cube, CubeOps};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
@@ -53,6 +54,17 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             }
             Shape::Plane(ref p) => {
                 let res = Plane::intersect(p, &r2);
+                match res {
+                    Some(r) => {
+                        let i1 = Intersection::new(r[0], shape);
+                        intersection_list.add(i1);
+                    }
+                    None => {}
+                }
+                intersection_list
+            }
+            Shape::Cube(ref c) => {
+                let res = Cube::intersect(c, &r2);
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], shape);
@@ -133,7 +145,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 container.push(i.get_shape());
             }
 
-            if i == self{
+            if i == self {
                 if container.is_empty() {
                     comp.set_n2(1.0);
                 } else {
@@ -148,7 +160,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     }
 }
 
-impl <'a> PartialEq for Intersection<'a>  {
+impl<'a> PartialEq for Intersection<'a> {
     fn eq(&self, other: &Self) -> bool {
         self.t == other.t && self.shape == other.shape
     }
@@ -386,14 +398,14 @@ mod tests {
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         assert_eq!(false, c.get_inside());
-//
-//        let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
-//        let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
-//        let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
-//
-//        assert_tuple(&point_expected, c.get_point());
-//        assert_tuple(&eye_vector_expected, c.get_eye_vector());
-//        assert_tuple(&normal_vector_expected, c.get_normal_vector());
+        //
+        //        let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
+        //        let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+        //        let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
+        //
+        //        assert_tuple(&point_expected, c.get_point());
+        //        assert_tuple(&eye_vector_expected, c.get_eye_vector());
+        //        assert_tuple(&normal_vector_expected, c.get_normal_vector());
     }
 
     // page 95 top

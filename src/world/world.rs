@@ -139,8 +139,24 @@ impl<'a> WorldOps<'a> for World {
     }
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
+        if remaining <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
         if comp.get_shape().get_material().get_transparency() == 0.0 {
-          return  Color::new(0.0, 0.0, 0.0);
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        let n_ratio = comp.get_n1() / comp.get_n2();
+        let cos_i = comp.get_eye_vector() ^ comp.get_normal_vector();
+        let sin2_t = n_ratio.powf(2.0) * (1.0 - cos_i.powf(2.0));
+
+        // TODO: maybe the if ... parts should be swapped
+        if sin2_t > 1.0 {
+            let cos_t = (1.0 - sin2_t).sqrt();
+            let direction = comp.get_normal_vector() * (n_ratio * cos_i - cos_t) - comp.get_eye_vector() * n_ratio;
+            let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
+
+            let color = World::color_at(w, &refracted_ray, remaining - 1);
+            return color;
         }
         Color::new(1.0, 1.0, 1.0)
     }
@@ -192,6 +208,8 @@ mod tests {
     use std::f64::consts::SQRT_2;
 
     use crate::math::common::{assert_color, EPSILON};
+    use crate::patterns::patterns::Pattern;
+    use crate::patterns::stripe_patterns::StripePattern;
     use crate::shape::plane::{Plane, PlaneOps};
     use crate::shape::sphere::glass_sphere;
 
@@ -623,5 +641,149 @@ mod tests {
         println!("actual color      = {:?}", c);
 
         assert_color(&c, &c_expected);
+    }
+
+    // page 156
+    #[test]
+    fn test_refracted_color_max_recursion() {
+        let mut w = default_world_empty();
+
+        // add the two shapes from "default_word" but set the required propertys
+        let mut m = Material::new();
+        m.set_transparency(1.0);
+        m.set_refractive_index(1.5);
+
+        let mut s1 = Sphere::new();
+        s1.set_material(m);
+        let shape1 = Shape::Sphere(s1);
+
+        let m = Matrix::scale(0.5, 0.5, 0.5);
+        let mut s2 = Sphere::new();
+        s2.set_transformation(m);
+        s2.get_material_mut().set_ambient(1.0);
+        let shape2 = Shape::Sphere(s2);
+
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+
+        let i1 = Intersection::new(4.0, &w.get_shapes()[0]);
+        let i2 = Intersection::new(6.0, &w.get_shapes()[0]);
+
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        xs.add(i2);
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+
+        let c = World::refracted_color(&w, &comps, 0);
+        let c_expected = Color::new(0.0, 0.0, 0.0);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+
+        assert_color(&c, &c_expected);
+    }
+
+    // page 157
+    #[test]
+    fn test_refracted_color_total_internal_reflection() {
+        let mut w = default_world_empty();
+
+        // add the two shapes from "default_word" but set the required propertys
+        let mut m = Material::new();
+        m.set_transparency(1.0);
+        m.set_refractive_index(1.5);
+
+        let mut s1 = Sphere::new();
+        s1.set_material(m);
+        let shape1 = Shape::Sphere(s1);
+
+        let mut s2 = Sphere::new();
+        let shape2 = Shape::Sphere(s2);
+
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+
+        let origin = Tuple4D::new_point(0.0, 0.0, SQRT_2 / 2.0);
+        let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(origin, direction);
+
+        let i1 = Intersection::new(-SQRT_2 / 2.0, &w.get_shapes()[0]);
+        let i2 = Intersection::new(SQRT_2 / 2.0, &w.get_shapes()[0]);
+
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        xs.add(i2);
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
+
+        let c = World::refracted_color(&w, &comps, 5);
+        let c_expected = Color::new(0.0, 0.0, 0.0);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+
+        assert_color(&c, &c_expected);
+    }
+
+    // page 158
+    #[test]
+    fn test_refracted_color_with_refracted_ray() {
+        let mut w = default_world_empty();
+
+        // add the two shapes from "default_word" but set the required propertys
+        let mut m = Material::new();
+        m.set_transparency(1.0);
+        m.set_refractive_index(1.5);
+
+        let p = StripePattern::new();
+        let pattern = Pattern::StripePattern(p);
+        let mut s1 = Sphere::new();
+        s1.get_material_mut().set_ambient(1.0);
+        s1.get_material_mut().set_pattern(pattern);
+        let shape1 = Shape::Sphere(s1);
+
+        let mut s2 = Sphere::new();
+        s2.get_material_mut().set_transparency(1.0);
+        s2.get_material_mut().set_refractive_index(1.5);
+        let shape2 = Shape::Sphere(s2);
+
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+
+        let origin = Tuple4D::new_point(0.0, 0.0, 0.01);
+        let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(origin, direction);
+
+        let i1 = Intersection::new(-0.9899, &w.get_shapes()[0]);
+        let i2 = Intersection::new(-0.4899, &w.get_shapes()[1]);
+        let i3 = Intersection::new(0.4899, &w.get_shapes()[1]);
+        let i4 = Intersection::new(0.9899, &w.get_shapes()[0]);
+
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        xs.add(i2);
+        xs.add(i3);
+        xs.add(i4);
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[2], &r, &xs);
+
+        let c = World::refracted_color(&w, &comps, 5);
+        let c_expected = Color::new(0.0, 0.99888, 0.04725);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+
+        assert_color(&c, &c_expected);
+    }
+
+    // page 159
+    #[test]
+    fn test_refracted_color_shade_hiz() {
+        // TODO
     }
 }

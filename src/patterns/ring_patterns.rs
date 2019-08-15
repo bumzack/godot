@@ -1,10 +1,10 @@
-use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
+use crate::basics::color::{BLACK, Color, ColorOps, WHITE};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RingPattern {
     color_a: Color,
     color_b: Color,

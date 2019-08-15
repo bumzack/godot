@@ -90,7 +90,7 @@ impl<'a> PrecomputedComponent<'a> {
         self.n1 = n1;
     }
 
-    pub fn set_n2(&mut self, n2: f64)   {
+    pub fn set_n2(&mut self, n2: f64) {
         self.n2 = n2;
     }
 }

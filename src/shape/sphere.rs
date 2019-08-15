@@ -101,7 +101,6 @@ pub fn glass_sphere() -> Sphere {
     s
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
@@ -300,7 +299,6 @@ mod tests {
         );
         assert_tuple(&n, &n_expected);
     }
-
 
     // page 152
     fn test_helper_n1_n2_calculations(index: usize, n1_expected: f64, n2_expected: f64) {

@@ -7,7 +7,7 @@ use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Plane {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
@@ -83,10 +83,10 @@ impl PlaneOps for Plane {
 
 #[cfg(test)]
 mod tests {
+    use crate::basics::ray::RayOps;
     use crate::math::common::{assert_float, assert_tuple};
 
     use super::*;
-    use crate::basics::ray::RayOps;
 
     // page 123 top
     #[test]
