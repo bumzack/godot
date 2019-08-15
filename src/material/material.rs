@@ -168,7 +168,7 @@ mod tests {
 
         let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
 
-        let result_expected = Color::new(1.6363961030678928, 1.6363961030678928,1.6363961030678928);
+        let result_expected = Color::new(1.6363961030678928, 1.6363961030678928, 1.6363961030678928);
         println!(
             "test_material_lightning_eye_in_reflecing_path  result = {:#?}, expected = {:#?}",
             result, result_expected

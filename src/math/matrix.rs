@@ -308,7 +308,7 @@ impl MatrixOps for Matrix {
         m.m[0][2] = rad.sin();
         m.m[2][0] = -rad.sin();
         m.m[2][2] = rad.cos();
-        println!("m = {:?}", m);
+
         m
     }
 

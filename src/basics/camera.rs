@@ -53,7 +53,7 @@ pub trait CameraOps {
 
 impl CameraOps for Camera {
     fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera {
-        Camera {
+        let c = Camera {
             hsize,
             vsize,
             field_of_view,
@@ -62,7 +62,8 @@ impl CameraOps for Camera {
             half_width: 0.0,
             half_height: 0.0,
             pixel_size: 0.0,
-        }
+        };
+        c
     }
 
     fn get_hsize(&self) -> usize {
@@ -116,8 +117,6 @@ impl CameraOps for Camera {
 
         // use vector, but is it a vector ?
         let p = Tuple4D::new_point(world_x, world_y, -1.0);
-        println!("cameratransform_inv  = {:?}", camera_transform_inv);
-        println!("p  = {:?}", p);
 
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
 
@@ -149,10 +148,10 @@ impl CameraOps for Camera {
                 let r = Camera::ray_for_pixel(c, x, y);
                 let c = World::color_at(w, &r);
                 if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {
-                    println!(
-                        "render pixel ( {} / {} )    color = ( {} / {} / {} )",
-                        x, y, c.r, c.g, c.b
-                    );
+//                    println!(
+//                        "render pixel ( {} / {} )    color = ( {} / {} / {} )",
+//                        x, y, c.r, c.g, c.b
+//                    );
                 }
                 canvas.write_pixel(x, y, c);
             }
@@ -164,8 +163,11 @@ impl CameraOps for Camera {
 
 #[cfg(test)]
 mod tests {
-
+    use crate::light::light::Light;
+    use crate::light::pointlight::PointLight;
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::shape::shape::Shape;
+    use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
 
@@ -261,7 +263,7 @@ mod tests {
         assert_tuple(&r.get_origin(), &expected_origin);
         assert_tuple(&r.get_direction(), &expected_direction);
     }
-
+    // page 104
     #[test]
     fn test_camera_render() {
         let w = default_world();
@@ -280,42 +282,41 @@ mod tests {
         let color = image.pixel_at(5, 5);
         let c_expected = Color::new(0.38066, 0.47583, 0.2855);
 
-        println!("color = {:#?}", color);
-        println!("c_expected = {:#?}", c_expected);
         assert_color(color, &c_expected);
     }
 
     //
-    ///// copy of sphere::test_ray_sphere_intersection()  but uses the render method
-    //#[test]
-    //fn test_ray_sphere_intersection() {
-    //    let mut w = World::new();
-    //
-    //    let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
-    //    let light_intensity = Color::new(1.0, 1.0, 1.0);
-    //    let pl = PointLight::new(light_pos, light_intensity);
-    //    let light = Light::PointLight(pl);
-    //    w.set_light(light);
-    //
-    //    let mut s1 = Sphere::new();
-    //    let shape1 = Shape::Sphere(s1);
-    //
-    //    w.add_shape(shape1);
-    //
-    //    let from = Tuple4D::new_point(0.0, 0.0, -5.0);
-    //    let to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    //    let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    //
-    //    c.set_transformation(Matrix::view_transform(&from, &to, &up));
-    //
-    //    let image = Camera::render(&c, &w);
-    //    // println!("image = {:#?}", image);
-    //
-    //    let c = image.pixel_at(5, 5);
-    //    let c_expected = Color::new(0.38066, 0.47583, 0.2855);
-    //
-    //    println!("c = {:#?}", c);
-    //    println!("c_expected = {:#?}", c_expected);
-    //    assert_color(c, &c_expected);
-    //}
+    // copy of sphere::test_ray_sphere_intersection()  but uses the render method
+//    #[test]
+//    fn test_ray_sphere_intersection_render() {
+//        let mut w = World::new();
+//
+//        let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
+//        let light_intensity = Color::new(1.0, 1.0, 1.0);
+//        let pl = PointLight::new(light_pos, light_intensity);
+//        let light = Light::PointLight(pl);
+//        w.set_light(light);
+//
+//        let mut s1 = Sphere::new();
+//        let shape1 = Shape::Sphere(s1);
+//
+//        w.add_shape(shape1);
+//
+//        let from = Tuple4D::new_point(0.0, 0.0, -5.0);
+//        let to = Tuple4D::new_point(0.0, 0.0, 0.0);
+//        let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+//
+//        let mut c = Camera::new(11, 11, PI / 2.0);
+//        c.set_transformation(Matrix::view_transform(&from, &to, &up));
+//
+//        let image = Camera::render(&c, &w);
+//        // println!("image = {:#?}", image);
+//
+//        let c = image.pixel_at(5, 5);
+//        let c_expected = Color::new(0.38066, 0.47583, 0.2855);
+//
+//        println!("c = {:#?}", c);
+//        println!("c_expected = {:#?}", c_expected);
+//        assert_color(c, &c_expected);
+//    }
 }
