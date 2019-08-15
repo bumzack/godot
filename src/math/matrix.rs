@@ -437,10 +437,9 @@ impl<'a, 'b> Mul<&'b Tuple4D> for &'a Matrix {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 
     use super::*;
-    use std::panic::resume_unwind;
 
     #[test]
     fn test_matrix_components() {

@@ -153,11 +153,7 @@ impl CameraOps for Camera {
 
 #[cfg(test)]
 mod tests {
-    use crate::light::light::Light;
-    use crate::light::pointlight::PointLight;
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
-    use crate::shape::shape::Shape;
-    use crate::shape::sphere::{Sphere, SphereOps};
+    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 
     use super::*;
 

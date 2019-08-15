@@ -1,10 +1,7 @@
-use std::io::Error;
-
-use crate::basics::canvas::{Canvas, CanvasOps};
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
-use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
+use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
@@ -150,7 +147,7 @@ pub fn default_world() -> World {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float, EPSILON};
+    use crate::math::common::{assert_color, EPSILON};
 
     use super::*;
 

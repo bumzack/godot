@@ -1,4 +1,4 @@
-use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
 pub struct PrecomputedComponent<'a> {

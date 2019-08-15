@@ -1,8 +1,5 @@
-use std::cmp::PartialOrd;
-use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
-use crate::basics::intersection::IntersectionOps;
-use crate::basics::intersection::{Intersection, IntersectionListOps};
+use crate::basics::intersection::{Intersection};
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::material::material::Material;
@@ -12,7 +9,6 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug)]
 pub struct Plane {

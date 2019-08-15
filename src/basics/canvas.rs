@@ -119,8 +119,6 @@ impl<'a> CanvasOps<'a> for Canvas {
 //}
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
-
     use super::*;
 
     #[test]

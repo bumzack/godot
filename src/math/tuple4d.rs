@@ -1,5 +1,5 @@
 use std::f64::consts::SQRT_2;
-use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
+use std::ops::{Add, BitXor, Div, Mul, Sub};
 
 #[derive(Clone, Debug)]
 pub struct Tuple4D {

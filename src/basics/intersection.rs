@@ -3,7 +3,6 @@ use std::fmt;
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::math::common::assert_tuple;
 use crate::math::common::EPSILON;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
@@ -163,7 +162,7 @@ impl<'a> fmt::Debug for IntersectionList<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::assert_tuple;
 
     use super::*;
 

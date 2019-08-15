@@ -1,5 +1,3 @@
-use crate::math::common::assert_float;
-use crate::math::common::assert_tuple;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -48,7 +46,7 @@ impl RayOps for Ray {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{  assert_float, assert_tuple};
 
     use super::*;
 

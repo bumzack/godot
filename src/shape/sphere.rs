@@ -6,7 +6,6 @@ use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
-use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;

@@ -66,7 +66,7 @@ impl MaterialOps for Material {
         let mut c: Color;
         // TODO: a lot of color copying here ...
         if material.get_pattern().is_some() {
-            c = material.get_pattern().as_ref().unwrap().stripe_at(point);
+            c = Pattern::stripe_at(material.get_pattern().as_ref().unwrap(), point);
         }else {
             c = Color::from_color(&material.color);
         }
@@ -129,7 +129,7 @@ impl MaterialOps for Material {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{assert_color, assert_float};
 
     use super::*;
 
@@ -271,4 +271,6 @@ mod tests {
         let c2_expected = Color::new(0.0, 0.0, 0.0);
         assert_color(&c2, &c2_expected);
     }
+
+
 }

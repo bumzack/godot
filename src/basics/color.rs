@@ -1,6 +1,5 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use crate::math::common::{assert_color, assert_float};
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
@@ -114,7 +113,7 @@ impl Div<f64> for Color {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{assert_color, assert_float};
 
     use super::*;
 

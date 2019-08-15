@@ -1,13 +1,5 @@
-use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
-
 use crate::basics::color::{BLACK, Color, ColorOps, WHITE};
-use crate::basics::intersection::{Intersection, IntersectionListOps};
-use crate::basics::intersection::IntersectionOps;
-use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::material::material::Material;
-use crate::material::material::MaterialOps;
-use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -18,6 +10,8 @@ use crate::shape::shape::Shape;
 pub struct Pattern {
     color_a: Color,
     color_b: Color,
+    transformation_matrix: Matrix,
+    inverse_transformation_matrix: Matrix,
 }
 
 pub trait PatternOps {}
@@ -27,6 +21,8 @@ impl Pattern {
         Pattern {
             color_a: WHITE,
             color_b: BLACK,
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
         }
     }
 
@@ -46,19 +42,39 @@ impl Pattern {
         &self.color_b
     }
 
-    pub fn stripe_at(&self, point: &Tuple4D) -> Color {
+    pub fn stripe_at(pattern: &Pattern, point: &Tuple4D) -> Color {
         // TODO: we copy here colors all the way -> may be there is a chance to returen references?
         if point.x.floor() % 2.0 == 0.0 {
-            Color::from_color(&self.color_a)
+            Color::from_color(&pattern.get_color_a())
         } else {
-            Color::from_color(&self.color_b)
+            Color::from_color(&pattern.get_color_b())
         }
+    }
+
+    pub fn stripe_at_object(pattern: &Pattern, shape: &Shape, world_point: &Tuple4D) -> Color {
+        let object_point = shape.get_inverse_transformation() * world_point;
+        let pattern_point = pattern.get_inverse_transformation() * &object_point;
+        Self::stripe_at(pattern, &pattern_point)
+    }
+
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
+        self.transformation_matrix = m;
+    }
+
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
+
+    fn get_inverse_transformation(&self) -> &Matrix {
+        &self.inverse_transformation_matrix
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
 
@@ -77,15 +93,15 @@ mod tests {
         let p = Pattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let c1 = p.stripe_at( &point1);
+        let c1 = Pattern::stripe_at(&p, &point1);
         assert_color(&c1, &WHITE);
 
         let point2 = Tuple4D::new_point(0.0, 1.0, 0.0);
-        let c2 = p.stripe_at( &point2);
+        let c2 = Pattern::stripe_at(&p, &point2);
         assert_color(&c2, &WHITE);
 
         let point3 = Tuple4D::new_point(0.0, 2.0, 0.0);
-        let c3 = p.stripe_at( &point3);
+        let c3 = Pattern::stripe_at(&p, &point3);
         assert_color(&c3, &WHITE);
     }
 
@@ -96,15 +112,15 @@ mod tests {
         let p = Pattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let c1 = p.stripe_at( &point1);
+        let c1 = Pattern::stripe_at(&p, &point1);
         assert_color(&c1, &WHITE);
 
         let point2 = Tuple4D::new_point(0.0, 0.0, 1.0);
-        let c2 = p.stripe_at( &point2);
+        let c2 = Pattern::stripe_at(&p, &point2);
         assert_color(&c2, &WHITE);
 
         let point3 = Tuple4D::new_point(0.0, 0.0, 2.0);
-        let c3 = p.stripe_at( &point3);
+        let c3 = Pattern::stripe_at(&p, &point3);
         assert_color(&c3, &WHITE);
     }
 
@@ -114,27 +130,74 @@ mod tests {
         let p = Pattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let c1 = p.stripe_at( &point1);
+        let c1 = Pattern::stripe_at(&p, &point1);
         assert_color(&c1, &WHITE);
 
         let point2 = Tuple4D::new_point(0.9, 0.0, 0.0);
-        let c2 = p.stripe_at( &point2);
+        let c2 = Pattern::stripe_at(&p, &point2);
         assert_color(&c2, &WHITE);
 
         let point3 = Tuple4D::new_point(1.0, 0.0, 0.0);
-        let c3 = p.stripe_at( &point3);
+        let c3 = Pattern::stripe_at(&p, &point3);
         assert_color(&c3, &BLACK);
 
         let point4 = Tuple4D::new_point(-0.1, 0.0, 0.0);
-        let c4 = p.stripe_at( &point4);
+        let c4 = Pattern::stripe_at(&p, &point4);
         assert_color(&c4, &BLACK);
 
         let point5 = Tuple4D::new_point(-1.0, 0.0, 0.0);
-        let c5 = p.stripe_at( &point5);
+        let c5 = Pattern::stripe_at(&p, &point5);
         assert_color(&c5, &BLACK);
 
         let point6 = Tuple4D::new_point(-1.1, 0.0, 0.0);
-        let c6 = p.stripe_at( &point6);
+        let c6 = Pattern::stripe_at(&p, &point6);
         assert_color(&c6, &WHITE);
+    }
+
+    // page 131 part1
+    #[test]
+    fn test_material_with_pattern_transformation1() {
+        let transformation = Matrix::scale(2.0, 2.0, 2.0);
+        let mut s = Sphere::new();
+        s.set_transformation(transformation);
+        let shape = Shape::Sphere(s);
+
+        let pattern = Pattern::new();
+
+        let p = Tuple4D::new_point(1.5, 0.0, 0.0);
+        let c = Pattern::stripe_at_object(&pattern, &shape, &p);
+        assert_color(&c, &WHITE);
+    }
+
+    // page 131 part2
+    #[test]
+    fn test_material_with_pattern_transformation2() {
+        let s = Sphere::new();
+        let shape = Shape::Sphere(s);
+
+        let transformation = Matrix::scale(2.0, 2.0, 2.0);
+        let mut pattern = Pattern::new();
+        pattern.set_transformation(transformation);
+
+        let p = Tuple4D::new_point(1.5, 0.0, 0.0);
+        let c = Pattern::stripe_at_object(&pattern, &shape, &p);
+        assert_color(&c, &WHITE);
+    }
+
+    // page 131 part3
+    #[test]
+    fn test_material_with_pattern_transformation3() {
+        let transformation = Matrix::scale(2.0, 2.0, 2.0);
+        let mut s = Sphere::new();
+        s.set_transformation(transformation);
+        let shape = Shape::Sphere(s);
+
+        let transformation_pattern = Matrix::translation(0.5, 0.0, 0.0);
+        let mut pattern = Pattern::new();
+        pattern.set_transformation(transformation_pattern);
+
+        let p = Tuple4D::new_point(2.5, 0.0, 0.0);
+        let c = Pattern::stripe_at_object(&pattern, &shape, &p);
+        assert_color(&c, &WHITE);
     }
 }
