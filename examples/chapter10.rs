@@ -15,6 +15,7 @@ use raytracer_challenge::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge::shape::shape::Shape;
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{World, WorldOps};
+use raytracer_challenge::patterns::ring_patterns::RingPattern;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Plane::new();
@@ -26,12 +27,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let p = Pattern::GradientPattern(p);
     floor.get_material_mut().set_pattern(p);
 
+    let mut p = RingPattern::new();
+    p.set_color_a(Color::new(0.5, 0.0, 0.0));
+    p.set_color_a(Color::new(0.5, 0.0, 0.8));
+    let m = Matrix::rotate_x(PI / 4.0);
+    p.set_transformation(m);
+    let p = Pattern::RingPattern(p);
+
     let mut left_wall = Plane::new();
     left_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
-    left_wall.get_material_mut().set_color(Color::new(0.0, 1., 0.0));
-    left_wall.get_material_mut().set_specular(0.5);
+    left_wall.get_material_mut().set_pattern(p);
 
     let mut right_wall = Plane::new();
     right_wall.set_transformation(
