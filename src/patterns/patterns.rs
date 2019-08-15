@@ -1,8 +1,6 @@
 use crate::basics::color::{BLACK, Color, ColorOps, WHITE};
-use crate::basics::ray::RayOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
@@ -17,7 +15,7 @@ pub struct Pattern {
 pub trait PatternOps {}
 
 impl Pattern {
-    pub(crate) fn new() -> Pattern {
+    pub fn new() -> Pattern {
         Pattern {
             color_a: WHITE,
             color_b: BLACK,
@@ -57,23 +55,24 @@ impl Pattern {
         Self::stripe_at(pattern, &pattern_point)
     }
 
-    fn set_transformation(&mut self, m: Matrix) {
+  pub  fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
         self.transformation_matrix = m;
     }
 
-    fn get_transformation(&self) -> &Matrix {
+  pub  fn get_transformation(&self) -> &Matrix {
         &self.transformation_matrix
     }
 
-    fn get_inverse_transformation(&self) -> &Matrix {
+  pub  fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::assert_color;
+    use crate::math::tuple4d::Tuple;
     use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;

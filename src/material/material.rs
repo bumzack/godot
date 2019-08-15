@@ -1,10 +1,7 @@
-use std::f64::consts::SQRT_2;
-
-use crate::basics::color::{BLACK, WHITE};
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
 use crate::light::light::{Light, LightOps};
-use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::patterns::Pattern;
@@ -63,11 +60,11 @@ impl MaterialOps for Material {
         n: &Tuple4D,
         in_shadow: bool,
     ) -> Color {
-        let mut c: Color;
+        let c: Color;
         // TODO: a lot of color copying here ...
         if material.get_pattern().is_some() {
             c = Pattern::stripe_at(material.get_pattern().as_ref().unwrap(), point);
-        }else {
+        } else {
             c = Color::from_color(&material.color);
         }
         let effective_color = &c * light.get_intensity();
@@ -129,9 +126,13 @@ impl MaterialOps for Material {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
+    use crate::light::pointlight::PointLight;
     use crate::math::common::{assert_color, assert_float};
 
     use super::*;
+    use crate::basics::color::WHITE;
 
     fn setup() -> (Material, Tuple4D) {
         let m = Material::new();
@@ -271,6 +272,4 @@ mod tests {
         let c2_expected = Color::new(0.0, 0.0, 0.0);
         assert_color(&c2, &c2_expected);
     }
-
-
 }

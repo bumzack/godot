@@ -8,7 +8,6 @@ use crate::basics::ray::RayOps;
 use crate::light::light::{Light, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
-use crate::math::common::assert_color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -100,14 +99,14 @@ impl<'a> WorldOps<'a> for World {
 
         let intersections = Intersection::intersect_world(self, &r);
 
-        println!("intersections = {:?}", intersections);
+        // println!("intersections = {:?}", intersections);
 
         let h = intersections.hit();
-        println!("distance= {:?}", distance);
+        //println!("distance= {:?}", distance);
         // println!("t = {:?}", h.unwrap().get_t());
 
         if h.is_some() {
-            println!("t = {:?}", h.unwrap().get_t());
+            // println!("t = {:?}", h.unwrap().get_t());
             if h.unwrap().get_t() < distance {
                 return true;
             }

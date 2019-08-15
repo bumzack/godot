@@ -4,8 +4,6 @@ use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::math::common::EPSILON;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
@@ -154,7 +152,7 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
 impl<'a> fmt::Debug for IntersectionList<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for i in self.l.iter() {
-            writeln!(f, "isl  {:?}", i);
+            writeln!(f, "isl  {:?}", i)?;
         }
         writeln!(f, "")
     }
@@ -165,6 +163,7 @@ mod tests {
     use crate::math::common::assert_tuple;
 
     use super::*;
+    use crate::math::tuple4d::{Tuple4D, Tuple};
 
     #[test]
     fn test_new_intersection() {

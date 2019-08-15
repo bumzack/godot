@@ -1,10 +1,8 @@
 
-use crate::basics::intersection::{Intersection};
 use crate::basics::ray::Ray;
-use crate::basics::ray::RayOps;
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
-use crate::math::common::{assert_float, assert_matrix, assert_tuple, EPSILON};
+use crate::math::common::{ EPSILON};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -41,7 +39,7 @@ impl PlaneOps for Plane {
         }
     }
 
-    fn intersect(s: &Plane, r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(_s: &Plane, r: &Ray) -> Option<Vec<f64>> {
         if r.direction.y.abs() < EPSILON {
             return None;
         }
@@ -64,7 +62,7 @@ impl PlaneOps for Plane {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
         let n = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * &n;
         world_normal.w = 0.0;
@@ -86,9 +84,10 @@ impl PlaneOps for Plane {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
+    use crate::math::common::{  assert_float,  assert_tuple};
 
     use super::*;
+    use crate::basics::ray::RayOps;
 
     // page 123 top
     #[test]

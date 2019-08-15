@@ -1,4 +1,3 @@
-use std::f64::consts::SQRT_2;
 use std::ops::{Add, BitXor, Div, Mul, Sub};
 
 #[derive(Clone, Debug)]
@@ -236,6 +235,7 @@ mod tests {
     use crate::math::common::{assert_float, assert_tuple};
 
     use super::*;
+    use std::f64::consts::SQRT_2;
 
     #[test]
     fn test_is_point() {

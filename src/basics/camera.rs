@@ -1,15 +1,11 @@
-use std::f64::consts::{PI, SQRT_2};
-
 use crate::basics::canvas::Canvas;
 use crate::basics::canvas::CanvasOps;
-use crate::basics::color::{Color, ColorOps};
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::world::world::default_world;
 use crate::world::world::World;
 use crate::world::world::WorldOps;
 
@@ -117,7 +113,7 @@ impl CameraOps for Camera {
 
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
 
-        let mut pixel = &camera_transform_inv * &p;
+        let   pixel = &camera_transform_inv * &p;
         let mut origin = &camera_transform_inv * &o;
         let mut direction = Tuple4D::normalize(&(&pixel - &origin));
 
@@ -145,7 +141,7 @@ impl CameraOps for Camera {
                 if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
                 canvas.write_pixel(x, y, c);
             }
-            println!("render line  {}", y);
+            // println!("render line  {}", y);
         }
         canvas
     }
@@ -156,6 +152,9 @@ mod tests {
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 
     use super::*;
+    use std::f64::consts::{PI, SQRT_2};
+    use crate::basics::color::{Color, ColorOps};
+    use crate::world::world::default_world;
 
     // page 101
     #[test]

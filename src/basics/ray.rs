@@ -1,5 +1,4 @@
 use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 
@@ -49,6 +48,7 @@ mod tests {
     use crate::math::common::{  assert_float, assert_tuple};
 
     use super::*;
+    use crate::math::matrix::MatrixOps;
 
     #[test]
     fn test_ray_new() {

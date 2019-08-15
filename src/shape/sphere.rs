@@ -1,16 +1,10 @@
-use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
-
-use crate::basics::intersection::IntersectionOps;
-use crate::basics::intersection::{Intersection, IntersectionListOps};
 use crate::basics::ray::Ray;
-use crate::basics::ray::RayOps;
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug)]
 pub struct Sphere {
@@ -43,7 +37,7 @@ impl SphereOps for Sphere {
         }
     }
 
-    fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(_s: &Sphere, r: &Ray) -> Option<Vec<f64>> {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let sphere_to_ray = &r.origin - &o;
         let a = &r.direction ^ &r.direction;
@@ -103,6 +97,10 @@ mod tests {
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
 
     use super::*;
+    use crate::basics::ray::RayOps;
+    use crate::shape::shape::Shape;
+    use crate::basics::intersection::{Intersection, IntersectionOps, IntersectionListOps};
+    use std::f64::consts::{FRAC_1_SQRT_2, SQRT_2, PI};
 
     #[test]
     fn test_ray_sphere_intersection() {

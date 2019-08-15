@@ -69,16 +69,16 @@ impl<'a> CanvasOps<'a> for Canvas {
         file.write_all(max_pxiel_value.as_bytes())?;
 
         for y in 0..self.height {
-            let mut i = 0;
+            // let mut i = 0;
             let mut row = "".to_owned();
             for x in 0..self.width {
                 let c = &self.pixel[self.calc_idx(x, y)];
                 row = row.to_owned() + &format!("{} ", (c.r * 255.0) as u8);
-                i += 1;
+               // i += 1;
                 row = row.to_owned() + &format!("{} ", (c.g * 255.0) as u8);
-                i += 1;
+                // i += 1;
                 row = row.to_owned() + &format!("{} ", (c.b * 255.0) as u8);
-                i += 1;
+                // i += 1;
             }
             row = row.to_owned() + new_line;
             file.write_all(row.as_bytes())?;

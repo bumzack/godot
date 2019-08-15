@@ -1,4 +1,3 @@
-use std::f64::consts::{PI, SQRT_2};
 use std::ops::Mul;
 
 use crate::math::common::assert_two_float;
@@ -440,6 +439,7 @@ mod tests {
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 
     use super::*;
+    use std::f64::consts::{SQRT_2, PI};
 
     #[test]
     fn test_matrix_components() {
