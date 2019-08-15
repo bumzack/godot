@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::f32::consts::{PI, SQRT_2};
+use std::f64::consts::{PI, SQRT_2};
 
 use crate::basics::camera::{Camera, CameraOps};
 use crate::basics::canvas::CanvasOps;
@@ -71,7 +71,7 @@ fn main2() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn main_wall_ball() -> Result<(), Box<Error>> {
+fn main_wall_ball() -> Result<(), Box<dyn Error>> {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));

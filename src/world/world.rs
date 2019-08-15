@@ -120,6 +120,7 @@ mod tests {
 
     use super::*;
 
+    // page 92
     #[test]
     fn test_default_world() {
         let w = default_world();
@@ -137,6 +138,7 @@ mod tests {
         assert_eq!(xs[3].get_t(), 6.0);
     }
 
+    // page 95
     #[test]
     fn test_shade_hit() {
         let w = default_world();
@@ -157,6 +159,7 @@ mod tests {
         assert_color(&c_expected, &c);
     }
 
+    // page 95
     #[test]
     fn test_shade_hit_inside() {
         let mut w = default_world();
@@ -180,6 +183,7 @@ mod tests {
         assert_color(&c_expected, &c);
     }
 
+    // page 96
     #[test]
     fn test_color_at_no_hit() {
         let mut w = default_world();
@@ -194,6 +198,7 @@ mod tests {
         assert_color(&c_expected, &c);
     }
 
+    // page 96 bottom
     #[test]
     fn test_color_at_single_hit() {
         let w = default_world();
@@ -208,6 +213,7 @@ mod tests {
         assert_color(&c_expected, &c);
     }
 
+    // page 97
     #[test]
     fn test_color_at_inner_sphere() {
         let mut w = default_world();
@@ -216,9 +222,8 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let r = Ray::new(origin, direction);
 
-        let mut c_expected = Color::new(0.0, 0.0, 0.0);
-
         let mut shapes = w.get_shapes_mut();
+
         let outer_shape = shapes.get_mut(0).unwrap();
         outer_shape.get_material_mut().set_ambient(1.0);
 
@@ -226,7 +231,7 @@ mod tests {
         inner_shape.get_material_mut().set_ambient(1.0);
 
         // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
-        c_expected = inner_shape.get_material_mut().get_color().clone();
+        let mut c_expected = inner_shape.get_material_mut().get_color().clone();
 
         let c = World::color_at(&w, &r);
 

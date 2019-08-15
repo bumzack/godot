@@ -2,7 +2,7 @@ use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
 pub struct PrecomputedComponent<'a> {
-    t: f32,
+    t: f64,
     shape: &'a Shape,
     point: Tuple4D,
     eye_vector: Tuple4D,
@@ -12,7 +12,7 @@ pub struct PrecomputedComponent<'a> {
 
 impl<'a> PrecomputedComponent<'a> {
     pub fn new(
-        t: f32,
+        t: f64,
         shape: &'a Shape,
         point: Tuple4D,
         eye_vector: Tuple4D,
@@ -29,7 +29,7 @@ impl<'a> PrecomputedComponent<'a> {
         }
     }
 
-    pub fn get_t(&self) -> f32 {
+    pub fn get_t(&self) -> f64 {
         self.t
     }
 

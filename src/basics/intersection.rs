@@ -10,21 +10,21 @@ use crate::world::world::World;
 use crate::world::world::WorldOps;
 
 pub struct Intersection<'a> {
-    t: f32,
+    t: f64,
     shape: &'a Shape,
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f32, shape: &Shape) -> Intersection;
+    fn new(t: f64, shape: &Shape) -> Intersection;
     fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
-    fn get_t(&self) -> f32;
+    fn get_t(&self) -> f64;
     fn get_shape(&self) -> &'a Shape;
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
-    fn new(t: f32, shape: &Shape) -> Intersection {
+    fn new(t: f64, shape: &Shape) -> Intersection {
         Intersection { t, shape }
     }
 
@@ -67,7 +67,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         res
     }
 
-    fn get_t(&self) -> f32 {
+    fn get_t(&self) -> f64 {
         self.t
     }
 
@@ -78,10 +78,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     fn prepare_computations(&self, r: &Ray) -> PrecomputedComponent {
         let p = Ray::position(r, self.t);
         let mut normal_vector = self.shape.normal_at(&p);
-        let eye_vector = -r.get_direction();
+        let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
-            normal_vector = -normal_vector;
+            normal_vector = normal_vector * (-1.0);
         } else {
             inside = false;
         }
@@ -135,7 +135,7 @@ mod tests {
     #[test]
     fn test_new_intersection() {
         let s = Sphere::new();
-        let t: f32 = 3.5;
+        let t: f64 = 3.5;
         let o = Shape::Sphere(s);
         let i = Intersection::new(t, &o);
         assert_eq!(i.t, 3.5);
@@ -144,12 +144,12 @@ mod tests {
     #[test]
     fn test_new_intersectionlist() {
         let s1 = Sphere::new();
-        let t1: f32 = 3.5;
+        let t1: f64 = 3.5;
         let o1 = Shape::Sphere(s1);
         let i1 = Intersection::new(t1, &o1);
 
         let s2 = Sphere::new();
-        let t2: f32 = 4.5;
+        let t2: f64 = 4.5;
         let o2 = Shape::Sphere(s2);
         let i2 = Intersection::new(t2, &o2);
 
@@ -167,10 +167,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::Sphere(s);
 
-        let t1: f32 = 1.0;
+        let t1: f64 = 1.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = 2.0;
+        let t2: f64 = 2.0;
         let i2 = Intersection::new(t2, &o);
 
         let mut il = IntersectionList::new();
@@ -187,10 +187,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::Sphere(s);
 
-        let t1: f32 = -1.0;
+        let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = 1.0;
+        let t2: f64 = 1.0;
         let i2 = Intersection::new(t2, &o);
 
         let mut il = IntersectionList::new();
@@ -207,10 +207,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::Sphere(s);
 
-        let t1: f32 = -1.0;
+        let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = -2.0;
+        let t2: f64 = -2.0;
         let i2 = Intersection::new(t2, &o);
 
         let mut il = IntersectionList::new();
@@ -228,16 +228,16 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::Sphere(s);
 
-        let t1: f32 = 5.0;
+        let t1: f64 = 5.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = 7.0;
+        let t2: f64 = 7.0;
         let i2 = Intersection::new(t2, &o);
 
-        let t3: f32 = -3.0;
+        let t3: f64 = -3.0;
         let i3 = Intersection::new(t3, &o);
 
-        let t4: f32 = 2.0;
+        let t4: f64 = 2.0;
         let i4 = Intersection::new(t4, &o);
 
         let mut il = IntersectionList::new();
@@ -265,8 +265,9 @@ mod tests {
         assert_eq!(intersections.len(), 2);
     }
 
+    // page 93
     #[test]
-    fn test_precomputations() {
+    fn test_prepare_computations() {
         let o = Tuple4D::new_point(0.0, 0.0, -5.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
@@ -287,8 +288,9 @@ mod tests {
         assert_tuple(&normal_vector_expected, c.get_normal_vector());
     }
 
+    // page 94
     #[test]
-    fn test_precomputations_hit_outside() {
+    fn test_prepare_computations_hit_outside() {
         let o = Tuple4D::new_point(0.0, 0.0, -5.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
@@ -310,6 +312,7 @@ mod tests {
         assert_eq!(false, c.get_inside());
     }
 
+    // page 95 top
     #[test]
     fn test_precomputations_hit_inside() {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);

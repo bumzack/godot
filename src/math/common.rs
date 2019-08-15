@@ -37,7 +37,7 @@ pub fn assert_color(actual: &Color, expected: &Color) {
     assert_eq!(assert_two_float(actual.b, expected.b), true);
 }
 
-pub fn assert_two_float(a: f32, b: f32) -> bool {
+pub fn assert_two_float(a: f64, b: f64) -> bool {
     let EPSILON = 0.00001;
 
     // println!("float_equal: a = {}, b = {}", a, b);
@@ -47,6 +47,6 @@ pub fn assert_two_float(a: f32, b: f32) -> bool {
     false
 }
 
-pub fn assert_float(actual: f32, expected: f32) {
+pub fn assert_float(actual: f64, expected: f64) {
     assert_eq!(assert_two_float(actual, expected), true);
 }

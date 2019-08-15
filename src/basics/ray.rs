@@ -13,7 +13,7 @@ pub struct Ray {
 
 pub trait RayOps {
     fn new(origin: Tuple4D, direction: Tuple4D) -> Ray;
-    fn position(r: &Ray, t: f32) -> Tuple4D;
+    fn position(r: &Ray, t: f64) -> Tuple4D;
     fn transform(r: &Ray, m: &Matrix) -> Ray;
 
     fn get_direction(&self) -> &Tuple4D;
@@ -27,7 +27,7 @@ impl RayOps for Ray {
         Ray { origin, direction }
     }
 
-    fn position(r: &Ray, t: f32) -> Tuple4D {
+    fn position(r: &Ray, t: f64) -> Tuple4D {
         &r.origin + &(&r.direction * t)
     }
 

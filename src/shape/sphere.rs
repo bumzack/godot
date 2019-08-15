@@ -1,4 +1,4 @@
-use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
 use crate::basics::intersection::IntersectionOps;
 use crate::basics::intersection::{Intersection, IntersectionListOps};
@@ -9,8 +9,8 @@ use crate::material::material::MaterialOps;
 use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
+use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::tuple4d::{Tuple, ORIGIN};
 use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug)]
@@ -22,7 +22,7 @@ pub struct Sphere {
 
 pub trait SphereOps {
     fn new() -> Sphere;
-    fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f32>>;
+    fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f64>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -44,8 +44,9 @@ impl SphereOps for Sphere {
         }
     }
 
-    fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f32>> {
-        let sphere_to_ray = &r.origin - &ORIGIN;
+    fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f64>> {
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let sphere_to_ray = &r.origin - &o;
         let a = &r.direction ^ &r.direction;
         let b = 2.0 * (&r.direction ^ &sphere_to_ray);
         let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
@@ -77,8 +78,9 @@ impl SphereOps for Sphere {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let p_shape = &self.inverse_transformation_matrix * world_point;
-        let object_normal = &(p_shape - ORIGIN);
+        let object_normal = &(p_shape - o);
         let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
@@ -248,13 +250,13 @@ mod tests {
         let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
         assert_tuple(&n, &n_expected);
 
-        let a = 3_f32.sqrt() / 3.0;
+        let a = 3_f64.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
         let n = s.normal_at(&p);
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
 
-        let a = 3_f32.sqrt() / 3.0;
+        let a = 3_f64.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
         let n = Tuple4D::normalize(&s.normal_at(&p));
         let n_expected = Tuple4D::new_vector(a, a, a);

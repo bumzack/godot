@@ -1,4 +1,4 @@
-use std::f32::consts::{PI, SQRT_2};
+use std::f64::consts::{PI, SQRT_2};
 use std::ops::Mul;
 
 use crate::math::common::assert_two_float;
@@ -9,51 +9,51 @@ use crate::math::tuple4d::Tuple4D;
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
-    pub m: Vec<Vec<f32>>,
+    pub m: Vec<Vec<f64>>,
 }
 
 pub trait MatrixOps {
     fn new(row: usize, col: usize) -> Matrix;
 
-    fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix;
+    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Matrix;
 
-    fn new_matrix_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix;
+    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Matrix;
 
     fn new_matrix_4x4(
-        a1: f32,
-        b1: f32,
-        c1: f32,
-        d1: f32,
-        a2: f32,
-        b2: f32,
-        c2: f32,
-        d2: f32,
-        a3: f32,
-        b3: f32,
-        c3: f32,
-        d3: f32,
-        a4: f32,
-        b4: f32,
-        c4: f32,
-        d4: f32,
+        a1: f64,
+        b1: f64,
+        c1: f64,
+        d1: f64,
+        a2: f64,
+        b2: f64,
+        c2: f64,
+        d2: f64,
+        a3: f64,
+        b3: f64,
+        c3: f64,
+        d3: f64,
+        a4: f64,
+        b4: f64,
+        c4: f64,
+        d4: f64,
     ) -> Matrix;
 
     fn new_identity_4x4() -> Matrix;
     fn transpose(m: &Matrix) -> Matrix;
 
-    fn determinant(m: &Matrix) -> f32;
+    fn determinant(m: &Matrix) -> f64;
 
     fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix;
-    fn minor(m: &Matrix, row: usize, col: usize) -> f32;
-    fn cofactor(m: &Matrix, row: usize, col: usize) -> f32;
+    fn minor(m: &Matrix, row: usize, col: usize) -> f64;
+    fn cofactor(m: &Matrix, row: usize, col: usize) -> f64;
     fn invert(m: &Matrix) -> Option<Matrix>;
 
-    fn translation(tx: f32, ty: f32, tz: f32) -> Matrix;
-    fn scale(sx: f32, sy: f32, sz: f32) -> Matrix;
-    fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix;
-    fn rotate_x(rad: f32) -> Matrix;
-    fn rotate_y(rad: f32) -> Matrix;
-    fn rotate_z(rad: f32) -> Matrix;
+    fn translation(tx: f64, ty: f64, tz: f64) -> Matrix;
+    fn scale(sx: f64, sy: f64, sz: f64) -> Matrix;
+    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix;
+    fn rotate_x(rad: f64) -> Matrix;
+    fn rotate_y(rad: f64) -> Matrix;
+    fn rotate_z(rad: f64) -> Matrix;
 
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix;
 }
@@ -68,7 +68,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix {
+    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Matrix {
         let mut m = Matrix {
             rows: 2,
             cols: 2,
@@ -83,7 +83,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_matrix_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix {
+    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Matrix {
         let mut m = Matrix {
             rows: 3,
             cols: 3,
@@ -104,22 +104,22 @@ impl MatrixOps for Matrix {
     }
 
     fn new_matrix_4x4(
-        a1: f32,
-        b1: f32,
-        c1: f32,
-        d1: f32,
-        a2: f32,
-        b2: f32,
-        c2: f32,
-        d2: f32,
-        a3: f32,
-        b3: f32,
-        c3: f32,
-        d3: f32,
-        a4: f32,
-        b4: f32,
-        c4: f32,
-        d4: f32,
+        a1: f64,
+        b1: f64,
+        c1: f64,
+        d1: f64,
+        a2: f64,
+        b2: f64,
+        c2: f64,
+        d2: f64,
+        a3: f64,
+        b3: f64,
+        c3: f64,
+        d3: f64,
+        a4: f64,
+        b4: f64,
+        c4: f64,
+        d4: f64,
     ) -> Matrix {
         let mut m = Matrix {
             rows: 4,
@@ -177,7 +177,7 @@ impl MatrixOps for Matrix {
         transpose
     }
 
-    fn determinant(m: &Matrix) -> f32 {
+    fn determinant(m: &Matrix) -> f64 {
         if m.rows == 2 {
             return m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0];
         } else if m.rows == 3 {
@@ -230,12 +230,12 @@ impl MatrixOps for Matrix {
         sub_matrix
     }
 
-    fn minor(m: &Matrix, row: usize, col: usize) -> f32 {
+    fn minor(m: &Matrix, row: usize, col: usize) -> f64 {
         let sub = Self::sub_matrix(m, row, col);
         Self::determinant(&sub)
     }
 
-    fn cofactor(m: &Matrix, row: usize, col: usize) -> f32 {
+    fn cofactor(m: &Matrix, row: usize, col: usize) -> f64 {
         let minor = Self::minor(m, row, col);
         if (row + col) % 2 != 0 && minor != 0.0 {
             return -minor;
@@ -263,7 +263,7 @@ impl MatrixOps for Matrix {
         Some(inv)
     }
 
-    fn translation(tx: f32, ty: f32, tz: f32) -> Matrix {
+    fn translation(tx: f64, ty: f64, tz: f64) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][3] = tx;
         m.m[1][3] = ty;
@@ -272,7 +272,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn scale(sx: f32, sy: f32, sz: f32) -> Matrix {
+    fn scale(sx: f64, sy: f64, sz: f64) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = sx;
         m.m[1][1] = sy;
@@ -281,7 +281,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix {
+    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][1] = xy;
         m.m[0][2] = xz;
@@ -292,7 +292,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_x(rad: f32) -> Matrix {
+    fn rotate_x(rad: f64) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[1][1] = rad.cos();
         m.m[1][2] = -rad.sin();
@@ -302,17 +302,17 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_y(rad: f32) -> Matrix {
+    fn rotate_y(rad: f64) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = rad.cos();
         m.m[0][2] = rad.sin();
         m.m[2][0] = -rad.sin();
         m.m[2][2] = rad.cos();
-
+        println!("m = {:?}", m);
         m
     }
 
-    fn rotate_z(rad: f32) -> Matrix {
+    fn rotate_z(rad: f64) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = rad.cos();
         m.m[0][1] = -rad.sin();
@@ -327,8 +327,11 @@ impl MatrixOps for Matrix {
         let left = &forward * &Tuple4D::normalize(up);
         let true_up = &left * &forward;
 
-        let orientation = Matrix::new_matrix_4x4(
-            left.x, left.y, left.z, 0.0, true_up.x, true_up.y, true_up.z, 0.0, -forward.x, -forward.y, -forward.z, 0.0,
+        #[rustfmt::skip]
+            let orientation = Matrix::new_matrix_4x4(
+            left.x, left.y, left.z, 0.0,
+            true_up.x, true_up.y, true_up.z, 0.0,
+            -forward.x, -forward.y, -forward.z, 0.0,
             0.0, 0.0, 0.0, 1.0,
         );
         orientation * Matrix::translation(-from.x, -from.y, -from.z)
@@ -362,7 +365,7 @@ impl Mul for Matrix {
 
         for row in 0..self.rows {
             for col in 0..self.cols {
-                let mut sum: f32 = 0.0;
+                let mut sum: f64 = 0.0;
 
                 // TODO: not a generic code for general matrix dimensions
                 for i in 0..self.cols {
@@ -385,7 +388,7 @@ impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
 
         for row in 0..self.rows {
             for col in 0..self.cols {
-                let mut sum: f32 = 0.0;
+                let mut sum: f64 = 0.0;
 
                 // TODO: not a generic code for general matrix dimensions
                 for i in 0..self.cols {
@@ -437,11 +440,16 @@ mod tests {
     use crate::math::common::{assert_float, assert_matrix, assert_tuple, assert_two_float};
 
     use super::*;
+    use std::panic::resume_unwind;
 
     #[test]
     fn test_matrix_components() {
-        let a4x4 = Matrix::new_matrix_4x4(
-            1.0, 2.0, 3.0, 4.0, 5.5, 6.5, 7.5, 8.5, 9.0, 10.0, 11.0, 12.0, 13.5, 14.5, 15.5, 16.5,
+        #[rustfmt::skip]
+            let a4x4 = Matrix::new_matrix_4x4(
+            1.0, 2.0, 3.0, 4.0,
+            5.5, 6.5, 7.5, 8.5,
+            9.0, 10.0, 11.0, 12.0,
+            13.5, 14.5, 15.5, 16.5,
         );
 
         assert_eq!(a4x4.m[0][0], 1.0);
@@ -452,13 +460,18 @@ mod tests {
         assert_eq!(a4x4.m[3][0], 13.5);
         assert_eq!(a4x4.m[3][2], 15.5);
 
-        let a3x3 = Matrix::new_matrix_3x3(-3.0, 5.0, 0.0, 1.0, -2.0, -7.0, 0.0, 1.0, 1.0);
+        #[rustfmt::skip]
+            let a3x3 = Matrix::new_matrix_3x3(-3.0, 5.0, 0.0,
+                                              1.0, -2.0, -7.0,
+                                              0.0, 1.0, 1.0);
 
         assert_eq!(a3x3.m[0][0], -3.0);
         assert_eq!(a3x3.m[1][1], -2.0);
         assert_eq!(a3x3.m[2][2], 1.0);
 
-        let a2x2 = Matrix::new_matrix_2x2(-3.0, 5.0, 1.0, -2.0);
+        #[rustfmt::skip]
+            let a2x2 = Matrix::new_matrix_2x2(-3.0, 5.0,
+                                              1.0, -2.0);
 
         assert_eq!(a2x2.m[0][0], -3.0);
         assert_eq!(a2x2.m[0][1], 5.0);
@@ -524,8 +537,12 @@ mod tests {
 
     #[test]
     fn test_matrix_tuple_mul() {
-        let a = Matrix::new_matrix_4x4(
-            1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        #[rustfmt::skip]
+            let a = Matrix::new_matrix_4x4(
+            1.0, 2.0, 3.0, 4.0,
+            2.0, 4.0, 4.0, 2.0,
+            8.0, 6.0, 4.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
         );
 
         let b = Tuple4D::new(1.0, 2.0, 3.0, 1.0);
@@ -536,12 +553,23 @@ mod tests {
         assert_float(c.y, 24.0);
         assert_float(c.z, 33.0);
         assert_float(c.w, 1.0);
+
+        let c1 = a * b;
+
+        assert_float(c1.x, 18.0);
+        assert_float(c1.y, 24.0);
+        assert_float(c1.z, 33.0);
+        assert_float(c1.w, 1.0);
     }
 
     #[test]
     fn test_matrix_mul_identity() {
-        let a = Matrix::new_matrix_4x4(
-            1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        #[rustfmt::skip]
+            let a = Matrix::new_matrix_4x4(
+            1.0, 2.0, 3.0, 4.0,
+            2.0, 4.0, 4.0, 2.0,
+            8.0, 6.0, 4.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
         );
 
         let e = Matrix::new_identity_4x4();
@@ -571,8 +599,12 @@ mod tests {
 
     #[test]
     fn test_matrix_transpose() {
-        let a = Matrix::new_matrix_4x4(
-            1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        #[rustfmt::skip]
+            let a = Matrix::new_matrix_4x4(
+            1.0, 2.0, 3.0, 4.0,
+            2.0, 4.0, 4.0, 2.0,
+            8.0, 6.0, 4.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
         );
 
         let b = Matrix::transpose(&a);
@@ -845,12 +877,20 @@ mod tests {
 
     #[test]
     fn test_matrix_inversion5() {
-        let a = Matrix::new_matrix_4x4(
-            3.0, -9.0, 7.0, 3.0, 3.0, -8.0, 2.0, -9.0, -4.0, 4.0, 4.0, 1.0, -6.0, 5.0, -1.0, 1.0,
+        #[rustfmt::skip]
+            let a = Matrix::new_matrix_4x4(
+            3.0, -9.0, 7.0, 3.0,
+            3.0, -8.0, 2.0, -9.0,
+            -4.0, 4.0, 4.0, 1.0,
+            -6.0, 5.0, -1.0, 1.0,
         );
 
-        let b = Matrix::new_matrix_4x4(
-            8.0, 2.0, 2.0, 2.0, 3.0, -1.0, 7.0, 0.0, 7.0, 0.0, 5.0, 4.0, 6.0, -2.0, 0.0, 5.0,
+        #[rustfmt::skip]
+            let b = Matrix::new_matrix_4x4(
+            8.0, 2.0, 2.0, 2.0,
+            3.0, -1.0, 7.0, 0.0,
+            7.0, 0.0, 5.0, 4.0,
+            6.0, -2.0, 0.0, 5.0,
         );
 
         let c = &a * &b;
@@ -982,7 +1022,7 @@ mod tests {
         let half = &half_quarter * &p;
         let full = &full_quarter * &p;
 
-        let sqrt2_half = 2.0_f32.sqrt() / 2.0;
+        let sqrt2_half = 2.0_f64.sqrt() / 2.0;
 
         assert_float(half.x, 0.0);
         assert_float(half.y, sqrt2_half);
@@ -1170,6 +1210,7 @@ mod tests {
         assert!(Tuple4D::is_point(&p2));
     }
 
+    // page 98 center
     #[test]
     fn test_matrix_view_transform_default_direction() {
         let from = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -1182,6 +1223,7 @@ mod tests {
         assert_matrix(&v, &v_expected);
     }
 
+    // page 98 bottom
     #[test]
     fn test_matrix_view_transform_positive_z_direction() {
         let from = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -1194,6 +1236,7 @@ mod tests {
         assert_matrix(&v, &v_expected);
     }
 
+    // page 99 top
     #[test]
     fn test_matrix_view_transform_translation() {
         let from = Tuple4D::new_point(0.0, 0.0, 8.0);
@@ -1206,6 +1249,7 @@ mod tests {
         assert_matrix(&v, &v_expected);
     }
 
+    // page 99 center
     #[test]
     fn test_matrix_view_transform_arbitrary() {
         let from = Tuple4D::new_point(1.0, 3.0, 2.0);
@@ -1214,11 +1258,58 @@ mod tests {
 
         let v = Matrix::view_transform(&from, &to, &up);
 
-        let v_expected = Matrix::new_matrix_4x4(
-            -0.50709, 0.50709, 0.67612, -2.36643, 0.76772, 0.60609, 0.12122, -2.82843, -0.35857, 0.59761, -0.71714,
-            0.0, 0.0, 0.0, 0.0, 1.0,
+        #[rustfmt::skip]
+            let v_expected = Matrix::new_matrix_4x4(
+            -0.50709, 0.50709, 0.67612, -2.36643,
+            0.76772, 0.60609, 0.12122, -2.82843,
+            -0.35857, 0.59761, -0.71714, 0.0,
+            0.0, 0.0, 0.0, 1.0,
         );
 
         assert_matrix(&v, &v_expected);
+    }
+
+    #[test]
+    fn test_matrix_mul_tuple() {
+        #[rustfmt::skip]
+            let m = Matrix::new_matrix_4x4(
+            0.70710678, 0., 0.70710678, 3.53553391,
+            0., 1., 0., -2.,
+            -0.70710678, 0., 0.70710678, 3.5355339,
+            0., 0., 0., 1.,
+        );
+
+        let m_inv_expected = Matrix::new_matrix_4x4(
+            0.70710678,
+            0.,
+            -0.70710678,
+            0.,
+            0.,
+            1.,
+            0.,
+            2.,
+            0.70710678,
+            0.,
+            0.70710678,
+            -5.,
+            0.,
+            0.,
+            0.,
+            1.,
+        );
+        let m_inv = Matrix::invert(&m).unwrap();
+        // assert_matrix(&m_inv, &m_inv_expected);
+        let p = Tuple4D::new_vector(0.0, 0.0, -1.0);
+
+        println!("m_inv = {:?}", m_inv);
+        println!("p = {:?}", p);
+
+        let res = &m_inv * &p;
+        let res_expected = Tuple4D::new_vector(0.70710678, 0.0, -0.70710678);
+
+        println!("expected   res = {:?} ", res_expected);
+        println!("actual    res = {:?} ", res);
+
+        assert_tuple(&res, &res_expected);
     }
 }

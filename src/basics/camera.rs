@@ -1,4 +1,4 @@
-use std::f32::consts::{PI, SQRT_2};
+use std::f64::consts::{PI, SQRT_2};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -13,7 +13,6 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::tuple4d::ORIGIN;
 use crate::world::world::default_world;
 use crate::world::world::World;
 use crate::world::world::WorldOps;
@@ -22,24 +21,24 @@ use crate::world::world::WorldOps;
 pub struct Camera {
     hsize: usize,
     vsize: usize,
-    field_of_view: f32,
+    field_of_view: f64,
     transform: Matrix,
-    half_view: f32,
-    half_width: f32,
-    half_height: f32,
-    pixel_size: f32,
+    half_view: f64,
+    half_width: f64,
+    half_height: f64,
+    pixel_size: f64,
 }
 
 pub trait CameraOps {
-    fn new(hsize: usize, vsize: usize, field_of_view: f32) -> Camera;
+    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera;
 
     fn get_hsize(&self) -> usize;
     fn get_vsize(&self) -> usize;
-    fn get_field_of_view(&self) -> f32;
+    fn get_field_of_view(&self) -> f64;
     fn get_transform(&self) -> &Matrix;
-    fn get_pixel_size(&self) -> f32;
-    fn get_half_width(&self) -> f32;
-    fn get_half_height(&self) -> f32;
+    fn get_pixel_size(&self) -> f64;
+    fn get_half_width(&self) -> f64;
+    fn get_half_height(&self) -> f64;
 
     fn calc_pixel_size(&mut self);
 
@@ -53,7 +52,7 @@ pub trait CameraOps {
 }
 
 impl CameraOps for Camera {
-    fn new(hsize: usize, vsize: usize, field_of_view: f32) -> Camera {
+    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera {
         Camera {
             hsize,
             vsize,
@@ -74,7 +73,7 @@ impl CameraOps for Camera {
         self.vsize
     }
 
-    fn get_field_of_view(&self) -> f32 {
+    fn get_field_of_view(&self) -> f64 {
         self.field_of_view
     }
 
@@ -84,7 +83,7 @@ impl CameraOps for Camera {
 
     fn calc_pixel_size(&mut self) {
         self.half_view = (self.field_of_view / 2.0).tan();
-        let aspect = self.hsize as f32 / (self.vsize as f32);
+        let aspect = self.hsize as f64 / (self.vsize as f64);
 
         if aspect >= 1.0 {
             self.half_width = self.half_view;
@@ -94,10 +93,10 @@ impl CameraOps for Camera {
             self.half_height = self.half_view;
         }
 
-        self.pixel_size = self.half_width * 2.0 / (self.hsize as f32);
+        self.pixel_size = self.half_width * 2.0 / (self.hsize as f64);
     }
 
-    fn get_pixel_size(&self) -> f32 {
+    fn get_pixel_size(&self) -> f64 {
         self.pixel_size
     }
 
@@ -106,27 +105,25 @@ impl CameraOps for Camera {
     }
 
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray {
-        let x_offset = (x as f32 + 0.5) * c.get_pixel_size();
-        let y_offset = (y as f32 + 0.5) * c.get_pixel_size();
+        let x_offset = (x as f64 + 0.5) * c.get_pixel_size();
+        let y_offset = (y as f64 + 0.5) * c.get_pixel_size();
 
         let world_x = c.get_half_width() - x_offset;
         let world_y = c.get_half_height() - y_offset;
         // TODO: we unwrap here silently ...
 
-        let inv = Matrix::invert(c.get_transform()).unwrap();
-        let p = Tuple4D::new_point(world_x, world_y, 1.0);
-        let pixel = &inv * &p;
-        let mut origin = &Matrix::invert(c.get_transform()).unwrap() * &ORIGIN;
-        let mut direction = Tuple4D::normalize(&(&pixel - &ORIGIN));
+        let camera_transform_inv = Matrix::invert(c.get_transform()).unwrap();
 
-        //TODO: this makes one test pass, but why?
-        // and another one still failing
-        // so direction is buggy?
-        direction.z = direction.z;
-        // println!("ray_for_pixel() pixel_size() = {}, half_widht= {}, half_height = {} ", c.get_pixel_size(), c.get_half_width(), c.get_half_height());
-        // println!("ray_for_pixel() world_x() = {}, world_y = {}", world_x, world_y);
+        // use vector, but is it a vector ?
+        let p = Tuple4D::new_point(world_x, world_y, -1.0);
+        println!("cameratransform_inv  = {:?}", camera_transform_inv);
+        println!("p  = {:?}", p);
 
-        // println!("ray_for_pixel() origin = {:#?}\n direction = {:#?}", origin, direction);
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+
+        let mut pixel = &camera_transform_inv * &p;
+        let mut origin = &camera_transform_inv * &o;
+        let mut direction = Tuple4D::normalize(&(&pixel - &origin));
 
         // so the assert in Ray::new don't panic
         origin.w = 1.0;
@@ -134,11 +131,11 @@ impl CameraOps for Camera {
         Ray::new(origin, direction)
     }
 
-    fn get_half_width(&self) -> f32 {
+    fn get_half_width(&self) -> f64 {
         self.half_width
     }
 
-    fn get_half_height(&self) -> f32 {
+    fn get_half_height(&self) -> f64 {
         self.half_height
     }
 
@@ -167,10 +164,12 @@ impl CameraOps for Camera {
 
 #[cfg(test)]
 mod tests {
+
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple, assert_two_float};
 
     use super::*;
 
+    // page 101
     #[test]
     fn test_camera_new() {
         let mut c = Camera::new(160, 120, PI / SQRT_2);
@@ -183,20 +182,25 @@ mod tests {
         assert_matrix(c.get_transform(), &Matrix::new_identity_4x4());
     }
 
+    // page 101 bottom
     #[test]
     fn test_camera_pixel_size_horizontal() {
         let mut c = Camera::new(200, 125, PI / 2.0);
         c.calc_pixel_size();
         assert_float(c.get_pixel_size(), 0.01);
+        assert_matrix(c.get_transform(), &Matrix::new_identity_4x4());
     }
 
+    // page 101 bottom part 2
     #[test]
     fn test_camera_pixel_size_vertical() {
         let mut c = Camera::new(125, 200, PI / 2.0);
         c.calc_pixel_size();
         assert_float(c.get_pixel_size(), 0.01);
+        assert_matrix(c.get_transform(), &Matrix::new_identity_4x4());
     }
 
+    // page 103 part1
     #[test]
     fn test_camera_ray_for_pixel_center() {
         let mut c = Camera::new(201, 101, PI / 2.0);
@@ -204,10 +208,14 @@ mod tests {
 
         let r = Camera::ray_for_pixel(&c, 100, 50);
 
-        assert_tuple(&r.get_origin(), &Tuple4D::new_point(0.0, 0.0, 0.0));
-        assert_tuple(&r.get_direction(), &Tuple4D::new_vector(0.0, 0.0, -1.0));
+        let origin_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let direction_expected = Tuple4D::new_vector(0.0, 0.0, -1.0);
+
+        assert_tuple(&r.get_origin(), &origin_expected);
+        assert_tuple(&r.get_direction(), &direction_expected);
     }
 
+    // page 103 part 2
     #[test]
     fn test_camera_ray_for_pixel_canvas_corner() {
         let mut c = Camera::new(201, 101, PI / 2.0);
@@ -215,26 +223,43 @@ mod tests {
 
         let r = Camera::ray_for_pixel(&c, 0, 0);
 
-        assert_tuple(&r.get_origin(), &Tuple4D::new_point(0.0, 0.0, 0.0));
-        assert_tuple(&r.get_direction(), &Tuple4D::new_vector(0.66519, 0.33259, -0.66851));
+        let origin_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let direction_expected = Tuple4D::new_vector(0.66519, 0.33259, -0.66851);
+
+        println!("expected origin   = {:?}", origin_expected);
+        println!("actual origin     = {:?}", r.get_origin());
+
+        println!("expected direction   = {:?}", direction_expected);
+        println!("actual direction     = {:?}", r.get_direction());
+
+        assert_tuple(&r.get_origin(), &origin_expected);
+        assert_tuple(&r.get_direction(), &direction_expected);
     }
 
+    // page 103 part 3
     #[test]
     fn test_camera_ray_for_pixel_transformed_camera() {
         let mut c = Camera::new(201, 101, PI / 2.0);
         c.calc_pixel_size();
 
-        c.set_transformation(Matrix::rotate_y(PI / 4.0) * Matrix::translation(0.0, -2.0, 5.0));
+        let rot_y = Matrix::rotate_y(PI / 4.0);
+        let trans = Matrix::translation(0.0, -2.0, 5.0);
+
+        let transform = &rot_y * &trans;
+        c.set_transformation(transform);
         let r = Camera::ray_for_pixel(&c, 100, 50);
 
-        println!("&r.get_origin() = {:#?}", &r.get_origin());
-        println!("&r.get_direction()= {:#?}", &r.get_direction());
+        let expected_origin = Tuple4D::new_point(0.0, 2.0, -5.0);
+        let expected_direction = Tuple4D::new_vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0);
 
-        assert_tuple(&r.get_origin(), &Tuple4D::new_point(0.0, 2.0, -5.0));
-        assert_tuple(
-            &r.get_direction(),
-            &Tuple4D::new_vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0),
-        );
+        println!("expected  origin() = {:#?}", expected_origin);
+        println!("actual origin      = {:#?}", &r.get_origin());
+
+        println!("expected  direction() = {:#?}", &expected_direction);
+        println!("actual direction      = {:#?}", &r.get_direction());
+
+        assert_tuple(&r.get_origin(), &expected_origin);
+        assert_tuple(&r.get_direction(), &expected_direction);
     }
 
     #[test]

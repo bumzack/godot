@@ -1,4 +1,4 @@
-use std::f32::consts::SQRT_2;
+use std::f64::consts::SQRT_2;
 
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
@@ -11,10 +11,10 @@ use crate::math::tuple4d::Tuple4D;
 #[derive(Clone, Debug)]
 pub struct Material {
     color: Color,
-    ambient: f32,
-    diffuse: f32,
-    specular: f32,
-    shininess: f32,
+    ambient: f64,
+    diffuse: f64,
+    specular: f64,
+    shininess: f64,
 }
 
 pub trait MaterialOps {
@@ -23,10 +23,10 @@ pub trait MaterialOps {
     fn lightning(material: &Material, light: &Light, point: &Tuple4D, eye: &Tuple4D, n: &Tuple4D) -> Color;
 
     fn set_color(&mut self, c: Color);
-    fn set_diffuse(&mut self, d: f32);
-    fn set_specular(&mut self, s: f32);
-    fn set_shininess(&mut self, s: f32);
-    fn set_ambient(&mut self, a: f32);
+    fn set_diffuse(&mut self, d: f64);
+    fn set_specular(&mut self, s: f64);
+    fn set_shininess(&mut self, s: f64);
+    fn set_ambient(&mut self, a: f64);
 
     fn get_color(&self) -> &Color;
 }
@@ -51,7 +51,7 @@ impl MaterialOps for Material {
         let mut specular = BLACK;
         if light_dot_normal >= 0.0 {
             diffuse = &effective_color * material.diffuse * light_dot_normal;
-            let reflect_v = Tuple4D::reflect(&(-light_v), &n);
+            let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
             let reflect_dot_eye = &reflect_v ^ eye;
             specular = BLACK;
 
@@ -67,19 +67,19 @@ impl MaterialOps for Material {
         self.color = c;
     }
 
-    fn set_diffuse(&mut self, d: f32) {
+    fn set_diffuse(&mut self, d: f64) {
         self.diffuse = d;
     }
 
-    fn set_specular(&mut self, s: f32) {
+    fn set_specular(&mut self, s: f64) {
         self.specular = s;
     }
 
-    fn set_shininess(&mut self, s: f32) {
+    fn set_shininess(&mut self, s: f64) {
         self.shininess = s;
     }
 
-    fn set_ambient(&mut self, a: f32) {
+    fn set_ambient(&mut self, a: f64) {
         self.ambient = a;
     }
 
@@ -168,7 +168,7 @@ mod tests {
 
         let result = Material::lightning(&m, &Light::PointLight(l), &p, &eye_v, &normal_v);
 
-        let result_expected = Color::new(1.6363853, 1.6363853, 1.6363853);
+        let result_expected = Color::new(1.6363961030678928, 1.6363961030678928,1.6363961030678928);
         println!(
             "test_material_lightning_eye_in_reflecing_path  result = {:#?}, expected = {:#?}",
             result, result_expected
