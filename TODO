@@ -1,3 +1,6 @@
+shadows are broken - the result of hit() does not look promising
+
+
 das &mut Camera in
     -) fn ray_for_pixel(c: &mut Camera, x: usize, y: usize) -> Ray;
     -) fn render(c: &mut Camera, w: &World) -> Canvas;

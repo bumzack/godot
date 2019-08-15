@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::f64::consts::PI;
+use std::time::Instant;
 
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::CanvasOps;
@@ -11,11 +12,12 @@ use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_challenge::patterns::gradient_patterns::GradientPattern;
 use raytracer_challenge::patterns::patterns::Pattern;
+use raytracer_challenge::patterns::ring_patterns::RingPattern;
 use raytracer_challenge::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge::shape::shape::Shape;
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{World, WorldOps};
-use raytracer_challenge::patterns::ring_patterns::RingPattern;
+use raytracer_challenge::patterns::checker3d_patterns::Checker3DPattern;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Plane::new();
@@ -40,12 +42,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     left_wall.get_material_mut().set_pattern(p);
 
+
+    let mut checker_3d = Checker3DPattern::new();
+    checker_3d.set_color_a(Color::new(0.1, 0.8, 0.4));
+    checker_3d.set_color_a(Color::new(0.8, 0.2, 0.2));
+    let p = Pattern::Checker3DPattern(checker_3d);
+
     let mut right_wall = Plane::new();
     right_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
-    right_wall.get_material_mut().set_color(Color::new(0.0, 0.0, 1.));
-    right_wall.get_material_mut().set_specular(1.0);
+    right_wall.get_material_mut().set_pattern(p);
 
     let mut middle = Sphere::new();
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
@@ -86,10 +93,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         &Tuple4D::new_point(0.0, 1.0, 0.0),
     ));
 
+    let start = Instant::now();
     let canvas = Camera::render(&c, &w);
     canvas.write_ppm("chapter10.ppm")?;
+    let dur = Instant::now() - start;
 
-    println!("DONE");
+    println!("DONE in {:?}", dur);
 
     Ok(())
 }
