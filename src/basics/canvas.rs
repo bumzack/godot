@@ -21,7 +21,6 @@ pub trait CanvasOps<'a> {
     fn calc_idx(&self, x: usize, y: usize) -> usize;
 }
 
-
 impl<'a> CanvasOps<'a> for Canvas {
     fn new(width: usize, height: usize) -> Canvas {
         Canvas {
@@ -177,7 +176,6 @@ pub struct EnumeratePixels {
 //        Some(result)
 //    }
 //}
-
 
 #[cfg(test)]
 mod tests {

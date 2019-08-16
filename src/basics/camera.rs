@@ -148,52 +148,51 @@ impl CameraOps for Camera {
     }
 
     fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas {
-//        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
-//
-//        let data = Arc::new(Mutex::new(canvas));
-//        let mut children = vec![];
-//        let act_y: usize = 0;
-//        let act_y_mutex = Arc::new(Mutex::new(act_y));
-//
-//        for _i in 0..num_cores {
-//            let cloned_data = Arc::clone(&data);
-//            let cloned_act_y = Arc::clone(&act_y_mutex);
-//            let height = c.get_hsize();
-//            let width = c.get_vsize();
-//
-//            let c_clone = c.clone();
-//            let w_clone = w.clone();
-//
-//            children.push(thread::spawn(move || {
-//                let mut y: usize = 0;
-//                while *cloned_act_y.lock().unwrap() < height {
-//                    if y < height {
-//                        let mut acty = cloned_act_y.lock().unwrap();
-//                        y = *acty;
-//                        *acty = *acty + 1;
-//                    }
-//                    for x in 0..width {
-//                        let r = Camera::ray_for_pixel(&c_clone, x, y);
-//                        println!("render point  {}/{}", x, y);
-//                        let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//                        // TODO: wtf ?!
-//                        if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
-//                        let mut canvas = cloned_data.lock().unwrap();
-//                        canvas.write_pixel(x, y, color);
-//                    }
-//                }
-//            }));
-//        }
-//
-//        for child in children {
-//            let _ = child.join();
-//        }
-//
-//        let c = data.lock().unwrap();
-//        *c
+        //        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        //
+        //        let data = Arc::new(Mutex::new(canvas));
+        //        let mut children = vec![];
+        //        let act_y: usize = 0;
+        //        let act_y_mutex = Arc::new(Mutex::new(act_y));
+        //
+        //        for _i in 0..num_cores {
+        //            let cloned_data = Arc::clone(&data);
+        //            let cloned_act_y = Arc::clone(&act_y_mutex);
+        //            let height = c.get_hsize();
+        //            let width = c.get_vsize();
+        //
+        //            let c_clone = c.clone();
+        //            let w_clone = w.clone();
+        //
+        //            children.push(thread::spawn(move || {
+        //                let mut y: usize = 0;
+        //                while *cloned_act_y.lock().unwrap() < height {
+        //                    if y < height {
+        //                        let mut acty = cloned_act_y.lock().unwrap();
+        //                        y = *acty;
+        //                        *acty = *acty + 1;
+        //                    }
+        //                    for x in 0..width {
+        //                        let r = Camera::ray_for_pixel(&c_clone, x, y);
+        //                        println!("render point  {}/{}", x, y);
+        //                        let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        //                        // TODO: wtf ?!
+        //                        if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
+        //                        let mut canvas = cloned_data.lock().unwrap();
+        //                        canvas.write_pixel(x, y, color);
+        //                    }
+        //                }
+        //            }));
+        //        }
+        //
+        //        for child in children {
+        //            let _ = child.join();
+        //        }
+        //
+        //        let c = data.lock().unwrap();
+        //        *c
         Canvas::new(c.get_hsize(), c.get_vsize())
     }
-
 
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas {
         println!("DEBUG render point  {}/{}", x, y);

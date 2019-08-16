@@ -31,13 +31,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("single core duration: {:?}", dur);
 
-
     // multi core
-//    let start = Instant::now();
-//    let canvas = Camera::render_multi_core(&c, &w, 4);
-//    canvas.write_ppm("chapter12_multi_core.ppm")?;
-//    let dur = Instant::now() - start;
-//    println!("multi core duration: {:?}", dur);
+    //    let start = Instant::now();
+    //    let canvas = Camera::render_multi_core(&c, &w, 4);
+    //    canvas.write_ppm("chapter12_multi_core.ppm")?;
+    //    let dur = Instant::now() - start;
+    //    println!("multi core duration: {:?}", dur);
 
     Ok(())
 }
@@ -111,7 +110,6 @@ fn setup_world<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
     w.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
     w.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
     w.add_shape(Shape::new(ShapeEnum::Cube(cube), "cube"));
-
 
     let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();

@@ -658,7 +658,6 @@ mod tests {
         let upper = Shape::new(ShapeEnum::Plane(u), "plane");
         let lower = Shape::new(ShapeEnum::Plane(l), "plane");
 
-
         w.add_shape(lower);
         w.add_shape(upper);
 
@@ -680,7 +679,7 @@ mod tests {
         p.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         p.set_transformation(m);
-         let plane = Shape::new(ShapeEnum::Plane(p), "plane");
+        let plane = Shape::new(ShapeEnum::Plane(p), "plane");
 
         w.add_shape(plane);
 
@@ -767,7 +766,7 @@ mod tests {
 
         let mut s1 = Sphere::new();
         s1.set_material(m);
-         let shape1 = Shape::new(ShapeEnum::Sphere(s1), "sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1), "sphere");
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
         let mut s2 = Sphere::new();
@@ -835,7 +834,7 @@ mod tests {
     // page 158
     #[test]
     fn test_refracted_color_with_refracted_ray() {
-        let mut w = default_world_refracted_color_page_158();
+        let w = default_world_refracted_color_page_158();
 
         let origin = Tuple4D::new_point(0.0, 0.0, 0.1);
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);

@@ -52,10 +52,7 @@ impl SphereOps for Sphere {
         res[0] = (-b - discriminant.sqrt()) / (2.0 * a);
         res[1] = (-b + discriminant.sqrt()) / (2.0 * a);
 
-        res.sort_by(|a, b| {
-            a.partial_cmp(b)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        res.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
         Some(res)
     }
 
@@ -120,9 +117,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
-
-        let intersections = Sphere::intersect( &r).unwrap();
+        let intersections = Sphere::intersect(&r).unwrap();
 
         assert_eq!(intersections.len(), 2);
 
@@ -133,9 +128,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
-
-        let intersections = Sphere::intersect(  &r).unwrap();
+        let intersections = Sphere::intersect(&r).unwrap();
 
         assert_eq!(intersections.len(), 2);
 
@@ -150,9 +143,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
-
-        let intersections = Sphere::intersect(  &r);
+        let intersections = Sphere::intersect(&r);
 
         assert_eq!(intersections, None);
     }
@@ -164,9 +155,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
-
-        let intersections = Sphere::intersect(  &r).unwrap();
+        let intersections = Sphere::intersect(&r).unwrap();
 
         assert_eq!(intersections.len(), 2);
 
@@ -181,9 +170,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
-
-        let intersections = Sphere::intersect(  &r).unwrap();
+        let intersections = Sphere::intersect(&r).unwrap();
 
         assert_eq!(intersections.len(), 2);
 

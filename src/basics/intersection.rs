@@ -84,12 +84,15 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 }
                 intersection_list
             }
-            ShapeEnum::Cylinder(ref _cylinder) => {
-                let res = Cylinder::intersect(&r2);
+            ShapeEnum::Cylinder(ref cylinder) => {
+                let res = Cylinder::intersect(cylinder, &r2);
                 match res {
                     Some(r) => {
-                        let i1 = Intersection::new(r[0], shape);
-                        intersection_list.add(i1);
+                        // can be 1 or 2 intersections
+                        for i in r.iter() {
+                            let i1 = Intersection::new(*i, shape);
+                            intersection_list.add(i1);
+                        }
                     }
                     None => {}
                 }
@@ -107,10 +110,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 res.add(is);
             }
         }
-        res.get_intersections_mut().sort_by(|a, b| {
-            a.t.partial_cmp(&b.t)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        res.get_intersections_mut()
+            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
         res
     }
 
@@ -237,7 +238,7 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
     fn add(&mut self, i: Intersection<'a>) {
         self.list_of_intersections.push(i);
         self.list_of_intersections
-            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));// expect("IntersectionListOps::add : cant unwrap"));
+            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal)); // expect("IntersectionListOps::add : cant unwrap"));
     }
 
     fn hit(&self) -> Option<&Intersection<'a>> {
