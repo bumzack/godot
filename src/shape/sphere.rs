@@ -15,7 +15,7 @@ pub struct Sphere {
 
 pub trait SphereOps {
     fn new() -> Sphere;
-    fn intersect(s: &Sphere, r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(r: &Ray) -> Option<Vec<f64>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -37,7 +37,7 @@ impl SphereOps for Sphere {
         }
     }
 
-    fn intersect(_s: &Sphere, r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(r: &Ray) -> Option<Vec<f64>> {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let sphere_to_ray = &r.origin - &o;
         let a = &r.direction ^ &r.direction;
@@ -192,7 +192,7 @@ mod tests {
     // page 69
     #[test]
     fn test_sphere_new_check_transformation_matrix() {
-        let   s = Sphere::new();
+        let s = Sphere::new();
 
         let m_expected = Matrix::new_identity_4x4();
         let met_m_inv_expected = Matrix::invert(&m_expected).unwrap();
@@ -369,7 +369,6 @@ mod tests {
         test_helper_n1_n2_calculations(4, 2.5, 1.5);
         test_helper_n1_n2_calculations(5, 1.5, 1.0);
     }
-
 
     // page 85
     #[test]

@@ -26,7 +26,11 @@ pub trait IntersectionOps<'a> {
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f64;
     fn get_shape(&self) -> &'a Shape;
-    fn prepare_computations(intersection: &Intersection<'a>, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent<'a>;
+    fn prepare_computations(
+        intersection: &Intersection<'a>,
+        r: &Ray,
+        list: &IntersectionList<'a>,
+    ) -> PrecomputedComponent<'a>;
     fn schlick(comp: &PrecomputedComponent) -> f64;
 }
 
@@ -40,8 +44,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
         let res = match shape {
-            Shape::Sphere(ref s) => {
-                let res = Sphere::intersect(s, &r2);
+            Shape::Sphere(ref _s) => {
+                let res = Sphere::intersect(&r2);
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], shape);
@@ -54,8 +58,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 intersection_list
             }
 
-            Shape::Plane(ref p) => {
-                let res = Plane::intersect(p, &r2);
+            Shape::Plane(ref _p) => {
+                let res = Plane::intersect(&r2);
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], shape);
@@ -66,7 +70,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 intersection_list
             }
 
-            Shape::Cube(ref c) => {
+            Shape::Cube(ref _c) => {
                 let res = Cube::intersect(&r2);
                 match res {
                     Some(r) => {
@@ -102,7 +106,11 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.shape
     }
 
-    fn prepare_computations(intersection: &Intersection<'a>, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent<'a> {
+    fn prepare_computations(
+        intersection: &Intersection<'a>,
+        r: &Ray,
+        list: &IntersectionList<'a>,
+    ) -> PrecomputedComponent<'a> {
         let point = Ray::position(r, intersection.get_t());
         let mut normal_vector = intersection.get_shape().normal_at(&point);
         let eye_vector = r.get_direction() * (-1.0);
@@ -190,7 +198,7 @@ impl<'a> fmt::Debug for Intersection<'a> {
 }
 
 pub struct IntersectionList<'a> {
-    l: IntersectionContainer<'a>,
+    list_of_intersections: IntersectionContainer<'a>,
 }
 
 pub trait IntersectionListOps<'a> {
@@ -205,30 +213,30 @@ pub trait IntersectionListOps<'a> {
 
 impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
     fn new() -> IntersectionList<'a> {
-        IntersectionList { l: Vec::new() }
+        IntersectionList { list_of_intersections: Vec::new() }
     }
 
     fn add(&mut self, i: Intersection<'a>) {
-        self.l.push(i);
-        self.l.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+        self.list_of_intersections.push(i);
+        self.list_of_intersections.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
     }
 
     fn hit(&self) -> Option<&Intersection<'a>> {
-        self.l.iter().find(|&i| i.t >= 0.0)
+        self.list_of_intersections.iter().find(|&i| i.t >= 0.0)
     }
 
     fn get_intersections(&self) -> &IntersectionContainer<'a> {
-        &self.l
+        &self.list_of_intersections
     }
 
     fn get_intersections_mut(&mut self) -> &mut IntersectionContainer<'a> {
-        &mut self.l
+        &mut self.list_of_intersections
     }
 }
 
 impl<'a> fmt::Debug for IntersectionList<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for i in self.l.iter() {
+        for i in self.list_of_intersections.iter() {
             writeln!(f, "isl  {:?}", i)?;
         }
         writeln!(f, "")

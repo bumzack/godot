@@ -77,13 +77,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     left.get_material_mut().set_specular(0.3);
 
     let mut checker_3d = Checker3DPattern::new();
-    checker_3d.set_color_a(Color::new(0.5, 0.2, 0.8));
-    checker_3d.set_color_a(Color::new(0.1, 0.7, 0.4));
+    checker_3d.set_color_a(Color::new(1.0, 0.0, 1.0));
+    checker_3d.set_color_a(Color::new(0.1, 0.1, 1.0));
     let p = Pattern::Checker3DPattern(checker_3d);
 
     let mut cube = Cube::new();
-    cube.set_transformation(Matrix::translation(-2.5, 0.33, -0.75));
+    let c_trans = Matrix::translation(-2.5, 0.33, -0.75);
+    let c_scale = Matrix::scale(2.0, 0.5, 0.25);
+    cube.set_transformation(c_scale*c_trans);
     cube.get_material_mut().set_pattern(p);
+    cube.get_material_mut().set_transparency(1.5);
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
@@ -108,7 +111,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     ));
 
     let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
+    let canvas = Camera::render_debug(&c, &w, 226, 241);
     canvas.write_ppm("chapter12.ppm")?;
     let dur = Instant::now() - start;
 

@@ -40,6 +40,8 @@ pub trait CameraOps {
 
     fn render(c: &Camera, w: &World) -> Canvas;
 
+    fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas;
+
     // TODO: use rayon or crossbeam?
     // fn render_parallel(c: &Camera, w: &World) -> Canvas;
 }
@@ -137,12 +139,24 @@ impl CameraOps for Camera {
         for y in 0..c.get_vsize() {
             for x in 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
+                println!("render point  {}/{}", x, y);
                 let c = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
                 if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
                 canvas.write_pixel(x, y, c);
             }
             // println!("render line  {}", y);
         }
+        canvas
+    }
+
+    fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas {
+        println!("DEBUG render point  {}/{}", x, y);
+
+        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        let r = Camera::ray_for_pixel(c, x, y);
+        let c = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
+        canvas.write_pixel(x, y, c);
         canvas
     }
 }

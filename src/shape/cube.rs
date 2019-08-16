@@ -51,7 +51,7 @@ impl CubeOps for Cube {
         let tmax = min_float(xt_max, yt_max, zt_max);
 
         if tmin > tmax {
-             return None;
+            return None;
         }
         let mut res = vec![0.0; 2];
         res[0] = tmin;
@@ -75,7 +75,6 @@ impl CubeOps for Cube {
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
         let maxc = max_float(world_point.x.abs(), world_point.y.abs(), world_point.z.abs());
-        println!("max coord from point {:?}   is  {}", world_point, maxc);
         if (maxc - world_point.x.abs()) < EPSILON {
             return Tuple4D::new_vector(world_point.x, 0.0, 0.0);
         } else if (maxc - world_point.y.abs()) < EPSILON {

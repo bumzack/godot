@@ -51,7 +51,6 @@ pub fn assert_float(actual: f64, expected: f64) {
     assert_eq!(assert_two_float(actual, expected), true);
 }
 
-
 pub fn max_float(a: f64, b: f64, c: f64) -> f64 {
     let mut max = a;
     if b > max {
@@ -73,7 +72,6 @@ pub fn min_float(a: f64, b: f64, c: f64) -> f64 {
     }
     min
 }
-
 
 #[cfg(test)]
 mod tests {

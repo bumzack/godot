@@ -27,4 +27,3 @@ impl LightOps for Light {
         res
     }
 }
-
