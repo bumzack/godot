@@ -26,7 +26,8 @@ pub trait IntersectionOps<'a> {
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f64;
     fn get_shape(&self) -> &'a Shape;
-    fn prepare_computations(&self, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent;
+    fn prepare_computations(intersection: &Intersection<'a>, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent<'a>;
+    fn schlick(comp: &PrecomputedComponent) -> f64;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
@@ -66,7 +67,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             }
 
             Shape::Cube(ref c) => {
-                let res = Cube::intersect(c, &r2);
+                let res = Cube::intersect(&r2);
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], shape);
@@ -101,9 +102,9 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.shape
     }
 
-    fn prepare_computations(&self, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent {
-        let point = Ray::position(r, self.t);
-        let mut normal_vector = self.shape.normal_at(&point);
+    fn prepare_computations(intersection: &Intersection<'a>, r: &Ray, list: &IntersectionList<'a>) -> PrecomputedComponent<'a> {
+        let point = Ray::position(r, intersection.get_t());
+        let mut normal_vector = intersection.get_shape().normal_at(&point);
         let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
@@ -117,8 +118,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let under_point = &point - &(&normal_vector * EPSILON);
 
         let mut comp = PrecomputedComponent::new(
-            self.get_t(),
-            self.get_shape(),
+            intersection.get_t(),
+            intersection.get_shape(),
             point,
             over_point,
             under_point,
@@ -131,7 +132,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut container: Vec<&'a Shape> = Vec::new();
 
         for i in list.get_intersections().iter() {
-            if i == self {
+            if i == intersection {
                 if container.is_empty() {
                     comp.set_n1(1.0);
                 } else {
@@ -140,14 +141,14 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 }
             }
 
-            if container.contains(&comp.get_shape()) {
-                let index = container.iter().position(|&shape| shape == comp.get_shape()).unwrap();
+            if container.contains(&comp.get_object()) {
+                let index = container.iter().position(|&shape| shape == comp.get_object()).unwrap();
                 container.remove(index);
             } else {
                 container.push(i.get_shape());
             }
 
-            if i == self {
+            if i == intersection {
                 if container.is_empty() {
                     comp.set_n2(1.0);
                 } else {
@@ -157,8 +158,22 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 break;
             }
         }
-
         comp
+    }
+
+    fn schlick(comp: &PrecomputedComponent) -> f64 {
+        let mut cos = comp.get_eye_vector() ^ comp.get_normal_vector();
+        if comp.get_n1() > comp.get_n2() {
+            let n = comp.get_n1() / comp.get_n2();
+            let sint2_t = n * n * (1.0 - cos * cos);
+            if sint2_t > 1.0 {
+                return 1.0;
+            }
+            let cos_t = (1.0 - sint2_t).sqrt();
+            cos = cos_t;
+        }
+        let r0 = ((comp.get_n1() - comp.get_n2()) / (comp.get_n1() + comp.get_n2())).powi(2);
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
     }
 }
 
@@ -222,8 +237,14 @@ impl<'a> fmt::Debug for IntersectionList<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_float, assert_tuple};
+    use std::f64::consts::SQRT_2;
+
+    use crate::basics::color::{Color, ColorOps};
+    use crate::math::common::{assert_color, assert_float, assert_tuple};
+    use crate::math::matrix::{Matrix, MatrixOps};
     use crate::math::tuple4d::{Tuple, Tuple4D};
+    use crate::shape::sphere::glass_sphere;
+    use crate::world::world::default_world;
 
     use super::*;
 
@@ -248,7 +269,7 @@ mod tests {
         let o2 = Shape::Sphere(s2);
         let i2 = Intersection::new(t2, &o2);
 
-       // let i_list = IntersectionList::new();
+        // let i_list = IntersectionList::new();
 
         let mut il = IntersectionList::new();
         il.add(i1);
@@ -425,5 +446,110 @@ mod tests {
         assert_tuple(&eye_vector_expected, c.get_eye_vector());
         assert_tuple(&normal_vector_expected, c.get_normal_vector());
         assert_eq!(true, c.get_inside());
+    }
+
+    // page 161
+    #[test]
+    fn test_precomputations_schlick() {
+        let sphere = glass_sphere();
+
+        let o = Tuple4D::new_point(0.0, 0.0, SQRT_2 / 2.0);
+        let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(o, d);
+
+        let sphere = Shape::Sphere(sphere);
+        let i1 = Intersection::new(-SQRT_2 / 2.0, &sphere);
+        let i2 = Intersection::new(SQRT_2 / 2.0, &sphere);
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        xs.add(i2);
+        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
+
+        let reflectance = Intersection::schlick(&c);
+
+        assert_float(reflectance, 1.0);
+    }
+
+    // page 162
+    #[test]
+    fn test_precomputations_schlick_perpendicular_viewing_angle() {
+        let sphere = glass_sphere();
+
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(o, d);
+
+        let sphere = Shape::Sphere(sphere);
+        let i1 = Intersection::new(-1.0, &sphere);
+        let i2 = Intersection::new(1.0, &sphere);
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        xs.add(i2);
+        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
+
+        let reflectance = Intersection::schlick(&c);
+
+        assert_float(reflectance, 0.04);
+    }
+
+    // page 163
+    #[test]
+    fn test_precomputations_schlick_approx_with_small_angle() {
+        let sphere = glass_sphere();
+
+        let o = Tuple4D::new_point(0.0, 0.99, -2.0);
+        let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(o, d);
+
+        let sphere = Shape::Sphere(sphere);
+        let i1 = Intersection::new(1.8589, &sphere);
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+        let c = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+
+        let reflectance = Intersection::schlick(&c);
+
+        assert_float(reflectance, 0.48873);
+    }
+
+    // page 164 - based on test from page 159
+    #[test]
+    fn test_precomputations_schlick_reflective_transparent_material() {
+        let mut w = default_world();
+
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        let mut floor = Plane::new();
+        floor.set_transformation(m);
+        floor.get_material_mut().set_reflective(0.5);
+        floor.get_material_mut().set_transparency(0.5);
+        floor.get_material_mut().set_refractive_index(1.5);
+
+        let m = Matrix::translation(0.0, -3.5, -0.5);
+        let mut ball = Sphere::new();
+        ball.set_transformation(m);
+        ball.get_material_mut().set_ambient(0.5);
+        ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+
+        let floor = Shape::Plane(floor);
+        w.add_shape(floor.clone());
+        w.add_shape(Shape::Sphere(ball));
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let direction = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(origin, direction);
+
+        let i1 = Intersection::new(SQRT_2, &floor);
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+
+        let c = World::shade_hit(&w, &comps, 5);
+        let c_expected = Color::new(0.93391, 0.69643, 0.69243);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+
+        assert_color(&c, &c_expected);
     }
 }

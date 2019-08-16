@@ -3,7 +3,7 @@ use std::f64::INFINITY;
 use crate::basics::ray::{Ray, RayOps};
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
-use crate::math::common::EPSILON;
+use crate::math::common::{EPSILON, max_float, min_float};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -18,7 +18,7 @@ pub struct Cube {
 
 pub trait CubeOps {
     fn new() -> Cube;
-    fn intersect(s: &Cube, r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(r: &Ray) -> Option<Vec<f64>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -42,21 +42,20 @@ impl CubeOps for Cube {
         }
     }
 
-    fn intersect(_c: &Cube, r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(r: &Ray) -> Option<Vec<f64>> {
         let (xt_min, xt_max) = Self::check_axis(r.get_origin().x, r.get_direction().x);
         let (yt_min, yt_max) = Self::check_axis(r.get_origin().y, r.get_direction().y);
         let (zt_min, zt_max) = Self::check_axis(r.get_origin().z, r.get_direction().z);
 
-        let tmin = xt_min.max(yt_min).max(zt_min);
-        let tmax = xt_max.min(yt_max).min(zt_max);
+        let tmin = max_float(xt_min, yt_min, zt_min);
+        let tmax = min_float(xt_max, yt_max, zt_max);
 
         if tmin > tmax {
-            return None;
+             return None;
         }
-
         let mut res = vec![0.0; 2];
         res[0] = tmin;
-        res[0] = tmax;
+        res[1] = tmax;
 
         Some(res)
     }
@@ -75,10 +74,11 @@ impl CubeOps for Cube {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let maxc = world_point.x.abs().max(world_point.y.abs()).max(world_point.z.abs());
-        if maxc == world_point.x {
+        let maxc = max_float(world_point.x.abs(), world_point.y.abs(), world_point.z.abs());
+        println!("max coord from point {:?}   is  {}", world_point, maxc);
+        if (maxc - world_point.x.abs()) < EPSILON {
             return Tuple4D::new_vector(world_point.x, 0.0, 0.0);
-        } else if maxc == world_point.y {
+        } else if (maxc - world_point.y.abs()) < EPSILON {
             return Tuple4D::new_vector(0.0, world_point.y, 0.0);
         }
         Tuple4D::new_vector(0.0, 0.0, world_point.z)
@@ -132,9 +132,14 @@ mod tests {
 
         let c = Cube::new();
 
-        let xs = Cube::intersect(&c, &r).unwrap();
+        let xs = Cube::intersect(&r).unwrap();
 
         assert_eq!(xs.len(), 2);
+
+        println!("expected t1   = {} ", t1);
+        println!("actual  t1    = {} ", xs[0]);
+        println!("expected t2   = {} ", t2);
+        println!("actual  t2    = {} ", xs[1]);
 
         assert_float(xs[0], t1);
         assert_float(xs[1], t2);
@@ -185,7 +190,7 @@ mod tests {
 
         let c = Cube::new();
 
-        let xs = Cube::intersect(&c, &r);
+        let xs = Cube::intersect(&r);
 
         assert_eq!(xs.is_none(), true);
     }
@@ -194,13 +199,13 @@ mod tests {
     #[test]
     fn test_ray_cube_miss() {
         // 1
-        let o = Tuple4D::new_point(-2.0, 0.0, 0.8018);
+        let o = Tuple4D::new_point(-2.0, 0.0, 0.0);
         let d = Tuple4D::new_vector(0.2673, 0.5345, 0.8018);
         test_ray_cube_miss_helper(o, d);
 
         // 2
         let o = Tuple4D::new_point(0.0, -2.0, 0.0);
-        let d = Tuple4D::new_vector(0.8018, 0.2873, 0.5345);
+        let d = Tuple4D::new_vector(0.8018, 0.2673, 0.5345);
         test_ray_cube_miss_helper(o, d);
 
         // 3
@@ -228,6 +233,10 @@ mod tests {
         let c = Cube::new();
         let n = c.normal_at(&point);
 
+        println!("point        = {:?} ", point);
+        println!("expected n   = {:?} ", n_expected);
+        println!("actual   n   = {:?} ", n);
+
         assert_tuple(&n, &n_expected);
     }
 
@@ -235,43 +244,43 @@ mod tests {
     #[test]
     fn test_cube_normal() {
         // 1
-        let o = Tuple4D::new_point(1.0, 0.5, -0.8);
+        let point = Tuple4D::new_point(1.0, 0.5, -0.8);
         let n = Tuple4D::new_vector(1.0, 0.0, 0.0);
-        test_cube_normal_helper(o, n);
+        test_cube_normal_helper(point, n);
 
         // 2
-        let o = Tuple4D::new_point(-1.0, -0.2, 0.9);
-        let n = Tuple4D::new_vector(-1.0, 0.0, 0.0);
-        test_cube_normal_helper(o, n);
+        let point = Tuple4D::new_point(-1.0, -0.2, 0.9);
+        let n_expected = Tuple4D::new_vector(-1.0, 0.0, 0.0);
+        test_cube_normal_helper(point, n_expected);
 
         // 3
-        let o = Tuple4D::new_point(-0.4, 1., -0.1);
-        let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
-        test_cube_normal_helper(o, d);
+        let point = Tuple4D::new_point(-0.4, 1., -0.1);
+        let n_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        test_cube_normal_helper(point, n_expected);
 
         // 4
-        let o = Tuple4D::new_point(0.3, -1., -0.7);
-        let d = Tuple4D::new_vector(0.0, -1.0, 0.0);
-        test_cube_normal_helper(o, d);
+        let point = Tuple4D::new_point(0.3, -1., -0.7);
+        let n_expected = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        test_cube_normal_helper(point, n_expected);
 
         // 5
-        let o = Tuple4D::new_point(-0.6, 0.3, 1.0);
-        let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
-        test_cube_normal_helper(o, d);
+        let point = Tuple4D::new_point(-0.6, 0.3, 1.0);
+        let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        test_cube_normal_helper(point, n_expected);
 
         // 6
-        let o = Tuple4D::new_point(0.4, 0.4, -1.0);
-        let d = Tuple4D::new_vector(0.0, 0.0, -1.0);
-        test_cube_normal_helper(o, d);
+        let point = Tuple4D::new_point(0.4, 0.4, -1.0);
+        let n_expected = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        test_cube_normal_helper(point, n_expected);
 
         // 7
-        let o = Tuple4D::new_point(1., 1., 1.);
-        let d = Tuple4D::new_vector(1.0, 0.0, 0.0);
-        test_cube_normal_helper(o, d);
+        let point = Tuple4D::new_point(1., 1., 1.);
+        let n_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
+        test_cube_normal_helper(point, n_expected);
 
         // 8
-        let o = Tuple4D::new_point(-1., -1., -1.);
-        let d = Tuple4D::new_vector(-1.0, 0.0, 0.0);
-        test_cube_normal_helper(o, d);
+        let point = Tuple4D::new_point(-1., -1., -1.);
+        let n_expected = Tuple4D::new_vector(-1.0, 0.0, 0.0);
+        test_cube_normal_helper(point, n_expected);
     }
 }

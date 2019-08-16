@@ -66,7 +66,7 @@ impl<'a> PrecomputedComponent<'a> {
         self.inside
     }
 
-    pub fn get_shape(&self) -> &Shape {
+    pub fn get_object(&self) -> &Shape {
         self.shape
     }
 

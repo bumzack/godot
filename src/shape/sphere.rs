@@ -351,6 +351,7 @@ mod tests {
 
         println!("n1 = {}   n1_expected = {}", comps.get_n1(), n1_expected);
         println!("n2 = {}   n2_expected = {}", comps.get_n2(), n2_expected);
+        println!("");
 
         assert_float(comps.get_n1(), n1_expected);
         assert_float(comps.get_n2(), n2_expected);
@@ -362,7 +363,9 @@ mod tests {
         test_helper_n1_n2_calculations(0, 1.0, 1.5);
         test_helper_n1_n2_calculations(1, 1.5, 2.0);
         test_helper_n1_n2_calculations(2, 2.0, 2.5);
+
         test_helper_n1_n2_calculations(3, 2.5, 2.5);
+
         test_helper_n1_n2_calculations(4, 2.5, 1.5);
         test_helper_n1_n2_calculations(5, 1.5, 1.0);
     }

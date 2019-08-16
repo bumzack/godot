@@ -12,6 +12,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::patterns::patterns::Pattern;
+use crate::patterns::stripe_patterns::StripePattern;
 use crate::shape::shape::Shape;
 use crate::shape::sphere::{Sphere, SphereOps};
 
@@ -32,7 +34,7 @@ pub trait WorldOps<'a> {
     fn get_shapes(&self) -> &Vec<Shape>;
     fn get_shapes_mut(&mut self) -> &mut Vec<Shape>;
 
-    fn shade_hit(&self, comp: &PrecomputedComponent, remaining: i32) -> Color;
+    fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
     fn color_at(w: &World, r: &Ray, remaining: i32) -> Color;
 
@@ -73,19 +75,26 @@ impl<'a> WorldOps<'a> for World {
         &mut self.shapes
     }
 
-    fn shade_hit(&self, comp: &PrecomputedComponent, remaining: i32) -> Color {
-        let in_shadow = World::is_shadowed(self, comp.get_over_point());
+    fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
+        let in_shadow = World::is_shadowed(w, comp.get_over_point());
         let surface = Material::lightning(
-            comp.get_shape().get_material(),
-            comp.get_shape(),
-            &self.light,
-            comp.get_point(),
+            comp.get_object().get_material(),
+            comp.get_object(),
+            &w.get_light(),
+            comp.get_over_point(),
             comp.get_eye_vector(),
             comp.get_normal_vector(),
             in_shadow,
         );
-        let reflected = World::reflected_color(self, comp, remaining);
-        &surface + &reflected
+        let reflected = World::reflected_color(w, comp, remaining);
+        let refracted = World::refracted_color(w, comp, remaining);
+
+        let material = comp.get_object().get_material();
+        if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
+            let reflectance = Intersection::schlick(comp);
+            return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
+        }
+        &surface + &(&reflected + &refracted)
     }
 
     fn color_at(w: &World, r: &Ray, remaining: i32) -> Color {
@@ -93,7 +102,7 @@ impl<'a> WorldOps<'a> for World {
         let res = match xs.hit() {
             Some(i) => {
                 let comp = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-                w.shade_hit(&comp, remaining)
+                World::shade_hit(w, &comp, remaining)
             }
             None => BLACK,
         };
@@ -102,17 +111,17 @@ impl<'a> WorldOps<'a> for World {
 
     fn reflected_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         if remaining <= 0 {
-            return Color::new(0.0, 0.0, 0.0);
+            return BLACK;
         }
-        if comp.get_shape().get_material().get_reflective() == 0.0 {
-            return Color::new(0.0, 0.0, 0.0);
+        if comp.get_object().get_material().get_reflective() == 0.0 {
+            return BLACK;
         }
         let reflect_ray = Ray::new(
             Tuple4D::new_point_from(comp.get_over_point()),
             Tuple4D::new_vector_from(comp.get_reflected_vector()),
         );
         let color = World::color_at(w, &reflect_ray, remaining - 1);
-        &color * comp.get_shape().get_material().get_reflective()
+        &color * comp.get_object().get_material().get_reflective()
     }
 
     fn is_shadowed(w: &World, p: &Tuple4D) -> bool {
@@ -145,10 +154,10 @@ impl<'a> WorldOps<'a> for World {
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         if remaining <= 0 {
-            return Color::new(0.0, 0.0, 0.0);
+            return BLACK;
         }
-        if comp.get_shape().get_material().get_transparency() == 0.0 {
-            return Color::new(0.0, 0.0, 0.0);
+        if comp.get_object().get_material().get_transparency() == 0.0 {
+            return BLACK;
         }
         let n_ratio = comp.get_n1() / comp.get_n2();
         let cos_i = comp.get_eye_vector() ^ comp.get_normal_vector();
@@ -164,7 +173,7 @@ impl<'a> WorldOps<'a> for World {
         direction.w = 0.0;
         let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
 
-        World::color_at(w, &refracted_ray, remaining - 1)
+        World::color_at(w, &refracted_ray, remaining - 1) * comp.get_object().get_material().get_transparency()
     }
 }
 
@@ -197,6 +206,42 @@ pub fn default_world() -> World {
     w
 }
 
+pub fn default_world_refracted_color_page_158() -> World {
+    let mut w = World::new();
+
+    let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
+    let light_intensity = Color::new(1.0, 1.0, 1.0);
+    let pl = PointLight::new(light_pos, light_intensity);
+    let light = Light::PointLight(pl);
+    w.set_light(light);
+
+    let mut material1 = Material::new();
+    material1.set_color(Color::new(0.8, 1.0, 0.6));
+    material1.set_diffuse(0.7);
+    material1.set_specular(0.2);
+
+    material1.set_ambient(1.0);
+
+    let pattern = StripePattern::new();
+    let pattern = Pattern::StripePattern(pattern);
+    let mut s1 = Sphere::new();
+    s1.set_material(material1);
+    s1.get_material_mut().set_pattern(pattern);
+    let shape1 = Shape::Sphere(s1);
+
+    let m = Matrix::scale(0.5, 0.5, 0.5);
+    let mut s2 = Sphere::new();
+    s2.set_transformation(m);
+    s2.get_material_mut().set_transparency(1.0);
+    s2.get_material_mut().set_refractive_index(1.5);
+    let shape2 = Shape::Sphere(s2);
+
+    w.add_shape(shape1);
+    w.add_shape(shape2);
+
+    w
+}
+
 pub fn default_world_empty() -> World {
     let mut w = World::new();
 
@@ -212,11 +257,8 @@ pub fn default_world_empty() -> World {
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
-    use std::intrinsics::atomic_store_rel;
 
     use crate::math::common::{assert_color, EPSILON};
-    use crate::patterns::patterns::Pattern;
-    use crate::patterns::stripe_patterns::StripePattern;
     use crate::shape::plane::{Plane, PlaneOps};
     use crate::shape::sphere::glass_sphere;
 
@@ -561,10 +603,13 @@ mod tests {
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let color_expected = Color::new(0.19032, 0.2379, 0.14274);
+        let color_expected = Color::new(0.190332201495133, 0.23791525186891627, 0.14274915112134975);
 
-        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+        // TODO: this fails - probably/hopefully because the is_shadowed method is broken
         // fix this, when the shadows work
+
+        println!("expected color    = {:?}", color_expected);
+        println!("actual color      = {:?}", color);
         assert_color(&color, &color_expected);
     }
 
@@ -590,7 +635,10 @@ mod tests {
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let color_expected = Color::new(0.87677, 0.92436, 0.82918);
+        let color_expected = Color::new(0.8767572837020907, 0.924340334075874, 0.8291742333283075);
+
+        println!("expected color    = {:?}", color_expected);
+        println!("actual color      = {:?}", color);
 
         // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
         // fix this, when the shadows work
@@ -790,32 +838,16 @@ mod tests {
     // page 158
     #[test]
     fn test_refracted_color_with_refracted_ray() {
-        let mut w = default_world();
-
-        let stripe_pattern = StripePattern::new();
-        let pattern = Pattern::StripePattern(stripe_pattern);
-
-        let shapes = w.get_shapes_mut();
-        let shape1 = shapes.get_mut(0).unwrap();
-        let shape2 = shapes.get_mut(1).unwrap();
-
-        shape1.get_material_mut().set_ambient(1.0);
-        shape1.get_material_mut().set_pattern(pattern);
-
-        shape2.get_material_mut().set_transparency(1.0);
-        shape2.get_material_mut().set_refractive_index(1.5);
-
-        let shape1 = shape1.clone();
-        let shape2 = shape2.clone();
+        let mut w = default_world_refracted_color_page_158();
 
         let origin = Tuple4D::new_point(0.0, 0.0, 0.1);
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(origin, direction);
 
-        let i1 = Intersection::new(-0.9899, &shape1);
-        let i2 = Intersection::new(-0.4899, &shape0);
-        let i3 = Intersection::new(0.4899, &shape0);
-        let i4 = Intersection::new(0.9899, &shape1);
+        let i1 = Intersection::new(-0.9899, w.get_shapes().get(0).unwrap());
+        let i2 = Intersection::new(-0.4899, w.get_shapes().get(1).unwrap());
+        let i3 = Intersection::new(0.4899, w.get_shapes().get(1).unwrap());
+        let i4 = Intersection::new(0.9899, w.get_shapes().get(0).unwrap());
 
         let mut xs = IntersectionList::new();
         xs.add(i1);
@@ -837,6 +869,40 @@ mod tests {
     // page 159
     #[test]
     fn test_refracted_color_shade_hiz() {
-        // TODO
+        let mut w = default_world();
+
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        let mut plane = Plane::new();
+        plane.set_transformation(m);
+        plane.get_material_mut().set_transparency(0.5);
+        plane.get_material_mut().set_refractive_index(1.5);
+
+        let m = Matrix::translation(0.0, -3.5, -0.5);
+        let mut ball = Sphere::new();
+        ball.set_transformation(m);
+        ball.get_material_mut().set_ambient(0.5);
+        ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+
+        let plane = Shape::Plane(plane);
+        w.add_shape(plane.clone());
+        w.add_shape(Shape::Sphere(ball));
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let direction = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(origin, direction);
+
+        let i1 = Intersection::new(SQRT_2, &plane);
+        let mut xs = IntersectionList::new();
+        xs.add(i1);
+
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+
+        let c = World::shade_hit(&w, &comps, 5);
+        let c_expected = Color::new(0.93642, 0.6864253889815014, 0.6864253889815014);
+
+        println!("expected color    = {:?}", c_expected);
+        println!("actual color      = {:?}", c);
+
+        assert_color(&c, &c_expected);
     }
 }

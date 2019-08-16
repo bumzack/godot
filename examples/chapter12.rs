@@ -59,12 +59,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
     middle.get_material_mut().set_diffuse(0.7);
     middle.get_material_mut().set_specular(0.3);
+    middle.get_material_mut().set_reflective(1.3);
+    middle.get_material_mut().set_refractive_index(1.3);
 
     let mut right = Sphere::new();
     right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
     right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
     right.get_material_mut().set_diffuse(0.7);
     right.get_material_mut().set_specular(0.3);
+    middle.get_material_mut().set_reflective(1.8);
+    middle.get_material_mut().set_refractive_index(1.8);
 
     let mut left = Sphere::new();
     left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
@@ -78,8 +82,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let p = Pattern::Checker3DPattern(checker_3d);
 
     let mut cube = Cube::new();
-    left.set_transformation(Matrix::translation(-2.5, 0.33, -0.75));
-    left.get_material_mut().set_pattern(p);
+    cube.set_transformation(Matrix::translation(-2.5, 0.33, -0.75));
+    cube.get_material_mut().set_pattern(p);
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
@@ -94,7 +98,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     w.add_shape(Shape::Sphere(right));
     w.add_shape(Shape::Cube(cube));
 
-    let mut c = Camera::new(1200, 1000, PI / 3.0);
+    let mut c = Camera::new(640, 480, PI / 3.0);
     c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(
@@ -105,7 +109,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let start = Instant::now();
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("chapter12_1200x1000.ppm")?;
+    canvas.write_ppm("chapter12.ppm")?;
     let dur = Instant::now() - start;
 
     println!("DONE in {:?}", dur);
