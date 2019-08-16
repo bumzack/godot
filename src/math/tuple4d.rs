@@ -232,10 +232,11 @@ impl Div<f64> for Tuple4D {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
     use crate::math::common::{assert_float, assert_tuple};
 
     use super::*;
-    use std::f64::consts::SQRT_2;
 
     #[test]
     fn test_is_point() {
@@ -421,27 +422,25 @@ mod tests {
         assert_eq!(c.z, 1.0);
     }
 
+    // page 83
     #[test]
     fn test_tuple_reflecting_45() {
         let v = Tuple4D::new_vector(1., -1., 0.);
         let n = Tuple4D::new_vector(0., 1., 0.);
 
         let r = Tuple4D::reflect(&v, &n);
-
         let r_expected = Tuple4D::new_vector(1., 1., 0.);
-
         assert_tuple(&r, &r_expected);
     }
 
+    // page 83
     #[test]
-    fn test_tuple_reflecting() {
+    fn test_tuple_reflecting_slanted_surface() {
         let v = Tuple4D::new_vector(0.0, -1.0, 0.);
         let n = Tuple4D::new_vector(SQRT_2 / 2.0, SQRT_2 / 2.0, 0.);
 
         let r = Tuple4D::reflect(&v, &n);
-
         let r_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
-
         assert_tuple(&r, &r_expected);
     }
 }

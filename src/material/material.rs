@@ -45,6 +45,11 @@ pub trait MaterialOps {
     fn set_shininess(&mut self, s: f64);
     fn set_ambient(&mut self, a: f64);
 
+    fn get_diffuse(&  self) -> f64;
+    fn get_specular(&  self) -> f64;
+    fn get_shininess(&  self) -> f64;
+    fn get_ambient(&  self) -> f64;
+
     fn get_color(&self) -> &Color;
 
     fn set_pattern(&mut self, p: Pattern);
@@ -136,6 +141,22 @@ impl MaterialOps for Material {
         self.ambient = a;
     }
 
+    fn get_diffuse(&  self) -> f64 {
+        self.diffuse
+    }
+
+    fn get_specular(&  self) -> f64 {
+        self.specular
+    }
+
+    fn get_shininess(&  self) -> f64 {
+        self.shininess
+    }
+
+    fn get_ambient(&  self) -> f64 {
+        self.ambient
+    }
+
     fn get_color(&self) -> &Color {
         &self.color
     }
@@ -194,13 +215,15 @@ mod tests {
         (m, p)
     }
 
+    // page 85
     #[test]
     fn test_material_new() {
         let m = Material::new();
         assert_float(m.ambient, 0.1);
-        assert_float(m.specular, 0.9);
         assert_float(m.diffuse, 0.9);
+        assert_float(m.specular, 0.9);
         assert_float(m.shininess, 200.0);
+
         assert_float(m.reflective, 0.0);
         assert_float(m.transparency, 0.0);
         assert_float(m.refractive_index, 1.0);
@@ -208,6 +231,7 @@ mod tests {
         assert_color(&m.color, &WHITE);
     }
 
+    // page 86
     #[test]
     fn test_material_lightning_eye_between_light_and_surface() {
         let s = Sphere::new();
@@ -222,14 +246,10 @@ mod tests {
         let result = Material::lightning(&m, &dummy_obj, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
 
         let result_expected = Color::new(1.9, 1.9, 1.9);
-        println!(
-            "test_material_lightning_perpendicular  result = {:#?}, expected = {:#?}",
-            result, result_expected
-        );
-
         assert_color(&result, &result_expected);
     }
 
+    // page 86
     #[test]
     fn test_material_lightning_eye_offset_45() {
         let s = Sphere::new();
@@ -247,6 +267,7 @@ mod tests {
         assert_color(&result, &result_expected);
     }
 
+    // page 87
     #[test]
     fn test_material_lightning_light_opposite_eye() {
         let s = Sphere::new();
@@ -259,11 +280,11 @@ mod tests {
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
         let result = Material::lightning(&m, &dummy_obj, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
-
         let result_expected = Color::new(0.7364, 0.7364, 0.7364);
         assert_color(&result, &result_expected);
     }
 
+    // page 87
     #[test]
     fn test_material_lightning_eye_in_path_of_reflecting_vector() {
         let s = Sphere::new();
@@ -276,15 +297,11 @@ mod tests {
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
         let result = Material::lightning(&m, &dummy_obj, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
-
         let result_expected = Color::new(1.6363961030678928, 1.6363961030678928, 1.6363961030678928);
-        println!(
-            "test_material_lightning_eye_in_reflecing_path  result = {:#?}, expected = {:#?}",
-            result, result_expected
-        );
         assert_color(&result, &result_expected);
     }
 
+    // page 88
     #[test]
     fn test_material_lightning_light_behind_surface() {
         let s = Sphere::new();
@@ -297,7 +314,6 @@ mod tests {
         let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, 10.0), Color::new(1.0, 1.0, 1.0));
 
         let result = Material::lightning(&m, &dummy_obj, &Light::PointLight(l), &p, &eye_v, &normal_v, false);
-
         let result_expected = Color::new(0.1, 0.1, 0.1);
         assert_color(&result, &result_expected);
     }

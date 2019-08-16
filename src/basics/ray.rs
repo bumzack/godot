@@ -46,9 +46,9 @@ impl RayOps for Ray {
 #[cfg(test)]
 mod tests {
     use crate::math::common::{assert_float, assert_tuple};
+    use crate::math::matrix::MatrixOps;
 
     use super::*;
-    use crate::math::matrix::MatrixOps;
 
     #[test]
     fn test_ray_new() {
@@ -103,6 +103,7 @@ mod tests {
         assert_float(p4.z, 4.0);
     }
 
+    // page 69
     #[test]
     fn test_ray_translation() {
         let o = Tuple4D::new_point(1.0, 2.0, 3.0);
@@ -115,6 +116,24 @@ mod tests {
 
         let o_expected = Tuple4D::new_point(4.0, 6.0, 8.0);
         let d_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+        assert_tuple(&r2.origin, &o_expected);
+        assert_tuple(&r2.direction, &d_expected);
+    }
+
+    // page 69
+    #[test]
+    fn test_ray_scaling() {
+        let o = Tuple4D::new_point(1.0, 2.0, 3.0);
+        let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(o, d);
+
+        let m = Matrix::scale(2.0, 3.0, 4.0);
+
+        let r2 = Ray::transform(&r, &m);
+
+        let o_expected = Tuple4D::new_point(2.0, 6.0, 12.0);
+        let d_expected = Tuple4D::new_vector(0.0, 3.0, 0.0);
 
         assert_tuple(&r2.origin, &o_expected);
         assert_tuple(&r2.direction, &d_expected);

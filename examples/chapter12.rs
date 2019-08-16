@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut left = Sphere::new();
     left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
-    left.get_material_mut().set_color(Color::new(1.0, 0.8, 0.1));
+    left.get_material_mut().set_color(Color::new(1., 0., 0.));
     left.get_material_mut().set_diffuse(0.7);
     left.get_material_mut().set_specular(0.3);
 
@@ -94,7 +94,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     w.add_shape(Shape::Sphere(right));
     w.add_shape(Shape::Cube(cube));
 
-    let mut c = Camera::new(120, 100, PI / 3.0);
+    let mut c = Camera::new(1200, 1000, PI / 3.0);
     c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(
@@ -105,7 +105,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let start = Instant::now();
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("chapter12.ppm")?;
+    canvas.write_ppm("chapter12_1200x1000.ppm")?;
     let dur = Instant::now() - start;
 
     println!("DONE in {:?}", dur);

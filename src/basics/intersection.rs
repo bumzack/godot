@@ -52,6 +52,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 }
                 intersection_list
             }
+
             Shape::Plane(ref p) => {
                 let res = Plane::intersect(p, &r2);
                 match res {
@@ -63,6 +64,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 }
                 intersection_list
             }
+
             Shape::Cube(ref c) => {
                 let res = Cube::intersect(c, &r2);
                 match res {
@@ -255,6 +257,7 @@ mod tests {
         // TODO: test ???
     }
 
+    // page 65
     #[test]
     fn test_intersection_hit() {
         let s = Sphere::new();
@@ -275,6 +278,7 @@ mod tests {
         assert_eq!(i.t, 1.0);
     }
 
+    // page 65
     #[test]
     fn test_intersection_hit_neg() {
         let s = Sphere::new();
@@ -295,6 +299,7 @@ mod tests {
         assert_eq!(i.t, 1.0);
     }
 
+    // page 65
     #[test]
     fn test_intersection_no_hit() {
         let s = Sphere::new();
@@ -343,6 +348,7 @@ mod tests {
         let i = il.hit().unwrap();
 
         assert_eq!(i.t, 2.0);
+        // intersections are sorted, t=2 is second element in list
         assert_eq!(i, &il.get_intersections()[1]);
     }
 

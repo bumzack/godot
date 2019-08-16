@@ -72,9 +72,9 @@ impl SphereOps for Sphere {
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let p_shape = &self.inverse_transformation_matrix * world_point;
-        let object_normal = &(p_shape - o);
-        let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * object_normal;
+        let object_point = self.get_inverse_transformation() * world_point;
+        let object_normal = &(&object_point - &o);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }
@@ -107,7 +107,7 @@ mod tests {
 
     use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
-    use crate::math::common::{assert_float, assert_matrix, assert_tuple};
+    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
     use crate::shape::shape::Shape;
 
     use super::*;
@@ -141,6 +141,7 @@ mod tests {
         assert_float(intersections[1], 5.0);
     }
 
+    // page 60
     #[test]
     fn test_ray_sphere_intersection_no_hits() {
         let o = Tuple4D::new_point(0.0, 2.0, -5.0);
@@ -154,6 +155,7 @@ mod tests {
         assert_eq!(intersections, None);
     }
 
+    // page 61
     #[test]
     fn test_ray_sphere_intersection_origin_inside_sphere() {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -170,6 +172,7 @@ mod tests {
         assert_float(intersections[1], 1.0);
     }
 
+    // page 62
     #[test]
     fn test_ray_sphere_intersection_sphere_behind_origin() {
         let o = Tuple4D::new_point(0.0, 0.0, 5.0);
@@ -186,18 +189,31 @@ mod tests {
         assert_float(intersections[1], -4.0);
     }
 
+    // page 69
+    #[test]
+    fn test_sphere_new_check_transformation_matrix() {
+        let mut s = Sphere::new();
+
+        let m_expected = Matrix::new_identity_4x4();
+        let met_m_inv_expected = Matrix::invert(&m_expected).unwrap();
+
+        assert_matrix(&s.get_transformation(), &m_expected);
+        assert_matrix(&s.get_inverse_transformation(), &met_m_inv_expected);
+    }
+
+    // page 69
     #[test]
     fn test_sphere_transformation() {
         let mut s = Sphere::new();
         let m = Matrix::translation(2.0, 3.0, 4.0);
-
         s.set_transformation(m);
-
         let m = Matrix::translation(2.0, 3.0, 4.0);
-
-        assert_matrix(&s.transformation_matrix, &m);
+        let m_inv = Matrix::invert(&m).unwrap();
+        assert_matrix(&s.get_transformation(), &m);
+        assert_matrix(&s.get_inverse_transformation(), &m_inv);
     }
 
+    // page 69 bottom
     #[test]
     fn test_sphere_scale() {
         let o = Tuple4D::new_point(0.0, 0.0, -5.0);
@@ -221,6 +237,7 @@ mod tests {
         assert_float(intersections[1].get_t(), 7.0);
     }
 
+    // page 70
     #[test]
     fn test_sphere_translated() {
         let o = Tuple4D::new_point(0.0, 0.0, -5.0);
@@ -238,6 +255,7 @@ mod tests {
         assert_eq!(intersections.len(), 0);
     }
 
+    // page 78
     #[test]
     fn test_sphere_normal_at() {
         let s = Sphere::new();
@@ -270,6 +288,7 @@ mod tests {
         assert_tuple(&n, &n_expected);
     }
 
+    // page 80
     #[test]
     fn test_sphere_normal_at_transformed() {
         let mut s = Sphere::new();
@@ -278,13 +297,10 @@ mod tests {
         let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
         let n = s.normal_at(&p);
         let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
-        println!(
-            "test_sphere_normal_at_transformed    n = {:#?}, n_expected = {:#?}",
-            n, n_expected
-        );
         assert_tuple(&n, &n_expected);
     }
 
+    // page 80
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
         let mut s = Sphere::new();
@@ -293,10 +309,7 @@ mod tests {
         let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
         let n = s.normal_at(&p);
         let n_expected = Tuple4D::new_vector(0.0, 0.97014, -0.24254);
-        println!(
-            "test_sphere_normal_at_scaled_rotated    n = {:#?}, n_expected = {:#?}",
-            n, n_expected
-        );
+
         assert_tuple(&n, &n_expected);
     }
 
@@ -352,5 +365,23 @@ mod tests {
         test_helper_n1_n2_calculations(3, 2.5, 2.5);
         test_helper_n1_n2_calculations(4, 2.5, 1.5);
         test_helper_n1_n2_calculations(5, 1.5, 1.0);
+    }
+
+
+    // page 85
+    #[test]
+    fn test_new_sphere_material() {
+        let s = Sphere::new();
+        let m = Material::new();
+
+        assert_eq!(s.get_material(), &m);
+        assert_color(s.get_material().get_color(), m.get_color());
+        assert_float(s.get_material().get_transparency(), m.get_transparency());
+        assert_float(s.get_material().get_refractive_index(), m.get_refractive_index());
+        assert_float(s.get_material().get_reflective(), m.get_reflective());
+        assert_float(s.get_material().get_ambient(), m.get_ambient());
+        assert_float(s.get_material().get_diffuse(), m.get_diffuse());
+        assert_float(s.get_material().get_specular(), m.get_specular());
+        assert_float(s.get_material().get_shininess(), m.get_shininess());
     }
 }
