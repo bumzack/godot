@@ -248,7 +248,7 @@ mod tests {
         let o2 = Shape::Sphere(s2);
         let i2 = Intersection::new(t2, &o2);
 
-        let i_list = IntersectionList::new();
+       // let i_list = IntersectionList::new();
 
         let mut il = IntersectionList::new();
         il.add(i1);

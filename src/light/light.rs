@@ -2,6 +2,7 @@ use crate::basics::color::Color;
 use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple4D;
 
+#[derive(Clone, Debug)]
 pub enum Light {
     PointLight(PointLight),
 }

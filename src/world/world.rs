@@ -17,6 +17,7 @@ use crate::shape::sphere::{Sphere, SphereOps};
 
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 
+#[derive(Clone, Debug)]
 pub struct World {
     shapes: Vec<Shape>,
     light: Light,
@@ -25,6 +26,8 @@ pub struct World {
 pub trait WorldOps<'a> {
     fn new() -> World;
     fn set_light(&mut self, light: Light);
+    fn get_light(&self) -> &Light;
+
     fn add_shape(&mut self, shape: Shape);
     fn get_shapes(&self) -> &Vec<Shape>;
     fn get_shapes_mut(&mut self) -> &mut Vec<Shape>;
@@ -35,7 +38,7 @@ pub trait WorldOps<'a> {
 
     fn reflected_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
-    fn is_shadowed(&self, p: &Tuple4D) -> bool;
+    fn is_shadowed(w: &World, p: &Tuple4D) -> bool;
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 }
@@ -54,6 +57,10 @@ impl<'a> WorldOps<'a> for World {
         self.light = light;
     }
 
+    fn get_light(&self) -> &Light {
+        &self.light
+    }
+
     fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
@@ -67,7 +74,7 @@ impl<'a> WorldOps<'a> for World {
     }
 
     fn shade_hit(&self, comp: &PrecomputedComponent, remaining: i32) -> Color {
-        let in_shadow = self.is_shadowed(comp.get_over_point());
+        let in_shadow = World::is_shadowed(self, comp.get_over_point());
         let surface = Material::lightning(
             comp.get_shape().get_material(),
             comp.get_shape(),
@@ -108,21 +115,19 @@ impl<'a> WorldOps<'a> for World {
         &color * comp.get_shape().get_material().get_reflective()
     }
 
-    fn is_shadowed(&self, p: &Tuple4D) -> bool {
-        let v = self.light.get_position() - p;
+    fn is_shadowed(w: &World, p: &Tuple4D) -> bool {
+        let v = w.get_light().get_position() - p;
         //        println!("light pos = {:?}" ,self.light.get_position());
         //        for s in  self.shapes.iter() {
         //            println!("shape pos = {:?}", s.get_transformation());
         //        }
-
         let distance = Tuple4D::magnitude(&v);
         let direction = Tuple4D::normalize(&v);
 
-        let point = Tuple4D::new_point_from(&v);
+        let point = Tuple4D::new_point_from(&p);
         let r = Ray::new(point, direction);
 
-        let intersections = Intersection::intersect_world(self, &r);
-
+        let intersections = Intersection::intersect_world(w, &r);
         // println!("intersections = {:?}", intersections);
 
         let h = intersections.hit();
@@ -149,16 +154,17 @@ impl<'a> WorldOps<'a> for World {
         let cos_i = comp.get_eye_vector() ^ comp.get_normal_vector();
         let sin2_t = n_ratio.powf(2.0) * (1.0 - cos_i.powf(2.0));
 
-        // TODO: maybe the if ... parts should be swapped
+        // total internal reflection -> return black
         if sin2_t > 1.0 {
-            let cos_t = (1.0 - sin2_t).sqrt();
-            let direction = comp.get_normal_vector() * (n_ratio * cos_i - cos_t) - comp.get_eye_vector() * n_ratio;
-            let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
-
-            let color = World::color_at(w, &refracted_ray, remaining - 1);
-            return color;
+            return BLACK;
         }
-        Color::new(1.0, 1.0, 1.0)
+        let cos_t = (1.0 - sin2_t).sqrt();
+        let mut direction = comp.get_normal_vector() * (n_ratio * cos_i - cos_t) - comp.get_eye_vector() * n_ratio;
+        // fix direction to be a vector and not something in between
+        direction.w = 0.0;
+        let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
+
+        World::color_at(w, &refracted_ray, remaining - 1)
     }
 }
 
@@ -206,6 +212,7 @@ pub fn default_world_empty() -> World {
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
+    use std::intrinsics::atomic_store_rel;
 
     use crate::math::common::{assert_color, EPSILON};
     use crate::patterns::patterns::Pattern;
@@ -283,7 +290,7 @@ mod tests {
     // page 96
     #[test]
     fn test_color_at_ray_miss() {
-        let mut w = default_world();
+        let w = default_world();
 
         let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
@@ -353,7 +360,7 @@ mod tests {
         let pl = PointLight::new(point, color);
         w.set_light(Light::PointLight(pl));
 
-        let mut s1 = Sphere::new();
+        let s1 = Sphere::new();
         let shape1 = Shape::Sphere(s1);
 
         let m = Matrix::translation(0.0, 0.0, 10.0);
@@ -405,7 +412,7 @@ mod tests {
     // page 96
     #[test]
     fn test_color_at_no_hit() {
-        let mut w = default_world();
+        let w = default_world();
 
         let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
@@ -441,7 +448,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let r = Ray::new(origin, direction);
 
-        let mut shapes = w.get_shapes_mut();
+        let shapes = w.get_shapes_mut();
 
         let outer_shape = shapes.get_mut(0).unwrap();
         outer_shape.get_material_mut().set_ambient(1.0);
@@ -450,7 +457,7 @@ mod tests {
         inner_shape.get_material_mut().set_ambient(1.0);
 
         // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
-        let mut c_expected = inner_shape.get_material_mut().get_color().clone();
+        let c_expected = inner_shape.get_material_mut().get_color().clone();
 
         let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
@@ -460,36 +467,36 @@ mod tests {
     // page 111
     #[test]
     fn test_point_in_shadow_collinear() {
-        let mut w = default_world();
+        let w = default_world();
         let p = Tuple4D::new_point(0.0, 10.0, 0.0);
-        let is_shadowed = w.is_shadowed(&p);
+        let is_shadowed = World::is_shadowed(&w, &p);
         assert_eq!(is_shadowed, false);
     }
 
     // page 112 top
     #[test]
     fn test_point_in_shadow_object_between_point_and_light() {
-        let mut w = default_world();
+        let w = default_world();
         let p = Tuple4D::new_point(10.0, -10.0, 10.0);
-        let is_shadowed = w.is_shadowed(&p);
+        let is_shadowed = World::is_shadowed(&w, &p);
         assert_eq!(is_shadowed, true);
     }
 
     // page 112 center
     #[test]
     fn test_point_in_shadow_object_behind_light() {
-        let mut w = default_world();
+        let w = default_world();
         let p = Tuple4D::new_point(-20.0, 20.0, -20.0);
-        let is_shadowed = w.is_shadowed(&p);
+        let is_shadowed = World::is_shadowed(&w, &p);
         assert_eq!(is_shadowed, false);
     }
 
     // page 112 bottom
     #[test]
     fn test_point_in_shadow_object_behind_point() {
-        let mut w = default_world();
+        let w = default_world();
         let p = Tuple4D::new_point(-2.0, 2.0, -2.0);
-        let is_shadowed = w.is_shadowed(&p);
+        let is_shadowed = World::is_shadowed(&w, &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -677,7 +684,7 @@ mod tests {
     // page 155
     #[test]
     fn test_refracted_color() {
-        let mut w = default_world();
+        let w = default_world();
 
         let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
@@ -751,36 +758,26 @@ mod tests {
     // page 157
     #[test]
     fn test_refracted_color_total_internal_reflection() {
-        let mut w = default_world_empty();
+        let mut w = default_world();
 
-        // add the two shapes from "default_word" but set the required propertys
-        let mut m = Material::new();
-        m.set_transparency(1.0);
-        m.set_refractive_index(1.5);
-
-        let mut s1 = Sphere::new();
-        s1.set_material(m);
-        let shape1 = Shape::Sphere(s1);
-
-        let mut s2 = Sphere::new();
-        let shape2 = Shape::Sphere(s2);
-
-        w.add_shape(shape1);
-        w.add_shape(shape2);
+        let shapes = w.get_shapes_mut();
+        let shape1 = shapes.get_mut(0).unwrap();
+        shape1.get_material_mut().set_transparency(1.0);
+        shape1.get_material_mut().set_refractive_index(1.5);
 
         let origin = Tuple4D::new_point(0.0, 0.0, SQRT_2 / 2.0);
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(origin, direction);
 
-        let i1 = Intersection::new(-SQRT_2 / 2.0, &w.get_shapes()[0]);
-        let i2 = Intersection::new(SQRT_2 / 2.0, &w.get_shapes()[0]);
+        let s1 = shape1.clone();
+        let i1 = Intersection::new(-SQRT_2 / 2.0, &s1);
+        let i2 = Intersection::new(SQRT_2 / 2.0, &s1);
 
         let mut xs = IntersectionList::new();
         xs.add(i1);
         xs.add(i2);
 
         let comps = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
-
         let c = World::refracted_color(&w, &comps, 5);
         let c_expected = Color::new(0.0, 0.0, 0.0);
 
@@ -793,36 +790,32 @@ mod tests {
     // page 158
     #[test]
     fn test_refracted_color_with_refracted_ray() {
-        let mut w = default_world_empty();
+        let mut w = default_world();
 
-        // add the two shapes from "default_word" but set the required propertys
-        let mut m = Material::new();
-        m.set_transparency(1.0);
-        m.set_refractive_index(1.5);
+        let stripe_pattern = StripePattern::new();
+        let pattern = Pattern::StripePattern(stripe_pattern);
 
-        let p = StripePattern::new();
-        let pattern = Pattern::StripePattern(p);
-        let mut s1 = Sphere::new();
-        s1.get_material_mut().set_ambient(1.0);
-        s1.get_material_mut().set_pattern(pattern);
-        let shape1 = Shape::Sphere(s1);
+        let shapes = w.get_shapes_mut();
+        let shape1 = shapes.get_mut(0).unwrap();
+        let shape2 = shapes.get_mut(1).unwrap();
 
-        let mut s2 = Sphere::new();
-        s2.get_material_mut().set_transparency(1.0);
-        s2.get_material_mut().set_refractive_index(1.5);
-        let shape2 = Shape::Sphere(s2);
+        shape1.get_material_mut().set_ambient(1.0);
+        shape1.get_material_mut().set_pattern(pattern);
 
-        w.add_shape(shape1);
-        w.add_shape(shape2);
+        shape2.get_material_mut().set_transparency(1.0);
+        shape2.get_material_mut().set_refractive_index(1.5);
 
-        let origin = Tuple4D::new_point(0.0, 0.0, 0.01);
+        let shape1 = shape1.clone();
+        let shape2 = shape2.clone();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, 0.1);
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(origin, direction);
 
-        let i1 = Intersection::new(-0.9899, &w.get_shapes()[0]);
-        let i2 = Intersection::new(-0.4899, &w.get_shapes()[1]);
-        let i3 = Intersection::new(0.4899, &w.get_shapes()[1]);
-        let i4 = Intersection::new(0.9899, &w.get_shapes()[0]);
+        let i1 = Intersection::new(-0.9899, &shape1);
+        let i2 = Intersection::new(-0.4899, &shape0);
+        let i3 = Intersection::new(0.4899, &shape0);
+        let i4 = Intersection::new(0.9899, &shape1);
 
         let mut xs = IntersectionList::new();
         xs.add(i1);

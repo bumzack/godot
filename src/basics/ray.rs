@@ -29,8 +29,10 @@ impl RayOps for Ray {
     }
 
     fn transform(r: &Ray, m: &Matrix) -> Ray {
-        let o_transformed = m * &r.origin;
-        let d_transformed = m * &r.direction;
+        let mut o_transformed = m * &r.origin;
+        let mut d_transformed = m * &r.direction;
+        o_transformed.w = 1.0;
+        d_transformed.w = 0.0;
         Ray::new(o_transformed, d_transformed)
     }
 

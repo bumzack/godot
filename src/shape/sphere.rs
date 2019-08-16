@@ -192,7 +192,7 @@ mod tests {
     // page 69
     #[test]
     fn test_sphere_new_check_transformation_matrix() {
-        let mut s = Sphere::new();
+        let   s = Sphere::new();
 
         let m_expected = Matrix::new_identity_4x4();
         let met_m_inv_expected = Matrix::invert(&m_expected).unwrap();

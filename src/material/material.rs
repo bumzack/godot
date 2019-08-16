@@ -45,10 +45,10 @@ pub trait MaterialOps {
     fn set_shininess(&mut self, s: f64);
     fn set_ambient(&mut self, a: f64);
 
-    fn get_diffuse(&  self) -> f64;
-    fn get_specular(&  self) -> f64;
-    fn get_shininess(&  self) -> f64;
-    fn get_ambient(&  self) -> f64;
+    fn get_diffuse(&self) -> f64;
+    fn get_specular(&self) -> f64;
+    fn get_shininess(&self) -> f64;
+    fn get_ambient(&self) -> f64;
 
     fn get_color(&self) -> &Color;
 
@@ -141,19 +141,19 @@ impl MaterialOps for Material {
         self.ambient = a;
     }
 
-    fn get_diffuse(&  self) -> f64 {
+    fn get_diffuse(&self) -> f64 {
         self.diffuse
     }
 
-    fn get_specular(&  self) -> f64 {
+    fn get_specular(&self) -> f64 {
         self.specular
     }
 
-    fn get_shininess(&  self) -> f64 {
+    fn get_shininess(&self) -> f64 {
         self.shininess
     }
 
-    fn get_ambient(&  self) -> f64 {
+    fn get_ambient(&self) -> f64 {
         self.ambient
     }
 
@@ -322,16 +322,20 @@ mod tests {
     #[test]
     fn test_material_lightning_with_surface_in_shadow() {
         let s = Sphere::new();
-        let dummy_obj = Shape::Sphere(s);
+        let object = Shape::Sphere(s);
 
-        let (m, p) = setup();
+        let (material, point) = setup();
 
-        let eye_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let eye = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let normal_v = Tuple4D::new_vector(0.0, 0.0, -1.0);
-        let l = PointLight::new(Tuple4D::new_point(0.0, 0.0, -10.0), Color::new(1.0, 1.0, 1.0));
+
+        let position = Tuple4D::new_point(0.0, 0.0, -10.0);
+        let intensity = Color::new(1.0, 1.0, 1.0);
+        let l = PointLight::new(position, intensity);
+        let light = &Light::PointLight(l);
         let in_shadow = true;
 
-        let result = Material::lightning(&m, &dummy_obj, &Light::PointLight(l), &p, &eye_v, &normal_v, in_shadow);
+        let result = Material::lightning(&material, &object, &light, &point, &eye, &normal_v, in_shadow);
 
         let result_expected = Color::new(0.1, 0.1, 0.1);
         assert_color(&result, &result_expected);

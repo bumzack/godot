@@ -1,4 +1,3 @@
-use std::cmp::{max, min};
 use std::f64::INFINITY;
 
 use crate::basics::ray::{Ray, RayOps};
