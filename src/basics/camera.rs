@@ -1,6 +1,3 @@
-use std::sync::{Arc, Mutex};
-use std::thread;
-
 use crate::basics::canvas::{Canvas, CanvasOps};
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;

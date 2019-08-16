@@ -72,6 +72,7 @@ impl StripePattern {
 mod tests {
     use crate::math::common::assert_color;
     use crate::math::tuple4d::Tuple;
+    use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
@@ -157,7 +158,7 @@ mod tests {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut s = Sphere::new();
         s.set_transformation(transformation);
-        let shape = Shape::Sphere(s);
+        let shape = Shape::new(ShapeEnum::Sphere(s), "sphere");
 
         let pattern = StripePattern::new();
 
@@ -170,7 +171,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern_transformation2() {
         let s = Sphere::new();
-        let shape = Shape::Sphere(s);
+        let shape = Shape::new(ShapeEnum::Sphere(s), "sphere");
 
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut pattern = StripePattern::new();
@@ -187,7 +188,7 @@ mod tests {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut s = Sphere::new();
         s.set_transformation(transformation);
-        let shape = Shape::Sphere(s);
+        let shape = Shape::new(ShapeEnum::Sphere(s), "sphere");
 
         let transformation_pattern = Matrix::translation(0.5, 0.0, 0.0);
         let mut pattern = StripePattern::new();

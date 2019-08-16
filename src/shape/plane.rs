@@ -99,7 +99,7 @@ mod tests {
 
         let p = Plane::new();
 
-        let intersections = Plane::intersect(&p, &r);
+        let intersections = Plane::intersect( &r);
 
         assert_eq!(intersections.is_none(), true);
     }
@@ -114,7 +114,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, -1.0, 0.0);
         let r = Ray::new(o, d);
 
-        let intersections = Plane::intersect(&p, &r);
+        let intersections = Plane::intersect(&r);
 
         assert_eq!(intersections.is_some(), true);
         assert_float(intersections.unwrap()[0], 1.0);
@@ -123,7 +123,7 @@ mod tests {
         let o = Tuple4D::new_point(0.0, -1.0, 0.0);
         let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(o, d);
-        let intersections = Plane::intersect(&p, &r);
+        let intersections = Plane::intersect(& &r);
 
         assert_eq!(intersections.is_some(), true);
         assert_float(intersections.unwrap()[0], 1.0);

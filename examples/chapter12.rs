@@ -21,7 +21,7 @@ use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let (w, c) = setup_world(120, 100);
+    let (w, c) = setup_world(320, 200);
 
     // single core
     let start = Instant::now();
@@ -33,11 +33,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 
     // multi core
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w, 4);
-    canvas.write_ppm("chapter12_multi_core.ppm")?;
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
+//    let start = Instant::now();
+//    let canvas = Camera::render_multi_core(&c, &w, 4);
+//    canvas.write_ppm("chapter12_multi_core.ppm")?;
+//    let dur = Instant::now() - start;
+//    println!("multi core duration: {:?}", dur);
 
     Ok(())
 }

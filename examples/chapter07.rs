@@ -1,3 +1,6 @@
+use std::error::Error;
+use std::f64::consts::PI;
+
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::CanvasOps;
 use raytracer_challenge::basics::color::{Color, ColorOps};
@@ -6,11 +9,9 @@ use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_challenge::shape::shape::Shape;
+use raytracer_challenge::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{World, WorldOps};
-use std::error::Error;
-use std::f64::consts::PI;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Sphere::new();
@@ -57,12 +58,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut w = World::new();
     w.set_light(l);
-    w.add_shape(Shape::Sphere(floor));
-    w.add_shape(Shape::Sphere(left_wall));
-    w.add_shape(Shape::Sphere(right_wall));
-    w.add_shape(Shape::Sphere(middle));
-    w.add_shape(Shape::Sphere(left));
-    w.add_shape(Shape::Sphere(right));
+
+    w.add_shape(Shape::new(ShapeEnum::Sphere(floor), "floor"));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "left_wall"));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "right_wall"));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
 
     let mut c = Camera::new(120, 100, PI / 3.0);
     c.calc_pixel_size();

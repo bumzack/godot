@@ -265,7 +265,7 @@ mod tests {
     fn test_new_intersection() {
         let s = Sphere::new();
         let t: f64 = 3.5;
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
         let i = Intersection::new(t, &o);
         assert_eq!(i.t, 3.5);
     }
@@ -274,12 +274,12 @@ mod tests {
     fn test_new_intersectionlist() {
         let s1 = Sphere::new();
         let t1: f64 = 3.5;
-        let o1 = Shape::Sphere(s1);
+        let o1 = Shape::new(ShapeEnum::Sphere(s1), "test sphere");
         let i1 = Intersection::new(t1, &o1);
 
         let s2 = Sphere::new();
         let t2: f64 = 4.5;
-        let o2 = Shape::Sphere(s2);
+        let o2 = Shape::new(ShapeEnum::Sphere(s2), "test sphere2");
         let i2 = Intersection::new(t2, &o2);
 
         // let i_list = IntersectionList::new();
@@ -295,7 +295,7 @@ mod tests {
     #[test]
     fn test_intersection_hit() {
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
 
         let t1: f64 = 1.0;
         let i1 = Intersection::new(t1, &o);
@@ -316,7 +316,7 @@ mod tests {
     #[test]
     fn test_intersection_hit_neg() {
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
 
         let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
@@ -337,7 +337,7 @@ mod tests {
     #[test]
     fn test_intersection_no_hit() {
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
 
         let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
@@ -359,7 +359,7 @@ mod tests {
     #[test]
     fn test_intersection_hit_from_list() {
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
 
         let t1: f64 = 5.0;
         let i1 = Intersection::new(t1, &o);
@@ -393,7 +393,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
 
         let i = Intersection::intersect(&o, &r);
         let intersections = i.get_intersections();
@@ -408,7 +408,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
 
         let i = Intersection::new(4.0, &o);
 
@@ -432,7 +432,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
         let i = Intersection::new(4.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
@@ -447,7 +447,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::Sphere(s);
+        let o = Shape::new(ShapeEnum::Sphere(s), "test sphere");
         let i = Intersection::new(1.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
@@ -470,7 +470,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(o, d);
 
-        let sphere = Shape::Sphere(sphere);
+        let sphere = Shape::new(ShapeEnum::Sphere(sphere), "test sphere");
         let i1 = Intersection::new(-SQRT_2 / 2.0, &sphere);
         let i2 = Intersection::new(SQRT_2 / 2.0, &sphere);
         let mut xs = IntersectionList::new();
@@ -492,7 +492,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(o, d);
 
-        let sphere = Shape::Sphere(sphere);
+        let sphere = Shape::new(ShapeEnum::Sphere(sphere), "test sphere");
         let i1 = Intersection::new(-1.0, &sphere);
         let i2 = Intersection::new(1.0, &sphere);
         let mut xs = IntersectionList::new();
@@ -514,7 +514,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let sphere = Shape::Sphere(sphere);
+        let sphere = Shape::new(ShapeEnum::Sphere(sphere), "test sphere");
         let i1 = Intersection::new(1.8589, &sphere);
         let mut xs = IntersectionList::new();
         xs.add(i1);
@@ -543,9 +543,11 @@ mod tests {
         ball.get_material_mut().set_ambient(0.5);
         ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
-        let floor = Shape::Plane(floor);
+         let floor = Shape::new(ShapeEnum::Plane(floor), "floor");
+        let ball = Shape::new(ShapeEnum::Sphere(ball), "ball sphere");
+
         w.add_shape(floor.clone());
-        w.add_shape(Shape::Sphere(ball));
+        w.add_shape(ball);
 
         let origin = Tuple4D::new_point(0.0, 0.0, -3.0);
         let direction = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
