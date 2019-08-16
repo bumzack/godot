@@ -30,7 +30,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Sphere(ref s) => s.normal_at(p),
             ShapeEnum::Plane(ref plane) => plane.normal_at(p),
             ShapeEnum::Cube(ref cube) => cube.normal_at(p),
-            ShapeEnum::Cylinder(ref cylinder) => cylinder.normal_at(p),
+            ShapeEnum::Cylinder(ref cylinder) => Cylinder::normal_at(cylinder, p),
         };
         res
     }

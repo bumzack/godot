@@ -27,7 +27,7 @@ pub trait CylinderOps {
     fn get_transformation(&self) -> &Matrix;
     fn get_inverse_transformation(&self) -> &Matrix;
 
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
+    fn normal_at(c: &Cylinder, p: &Tuple4D) -> Tuple4D;
 
     fn set_material(&mut self, m: Material);
     fn get_material(&self) -> &Material;
@@ -106,7 +106,13 @@ impl CylinderOps for Cylinder {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+    fn normal_at(c: &Cylinder, world_point: &Tuple4D) -> Tuple4D {
+        let dist = world_point.x.powi(2) + world_point.z.powi(2);
+        if dist < 1.0 && world_point.y >= c.get_maximum() - EPSILON {
+            return Tuple4D::new_vector(0.0, 1.0, 0.0);
+        } else if dist < 1.0 && world_point.y <= c.get_maximum() + EPSILON {
+            return Tuple4D::new_vector(0.0, -1.0, 0.0);
+        }
         Tuple4D::new_vector(world_point.x, 0.0, world_point.z)
     }
 
@@ -183,7 +189,7 @@ mod tests {
 
         let xs = Cylinder::intersect(&cyl, &r);
 
-        assert_eq!(xs, None);
+        assert_eq!(xs.unwrap().len(), 0);
     }
 
     // page 178
@@ -249,7 +255,7 @@ mod tests {
     fn test_ray_cylinder_normal_at_helper(point: Tuple4D, n_expected: Tuple4D) {
         let cyl = Cylinder::new();
 
-        let n = cyl.normal_at(&point);
+        let n = Cylinder::normal_at(&cyl, &point);
 
         println!("point        = {:?} ", point);
         println!("expected  n  = {:?} ", n_expected);
@@ -287,8 +293,10 @@ mod tests {
     fn test_ray_cylinder_new() {
         let c = Cylinder::new();
 
-        assert_float(c.get_minimum(), -INFINITY);
-        assert_float(c.get_maximum(), INFINITY);
+        println!("c.getminimum() = {},    -INFINITY = {}", c.get_minimum(), -INFINITY);
+        println!("c.get_maximum() = {},    INFINITY = {}", c.get_maximum(), INFINITY);
+        assert_eq!(c.get_minimum(), -INFINITY);
+        assert_eq!(c.get_maximum(), INFINITY);
     }
 
     // page 182
@@ -427,5 +435,53 @@ mod tests {
         let point = Tuple4D::new_point(0.0, -1.0, -2.0);
         let direction = Tuple4D::new_vector(0.0, 1.0, 1.0);
         test_ray_cylinder_capped_helper(point, direction, 2);
+    }
+
+    // page 186
+    fn test_ray_cylinder_capped_normal_at_helper(point: Tuple4D, normal: Tuple4D) {
+        let mut cyl = Cylinder::new();
+        cyl.set_minimum(1.0);
+        cyl.set_maximum(2.0);
+        cyl.set_closed(true);
+        let n = Cylinder::normal_at(&cyl, &point);
+
+        println!("point        = {:?} ", point);
+        println!("direction     = {:?} ", normal);
+
+        assert_tuple(&n, &normal);
+    }
+
+    // page 185
+    #[test]
+    fn test_ray_cylinder_capped_normal_at() {
+        // 1
+        let point = Tuple4D::new_point(0.0, 1.0, 0.0);
+        let normal = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        test_ray_cylinder_capped_normal_at_helper(point, normal);
+
+        // 2
+        let point = Tuple4D::new_point(0.5, 1.0, 0.0);
+        let normal = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        test_ray_cylinder_capped_normal_at_helper(point, normal);
+
+        // 3
+        let point = Tuple4D::new_point(0.0, 1.0, 0.5);
+        let normal = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        test_ray_cylinder_capped_normal_at_helper(point, normal);
+
+        // 4
+        let point = Tuple4D::new_point(0.0, 2.0, 0.0);
+        let normal = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        test_ray_cylinder_capped_normal_at_helper(point, normal);
+
+        // 5
+        let point = Tuple4D::new_point(0.5, 2.0, 0.0);
+        let normal = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        test_ray_cylinder_capped_normal_at_helper(point, normal);
+
+        // 6
+        let point = Tuple4D::new_point(0.0, 2.0, 0.5);
+        let normal = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        test_ray_cylinder_capped_normal_at_helper(point, normal);
     }
 }
