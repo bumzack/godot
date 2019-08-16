@@ -43,7 +43,7 @@ pub trait WorldOps<'a> {
 impl<'a> WorldOps<'a> for World {
     fn new() -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
-        let pl = PointLight::new(Tuple4D::new_point(0.0, 0.0, 0.0), Color::new(1.0, 1.0, 1.0));
+        let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         World {
             shapes: Vec::new(),
             light: Light::PointLight(pl),
@@ -172,7 +172,7 @@ pub fn default_world() -> World {
     w.set_light(light);
 
     let mut m = Material::new();
-    m.set_color(Color::new(0.8, 1., 0.6));
+    m.set_color(Color::new(0.8, 1.0, 0.6));
     m.set_diffuse(0.7);
     m.set_specular(0.2);
 
@@ -244,7 +244,6 @@ mod tests {
 
         let shapes = w.get_shapes();
         let shape = shapes.get(0).unwrap();
-
         let i = Intersection::new(4.0, &shape);
 
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
@@ -270,9 +269,7 @@ mod tests {
 
         let shapes = w.get_shapes();
         let shape = shapes.get(1).unwrap();
-
         let i = Intersection::new(0.5, &shape);
-
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
@@ -280,6 +277,69 @@ mod tests {
 
         println!("expected color = {:?}", c_expected);
         println!("actual   color = {:?}", c);
+        assert_color(&c_expected, &c);
+    }
+
+    // page 96
+    #[test]
+    fn test_color_at_ray_miss() {
+        let mut w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(origin, direction);
+
+        let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        let c_expected = Color::new(0.0, 0.0, 0.0);
+
+        assert_color(&c_expected, &c);
+    }
+
+    // page 96
+    #[test]
+    fn test_color_at_ray_hit() {
+        let w = default_world();
+
+        let origin = Tuple4D::new_point(0.0, 0.0, -5.0);
+        let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let r = Ray::new(origin, direction);
+        let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+
+        let c_expected = Color::new(0.38066125, 0.47583, 0.2855);
+        assert_color(&c_expected, &c);
+    }
+
+    // page 97
+    #[test]
+    fn test_color_at_intersection_behind_ray() {
+        let mut w = default_world_empty();
+
+        // add the two shapes from "default_word" but set the required propertys
+        let mut m = Material::new();
+        m.set_color(Color::new(0.8, 1., 0.6));
+        m.set_diffuse(0.7);
+        m.set_specular(0.2);
+        m.set_ambient(1.0);
+
+        let mut s1 = Sphere::new();
+        s1.set_material(m);
+        let shape1 = Shape::Sphere(s1);
+
+        let m = Matrix::scale(0.5, 0.5, 0.5);
+        let mut s2 = Sphere::new();
+        s2.set_transformation(m);
+        s2.get_material_mut().set_ambient(1.0);
+        let shape2 = Shape::Sphere(s2);
+
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+
+        let origin = Tuple4D::new_point(0.0, 0.0, 0.75);
+        let direction = Tuple4D::new_vector(0.0, 0.0, -1.0);
+        let r = Ray::new(origin, direction);
+        let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+
+        let c_expected = Color::from_color(w.get_shapes_mut().get(1).unwrap().get_material().get_color());
         assert_color(&c_expected, &c);
     }
 
@@ -372,7 +432,7 @@ mod tests {
         assert_color(&c_expected, &c);
     }
 
-    // page 97
+    // page 97 duplicate, but thats ok
     #[test]
     fn test_color_at_inner_sphere() {
         let mut w = default_world();

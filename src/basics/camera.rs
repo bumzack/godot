@@ -6,8 +6,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
 use crate::world::world::WorldOps;
-use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -149,12 +149,13 @@ impl CameraOps for Camera {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{PI, SQRT_2};
+
+    use crate::basics::color::{Color, ColorOps};
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
+    use crate::world::world::default_world;
 
     use super::*;
-    use crate::basics::color::{Color, ColorOps};
-    use crate::world::world::default_world;
-    use std::f64::consts::{PI, SQRT_2};
 
     // page 101
     #[test]
@@ -194,7 +195,6 @@ mod tests {
         c.calc_pixel_size();
 
         let r = Camera::ray_for_pixel(&c, 100, 50);
-
         let origin_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
         let direction_expected = Tuple4D::new_vector(0.0, 0.0, -1.0);
 
@@ -209,15 +209,8 @@ mod tests {
         c.calc_pixel_size();
 
         let r = Camera::ray_for_pixel(&c, 0, 0);
-
         let origin_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
         let direction_expected = Tuple4D::new_vector(0.66519, 0.33259, -0.66851);
-
-        println!("expected origin   = {:?}", origin_expected);
-        println!("actual origin     = {:?}", r.get_origin());
-
-        println!("expected direction   = {:?}", direction_expected);
-        println!("actual direction     = {:?}", r.get_direction());
 
         assert_tuple(&r.get_origin(), &origin_expected);
         assert_tuple(&r.get_direction(), &direction_expected);
@@ -234,16 +227,10 @@ mod tests {
 
         let transform = &rot_y * &trans;
         c.set_transformation(transform);
-        let r = Camera::ray_for_pixel(&c, 100, 50);
 
+        let r = Camera::ray_for_pixel(&c, 100, 50);
         let expected_origin = Tuple4D::new_point(0.0, 2.0, -5.0);
         let expected_direction = Tuple4D::new_vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0);
-
-        println!("expected  origin() = {:#?}", expected_origin);
-        println!("actual origin      = {:#?}", &r.get_origin());
-
-        println!("expected  direction() = {:#?}", &expected_direction);
-        println!("actual direction      = {:#?}", &r.get_direction());
 
         assert_tuple(&r.get_origin(), &expected_origin);
         assert_tuple(&r.get_direction(), &expected_direction);
@@ -263,11 +250,8 @@ mod tests {
         c.set_transformation(Matrix::view_transform(&from, &to, &up));
 
         let image = Camera::render(&c, &w);
-        // println!("image = {:#?}", image);
-
         let color = image.pixel_at(5, 5);
         let c_expected = Color::new(0.38066, 0.47583, 0.2855);
-
         assert_color(color, &c_expected);
     }
 

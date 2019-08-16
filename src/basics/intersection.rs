@@ -222,7 +222,7 @@ impl<'a> fmt::Debug for IntersectionList<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::assert_tuple;
+    use crate::math::common::{assert_float, assert_tuple};
     use crate::math::tuple4d::{Tuple, Tuple4D};
 
     use super::*;
@@ -387,6 +387,7 @@ mod tests {
         assert_tuple(&point_expected, c.get_point());
         assert_tuple(&eye_vector_expected, c.get_eye_vector());
         assert_tuple(&normal_vector_expected, c.get_normal_vector());
+        assert_float(i.get_t(), c.get_t());
     }
 
     // page 94
@@ -398,20 +399,10 @@ mod tests {
 
         let s = Sphere::new();
         let o = Shape::Sphere(s);
-
         let i = Intersection::new(4.0, &o);
-
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         assert_eq!(false, c.get_inside());
-        //
-        //        let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
-        //        let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
-        //        let normal_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
-        //
-        //        assert_tuple(&point_expected, c.get_point());
-        //        assert_tuple(&eye_vector_expected, c.get_eye_vector());
-        //        assert_tuple(&normal_vector_expected, c.get_normal_vector());
     }
 
     // page 95 top
@@ -423,9 +414,7 @@ mod tests {
 
         let s = Sphere::new();
         let o = Shape::Sphere(s);
-
         let i = Intersection::new(1.0, &o);
-
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let point_expected = Tuple4D::new_point(0.0, 0.0, 1.0);

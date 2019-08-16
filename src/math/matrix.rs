@@ -327,7 +327,7 @@ impl MatrixOps for Matrix {
         let true_up = &left * &forward;
 
         #[rustfmt::skip]
-            let orientation = Matrix::new_matrix_4x4(
+        let orientation = Matrix::new_matrix_4x4(
             left.x, left.y, left.z, 0.0,
             true_up.x, true_up.y, true_up.z, 0.0,
             -forward.x, -forward.y, -forward.z, 0.0,
@@ -436,10 +436,11 @@ impl<'a, 'b> Mul<&'b Tuple4D> for &'a Matrix {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{PI, SQRT_2};
+
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 
     use super::*;
-    use std::f64::consts::{PI, SQRT_2};
 
     #[test]
     fn test_matrix_components() {
@@ -1218,7 +1219,6 @@ mod tests {
 
         let v = Matrix::view_transform(&from, &to, &up);
         let v_expected = Matrix::new_identity_4x4();
-
         assert_matrix(&v, &v_expected);
     }
 
@@ -1231,7 +1231,6 @@ mod tests {
 
         let v = Matrix::view_transform(&from, &to, &up);
         let v_expected = Matrix::scale(-1.0, 1.0, -1.0);
-
         assert_matrix(&v, &v_expected);
     }
 
@@ -1244,7 +1243,6 @@ mod tests {
 
         let v = Matrix::view_transform(&from, &to, &up);
         let v_expected = Matrix::translation(0.0, 0.0, -8.0);
-
         assert_matrix(&v, &v_expected);
     }
 
@@ -1278,23 +1276,12 @@ mod tests {
             0., 0., 0., 1.,
         );
 
-        let m_inv_expected = Matrix::new_matrix_4x4(
-            0.70710678,
-            0.,
-            -0.70710678,
-            0.,
-            0.,
-            1.,
-            0.,
-            2.,
-            0.70710678,
-            0.,
-            0.70710678,
-            -5.,
-            0.,
-            0.,
-            0.,
-            1.,
+        #[rustfmt::skip]
+         let m_inv_expected = Matrix::new_matrix_4x4(
+            0.70710678, 0., -0.70710678, 0.,
+            0., 1., 0., 2.,
+            0.70710678, 0., 0.70710678, -5.,
+            0., 0., 0., 1.,
         );
         let m_inv = Matrix::invert(&m).unwrap();
         // assert_matrix(&m_inv, &m_inv_expected);
