@@ -44,12 +44,14 @@ impl PlaneOps for Plane {
         }
         let t = -r.origin.y / r.direction.y;
         let mut res = vec![0.0; 1];
+
         res[0] = t;
         Some(res)
     }
 
     fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("plane::set_transofrmation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 

@@ -14,25 +14,25 @@ use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::patterns::Pattern;
 use crate::patterns::stripe_patterns::StripePattern;
-use crate::shape::shape::Shape;
+use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::{Sphere, SphereOps};
 
-pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
+pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 10;
 
 #[derive(Clone, Debug)]
-pub struct World {
-    shapes: Vec<Shape>,
+pub struct World<'a> {
+    shapes: Vec<Shape<'a>>,
     light: Light,
 }
 
 pub trait WorldOps<'a> {
-    fn new() -> World;
+    fn new() -> World<'a>;
     fn set_light(&mut self, light: Light);
     fn get_light(&self) -> &Light;
 
-    fn add_shape(&mut self, shape: Shape);
-    fn get_shapes(&self) -> &Vec<Shape>;
-    fn get_shapes_mut(&mut self) -> &mut Vec<Shape>;
+    fn add_shape(&mut self, shape: Shape<'a>);
+    fn get_shapes(&self) -> &Vec<Shape<'a>>;
+    fn get_shapes_mut(&mut self) -> &mut Vec<Shape<'a>>;
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
@@ -45,8 +45,8 @@ pub trait WorldOps<'a> {
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 }
 
-impl<'a> WorldOps<'a> for World {
-    fn new() -> World {
+impl<'a> WorldOps<'a> for World<'a> {
+    fn new() -> World<'a> {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
         let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         World {
@@ -63,15 +63,15 @@ impl<'a> WorldOps<'a> for World {
         &self.light
     }
 
-    fn add_shape(&mut self, shape: Shape) {
+    fn add_shape(&mut self, shape: Shape<'a>) {
         self.shapes.push(shape);
     }
 
-    fn get_shapes(&self) -> &Vec<Shape> {
+    fn get_shapes(&self) -> &Vec<Shape<'a>> {
         &self.shapes
     }
 
-    fn get_shapes_mut(&mut self) -> &mut Vec<Shape> {
+    fn get_shapes_mut(&mut self) -> &mut Vec<Shape<'a>> {
         &mut self.shapes
     }
 
@@ -126,10 +126,7 @@ impl<'a> WorldOps<'a> for World {
 
     fn is_shadowed(w: &World, p: &Tuple4D) -> bool {
         let v = w.get_light().get_position() - p;
-        //        println!("light pos = {:?}" ,self.light.get_position());
-        //        for s in  self.shapes.iter() {
-        //            println!("shape pos = {:?}", s.get_transformation());
-        //        }
+
         let distance = Tuple4D::magnitude(&v);
         let direction = Tuple4D::normalize(&v);
 
@@ -137,11 +134,8 @@ impl<'a> WorldOps<'a> for World {
         let r = Ray::new(point, direction);
 
         let intersections = Intersection::intersect_world(w, &r);
-        // println!("intersections = {:?}", intersections);
 
         let h = intersections.hit();
-        //println!("distance= {:?}", distance);
-        // println!("t = {:?}", h.unwrap().get_t());
 
         if h.is_some() {
             // println!("t = {:?}", h.unwrap().get_t());
@@ -177,7 +171,7 @@ impl<'a> WorldOps<'a> for World {
     }
 }
 
-pub fn default_world() -> World {
+pub fn default_world<'a>() -> World<'a> {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
@@ -193,12 +187,12 @@ pub fn default_world() -> World {
 
     let mut s1 = Sphere::new();
     s1.set_material(m);
-    let shape1 = Shape::Sphere(s1);
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_ sphere 1");
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
     let mut s2 = Sphere::new();
     s2.set_transformation(m);
-    let shape2 = Shape::Sphere(s2);
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_ sphere 2");
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -206,7 +200,7 @@ pub fn default_world() -> World {
     w
 }
 
-pub fn default_world_refracted_color_page_158() -> World {
+pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
@@ -227,14 +221,15 @@ pub fn default_world_refracted_color_page_158() -> World {
     let mut s1 = Sphere::new();
     s1.set_material(material1);
     s1.get_material_mut().set_pattern(pattern);
-    let shape1 = Shape::Sphere(s1);
+    // let shape1 = Shape::Sphere(s1);
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_refracted_color_page_158 sphere 1");
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
     let mut s2 = Sphere::new();
     s2.set_transformation(m);
     s2.get_material_mut().set_transparency(1.0);
     s2.get_material_mut().set_refractive_index(1.5);
-    let shape2 = Shape::Sphere(s2);
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_refracted_color_page_158 sphere 2");
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -242,7 +237,7 @@ pub fn default_world_refracted_color_page_158() -> World {
     w
 }
 
-pub fn default_world_empty() -> World {
+pub fn default_world_empty<'a>() -> World<'a> {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);

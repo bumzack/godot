@@ -1,4 +1,4 @@
-use std::f64::INFINITY;
+use std::f64::{INFINITY, NAN};
 
 use crate::basics::ray::{Ray, RayOps};
 use crate::material::material::Material;
@@ -54,6 +54,16 @@ impl CubeOps for Cube {
             return None;
         }
         let mut res = vec![0.0; 2];
+
+        if tmin == NAN {
+            println!("CUBE: here we have a NAN tmin is {}", tmin);
+        }
+
+        if tmax == NAN {
+            println!("CUBE:  here we have a NAN tmax is {}", tmax);
+        }
+
+
         res[0] = tmin;
         res[1] = tmax;
 
@@ -61,7 +71,8 @@ impl CubeOps for Cube {
     }
 
     fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 

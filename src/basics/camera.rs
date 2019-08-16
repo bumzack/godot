@@ -1,5 +1,7 @@
-use crate::basics::canvas::Canvas;
-use crate::basics::canvas::CanvasOps;
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+use crate::basics::canvas::{Canvas, CanvasOps};
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::math::matrix::Matrix;
@@ -39,11 +41,8 @@ pub trait CameraOps {
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
 
     fn render(c: &Camera, w: &World) -> Canvas;
-
+    fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas;
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas;
-
-    // TODO: use rayon or crossbeam?
-    // fn render_parallel(c: &Camera, w: &World) -> Canvas;
 }
 
 impl CameraOps for Camera {
@@ -108,7 +107,8 @@ impl CameraOps for Camera {
         let world_y = c.get_half_height() - y_offset;
         // TODO: we unwrap here silently ...
 
-        let camera_transform_inv = Matrix::invert(c.get_transform()).unwrap();
+        let camera_transform_inv =
+            Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
 
         // use vector, but is it a vector ?
         let p = Tuple4D::new_point(world_x, world_y, -1.0);
@@ -140,14 +140,63 @@ impl CameraOps for Camera {
             for x in 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
                 println!("render point  {}/{}", x, y);
-                let c = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
-                canvas.write_pixel(x, y, c);
+                let color = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                // TODO: wtf ?!
+                if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
+                canvas.write_pixel(x, y, color);
             }
             // println!("render line  {}", y);
         }
         canvas
     }
+
+    fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas {
+//        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+//
+//        let data = Arc::new(Mutex::new(canvas));
+//        let mut children = vec![];
+//        let act_y: usize = 0;
+//        let act_y_mutex = Arc::new(Mutex::new(act_y));
+//
+//        for _i in 0..num_cores {
+//            let cloned_data = Arc::clone(&data);
+//            let cloned_act_y = Arc::clone(&act_y_mutex);
+//            let height = c.get_hsize();
+//            let width = c.get_vsize();
+//
+//            let c_clone = c.clone();
+//            let w_clone = w.clone();
+//
+//            children.push(thread::spawn(move || {
+//                let mut y: usize = 0;
+//                while *cloned_act_y.lock().unwrap() < height {
+//                    if y < height {
+//                        let mut acty = cloned_act_y.lock().unwrap();
+//                        y = *acty;
+//                        *acty = *acty + 1;
+//                    }
+//                    for x in 0..width {
+//                        let r = Camera::ray_for_pixel(&c_clone, x, y);
+//                        println!("render point  {}/{}", x, y);
+//                        let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+//                        // TODO: wtf ?!
+//                        if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
+//                        let mut canvas = cloned_data.lock().unwrap();
+//                        canvas.write_pixel(x, y, color);
+//                    }
+//                }
+//            }));
+//        }
+//
+//        for child in children {
+//            let _ = child.join();
+//        }
+//
+//        let c = data.lock().unwrap();
+//        *c
+        Canvas::new(c.get_hsize(), c.get_vsize())
+    }
+
 
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas {
         println!("DEBUG render point  {}/{}", x, y);

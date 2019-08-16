@@ -8,7 +8,7 @@ use crate::math::common::EPSILON;
 use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::cube::{Cube, CubeOps};
 use crate::shape::plane::{Plane, PlaneOps};
-use crate::shape::shape::Shape;
+use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::{Sphere, SphereOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
@@ -17,15 +17,15 @@ type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 
 pub struct Intersection<'a> {
     t: f64,
-    shape: &'a Shape,
+    shape: &'a Shape<'a>,
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f64, shape: &Shape) -> Intersection;
-    fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a>;
+    fn new(t: f64, shape: &'a Shape<'a>) -> Intersection<'a>;
+    fn intersect(shape: &'a Shape<'a>, r: &Ray) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f64;
-    fn get_shape(&self) -> &'a Shape;
+    fn get_shape(&self) -> &'a Shape<'a>;
     fn prepare_computations(
         intersection: &Intersection<'a>,
         r: &Ray,
@@ -35,16 +35,16 @@ pub trait IntersectionOps<'a> {
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
-    fn new(t: f64, shape: &Shape) -> Intersection {
+    fn new(t: f64, shape: &'a Shape<'a>) -> Intersection<'a> {
         Intersection { t, shape }
     }
 
-    fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a> {
+    fn intersect(shape: &'a Shape<'a>, r: &Ray) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
-        let res = match shape {
-            Shape::Sphere(ref _s) => {
+        let res = match shape.get_shape() {
+            ShapeEnum::Sphere(ref _s) => {
                 let res = Sphere::intersect(&r2);
                 match res {
                     Some(r) => {
@@ -58,7 +58,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 intersection_list
             }
 
-            Shape::Plane(ref _p) => {
+            ShapeEnum::Plane(ref _p) => {
                 let res = Plane::intersect(&r2);
                 match res {
                     Some(r) => {
@@ -70,7 +70,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 intersection_list
             }
 
-            Shape::Cube(ref _c) => {
+            ShapeEnum::Cube(ref _c) => {
                 let res = Cube::intersect(&r2);
                 match res {
                     Some(r) => {
@@ -93,8 +93,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 res.add(is);
             }
         }
-        res.get_intersections_mut()
-            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+        res.get_intersections_mut().sort_by(|a, b| {
+            a.t.partial_cmp(&b.t)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         res
     }
 
@@ -102,7 +104,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.t
     }
 
-    fn get_shape(&self) -> &'a Shape {
+    fn get_shape(&self) -> &'a Shape<'a> {
         self.shape
     }
 
@@ -137,7 +139,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             inside,
         );
 
-        let mut container: Vec<&'a Shape> = Vec::new();
+        let mut container: Vec<&'a Shape<'a>> = Vec::new();
 
         for i in list.get_intersections().iter() {
             if i == intersection {
@@ -213,12 +215,15 @@ pub trait IntersectionListOps<'a> {
 
 impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
     fn new() -> IntersectionList<'a> {
-        IntersectionList { list_of_intersections: Vec::new() }
+        IntersectionList {
+            list_of_intersections: Vec::new(),
+        }
     }
 
     fn add(&mut self, i: Intersection<'a>) {
         self.list_of_intersections.push(i);
-        self.list_of_intersections.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+        self.list_of_intersections
+            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));// expect("IntersectionListOps::add : cant unwrap"));
     }
 
     fn hit(&self) -> Option<&Intersection<'a>> {

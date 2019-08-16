@@ -52,14 +52,16 @@ impl SphereOps for Sphere {
         res[0] = (-b - discriminant.sqrt()) / (2.0 * a);
         res[1] = (-b + discriminant.sqrt()) / (2.0 * a);
 
-        res.sort_by(|a, b| a.partial_cmp(b).unwrap());
-
-        // println!("res in intersect: {:?}", res);
+        res.sort_by(|a, b| {
+            a.partial_cmp(b)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         Some(res)
     }
 
     fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("Sphere::set_transofrmation:  cant unwrap inverted matrix ");
         self.transformation_matrix = m;
     }
 

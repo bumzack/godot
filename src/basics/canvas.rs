@@ -3,11 +3,13 @@ use std::io::{Error, Write};
 
 use crate::basics::color::{Color, ColorOps};
 
+type ColorVec = Vec<Color>;
+
 #[derive(Clone, Debug)]
 pub struct Canvas {
     width: usize,
     height: usize,
-    pixel: Vec<Color>,
+    pixel: ColorVec,
 }
 
 pub trait CanvasOps<'a> {
@@ -18,6 +20,7 @@ pub trait CanvasOps<'a> {
 
     fn calc_idx(&self, x: usize, y: usize) -> usize;
 }
+
 
 impl<'a> CanvasOps<'a> for Canvas {
     fn new(width: usize, height: usize) -> Canvas {
@@ -48,9 +51,6 @@ impl<'a> CanvasOps<'a> for Canvas {
 
         &self.pixel[self.calc_idx(x, y)]
     }
-    fn calc_idx(&self, x: usize, y: usize) -> usize {
-        y * self.width + x
-    }
 
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error> {
         let mut file = File::create(filename)?;
@@ -67,6 +67,8 @@ impl<'a> CanvasOps<'a> for Canvas {
         file.write_all(header.as_bytes())?;
         file.write_all(s.as_bytes())?;
         file.write_all(max_pxiel_value.as_bytes())?;
+
+        // for (x, y, p) in self
 
         for y in 0..self.height {
             // let mut i = 0;
@@ -85,38 +87,101 @@ impl<'a> CanvasOps<'a> for Canvas {
         }
         Ok(())
     }
+
+
+
+
+    fn calc_idx(&self, x: usize, y: usize) -> usize {
+        y * self.width + x
+    }
 }
 
-/// Immutable pixel iterator
-//pub struct Pixels<'a, I: 'a> {
-//    image: &'a I,
-//    x: u32,
-//    y: u32,
-//    width: u32,
-//    height: u32,
-//}
+pub struct EnumeratePixels {
+    pixels: ColorVec,
+    x: u32,
+    y: u32,
+    width: u32,
+}
+
+// see https://github.com/image-rs/image/src/buffer.rs
+//impl Iterator for EnumeratePixels {
+//    type Item = (u32, u32, Color);
 //
-//impl<'a, I: GenericImage> Iterator for Pixels<'a, I> {
-//    type Item = (u32, u32, I::Pixel);
-//
-//    fn next(&mut self) -> Option<(u32, u32, I::Pixel)> {
+//    fn next(&mut self) -> Option<(u32, u32, Color)> {
 //        if self.x >= self.width {
 //            self.x = 0;
 //            self.y += 1;
 //        }
+//        let (x, y) = (self.x, self.y);
+//        self.x += 1;
+//        self.pixels.next().map(|p| (x, y, p))
+//    }
+//}
 //
-//        if self.y >= self.height {
-//            None
-//        } else {
-//            let pixel = self.image.get_pixel(self.x, self.y);
-//            let p = (self.x, self.y, pixel);
+//// https://stackoverflow.com/questions/30218886/how-to-implement-iterator-and-intoiterator-for-a-simple-struct
+//impl IntoIterator for Color {
+//    type Item = f64;
+//    type IntoIter = PixelIntoIterator;
 //
-//            self.x += 1;
-//
-//            Some(p)
+//    fn into_iter(self) -> Self::IntoIter {
+//        PixelIntoIterator {
+//            pixel: self,
+//            index: 0,
 //        }
 //    }
 //}
+//
+//pub struct PixelIntoIterator {
+//    pixel: Color,
+//    index: usize,
+//}
+//
+//impl Iterator for PixelIntoIterator {
+//    type Item = f64;
+//    fn next(&mut self) -> Option<f64> {
+//        let result = match self.index {
+//            0 => self.pixel.r,
+//            1 => self.pixel.g,
+//            2 => self.pixel.b,
+//            _ => return None,
+//        };
+//        self.index += 1;
+//        Some(result)
+//    }
+//}
+//
+//impl<'a> IntoIterator for &'a Color {
+//    type Item = f64;
+//    type IntoIter = PixelIterator<'a>;
+//
+//    fn into_iter(self) -> Self::IntoIter {
+//        PixelIterator {
+//            pixel: self,
+//            index: 0,
+//        }
+//    }
+//}
+//
+//pub struct PixelIterator<'a> {
+//    pixel: &'a Color,
+//    index: usize,
+//}
+//
+//impl<'a> Iterator for PixelIterator<'a> {
+//    type Item = i8;
+//    fn next(&mut self) -> Option<f64> {
+//        let result = match self.index {
+//            0 => self.pixel.r,
+//            1 => self.pixel.g,
+//            2 => self.pixel.b,
+//            _ => return None,
+//        };
+//        self.index += 1;
+//        Some(result)
+//    }
+//}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
