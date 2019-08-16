@@ -7,6 +7,7 @@ use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON;
 use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::cube::{Cube, CubeOps};
+use crate::shape::cylinder::{Cylinder, CylinderOps};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::{Sphere, SphereOps};
@@ -72,6 +73,19 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
             ShapeEnum::Cube(ref _c) => {
                 let res = Cube::intersect(&r2);
+                match res {
+                    Some(r) => {
+                        let i1 = Intersection::new(r[0], shape);
+                        let i2 = Intersection::new(r[1], shape);
+                        intersection_list.add(i1);
+                        intersection_list.add(i2);
+                    }
+                    None => {}
+                }
+                intersection_list
+            }
+            ShapeEnum::Cylinder(ref _cylinder) => {
+                let res = Cylinder::intersect(&r2);
                 match res {
                     Some(r) => {
                         let i1 = Intersection::new(r[0], shape);
@@ -543,7 +557,7 @@ mod tests {
         ball.get_material_mut().set_ambient(0.5);
         ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
-         let floor = Shape::new(ShapeEnum::Plane(floor), "floor");
+        let floor = Shape::new(ShapeEnum::Plane(floor), "floor");
         let ball = Shape::new(ShapeEnum::Sphere(ball), "ball sphere");
 
         w.add_shape(floor.clone());

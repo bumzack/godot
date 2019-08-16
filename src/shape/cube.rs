@@ -63,7 +63,6 @@ impl CubeOps for Cube {
             println!("CUBE:  here we have a NAN tmax is {}", tmax);
         }
 
-
         res[0] = tmin;
         res[1] = tmax;
 

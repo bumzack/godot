@@ -88,9 +88,6 @@ impl<'a> CanvasOps<'a> for Canvas {
         Ok(())
     }
 
-
-
-
     fn calc_idx(&self, x: usize, y: usize) -> usize {
         y * self.width + x
     }
