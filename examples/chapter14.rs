@@ -1,3 +1,6 @@
+extern crate num_cpus;
+
+
 use std::error::Error;
 use std::f64::consts::PI;
 use std::sync::{Arc, Mutex};
@@ -27,6 +30,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
     let height = 720;
 
+    let width = 120;
+    let height = 100;
+
     let (w, c) = setup_world(width, height);
 
     // multi core
@@ -52,7 +58,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     if multi_core {
         let start = Instant::now();
 
-        let num_cores = 4;
+        let num_cores = num_cpus::get();
+        println!("using {} cores", num_cores);
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
         let data = Arc::new(Mutex::new(canvas));
