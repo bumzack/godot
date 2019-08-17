@@ -22,9 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
     let height = 720;
 
-    let width = 12;
-    let height = 10;
-    // single_core_tests(width, height);
+    single_core_tests(width, height);
 
     let antialiasing = true;
     let antialiasing_size = 2;
@@ -54,7 +52,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let act_y_mutex = Arc::new(Mutex::new(act_y));
 
     for _i in 0..num_cores {
-
         let n_samples = camera.get_antialiasing_size();
         let mut jitter_matrix = Vec::new();
         if n_samples == 2 {
@@ -114,7 +111,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
-                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                        color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         // println!("no AA    color at ({}/{}): {:?}", x, y, color);
                     }
 
@@ -127,7 +124,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     for child in children {
         let dur = Instant::now() - start;
-         println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
+        println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
     }
     let dur = Instant::now() - start;
     if camera.get_antialiasing() {
