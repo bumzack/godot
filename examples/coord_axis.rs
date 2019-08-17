@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let num_cores = num_cpus::get();
         println!("using {} cores", num_cores);
-        let   canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
         let data = Arc::new(Mutex::new(canvas));
         let mut children = vec![];

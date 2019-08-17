@@ -20,7 +20,7 @@ pub struct Camera {
     half_height: f64,
     pixel_size: f64,
     antialiasing: bool,
-    antialiasing_size: usize,       // 2 or 3
+    antialiasing_size: usize, // 2 or 3
 }
 
 pub trait CameraOps {
@@ -44,7 +44,8 @@ pub trait CameraOps {
 
     fn set_transformation(&mut self, m: Matrix);
 
-    fn ray_for_pixel(c: &Camera, x: f64, y: f64) -> Ray;
+    fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, x_offset: f64, y_offset: f64) -> Ray;
 
     fn render(c: &Camera, w: &World) -> Canvas;
     fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas;
@@ -107,15 +108,45 @@ impl CameraOps for Camera {
         self.transform = m;
     }
 
-    fn ray_for_pixel(c: &Camera, x: f64, y: f64) -> Ray {
+    fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray {
         let camera_transform_inv =
             Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
 
-        let x_offset = (x + 0.5) * c.get_pixel_size();
-        let y_offset = (y + 0.5) * c.get_pixel_size();
+        let x_offset = (x as f64 + 0.5) * c.get_pixel_size();
+        let y_offset = (y as f64 + 0.5) * c.get_pixel_size();
 
         let world_x = c.get_half_width() - x_offset;
         let world_y = c.get_half_height() - y_offset;
+        // println!("no AA    (x/y) = ({}/{})  world_point = ({}/{})", x, y, world_x, world_y);
+
+        let p = Tuple4D::new_point(world_x, world_y, -1.0);
+
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+
+        let pixel = &camera_transform_inv * &p;
+        let mut origin = &camera_transform_inv * &o;
+        let mut direction = Tuple4D::normalize(&(&pixel - &origin));
+
+        // so the assert in Ray::new don't panic
+        origin.w = 1.0;
+        direction.w = 0.0;
+        Ray::new(origin, direction)
+    }
+
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, delta_x: f64, delta_y: f64) -> Ray {
+        let camera_transform_inv =
+            Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
+
+        let x_offset = (x as f64 + 0.5) * c.get_pixel_size();
+        let y_offset = (y as f64 + 0.5) * c.get_pixel_size();
+
+        let world_x_old = c.get_half_width() - x_offset;
+        let world_y_old = c.get_half_height() - y_offset;
+
+        let world_x = c.get_half_width() - x_offset + delta_x;
+        let world_y = c.get_half_height() - y_offset + delta_y;
+
+        //  println!("with AA    (x/y) = ({}/{})   world_point_old ({}/{})  world_point = ({}/{})     delta: ({}/{}) ", x, y, world_x_old, world_y_old, world_x, world_y, delta_x, delta_y);
 
         let p = Tuple4D::new_point(world_x, world_y, -1.0);
 
@@ -141,46 +172,57 @@ impl CameraOps for Camera {
 
     fn render(c: &Camera, w: &World) -> Canvas {
         //  https://computergraphics.stackexchange.com/questions/4248/how-is-anti-aliasing-implemented-in-ray-tracing
-        let jitter_matrix = vec![-1.0 / 4.0, 3.0 / 4.0,
-                                 3.0 / 4.0, 1.0 / 3.0,
-                                 -3.0 / 4.0, -1.0 / 4.0,
-                                 1.0 / 4.0, -3.0 / 4.0];
-        let n_samples = 4;
+        let n_samples = c.get_antialiasing_size();
+        let  mut jitter_matrix=Vec::new();
+        if n_samples == 2 {
+            jitter_matrix = vec![
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                -1.0 / 4.0,
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                -3.0 / 4.0,
+            ];
+        }
+
+        if n_samples == 3 {
+            let two_over_six = 2.0 / 6.0;
+            #[rustfmt::skip]
+                jitter_matrix = vec![-two_over_six,  two_over_six,      0.0, two_over_six,          two_over_six, two_over_six,
+                -two_over_six, 0.0,             0.0,   0.0,             two_over_six, 0.0,
+                -two_over_six, -two_over_six,       0.0, -two_over_six,             two_over_six,   -two_over_six,
+            ];
+        }
 
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
         for y in 0..c.get_vsize() {
             for x in 0..c.get_hsize() {
-                let r = Camera::ray_for_pixel(c, x as f64, y as f64);
-
-                let mut color = BLACK;
                 if c.get_antialiasing() {
-                    println!("with AA   render point ({}/{})", x, y);
+                    let mut color = BLACK;
 
-                    let max_w_h = c.get_hsize().max(c.get_vsize()) as f64;
-                    println!("with AA   max_w_h  {}    (width/ height) ({}/{})", max_w_h, c.get_vsize(),c.get_hsize());
-
+                    // Accumulate light for N samples.
                     for sample in 0..n_samples {
-                        let x_aa = 2.0 * (sample as f64 + jitter_matrix[2 * sample]) / max_w_h - 1.0;
-                        let y_aa = 2.0 * (sample as f64 + jitter_matrix[2 * sample + 1]) / max_w_h - 1.0;
+                        let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
+                        let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
 
-                        println!("with AA   render point ({}/{})          sampling point ({}/{})", x,y,x_aa, y_aa);
+                        let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
 
-                        let r = Camera::ray_for_pixel(&c, x_aa, y_aa);
                         color = color + World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     }
-
-                    // Get the average.
                     color = color / n_samples as f64;
-                    // color = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    canvas.write_pixel(x, y, color);
                 } else {
-                    println!("no AA   render point ({}/{})", x, y);
-                    let r = Camera::ray_for_pixel(&c, x as f64, y as f64);
-                    color = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    let r = Camera::ray_for_pixel(c, x, y);
+                    let color = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    // println!("no AA    color at ({}/{}): {:?}", x, y, color);
+                    canvas.write_pixel(x, y, color);
                 }
-                canvas.write_pixel(x, y, color);
             }
-
+            // println!("render line  {}", y);
         }
         canvas
     }
@@ -236,7 +278,7 @@ impl CameraOps for Camera {
         println!("DEBUG render point  {}/{}", x, y);
 
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
-        let r = Camera::ray_for_pixel(c, x  as f64, y  as f64);
+        let r = Camera::ray_for_pixel(c, x, y);
         let c = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
         if c.r != 0.0 || c.g != 0.0 || c.b != 0.0 {}
         canvas.write_pixel(x, y, c);

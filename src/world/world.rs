@@ -282,7 +282,7 @@ pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     let mut s1 = Sphere::new();
     s1.set_material(material1);
     s1.get_material_mut().set_pattern(pattern);
-// let shape1 = Shape::Sphere(s1);
+    // let shape1 = Shape::Sphere(s1);
     let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_refracted_color_page_158 sphere 1");
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
@@ -419,7 +419,7 @@ mod tests {
     fn test_color_at_intersection_behind_ray() {
         let mut w = default_world_empty();
 
-// add the two shapes from "default_word" but set the required propertys
+        // add the two shapes from "default_word" but set the required propertys
         let mut m = Material::new();
         m.set_color(Color::new(0.8, 1., 0.6));
         m.set_diffuse(0.7);
@@ -554,7 +554,7 @@ mod tests {
         let inner_shape = shapes.get_mut(1).unwrap();
         inner_shape.get_material_mut().set_ambient(1.0);
 
-// TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
+        // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
         let c_expected = inner_shape.get_material_mut().get_color().clone();
 
         let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -603,7 +603,7 @@ mod tests {
     fn test_material_precomputing_reflection_non_reflective_material() {
         let mut w = default_world_empty();
 
-// add the two shapes from "default_word" but set the required propertys
+        // add the two shapes from "default_word" but set the required propertys
         let mut m = Material::new();
         m.set_color(Color::new(0.8, 1., 0.6));
         m.set_diffuse(0.7);
@@ -661,8 +661,8 @@ mod tests {
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.190332201495133, 0.23791525186891627, 0.14274915112134975);
 
-// TODO: this fails - probably/hopefully because the is_shadowed method is broken
-// fix this, when the shadows work
+        // TODO: this fails - probably/hopefully because the is_shadowed method is broken
+        // fix this, when the shadows work
 
         println!("expected color    = {:?}", color_expected);
         println!("actual color      = {:?}", color);
@@ -696,8 +696,8 @@ mod tests {
         println!("expected color    = {:?}", color_expected);
         println!("actual color      = {:?}", color);
 
-// TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-// fix this, when the shadows work
+        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+        // fix this, when the shadows work
         assert_color(&color, &color_expected);
     }
 
@@ -756,8 +756,8 @@ mod tests {
         let color = World::reflected_color(&w, &comps, 0);
         let color_expected = Color::new(0., 0., 0.);
 
-// TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-// fix this, when the shadows work
+        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+        // fix this, when the shadows work
         assert_color(&color, &color_expected);
     }
 
@@ -820,7 +820,7 @@ mod tests {
     fn test_refracted_color_max_recursion() {
         let mut w = default_world_empty();
 
-// add the two shapes from "default_word" but set the required propertys
+        // add the two shapes from "default_word" but set the required propertys
         let mut m = Material::new();
         m.set_transparency(1.0);
         m.set_refractive_index(1.5);

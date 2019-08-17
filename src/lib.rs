@@ -1,3 +1,5 @@
+#![feature(stmt_expr_attributes)]
+
 pub mod basics;
 pub mod light;
 pub mod material;
