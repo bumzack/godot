@@ -1,6 +1,5 @@
 extern crate num_cpus;
 
-
 use std::error::Error;
 use std::f64::consts::PI;
 use std::sync::{Arc, Mutex};

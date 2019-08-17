@@ -5,6 +5,7 @@ use crate::shape::cube::{Cube, CubeOps};
 use crate::shape::cylinder::{Cylinder, CylinderOps};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::sphere::{Sphere, SphereOps};
+use crate::shape::triangle::{Triangle, TriangleOps};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ShapeEnum {
@@ -12,6 +13,7 @@ pub enum ShapeEnum {
     Plane(Plane),
     Cube(Cube),
     Cylinder(Cylinder),
+    Triangle(Triangle),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -31,6 +33,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Plane(ref plane) => plane.normal_at(p),
             ShapeEnum::Cube(ref cube) => cube.normal_at(p),
             ShapeEnum::Cylinder(ref cylinder) => Cylinder::normal_at(cylinder, p),
+            ShapeEnum::Triangle(ref triangle) => Triangle::normal_at(triangle, p),
         };
         res
     }
@@ -41,6 +44,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Plane(ref p) => p.get_material(),
             ShapeEnum::Cube(ref c) => c.get_material(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
+            ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
         };
         res
     }
@@ -51,6 +55,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Plane(ref mut p) => p.get_material_mut(),
             ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
             ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
+            ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
         };
         res
     }
@@ -61,6 +66,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Plane(ref p) => p.get_transformation(),
             ShapeEnum::Cube(ref c) => c.get_transformation(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_transformation(),
+            ShapeEnum::Triangle(ref triangle) => triangle.get_transformation(),
         };
         res
     }
@@ -71,6 +77,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Plane(ref p) => p.get_inverse_transformation(),
             ShapeEnum::Cube(ref c) => c.get_inverse_transformation(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_inverse_transformation(),
+            ShapeEnum::Triangle(ref triangle) => triangle.get_inverse_transformation(),
         };
         res
     }

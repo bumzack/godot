@@ -11,6 +11,7 @@ use crate::shape::cylinder::{Cylinder, CylinderOps};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::{Sphere, SphereOps};
+use crate::shape::triangle::{Triangle, TriangleOps};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
 
@@ -92,6 +93,20 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                         for i in r.iter() {
                             let i1 = Intersection::new(*i, shape);
                             intersection_list.add(i1);
+                        }
+                    }
+                    None => {}
+                }
+                intersection_list
+            }
+            ShapeEnum::Triangle(ref triangle) => {
+                let res = Triangle::intersect(triangle, &r2);
+                match res {
+                    Some(xs) => {
+                        // can be only 1  intersection, but ...
+                        for intersection in xs.iter() {
+                            let i = Intersection::new(*intersection, shape);
+                            intersection_list.add(i);
                         }
                     }
                     None => {}
