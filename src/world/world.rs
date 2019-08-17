@@ -14,6 +14,8 @@ use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::patterns::Pattern;
 use crate::patterns::stripe_patterns::StripePattern;
+use crate::shape::cylinder::{Cylinder, CylinderOps};
+use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::{Sphere, SphereOps};
 
@@ -43,6 +45,12 @@ pub trait WorldOps<'a> {
     fn is_shadowed(w: &World, p: &Tuple4D) -> bool;
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
+
+    fn add_floor(&mut self);
+
+    fn add_x_axis(&mut self);
+    fn add_y_axis(&mut self);
+    fn add_z_axis(&mut self);
 }
 
 impl<'a> WorldOps<'a> for World<'a> {
@@ -170,6 +178,58 @@ impl<'a> WorldOps<'a> for World<'a> {
 
         World::color_at(w, &refracted_ray, remaining - 1) * comp.get_object().get_material().get_transparency()
     }
+
+    fn add_floor(&mut self) {
+        let m_translate = Matrix::translation(0.0, -1.0, 0.0);
+        let m = m_translate;
+
+        let mut floor = Plane::new();
+        floor.set_transformation(m);
+
+        floor.get_material_mut().set_ambient(0.1);
+        floor.get_material_mut().set_shininess(0.1);
+        floor.get_material_mut().set_specular(0.1);
+
+        let mut floor_stripe_pattern = StripePattern::new();
+        floor_stripe_pattern.set_color_a(Color::new(1.0, 0.0, 0.0));
+        floor_stripe_pattern.set_color_b(Color::new(0.0, 0.0, 1.0));
+        let floor_stripe_pattern = Pattern::StripePattern(floor_stripe_pattern);
+        floor.get_material_mut().set_pattern(floor_stripe_pattern);
+
+        self.add_shape(Shape::new(ShapeEnum::Plane(floor), "floor"));
+    }
+
+    fn add_x_axis(&mut self) {
+        // TODO: just show a red cylinder, but no shadows   like Maya does :-)
+
+        let mut x_axis = Cylinder::new();
+        x_axis.set_minimum(0.0);
+        x_axis.set_maximum(1.0);
+        let m_scale = Matrix::scale(1.0, 0.5, 0.5);
+        let m_rot = Matrix::new_identity_4x4();
+        let m = m_scale * m_rot;
+        x_axis.set_transformation(m);
+
+        x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+        x_axis.get_material_mut().set_ambient(0.0);
+        x_axis.get_material_mut().set_diffuse(0.0);
+        x_axis.get_material_mut().set_specular(0.0);
+        x_axis.get_material_mut().set_shininess(0.0);
+        x_axis.get_material_mut().set_reflective(0.0);
+        x_axis.get_material_mut().set_transparency(0.0);
+        x_axis.get_material_mut().set_refractive_index(0.0);
+        self.add_shape(Shape::new(ShapeEnum::Cylinder(x_axis), "x axis"));
+    }
+
+    fn add_y_axis(&mut self) {
+        // TODO: just show a blue cylinder, but no shadows   like Maya does :-)
+        unimplemented!()
+    }
+
+    fn add_z_axis(&mut self) {
+        // TODO: just show a green cylinder, but no shadows   like Maya does :-)
+        unimplemented!()
+    }
 }
 
 pub fn default_world<'a>() -> World<'a> {
@@ -222,7 +282,7 @@ pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     let mut s1 = Sphere::new();
     s1.set_material(material1);
     s1.get_material_mut().set_pattern(pattern);
-    // let shape1 = Shape::Sphere(s1);
+// let shape1 = Shape::Sphere(s1);
     let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_refracted_color_page_158 sphere 1");
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
@@ -359,7 +419,7 @@ mod tests {
     fn test_color_at_intersection_behind_ray() {
         let mut w = default_world_empty();
 
-        // add the two shapes from "default_word" but set the required propertys
+// add the two shapes from "default_word" but set the required propertys
         let mut m = Material::new();
         m.set_color(Color::new(0.8, 1., 0.6));
         m.set_diffuse(0.7);
@@ -494,7 +554,7 @@ mod tests {
         let inner_shape = shapes.get_mut(1).unwrap();
         inner_shape.get_material_mut().set_ambient(1.0);
 
-        // TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
+// TODO: using clone() here so the borrow checker is happy. its a test -> so its ok
         let c_expected = inner_shape.get_material_mut().get_color().clone();
 
         let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -543,7 +603,7 @@ mod tests {
     fn test_material_precomputing_reflection_non_reflective_material() {
         let mut w = default_world_empty();
 
-        // add the two shapes from "default_word" but set the required propertys
+// add the two shapes from "default_word" but set the required propertys
         let mut m = Material::new();
         m.set_color(Color::new(0.8, 1., 0.6));
         m.set_diffuse(0.7);
@@ -601,8 +661,8 @@ mod tests {
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.190332201495133, 0.23791525186891627, 0.14274915112134975);
 
-        // TODO: this fails - probably/hopefully because the is_shadowed method is broken
-        // fix this, when the shadows work
+// TODO: this fails - probably/hopefully because the is_shadowed method is broken
+// fix this, when the shadows work
 
         println!("expected color    = {:?}", color_expected);
         println!("actual color      = {:?}", color);
@@ -636,8 +696,8 @@ mod tests {
         println!("expected color    = {:?}", color_expected);
         println!("actual color      = {:?}", color);
 
-        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-        // fix this, when the shadows work
+// TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+// fix this, when the shadows work
         assert_color(&color, &color_expected);
     }
 
@@ -696,8 +756,8 @@ mod tests {
         let color = World::reflected_color(&w, &comps, 0);
         let color_expected = Color::new(0., 0., 0.);
 
-        // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-        // fix this, when the shadows work
+// TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
+// fix this, when the shadows work
         assert_color(&color, &color_expected);
     }
 
@@ -760,7 +820,7 @@ mod tests {
     fn test_refracted_color_max_recursion() {
         let mut w = default_world_empty();
 
-        // add the two shapes from "default_word" but set the required propertys
+// add the two shapes from "default_word" but set the required propertys
         let mut m = Material::new();
         m.set_transparency(1.0);
         m.set_refractive_index(1.5);
