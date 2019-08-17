@@ -2,6 +2,7 @@
 
 extern crate num_cpus;
 
+use std::any::Any;
 use std::error::Error;
 use std::f64::consts::PI;
 use std::sync::{Arc, Mutex};
@@ -21,6 +22,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
     let height = 720;
 
+    let width = 12;
+    let height = 10;
     // single_core_tests(width, height);
 
     let antialiasing = true;
@@ -87,7 +90,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         children.push(thread::spawn(move || {
             let mut y: usize = 0;
 
-
             println!("camera height / width  {}/{}     thread_id {:?}", height, width, thread::current().id());
 
             while *cloned_act_y.lock().unwrap() < height {
@@ -120,10 +122,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                     canvas.write_pixel(x, y, color);
                 }
             }
+            thread::current().id()
         }));
     }
     for child in children {
-        println!("child finished {:?}", child.join().unwrap());
+        let dur = Instant::now() - start;
+         println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
     }
     let dur = Instant::now() - start;
     if camera.get_antialiasing() {
