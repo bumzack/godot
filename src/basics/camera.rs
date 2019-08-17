@@ -136,7 +136,7 @@ impl CameraOps for Camera {
         for y in 0..c.get_vsize() {
             for x in 0..c.get_hsize() {
                 let r = Camera::ray_for_pixel(c, x, y);
-                println!("render point  {}/{}", x, y);
+                // println!("render point  {}/{}", x, y);
                 let color = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
                 // TODO: wtf ?!
                 if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}

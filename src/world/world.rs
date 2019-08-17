@@ -128,7 +128,8 @@ impl<'a> WorldOps<'a> for World<'a> {
         let v = w.get_light().get_position() - p;
 
         let distance = Tuple4D::magnitude(&v);
-        let direction = Tuple4D::normalize(&v);
+        let mut direction = Tuple4D::normalize(&v);
+        direction.w = 0.0;
 
         let point = Tuple4D::new_point_from(&p);
         let r = Ray::new(point, direction);

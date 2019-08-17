@@ -3,7 +3,7 @@ use std::io::{Error, Write};
 
 use crate::basics::color::{Color, ColorOps};
 
-type ColorVec = Vec<Color>;
+pub type ColorVec = Vec<Color>;
 
 #[derive(Clone, Debug)]
 pub struct Canvas {
@@ -31,6 +31,10 @@ impl<'a> CanvasOps<'a> for Canvas {
     }
 
     fn write_pixel(&mut self, x: usize, y: usize, mut c: Color) {
+        // println!("write_pixel at {}/{},   width = {}, height = {}", x, y, self.width, self.height);
+        assert!(x < self.width);
+        assert!(y < self.height);
+
         // TODO: do the value clamping somewhere more appropiate
         if c.b > 1.0 {
             c.b = 1.0;
@@ -98,84 +102,6 @@ pub struct EnumeratePixels {
     y: u32,
     width: u32,
 }
-
-// see https://github.com/image-rs/image/src/buffer.rs
-//impl Iterator for EnumeratePixels {
-//    type Item = (u32, u32, Color);
-//
-//    fn next(&mut self) -> Option<(u32, u32, Color)> {
-//        if self.x >= self.width {
-//            self.x = 0;
-//            self.y += 1;
-//        }
-//        let (x, y) = (self.x, self.y);
-//        self.x += 1;
-//        self.pixels.next().map(|p| (x, y, p))
-//    }
-//}
-//
-//// https://stackoverflow.com/questions/30218886/how-to-implement-iterator-and-intoiterator-for-a-simple-struct
-//impl IntoIterator for Color {
-//    type Item = f64;
-//    type IntoIter = PixelIntoIterator;
-//
-//    fn into_iter(self) -> Self::IntoIter {
-//        PixelIntoIterator {
-//            pixel: self,
-//            index: 0,
-//        }
-//    }
-//}
-//
-//pub struct PixelIntoIterator {
-//    pixel: Color,
-//    index: usize,
-//}
-//
-//impl Iterator for PixelIntoIterator {
-//    type Item = f64;
-//    fn next(&mut self) -> Option<f64> {
-//        let result = match self.index {
-//            0 => self.pixel.r,
-//            1 => self.pixel.g,
-//            2 => self.pixel.b,
-//            _ => return None,
-//        };
-//        self.index += 1;
-//        Some(result)
-//    }
-//}
-//
-//impl<'a> IntoIterator for &'a Color {
-//    type Item = f64;
-//    type IntoIter = PixelIterator<'a>;
-//
-//    fn into_iter(self) -> Self::IntoIter {
-//        PixelIterator {
-//            pixel: self,
-//            index: 0,
-//        }
-//    }
-//}
-//
-//pub struct PixelIterator<'a> {
-//    pixel: &'a Color,
-//    index: usize,
-//}
-//
-//impl<'a> Iterator for PixelIterator<'a> {
-//    type Item = i8;
-//    fn next(&mut self) -> Option<f64> {
-//        let result = match self.index {
-//            0 => self.pixel.r,
-//            1 => self.pixel.g,
-//            2 => self.pixel.b,
-//            _ => return None,
-//        };
-//        self.index += 1;
-//        Some(result)
-//    }
-//}
 
 #[cfg(test)]
 mod tests {
