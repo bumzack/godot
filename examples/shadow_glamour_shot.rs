@@ -12,7 +12,7 @@ use std::time::Instant;
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge::basics::color::{BLACK, Color, ColorOps};
-use raytracer_challenge::light::light::Light;
+use raytracer_challenge::light::light::LightEnum;
 use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
@@ -217,7 +217,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let height = (160 as f32 * size_factor) as usize;
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 2.0, 4.0), Color::new(1.5, 1.5, 1.5));
-    let l = Light::PointLight(pl);
+    let l = LightEnum::PointLight(pl);
 
     // ---- CUBE -------
     let mut c = Cube::new();

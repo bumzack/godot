@@ -24,6 +24,32 @@ impl LightOps for PointLight {
     fn set_position(&mut self, pos: Tuple4D) {
         self.position = pos;
     }
+
+    fn get_uvec(&self) -> &Tuple4D {
+        unimplemented!()
+    }
+
+    fn get_vvec(&self) -> &Tuple4D {
+        unimplemented!()
+    }
+
+    fn get_samples(&self) -> usize {
+        unimplemented!()
+    }
+
+    fn get_corner(&self) -> &Tuple4D {
+        unimplemented!()
+    }
+
+    fn get_usteps(&self) -> usize {
+        unimplemented!()
+    }
+
+    fn get_vsteps(&self) -> usize {
+        unimplemented!()
+    }
+
+
 }
 
 impl PointLight {

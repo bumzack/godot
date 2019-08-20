@@ -9,7 +9,7 @@ use std::time::Instant;
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge::basics::color::{Color, ColorOps};
-use raytracer_challenge::light::light::Light;
+use raytracer_challenge::light::light::LightEnum;
 use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
@@ -106,7 +106,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn setup_world<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let l = Light::PointLight(pl);
+    let l = LightEnum::PointLight(pl);
 
     let mut w = World::new();
     w.set_light(l);

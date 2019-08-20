@@ -29,6 +29,29 @@ impl LightOps for AreaLight {
     fn set_position(&mut self, pos: Tuple4D) {
         self.position = pos;
     }
+
+    fn get_uvec(&self) -> &Tuple4D {
+        &self.uvec
+    }
+    fn get_vvec(&self) -> &Tuple4D {
+        &self.vvec
+    }
+
+    fn get_samples(&self) -> usize {
+        self.usteps * self.vsteps
+    }
+
+    fn get_corner(&self) -> &Tuple4D {
+        &self.corner
+    }
+
+    fn get_usteps(&self) -> usize {
+        unimplemented!()
+    }
+
+    fn get_vsteps(&self) -> usize {
+        unimplemented!()
+    }
 }
 
 impl AreaLight {
@@ -46,21 +69,6 @@ impl AreaLight {
             vsteps,
             intensity,
         }
-    }
-
-    pub fn get_uvec(&self) -> &Tuple4D {
-        &self.uvec
-    }
-    pub fn get_vvec(&self) -> &Tuple4D {
-        &self.vvec
-    }
-
-    pub fn get_samples(&self) -> usize {
-        self.usteps * self.vsteps
-    }
-
-    pub fn get_corner(&self) -> &Tuple4D {
-        &self.corner
     }
 }
 
