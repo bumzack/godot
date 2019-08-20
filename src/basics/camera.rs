@@ -173,7 +173,7 @@ impl CameraOps for Camera {
     fn render(c: &Camera, w: &World) -> Canvas {
         //  https://computergraphics.stackexchange.com/questions/4248/how-is-anti-aliasing-implemented-in-ray-tracing
         let n_samples = c.get_antialiasing_size();
-        let  mut jitter_matrix=Vec::new();
+        let mut jitter_matrix = Vec::new();
         if n_samples == 2 {
             jitter_matrix = vec![
                 -1.0 / 4.0,
@@ -190,9 +190,25 @@ impl CameraOps for Camera {
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
             #[rustfmt::skip]
-                jitter_matrix = vec![-two_over_six,  two_over_six,      0.0, two_over_six,          two_over_six, two_over_six,
-                -two_over_six, 0.0,             0.0,   0.0,             two_over_six, 0.0,
-                -two_over_six, -two_over_six,       0.0, -two_over_six,             two_over_six,   -two_over_six,
+                jitter_matrix = vec![
+                -two_over_six,
+                two_over_six,
+                0.0,
+                two_over_six,
+                two_over_six,
+                two_over_six,
+                -two_over_six,
+                0.0,
+                0.0,
+                0.0,
+                two_over_six,
+                0.0,
+                -two_over_six,
+                -two_over_six,
+                0.0,
+                -two_over_six,
+                two_over_six,
+                -two_over_six,
             ];
         }
 

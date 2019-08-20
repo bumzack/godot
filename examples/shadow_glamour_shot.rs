@@ -30,15 +30,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!(
-            "glamour_world_aliasing_size_{}_multi_core.ppm",
-            antialiasing_size
-        );
+        filename = format!("glamour_world_aliasing_size_{}_multi_core.ppm", antialiasing_size);
     } else {
-        filename = format!("test_no_anti_noaliasing_multi_core.ppm", );
+        filename = format!("test_no_anti_noaliasing_multi_core.ppm",);
     }
 
-   //  single_core_tests(size_factor);
+    //  single_core_tests(size_factor);
 
     if 1 == 1 {
         let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -75,9 +72,25 @@ fn main() -> Result<(), Box<dyn Error>> {
             if n_samples == 3 {
                 let two_over_six = 2.0 / 6.0;
                 #[rustfmt::skip]
-                    jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-                                         -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-                                         -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+                    jitter_matrix = vec![
+                    -two_over_six,
+                    two_over_six,
+                    0.0,
+                    two_over_six,
+                    two_over_six,
+                    two_over_six,
+                    -two_over_six,
+                    0.0,
+                    0.0,
+                    0.0,
+                    two_over_six,
+                    0.0,
+                    -two_over_six,
+                    -two_over_six,
+                    0.0,
+                    -two_over_six,
+                    two_over_six,
+                    -two_over_six,
                 ];
             }
 
@@ -92,7 +105,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             children.push(thread::spawn(move || {
                 let mut y: usize = 0;
 
-                println!("camera height / width  {}/{}     thread_id {:?}", height, width, thread::current().id());
+                println!(
+                    "camera height / width  {}/{}     thread_id {:?}",
+                    height,
+                    width,
+                    thread::current().id()
+                );
 
                 while *cloned_act_y.lock().unwrap() < height {
                     if y < height {
@@ -113,7 +131,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                             }
                             color = color / n_samples as f64;
-                            // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                         } else {
                             let r = Camera::ray_for_pixel(&c_clone, x, y);
                             color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -133,7 +151,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         let dur = Instant::now() - start;
         if camera.get_antialiasing() {
-            println!("multi core duration: {:?} with AA size = {}", dur, camera.get_antialiasing_size());
+            println!(
+                "multi core duration: {:?} with AA size = {}",
+                dur,
+                camera.get_antialiasing_size()
+            );
         } else {
             println!("multi core duration: {:?}, no AA", dur);
         }
@@ -144,22 +166,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-
 fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     // WITH AA 2x2
     let antialiasing = true;
     let antialiasing_size = 2;
     let filename;
     if antialiasing {
-        filename = format!(
-            "shadow_glamour_aliasing_size_{}.ppm",
-            antialiasing_size,
-        );
+        filename = format!("shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
     } else {
         filename = format!("shadow_glamour_aliasing_size_single_core.ppm");
     }
     let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-
 
     // single core
     let start = Instant::now();
@@ -168,15 +185,11 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
 
-
     // WITH AA 3x3
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!(
-            "shadow_glamour_aliasing_size_{}.ppm",
-            antialiasing_size,
-        );
+        filename = format!("shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
     } else {
         filename = format!("test_no_anti_aliasing.ppm");
     }
@@ -188,15 +201,11 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
 
-
     // old school no AA
     let antialiasing = false;
     let filename;
     if antialiasing {
-        filename = format!(
-            "test_with_anti_aliasing_size_{}_single_core.ppm",
-            antialiasing_size,
-        );
+        filename = format!("test_with_anti_aliasing_size_{}_single_core.ppm", antialiasing_size,);
     } else {
         filename = format!("shadow_glamour_NO_aliasing_size_single_size.ppm");
     }
@@ -211,8 +220,11 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-
-fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialiasing_size: usize) -> (World<'a>, Camera) {
+fn setup_world_shadow_glamour<'a>(
+    size_factor: f32,
+    antialiasing: bool,
+    antialiasing_size: usize,
+) -> (World<'a>, Camera) {
     let width = (400 as f32 * size_factor) as usize;
     let height = (160 as f32 * size_factor) as usize;
 
@@ -232,7 +244,6 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
 
     c.set_transformation(m);
     let cube = Shape::new(ShapeEnum::Cube(c), "cube");
-
 
     // ---- PLANE -------
     let mut plane = Plane::new();

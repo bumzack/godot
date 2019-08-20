@@ -402,7 +402,15 @@ mod tests {
         let material = w.get_shapes()[0].get_material();
         let s1 = &w.get_shapes()[0];
 
-        let result = Material::lightning(material, s1, w.get_light(), &point, &eye_vector, &normal_vector, intensity);
+        let result = Material::lightning(
+            material,
+            s1,
+            w.get_light(),
+            &point,
+            &eye_vector,
+            &normal_vector,
+            intensity,
+        );
 
         println!("result            {:?}", result);
         println!("expected_result   {:?}", expected_result);

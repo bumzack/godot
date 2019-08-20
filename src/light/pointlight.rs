@@ -48,8 +48,6 @@ impl LightOps for PointLight {
     fn get_vsteps(&self) -> usize {
         unimplemented!()
     }
-
-
 }
 
 impl PointLight {
