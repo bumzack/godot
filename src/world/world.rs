@@ -31,6 +31,7 @@ pub trait WorldOps<'a> {
     fn new() -> World<'a>;
     fn set_light(&mut self, light: Light);
     fn get_light(&self) -> &Light;
+    fn get_light_mut(&mut self) -> &mut Light;
 
     fn add_shape(&mut self, shape: Shape<'a>);
     fn get_shapes(&self) -> &Vec<Shape<'a>>;
@@ -42,8 +43,9 @@ pub trait WorldOps<'a> {
 
     fn reflected_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
-    fn is_shadowed(w: &World, p: &Tuple4D) -> bool;
+    fn is_shadowed(w: &World, light_position: &Tuple4D, position: &Tuple4D) -> bool;
 
+    fn intensity_at(light: &Light, point: &Tuple4D, world: &World) -> f64;
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
     fn add_floor(&mut self);
@@ -71,6 +73,10 @@ impl<'a> WorldOps<'a> for World<'a> {
         &self.light
     }
 
+    fn get_light_mut(&mut self) -> &mut Light {
+        &mut self.light
+    }
+
     fn add_shape(&mut self, shape: Shape<'a>) {
         self.shapes.push(shape);
     }
@@ -84,7 +90,8 @@ impl<'a> WorldOps<'a> for World<'a> {
     }
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
-        let in_shadow = World::is_shadowed(w, comp.get_over_point());
+        let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
+        let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
         let surface = Material::lightning(
             comp.get_object().get_material(),
             comp.get_object(),
@@ -92,7 +99,7 @@ impl<'a> WorldOps<'a> for World<'a> {
             comp.get_over_point(),
             comp.get_eye_vector(),
             comp.get_normal_vector(),
-            in_shadow,
+            intensity,
         );
         let reflected = World::reflected_color(w, comp, remaining);
         let refracted = World::refracted_color(w, comp, remaining);
@@ -132,14 +139,14 @@ impl<'a> WorldOps<'a> for World<'a> {
         &color * comp.get_object().get_material().get_reflective()
     }
 
-    fn is_shadowed(w: &World, p: &Tuple4D) -> bool {
-        let v = w.get_light().get_position() - p;
+    fn is_shadowed(w: &World, light_position: &Tuple4D, position: &Tuple4D) -> bool {
+        let v = light_position - position;
 
         let distance = Tuple4D::magnitude(&v);
         let mut direction = Tuple4D::normalize(&v);
         direction.w = 0.0;
 
-        let point = Tuple4D::new_point_from(&p);
+        let point = Tuple4D::new_point_from(&position);
         let r = Ray::new(point, direction);
 
         let intersections = Intersection::intersect_world(w, &r);
@@ -153,6 +160,13 @@ impl<'a> WorldOps<'a> for World<'a> {
             }
         }
         false
+    }
+
+    fn intensity_at(light: &Light, point: &Tuple4D, world: &World) -> f64 {
+        if Self::is_shadowed(world, light.get_position(), point) {
+            return 0.0;
+        }
+        1.0
     }
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
@@ -261,6 +275,40 @@ pub fn default_world<'a>() -> World<'a> {
     w
 }
 
+
+pub fn default_world_soft_shadows<'a>() -> World<'a> {
+    let mut w = World::new();
+
+    // w.get_light_mut().set_position(Tuple4D::new_point(0.0, 0.0, -10.0));
+    //w.get_light_mut().set_intensity(Color::new(1.0, 1.0, 1.0));
+
+    let light_pos = Tuple4D::new_point(0.0, 00., -10.0);
+    let light_intensity = Color::new(1.0, 1.0, 1.0);
+    let pl = PointLight::new(light_pos, light_intensity);
+    let light = Light::PointLight(pl);
+    w.set_light(light);
+
+    let mut m = Material::new();
+    m.set_ambient(0.1);
+    m.set_diffuse(0.9);
+    m.set_specular(0.0);
+    m.set_color(Color::new(1.0, 1.0, 1.0));
+
+    let mut s1 = Sphere::new();
+    s1.set_material(m);
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_ sphere 1");
+
+    let m = Matrix::scale(0.5, 0.5, 0.5);
+    let mut s2 = Sphere::new();
+    s2.set_transformation(m);
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_ sphere 2");
+
+    w.add_shape(shape1);
+    w.add_shape(shape2);
+
+    w
+}
+
 pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     let mut w = World::new();
 
@@ -314,7 +362,7 @@ pub fn default_world_empty<'a>() -> World<'a> {
 mod tests {
     use std::f64::consts::SQRT_2;
 
-    use crate::math::common::{assert_color, EPSILON};
+    use crate::math::common::{assert_color, assert_float, EPSILON};
     use crate::shape::plane::{Plane, PlaneOps};
     use crate::shape::sphere::glass_sphere;
 
@@ -567,7 +615,7 @@ mod tests {
     fn test_point_in_shadow_collinear() {
         let w = default_world();
         let p = Tuple4D::new_point(0.0, 10.0, 0.0);
-        let is_shadowed = World::is_shadowed(&w, &p);
+        let is_shadowed = World::is_shadowed(&w, w.get_light().get_position(), &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -576,7 +624,7 @@ mod tests {
     fn test_point_in_shadow_object_between_point_and_light() {
         let w = default_world();
         let p = Tuple4D::new_point(10.0, -10.0, 10.0);
-        let is_shadowed = World::is_shadowed(&w, &p);
+        let is_shadowed = World::is_shadowed(&w, w.get_light().get_position(), &p);
         assert_eq!(is_shadowed, true);
     }
 
@@ -585,7 +633,7 @@ mod tests {
     fn test_point_in_shadow_object_behind_light() {
         let w = default_world();
         let p = Tuple4D::new_point(-20.0, 20.0, -20.0);
-        let is_shadowed = World::is_shadowed(&w, &p);
+        let is_shadowed =  World::is_shadowed(&w, w.get_light().get_position(), &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -594,7 +642,7 @@ mod tests {
     fn test_point_in_shadow_object_behind_point() {
         let w = default_world();
         let p = Tuple4D::new_point(-2.0, 2.0, -2.0);
-        let is_shadowed = World::is_shadowed(&w, &p);
+        let is_shadowed =  World::is_shadowed(&w, w.get_light().get_position(), &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -962,5 +1010,65 @@ mod tests {
         println!("actual color      = {:?}", c);
 
         assert_color(&c, &c_expected);
+    }
+
+
+    // bonus: soft shadows // area light
+    fn test_area_lights_occlusion_between_2_points_helper(point: Tuple4D, expected_result: bool) {
+        let w = default_world();
+        let light_position = Tuple4D::new_point(-10.0, -10.0, -10.0);
+
+        let result = World::is_shadowed(&w, &light_position, &point);
+        assert_eq!(result, expected_result);
+    }
+
+    // occlusion between 2 points
+    #[test]
+    fn test_area_lights_occlusion_between_2_points() {
+        let point = Tuple4D::new_point(-10.0, -10.0, 10.0);
+        test_area_lights_occlusion_between_2_points_helper(point, false);
+
+        let point = Tuple4D::new_point(10.0, 10.0, 10.0);
+        test_area_lights_occlusion_between_2_points_helper(point, true);
+
+        let point = Tuple4D::new_point(-20.0, -20.0, 20.0);
+        test_area_lights_occlusion_between_2_points_helper(point, false);
+
+        let point = Tuple4D::new_point(-5.0, -5.0, -5.0);
+        test_area_lights_occlusion_between_2_points_helper(point, false);
+    }
+
+    // bonus: soft shadows // area light
+    fn test_area_lights_point_lights_evaluate_light_intensity_helper(point: Tuple4D, expected_result: f64) {
+        let w = default_world();
+        let light = w.get_light();
+
+        let result = World::intensity_at(light, &point, &w);
+        assert_float(result, expected_result);
+    }
+
+    // point lights evaluate light intensity
+    #[test]
+    fn test_area_lights_point_lights_evaluate_light_intensity() {
+        let point = Tuple4D::new_point(0.0, 1.0001, 0.0);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 1.0);
+
+        let point = Tuple4D::new_point(-1.0001, 0.0, 0.0);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 1.0);
+
+        let point = Tuple4D::new_point(0.0, 0.0, -1.0001);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 1.0);
+
+        let point = Tuple4D::new_point(0.0, 0.0, 1.0001);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+
+        let point = Tuple4D::new_point(1.0001, 0.0, 0.0);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+
+        let point = Tuple4D::new_point(0.0, -1.0001, 0.0);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+
+        let point = Tuple4D::new_point(0.0, 0.0, 0.0);
+        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
     }
 }

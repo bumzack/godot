@@ -9,7 +9,10 @@ pub enum Light {
 
 pub trait LightOps {
     fn get_intensity(&self) -> &Color;
+    fn set_intensity(&mut self, intensity: Color);
+
     fn get_position(&self) -> &Tuple4D;
+    fn set_position(&mut self, pos: Tuple4D);
 }
 
 impl LightOps for Light {
@@ -20,10 +23,22 @@ impl LightOps for Light {
         res
     }
 
+    fn set_intensity(&mut self, intensity: Color) {
+        let res = match self {
+            Light::PointLight(ref mut pl) => pl.set_intensity(intensity),
+        };
+    }
+
     fn get_position(&self) -> &Tuple4D {
         let res = match self {
             Light::PointLight(ref pl) => pl.get_position(),
         };
         res
+    }
+
+    fn set_position(&mut self, pos: Tuple4D) {
+        let res = match self {
+            Light::PointLight(ref mut pl) => pl.set_position(pos),
+        };
     }
 }

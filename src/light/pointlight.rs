@@ -13,8 +13,16 @@ impl LightOps for PointLight {
         &self.intensity
     }
 
+    fn set_intensity(&mut self, intensity: Color) {
+        self.intensity = intensity;
+    }
+
     fn get_position(&self) -> &Tuple4D {
         &self.position
+    }
+
+    fn set_position(&mut self, pos: Tuple4D) {
+        self.position = pos;
     }
 }
 

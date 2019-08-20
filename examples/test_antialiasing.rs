@@ -19,10 +19,10 @@ use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_challenge::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 1280;
-    let height = 720;
+    let width = 3840;
+    let height = 2160;
 
-    single_core_tests(width, height);
+    // single_core_tests(width, height);
 
     let antialiasing = true;
     let antialiasing_size = 2;
@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         filename = format!("test_no_anti_noaliasing_wxh_{}x{}_multi_core.ppm", width, height);
     }
 
-    let (world, camera) = setup_world(width, height, antialiasing, antialiasing_size);
+    let (world, camera) = setup_world_(width, height, antialiasing, antialiasing_size);
 
     let start = Instant::now();
     let num_cores = num_cpus::get();
