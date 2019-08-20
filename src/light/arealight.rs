@@ -46,11 +46,11 @@ impl LightOps for AreaLight {
     }
 
     fn get_usteps(&self) -> usize {
-        unimplemented!()
+        self.usteps
     }
 
     fn get_vsteps(&self) -> usize {
-        unimplemented!()
+        self.vsteps
     }
 }
 

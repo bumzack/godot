@@ -12,6 +12,7 @@ use std::time::Instant;
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge::light::arealight::AreaLight;
 use raytracer_challenge::light::light::LightEnum;
 use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
@@ -24,7 +25,7 @@ use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 2.0;
+    let size_factor = 1.0;
 
     let antialiasing = true;
     let antialiasing_size = 3;
@@ -216,8 +217,14 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let width = (400 as f32 * size_factor) as usize;
     let height = (160 as f32 * size_factor) as usize;
 
-    let pl = PointLight::new(Tuple4D::new_point(-1.0, 2.0, 4.0), Color::new(1.5, 1.5, 1.5));
-    let l = LightEnum::PointLight(pl);
+    let corner = Tuple4D::new_point(-1.0,2.0,4.0);
+    let uvec = Tuple4D::new_vector(2.0,0.0,0.0);
+    let vvec = Tuple4D::new_vector(0.0,2.0,0.0);
+    let usteps = 3;
+    let vsteps = 3;
+    let intensity = Color::new(1.5,1.5,1.5);
+    let area_light =AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity);
+    let area_light = LightEnum::AreaLight(area_light);
 
     // ---- CUBE -------
     let mut c = Cube::new();
@@ -273,7 +280,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let sphere2 = Shape::new(ShapeEnum::Sphere(sphere2), "sphere2");
 
     let mut w = World::new();
-    w.set_light(l);
+    w.set_light(area_light);
     w.add_shape(cube);
     w.add_shape(plane);
     w.add_shape(sphere1);
