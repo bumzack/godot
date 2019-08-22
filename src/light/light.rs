@@ -21,8 +21,8 @@ pub trait LightOps {
     fn get_samples(&self) -> usize;
     fn get_corner(&self) -> &Tuple4D;
 
-    fn get_usteps(&self)-> usize;
-    fn get_vsteps(&self)-> usize;
+    fn get_usteps(&self) -> usize;
+    fn get_vsteps(&self) -> usize;
 }
 
 impl LightOps for LightEnum {
@@ -58,24 +58,24 @@ impl LightOps for LightEnum {
 
     fn get_uvec(&self) -> &Tuple4D {
         let res = match self {
-            LightEnum::PointLight(ref   pl) => pl.get_uvec( ),
-            LightEnum::AreaLight(ref   pl) => pl.get_uvec( ),
+            LightEnum::PointLight(ref pl) => pl.get_uvec(),
+            LightEnum::AreaLight(ref pl) => pl.get_uvec(),
         };
         res
     }
 
-    fn get_vvec(&  self) -> &Tuple4D {
+    fn get_vvec(&self) -> &Tuple4D {
         let res = match self {
-            LightEnum::PointLight(ref   pl) => pl.get_vvec( ),
-            LightEnum::AreaLight(ref   pl) => pl.get_vvec( ),
+            LightEnum::PointLight(ref pl) => pl.get_vvec(),
+            LightEnum::AreaLight(ref pl) => pl.get_vvec(),
         };
         res
     }
 
     fn get_samples(&self) -> usize {
         let res = match self {
-            LightEnum::PointLight(ref   pl) => pl.get_samples( ),
-            LightEnum::AreaLight(ref   pl) => pl.get_samples( ),
+            LightEnum::PointLight(ref pl) => pl.get_samples(),
+            LightEnum::AreaLight(ref pl) => pl.get_samples(),
         };
         res
     }

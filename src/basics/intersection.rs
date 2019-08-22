@@ -253,7 +253,8 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
     fn add(&mut self, i: Intersection<'a>) {
         self.list_of_intersections.push(i);
         self.list_of_intersections
-            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal)); // expect("IntersectionListOps::add : cant unwrap"));
+            .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
+        // expect("IntersectionListOps::add : cant unwrap"));
     }
 
     fn hit(&self) -> Option<&Intersection<'a>> {

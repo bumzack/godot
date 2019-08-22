@@ -6,8 +6,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
 use crate::world::world::WorldOps;
+use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -173,7 +173,7 @@ impl CameraOps for Camera {
     fn render(c: &Camera, w: &World) -> Canvas {
         //  https://computergraphics.stackexchange.com/questions/4248/how-is-anti-aliasing-implemented-in-ray-tracing
         let n_samples = c.get_antialiasing_size();
-        let  mut jitter_matrix=Vec::new();
+        let mut jitter_matrix = Vec::new();
         if n_samples == 2 {
             jitter_matrix = vec![
                 -1.0 / 4.0,
@@ -190,9 +190,25 @@ impl CameraOps for Camera {
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
             #[rustfmt::skip]
-                jitter_matrix = vec![-two_over_six,  two_over_six,      0.0, two_over_six,          two_over_six, two_over_six,
-                -two_over_six, 0.0,             0.0,   0.0,             two_over_six, 0.0,
-                -two_over_six, -two_over_six,       0.0, -two_over_six,             two_over_six,   -two_over_six,
+                jitter_matrix = vec![
+                -two_over_six,
+                two_over_six,
+                0.0,
+                two_over_six,
+                two_over_six,
+                two_over_six,
+                -two_over_six,
+                0.0,
+                0.0,
+                0.0,
+                two_over_six,
+                0.0,
+                -two_over_six,
+                -two_over_six,
+                0.0,
+                -two_over_six,
+                two_over_six,
+                -two_over_six,
             ];
         }
 

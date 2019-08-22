@@ -1,6 +1,6 @@
-use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::BLACK;
 use crate::light::light::{LightEnum, LightOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
@@ -402,7 +402,15 @@ mod tests {
         let material = w.get_shapes()[0].get_material();
         let s1 = &w.get_shapes()[0];
 
-        let result = Material::lightning(material, s1, w.get_light(), &point, &eye_vector, &normal_vector, intensity);
+        let result = Material::lightning(
+            material,
+            s1,
+            w.get_light(),
+            &point,
+            &eye_vector,
+            &normal_vector,
+            intensity,
+        );
 
         println!("result            {:?}", result);
         println!("expected_result   {:?}", expected_result);

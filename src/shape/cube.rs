@@ -3,7 +3,7 @@ use std::f64::{INFINITY, NAN};
 use crate::basics::ray::{Ray, RayOps};
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
-use crate::math::common::{EPSILON, max_float, min_float};
+use crate::math::common::{max_float, min_float, EPSILON};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
