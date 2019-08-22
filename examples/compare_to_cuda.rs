@@ -22,16 +22,16 @@ use raytracer_challenge::shape::plane::Plane;
 use raytracer_challenge::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
+use raytracer_challenge::patterns::checker3d_patterns::Checker3DPattern;
+use raytracer_challenge::shape::cube::{Cube, CubeOps};
 
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 2.0;
-
     let width = 1280;
     let height = 780;
-    let filename = "compare_to_cuda.ppm";
+    let filename = "master_compare_to_cuda.ppm";
 
-    let (world,   camera) = setup_world(width, height);
+    let (world, camera) = setup_world(width, height);
 
     let start = Instant::now();
     let num_cores = num_cpus::get();
@@ -47,29 +47,29 @@ fn main() -> Result<(), Box<dyn Error>> {
     let act_y_mutex = Arc::new(Mutex::new(act_y));
 
     for _i in 0..num_cores {
-        let n_samples = camera.get_antialiasing_size();
-        let mut jitter_matrix = Vec::new();
-        if n_samples == 2 {
-            jitter_matrix = vec![
-                -1.0 / 4.0,
-                1.0 / 4.0,
-                1.0 / 4.0,
-                1.0 / 4.0,
-                -1.0 / 4.0,
-                -1.0 / 4.0,
-                1.0 / 4.0,
-                -3.0 / 4.0,
-            ];
-        }
-
-        if n_samples == 3 {
-            let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
-            ];
-        }
+        // let n_samples = camera.get_antialiasing_size();
+//        let mut jitter_matrix = Vec::new();
+//        if n_samples == 2 {
+//            jitter_matrix = vec![
+//                -1.0 / 4.0,
+//                1.0 / 4.0,
+//                1.0 / 4.0,
+//                1.0 / 4.0,
+//                -1.0 / 4.0,
+//                -1.0 / 4.0,
+//                1.0 / 4.0,
+//                -3.0 / 4.0,
+//            ];
+//        }
+//
+//        if n_samples == 3 {
+//            let two_over_six = 2.0 / 6.0;
+//            #[rustfmt::skip]
+//                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
+//                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
+//                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+//            ];
+//        }
 
         let cloned_data = Arc::clone(&data);
         let cloned_act_y = Arc::clone(&act_y_mutex);
@@ -92,23 +92,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 for x in 0..width {
                     let mut color = BLACK;
-                    if c_clone.get_antialiasing() {
-                        // Accumulate light for N samples.
-                        for sample in 0..n_samples {
-                            let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
-                            let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
-
-                            let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
-
-                            color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                        }
-                        color = color / n_samples as f64;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
-                    } else {
-                        let r = Camera::ray_for_pixel(&c_clone, x, y);
-                        color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                        // println!("no AA    color at ({}/{}): {:?}", x, y, color);
-                    }
+//                    if c_clone.get_antialiasing() {
+//                        // Accumulate light for N samples.
+//                        for sample in 0..n_samples {
+//                            let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
+//                            let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
+//
+//                            let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
+//
+//                            color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+//                        }
+//                        color = color / n_samples as f64;
+//                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+//                    } else {
+                    let r = Camera::ray_for_pixel(&c_clone, x, y);
+                    color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    // println!("no AA    color at ({}/{}): {:?}", x, y, color);
+//                    }
 
                     let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
@@ -122,7 +122,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
     }
     let dur = Instant::now() - start;
-    println!("multi core duration: {:?} with AA size = {}", dur, camera.get_antialiasing_size());
+    println!("multi core duration: {:?}  ", dur, );
 
     let c = data.lock().unwrap();
     c.write_ppm(filename)?;
@@ -131,79 +131,60 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 
-  fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
+fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
-    floor
-        .get_material_mut()
-        .set_color(Color::new(1.0, 0.9, 0.9));
+    floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     floor.get_material_mut().set_specular(0.0);
 
     let mut left_wall = Sphere::new();
     left_wall.set_transformation(
-        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0))
-            * &Matrix::rotate_x(PI / 2.0))
+        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.),
     );
-    left_wall
-        .get_material_mut()
-        .set_color(Color::new(1.0, 0.9, 0.9));
+    left_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     left_wall.get_material_mut().set_specular(0.0);
 
     let mut right_wall = Sphere::new();
     right_wall.set_transformation(
-        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0))
-            * &Matrix::rotate_x(PI / 2.0))
+        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.0),
     );
-    right_wall
-        .get_material_mut()
-        .set_color(Color::new(1.0, 0.9, 0.9));
+    right_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     right_wall.get_material_mut().set_specular(0.0);
 
     let mut middle = Sphere::new();
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
-    middle
-        .get_material_mut()
-        .set_color(Color::new(0.1, 1.0, 0.5));
+    middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
     middle.get_material_mut().set_diffuse(0.7);
     middle.get_material_mut().set_specular(0.3);
 
     let mut right = Sphere::new();
     right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
-    right
-        .get_material_mut()
-        .set_color(Color::new(0.5, 1.0, 0.1));
+    right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
     right.get_material_mut().set_diffuse(0.7);
     right.get_material_mut().set_specular(0.3);
 
     let mut left = Sphere::new();
-    left.set_transformation(
-        &Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333),
-    );
+    left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
     left.get_material_mut().set_color(Color::new(1.0, 0.8, 0.1));
     left.get_material_mut().set_diffuse(0.7);
     left.get_material_mut().set_specular(0.3);
 
-    let pl = PointLight::new(
-        Tuple4D::new_point(-10.0, 10.0, -10.0),
-        Color::new(1.0, 1.0, 1.0),
-    );
+    let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = LightEnum::PointLight(pl);
 
     let mut world = World::new();
     world.set_light(l);
-
     world.add_shape(Shape::new(ShapeEnum::Sphere(floor), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(middle), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right), "floor"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "left_wall"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "v"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
 
     let mut c = Camera::new(w, h, PI / 3.0);
-    c.set_antialiasing(true);
-    c.set_antialiasing_size(3);
+    c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -5.0),
@@ -213,5 +194,4 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     (world, c)
 }
-
 
