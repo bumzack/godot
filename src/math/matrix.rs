@@ -8,51 +8,51 @@ use crate::math::tuple4d::Tuple4D;
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
-    pub m: Vec<Vec<f64>>,
+    pub m: Vec<Vec<f32>>,
 }
 
 pub trait MatrixOps {
     fn new(row: usize, col: usize) -> Matrix;
 
-    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Matrix;
+    fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix;
 
-    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Matrix;
+    fn new_matrix_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix;
 
     fn new_matrix_4x4(
-        a1: f64,
-        b1: f64,
-        c1: f64,
-        d1: f64,
-        a2: f64,
-        b2: f64,
-        c2: f64,
-        d2: f64,
-        a3: f64,
-        b3: f64,
-        c3: f64,
-        d3: f64,
-        a4: f64,
-        b4: f64,
-        c4: f64,
-        d4: f64,
+        a1: f32,
+        b1: f32,
+        c1: f32,
+        d1: f32,
+        a2: f32,
+        b2: f32,
+        c2: f32,
+        d2: f32,
+        a3: f32,
+        b3: f32,
+        c3: f32,
+        d3: f32,
+        a4: f32,
+        b4: f32,
+        c4: f32,
+        d4: f32,
     ) -> Matrix;
 
     fn new_identity_4x4() -> Matrix;
     fn transpose(m: &Matrix) -> Matrix;
 
-    fn determinant(m: &Matrix) -> f64;
+    fn determinant(m: &Matrix) -> f32;
 
     fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix;
-    fn minor(m: &Matrix, row: usize, col: usize) -> f64;
-    fn cofactor(m: &Matrix, row: usize, col: usize) -> f64;
+    fn minor(m: &Matrix, row: usize, col: usize) -> f32;
+    fn cofactor(m: &Matrix, row: usize, col: usize) -> f32;
     fn invert(m: &Matrix) -> Option<Matrix>;
 
-    fn translation(tx: f64, ty: f64, tz: f64) -> Matrix;
-    fn scale(sx: f64, sy: f64, sz: f64) -> Matrix;
-    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix;
-    fn rotate_x(rad: f64) -> Matrix;
-    fn rotate_y(rad: f64) -> Matrix;
-    fn rotate_z(rad: f64) -> Matrix;
+    fn translation(tx: f32, ty: f32, tz: f32) -> Matrix;
+    fn scale(sx: f32, sy: f32, sz: f32) -> Matrix;
+    fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix;
+    fn rotate_x(rad: f32) -> Matrix;
+    fn rotate_y(rad: f32) -> Matrix;
+    fn rotate_z(rad: f32) -> Matrix;
 
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix;
 }
@@ -67,7 +67,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Matrix {
+    fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix {
         let mut m = Matrix {
             rows: 2,
             cols: 2,
@@ -82,7 +82,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Matrix {
+    fn new_matrix_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix {
         let mut m = Matrix {
             rows: 3,
             cols: 3,
@@ -103,22 +103,22 @@ impl MatrixOps for Matrix {
     }
 
     fn new_matrix_4x4(
-        a1: f64,
-        b1: f64,
-        c1: f64,
-        d1: f64,
-        a2: f64,
-        b2: f64,
-        c2: f64,
-        d2: f64,
-        a3: f64,
-        b3: f64,
-        c3: f64,
-        d3: f64,
-        a4: f64,
-        b4: f64,
-        c4: f64,
-        d4: f64,
+        a1: f32,
+        b1: f32,
+        c1: f32,
+        d1: f32,
+        a2: f32,
+        b2: f32,
+        c2: f32,
+        d2: f32,
+        a3: f32,
+        b3: f32,
+        c3: f32,
+        d3: f32,
+        a4: f32,
+        b4: f32,
+        c4: f32,
+        d4: f32,
     ) -> Matrix {
         let mut m = Matrix {
             rows: 4,
@@ -176,7 +176,7 @@ impl MatrixOps for Matrix {
         transpose
     }
 
-    fn determinant(m: &Matrix) -> f64 {
+    fn determinant(m: &Matrix) -> f32 {
         if m.rows == 2 {
             return m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0];
         } else if m.rows == 3 {
@@ -229,12 +229,12 @@ impl MatrixOps for Matrix {
         sub_matrix
     }
 
-    fn minor(m: &Matrix, row: usize, col: usize) -> f64 {
+    fn minor(m: &Matrix, row: usize, col: usize) -> f32 {
         let sub = Self::sub_matrix(m, row, col);
         Self::determinant(&sub)
     }
 
-    fn cofactor(m: &Matrix, row: usize, col: usize) -> f64 {
+    fn cofactor(m: &Matrix, row: usize, col: usize) -> f32 {
         let minor = Self::minor(m, row, col);
         if (row + col) % 2 != 0 && minor != 0.0 {
             return -minor;
@@ -262,7 +262,7 @@ impl MatrixOps for Matrix {
         Some(inv)
     }
 
-    fn translation(tx: f64, ty: f64, tz: f64) -> Matrix {
+    fn translation(tx: f32, ty: f32, tz: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][3] = tx;
         m.m[1][3] = ty;
@@ -271,7 +271,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn scale(sx: f64, sy: f64, sz: f64) -> Matrix {
+    fn scale(sx: f32, sy: f32, sz: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = sx;
         m.m[1][1] = sy;
@@ -280,7 +280,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
+    fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][1] = xy;
         m.m[0][2] = xz;
@@ -291,7 +291,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_x(rad: f64) -> Matrix {
+    fn rotate_x(rad: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[1][1] = rad.cos();
         m.m[1][2] = -rad.sin();
@@ -301,7 +301,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_y(rad: f64) -> Matrix {
+    fn rotate_y(rad: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = rad.cos();
         m.m[0][2] = rad.sin();
@@ -311,7 +311,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_z(rad: f64) -> Matrix {
+    fn rotate_z(rad: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = rad.cos();
         m.m[0][1] = -rad.sin();
@@ -364,7 +364,7 @@ impl Mul for Matrix {
 
         for row in 0..self.rows {
             for col in 0..self.cols {
-                let mut sum: f64 = 0.0;
+                let mut sum: f32 = 0.0;
 
                 // TODO: not a generic code for general matrix dimensions
                 for i in 0..self.cols {
@@ -387,7 +387,7 @@ impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
 
         for row in 0..self.rows {
             for col in 0..self.cols {
-                let mut sum: f64 = 0.0;
+                let mut sum: f32 = 0.0;
 
                 // TODO: not a generic code for general matrix dimensions
                 for i in 0..self.cols {
@@ -436,7 +436,7 @@ impl<'a, 'b> Mul<&'b Tuple4D> for &'a Matrix {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::{PI, SQRT_2};
+    use std::f32::consts::{PI, SQRT_2};
 
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
 
@@ -1022,7 +1022,7 @@ mod tests {
         let half = &half_quarter * &p;
         let full = &full_quarter * &p;
 
-        let sqrt2_half = 2.0_f64.sqrt() / 2.0;
+        let sqrt2_half = 2.0_f32.sqrt() / 2.0;
 
         assert_float(half.x, 0.0);
         assert_float(half.y, sqrt2_half);

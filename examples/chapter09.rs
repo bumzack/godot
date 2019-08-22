@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::CanvasOps;

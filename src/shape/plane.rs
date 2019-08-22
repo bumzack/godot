@@ -16,7 +16,7 @@ pub struct Plane {
 
 pub trait PlaneOps {
     fn new() -> Plane;
-    fn intersect(r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(r: &Ray) -> Option<Vec<f32>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -38,7 +38,7 @@ impl PlaneOps for Plane {
         }
     }
 
-    fn intersect(r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(r: &Ray) -> Option<Vec<f32>> {
         if r.direction.y.abs() < EPSILON {
             return None;
         }

@@ -15,7 +15,7 @@ pub struct Sphere {
 
 pub trait SphereOps {
     fn new() -> Sphere;
-    fn intersect(r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(r: &Ray) -> Option<Vec<f32>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -37,7 +37,7 @@ impl SphereOps for Sphere {
         }
     }
 
-    fn intersect(r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(r: &Ray) -> Option<Vec<f32>> {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let sphere_to_ray = &r.origin - &o;
         let a = &r.direction ^ &r.direction;
@@ -102,7 +102,7 @@ pub fn glass_sphere() -> Sphere {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+    use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
@@ -265,13 +265,13 @@ mod tests {
         let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
         assert_tuple(&n, &n_expected);
 
-        let a = 3_f64.sqrt() / 3.0;
+        let a = 3_f32.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
         let n = s.normal_at(&p);
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
 
-        let a = 3_f64.sqrt() / 3.0;
+        let a = 3_f32.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
         let n = Tuple4D::normalize(&s.normal_at(&p));
         let n_expected = Tuple4D::new_vector(a, a, a);
@@ -304,7 +304,7 @@ mod tests {
     }
 
     // page 152
-    fn test_helper_n1_n2_calculations(index: usize, n1_expected: f64, n2_expected: f64) {
+    fn test_helper_n1_n2_calculations(index: usize, n1_expected: f32, n2_expected: f32) {
         let mut a = glass_sphere();
         let m_a = Matrix::scale(2.0, 2.0, 2.0);
         a.set_transformation(m_a);

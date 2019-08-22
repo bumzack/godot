@@ -13,26 +13,26 @@ use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 pub struct Camera {
     hsize: usize,
     vsize: usize,
-    field_of_view: f64,
+    field_of_view: f32,
     transform: Matrix,
-    half_view: f64,
-    half_width: f64,
-    half_height: f64,
-    pixel_size: f64,
+    half_view: f32,
+    half_width: f32,
+    half_height: f32,
+    pixel_size: f32,
     antialiasing: bool,
     antialiasing_size: usize, // 2 or 3
 }
 
 pub trait CameraOps {
-    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera;
+    fn new(hsize: usize, vsize: usize, field_of_view: f32) -> Camera;
 
     fn get_hsize(&self) -> usize;
     fn get_vsize(&self) -> usize;
-    fn get_field_of_view(&self) -> f64;
+    fn get_field_of_view(&self) -> f32;
     fn get_transform(&self) -> &Matrix;
-    fn get_pixel_size(&self) -> f64;
-    fn get_half_width(&self) -> f64;
-    fn get_half_height(&self) -> f64;
+    fn get_pixel_size(&self) -> f32;
+    fn get_half_width(&self) -> f32;
+    fn get_half_height(&self) -> f32;
 
     fn set_antialiasing(&mut self, aa: bool);
     fn get_antialiasing(&self) -> bool;
@@ -45,7 +45,7 @@ pub trait CameraOps {
     fn set_transformation(&mut self, m: Matrix);
 
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
-    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, x_offset: f64, y_offset: f64) -> Ray;
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, x_offset: f32, y_offset: f32) -> Ray;
 
     fn render(c: &Camera, w: &World) -> Canvas;
     fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas;
@@ -53,7 +53,7 @@ pub trait CameraOps {
 }
 
 impl CameraOps for Camera {
-    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera {
+    fn new(hsize: usize, vsize: usize, field_of_view: f32) -> Camera {
         let c = Camera {
             hsize,
             vsize,
@@ -77,7 +77,7 @@ impl CameraOps for Camera {
         self.vsize
     }
 
-    fn get_field_of_view(&self) -> f64 {
+    fn get_field_of_view(&self) -> f32 {
         self.field_of_view
     }
 
@@ -87,7 +87,7 @@ impl CameraOps for Camera {
 
     fn calc_pixel_size(&mut self) {
         self.half_view = (self.field_of_view / 2.0).tan();
-        let aspect = self.hsize as f64 / (self.vsize as f64);
+        let aspect = self.hsize as f32 / (self.vsize as f32);
 
         if aspect >= 1.0 {
             self.half_width = self.half_view;
@@ -97,10 +97,10 @@ impl CameraOps for Camera {
             self.half_height = self.half_view;
         }
 
-        self.pixel_size = self.half_width * 2.0 / (self.hsize as f64);
+        self.pixel_size = self.half_width * 2.0 / (self.hsize as f32);
     }
 
-    fn get_pixel_size(&self) -> f64 {
+    fn get_pixel_size(&self) -> f32 {
         self.pixel_size
     }
 
@@ -112,8 +112,8 @@ impl CameraOps for Camera {
         let camera_transform_inv =
             Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
 
-        let x_offset = (x as f64 + 0.5) * c.get_pixel_size();
-        let y_offset = (y as f64 + 0.5) * c.get_pixel_size();
+        let x_offset = (x as f32 + 0.5) * c.get_pixel_size();
+        let y_offset = (y as f32 + 0.5) * c.get_pixel_size();
 
         let world_x = c.get_half_width() - x_offset;
         let world_y = c.get_half_height() - y_offset;
@@ -133,12 +133,12 @@ impl CameraOps for Camera {
         Ray::new(origin, direction)
     }
 
-    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, delta_x: f64, delta_y: f64) -> Ray {
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, delta_x: f32, delta_y: f32) -> Ray {
         let camera_transform_inv =
             Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
 
-        let x_offset = (x as f64 + 0.5) * c.get_pixel_size();
-        let y_offset = (y as f64 + 0.5) * c.get_pixel_size();
+        let x_offset = (x as f32 + 0.5) * c.get_pixel_size();
+        let y_offset = (y as f32 + 0.5) * c.get_pixel_size();
 
         let world_x_old = c.get_half_width() - x_offset;
         let world_y_old = c.get_half_height() - y_offset;
@@ -162,11 +162,11 @@ impl CameraOps for Camera {
         Ray::new(origin, direction)
     }
 
-    fn get_half_width(&self) -> f64 {
+    fn get_half_width(&self) -> f32 {
         self.half_width
     }
 
-    fn get_half_height(&self) -> f64 {
+    fn get_half_height(&self) -> f32 {
         self.half_height
     }
 
@@ -228,7 +228,7 @@ impl CameraOps for Camera {
 
                         color = color + World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     }
-                    color = color / n_samples as f64;
+                    color = color / n_samples as f32;
                     // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     canvas.write_pixel(x, y, color);
                 } else {
@@ -320,7 +320,7 @@ impl CameraOps for Camera {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::{PI, SQRT_2};
+    use std::f32::consts::{PI, SQRT_2};
 
     use crate::basics::color::{Color, ColorOps};
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};

@@ -23,7 +23,7 @@ pub struct Triangle {
 pub trait TriangleOps {
     fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle;
 
-    fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f32>>;
 
     fn set_transformation(&mut self, m: Matrix);
 
@@ -66,7 +66,7 @@ impl TriangleOps for Triangle {
         }
     }
 
-    fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f32>> {
         let mut res = Vec::new();
 
         let dir_cross_e2 = r.get_direction() * t.get_e2();

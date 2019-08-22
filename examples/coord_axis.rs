@@ -1,7 +1,7 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;

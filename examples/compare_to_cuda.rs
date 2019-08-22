@@ -3,7 +3,7 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -24,12 +24,14 @@ use raytracer_challenge::world::world::{World, WorldOps, MAX_REFLECTION_RECURSIO
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::patterns::checker3d_patterns::Checker3DPattern;
 use raytracer_challenge::shape::cube::{Cube, CubeOps};
+use raytracer_challenge::basics::ray::RayOps;
+use std::intrinsics::transmute;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 1280;
-    let height = 780;
-    let filename = "master_compare_to_cuda.ppm";
+    let width = 3840;
+    let height = 2160;
+    let filename = "compare_to_cuda.ppm";
 
     let (world, camera) = setup_world(width, height);
 
@@ -47,29 +49,29 @@ fn main() -> Result<(), Box<dyn Error>> {
     let act_y_mutex = Arc::new(Mutex::new(act_y));
 
     for _i in 0..num_cores {
-        // let n_samples = camera.get_antialiasing_size();
-//        let mut jitter_matrix = Vec::new();
-//        if n_samples == 2 {
-//            jitter_matrix = vec![
-//                -1.0 / 4.0,
-//                1.0 / 4.0,
-//                1.0 / 4.0,
-//                1.0 / 4.0,
-//                -1.0 / 4.0,
-//                -1.0 / 4.0,
-//                1.0 / 4.0,
-//                -3.0 / 4.0,
-//            ];
-//        }
-//
-//        if n_samples == 3 {
-//            let two_over_six = 2.0 / 6.0;
-//            #[rustfmt::skip]
-//                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-//                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-//                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
-//            ];
-//        }
+         let n_samples = camera.get_antialiasing_size();
+        let mut jitter_matrix = Vec::new();
+        if n_samples == 2 {
+            jitter_matrix = vec![
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                -1.0 / 4.0,
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                -3.0 / 4.0,
+            ];
+        }
+
+        if n_samples == 3 {
+            let two_over_six = 2.0 / 6.0;
+            #[rustfmt::skip]
+                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
+                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
+                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+            ];
+        }
 
         let cloned_data = Arc::clone(&data);
         let cloned_act_y = Arc::clone(&act_y_mutex);
@@ -92,23 +94,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 for x in 0..width {
                     let mut color = BLACK;
-//                    if c_clone.get_antialiasing() {
-//                        // Accumulate light for N samples.
-//                        for sample in 0..n_samples {
-//                            let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
-//                            let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
-//
-//                            let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
-//
-//                            color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//                        }
-//                        color = color / n_samples as f64;
-//                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
-//                    } else {
-                    let r = Camera::ray_for_pixel(&c_clone, x, y);
-                    color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                    // println!("no AA    color at ({}/{}): {:?}", x, y, color);
-//                    }
+                    if c_clone.get_antialiasing() {
+                        // Accumulate light for N samples.
+                        for sample in 0..n_samples {
+                            let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
+                            let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
+
+                            let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
+
+                            color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                        }
+                        color = color / n_samples as f32;
+                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    } else {
+                        let r = Camera::ray_for_pixel(&c_clone, x, y);
+                        color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    }
 
                     let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
@@ -185,6 +186,8 @@ fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
 
     let mut c = Camera::new(w, h, PI / 3.0);
     c.calc_pixel_size();
+    c.set_antialiasing(true);
+    c.set_antialiasing_size(3);
 
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -5.0),

@@ -1,4 +1,4 @@
-use std::f64::INFINITY;
+use std::f32::INFINITY;
 
 use crate::basics::ray::{Ray, RayOps};
 use crate::material::material::Material;
@@ -14,14 +14,14 @@ pub struct Cylinder {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
     material: Material,
-    minimum: f64,
-    maximum: f64,
+    minimum: f32,
+    maximum: f32,
     closed: bool,
 }
 
 pub trait CylinderOps {
     fn new() -> Cylinder;
-    fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f32>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -33,17 +33,17 @@ pub trait CylinderOps {
     fn get_material(&self) -> &Material;
     fn get_material_mut(&mut self) -> &mut Material;
 
-    fn get_minimum(&self) -> f64;
-    fn get_maximum(&self) -> f64;
+    fn get_minimum(&self) -> f32;
+    fn get_maximum(&self) -> f32;
 
-    fn set_minimum(&mut self, min: f64);
-    fn set_maximum(&mut self, max: f64);
+    fn set_minimum(&mut self, min: f32);
+    fn set_maximum(&mut self, max: f32);
 
     fn get_closed(&self) -> bool;
     fn set_closed(&mut self, closed: bool);
 
-    fn check_cap(r: &Ray, t: f64) -> bool;
-    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f64>);
+    fn check_cap(r: &Ray, t: f32) -> bool;
+    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>);
 }
 
 impl CylinderOps for Cylinder {
@@ -58,7 +58,7 @@ impl CylinderOps for Cylinder {
         }
     }
 
-    fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f32>> {
         let mut res = Vec::new();
 
         let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
@@ -128,19 +128,19 @@ impl CylinderOps for Cylinder {
         &mut self.material
     }
 
-    fn get_minimum(&self) -> f64 {
+    fn get_minimum(&self) -> f32 {
         self.minimum
     }
 
-    fn get_maximum(&self) -> f64 {
+    fn get_maximum(&self) -> f32 {
         self.maximum
     }
 
-    fn set_minimum(&mut self, min: f64) {
+    fn set_minimum(&mut self, min: f32) {
         self.minimum = min;
     }
 
-    fn set_maximum(&mut self, max: f64) {
+    fn set_maximum(&mut self, max: f32) {
         self.maximum = max;
     }
 
@@ -152,13 +152,13 @@ impl CylinderOps for Cylinder {
         self.closed = closed;
     }
 
-    fn check_cap(r: &Ray, t: f64) -> bool {
+    fn check_cap(r: &Ray, t: f32) -> bool {
         let x = r.get_origin().x + t * r.get_direction().x;
         let z = r.get_origin().z + t * r.get_direction().z;
         x.powi(2) + z.powi(2) <= 1.0
     }
 
-    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f64>) {
+    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>) {
         if !c.get_closed() || r.get_direction().y.abs() < EPSILON {
             return;
         }
@@ -212,7 +212,7 @@ mod tests {
     }
 
     // page 180
-    fn test_ray_cylinder_intersection_intersection_helper(origin: Tuple4D, mut direction: Tuple4D, t1: f64, t2: f64) {
+    fn test_ray_cylinder_intersection_intersection_helper(origin: Tuple4D, mut direction: Tuple4D, t1: f32, t2: f32) {
         let cyl = Cylinder::new();
 
         direction = Tuple4D::normalize(&direction);

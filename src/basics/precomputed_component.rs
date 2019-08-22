@@ -2,7 +2,7 @@ use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
 pub struct PrecomputedComponent<'a> {
-    t: f64,
+    t: f32,
     shape: &'a Shape<'a>,
     point: Tuple4D,
     over_point: Tuple4D,
@@ -11,13 +11,13 @@ pub struct PrecomputedComponent<'a> {
     normal_vector: Tuple4D,
     reflected_vector: Tuple4D,
     inside: bool,
-    n1: f64,
-    n2: f64,
+    n1: f32,
+    n2: f32,
 }
 
 impl<'a> PrecomputedComponent<'a> {
     pub fn new(
-        t: f64,
+        t: f32,
         shape: &'a Shape<'a>,
         point: Tuple4D,
         over_point: Tuple4D,
@@ -42,7 +42,7 @@ impl<'a> PrecomputedComponent<'a> {
         }
     }
 
-    pub fn get_t(&self) -> f64 {
+    pub fn get_t(&self) -> f32 {
         self.t
     }
 
@@ -78,19 +78,19 @@ impl<'a> PrecomputedComponent<'a> {
         &self.under_point
     }
 
-    pub fn get_n1(&self) -> f64 {
+    pub fn get_n1(&self) -> f32 {
         self.n1
     }
 
-    pub fn get_n2(&self) -> f64 {
+    pub fn get_n2(&self) -> f32 {
         self.n2
     }
 
-    pub fn set_n1(&mut self, n1: f64) {
+    pub fn set_n1(&mut self, n1: f32) {
         self.n1 = n1;
     }
 
-    pub fn set_n2(&mut self, n2: f64) {
+    pub fn set_n2(&mut self, n2: f32) {
         self.n2 = n2;
     }
 }

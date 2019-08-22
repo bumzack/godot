@@ -45,7 +45,7 @@ pub trait WorldOps<'a> {
 
     fn is_shadowed(w: &World, light_position: &Tuple4D, position: &Tuple4D) -> bool;
 
-    fn intensity_at(light: &LightEnum, point: &Tuple4D, world: &World) -> f64;
+    fn intensity_at(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
     fn point_on_light(light: &LightEnum, u: usize, v: usize) -> Tuple4D;
@@ -56,9 +56,9 @@ pub trait WorldOps<'a> {
     fn add_y_axis(&mut self);
     fn add_z_axis(&mut self);
 
-    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f64;
+    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
 
-    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f64;
+    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
 }
 
 impl<'a> WorldOps<'a> for World<'a> {
@@ -168,14 +168,14 @@ impl<'a> WorldOps<'a> for World<'a> {
         false
     }
 
-    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f64 {
+    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
         if Self::is_shadowed(world, light.get_position(), point) {
             return 0.0;
         }
         1.0
     }
 
-    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f64 {
+    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
         let mut total = 1.0;
 
         for v in 0..light.get_vsteps() - 1 {
@@ -190,7 +190,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         total
     }
 
-    fn intensity_at(light: &LightEnum, point: &Tuple4D, world: &World) -> f64 {
+    fn intensity_at(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
         let res = match light {
             LightEnum::PointLight(ref pl) => World::intensity_at_point_light(light, point, world),
             LightEnum::AreaLight(ref pl) => World::intensity_at_area_light(light, point, world),
@@ -199,7 +199,7 @@ impl<'a> WorldOps<'a> for World<'a> {
     }
 
     fn point_on_light(light: &LightEnum, u: usize, v: usize) -> Tuple4D {
-        light.get_corner() + &(&(light.get_uvec() * (u as f64 + 0.5)) + &(light.get_vvec() * (v as f64 + 0.5)))
+        light.get_corner() + &(&(light.get_uvec() * (u as f32 + 0.5)) + &(light.get_vvec() * (v as f32 + 0.5)))
     }
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
@@ -392,7 +392,7 @@ pub fn default_world_empty<'a>() -> World<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::SQRT_2;
+    use std::f32::consts::SQRT_2;
 
     use crate::light::arealight::AreaLight;
     use crate::math::common::{assert_color, assert_float, assert_tuple, EPSILON};
@@ -1071,7 +1071,7 @@ mod tests {
     }
 
     // bonus: soft shadows // area light
-    fn test_area_lights_point_lights_evaluate_light_intensity_helper(point: Tuple4D, expected_result: f64) {
+    fn test_area_lights_point_lights_evaluate_light_intensity_helper(point: Tuple4D, expected_result: f32) {
         let w = default_world();
         let light = w.get_light();
 
@@ -1105,7 +1105,7 @@ mod tests {
     }
 
     // bonus: soft shadows // area light find single point on light
-    fn test_area_lights_single_point_on_area_light_helper(u: f64, v: f64, expected_result: Tuple4D) {
+    fn test_area_lights_single_point_on_area_light_helper(u: f32, v: f32, expected_result: Tuple4D) {
         let corner = Tuple4D::new_point(0.0, 0.0, 0.0);
         let v1 = Tuple4D::new_vector(2.0, 0.0, 0.0);
         let v2 = Tuple4D::new_vector(0.0, 0.0, 1.0);
@@ -1142,7 +1142,7 @@ mod tests {
     }
 
     // bonus: soft shadows // area light find single point on light
-    fn test_area_lights_intensity_at_helper(point: Tuple4D, expected_result: f64) {
+    fn test_area_lights_intensity_at_helper(point: Tuple4D, expected_result: f32) {
         let w = default_world();
 
         let corner = Tuple4D::new_point(-0.5, -0.5, -5.0);

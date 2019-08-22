@@ -5,19 +5,19 @@ pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Color {
-    pub r: f64,
-    pub g: f64,
-    pub b: f64,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
 }
 
 pub trait ColorOps {
-    fn new(r: f64, g: f64, b: f64) -> Color;
+    fn new(r: f32, g: f32, b: f32) -> Color;
 
     fn from_color(c: &Color) -> Color;
 }
 
 impl ColorOps for Color {
-    fn new(r: f64, g: f64, b: f64) -> Color {
+    fn new(r: f32, g: f32, b: f32) -> Color {
         Color { r, g, b }
     }
 
@@ -86,10 +86,10 @@ impl Mul for Color {
     }
 }
 
-impl Mul<f64> for Color {
+impl Mul<f32> for Color {
     type Output = Color;
 
-    fn mul(self, rhs: f64) -> Color {
+    fn mul(self, rhs: f32) -> Color {
         Color {
             r: self.r * rhs,
             g: self.g * rhs,
@@ -98,10 +98,10 @@ impl Mul<f64> for Color {
     }
 }
 
-impl<'a> Mul<f64> for &'a Color {
+impl<'a> Mul<f32> for &'a Color {
     type Output = Color;
 
-    fn mul(self, rhs: f64) -> Color {
+    fn mul(self, rhs: f32) -> Color {
         Color {
             r: self.r * rhs,
             g: self.g * rhs,
@@ -122,10 +122,10 @@ impl<'a, 'b> Mul<&'b Color> for &'a Color {
     }
 }
 
-impl Div<f64> for Color {
+impl Div<f32> for Color {
     type Output = Color;
 
-    fn div(self, rhs: f64) -> Color {
+    fn div(self, rhs: f32) -> Color {
         Color {
             r: self.r / rhs,
             g: self.g / rhs,

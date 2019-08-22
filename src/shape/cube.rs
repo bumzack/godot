@@ -1,4 +1,4 @@
-use std::f64::{INFINITY, NAN};
+use std::f32::{INFINITY, NAN};
 
 use crate::basics::ray::{Ray, RayOps};
 use crate::material::material::Material;
@@ -18,7 +18,7 @@ pub struct Cube {
 
 pub trait CubeOps {
     fn new() -> Cube;
-    fn intersect(r: &Ray) -> Option<Vec<f64>>;
+    fn intersect(r: &Ray) -> Option<Vec<f32>>;
 
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
@@ -30,7 +30,7 @@ pub trait CubeOps {
     fn get_material(&self) -> &Material;
     fn get_material_mut(&mut self) -> &mut Material;
 
-    fn check_axis(origin: f64, direction: f64) -> (f64, f64);
+    fn check_axis(origin: f32, direction: f32) -> (f32, f32);
 }
 
 impl CubeOps for Cube {
@@ -42,7 +42,7 @@ impl CubeOps for Cube {
         }
     }
 
-    fn intersect(r: &Ray) -> Option<Vec<f64>> {
+    fn intersect(r: &Ray) -> Option<Vec<f32>> {
         let (xt_min, xt_max) = Self::check_axis(r.get_origin().x, r.get_direction().x);
         let (yt_min, yt_max) = Self::check_axis(r.get_origin().y, r.get_direction().y);
         let (zt_min, zt_max) = Self::check_axis(r.get_origin().z, r.get_direction().z);
@@ -105,7 +105,7 @@ impl CubeOps for Cube {
         &mut self.material
     }
 
-    fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
+    fn check_axis(origin: f32, direction: f32) -> (f32, f32) {
         let tmin_numerator = -1.0 - origin;
         let tmax_numerator = 1.0 - origin;
 
@@ -136,7 +136,7 @@ mod tests {
     use super::*;
 
     // page 168 helper
-    fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f64, t2: f64) {
+    fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f32, t2: f32) {
         let r = Ray::new(origin, direction);
 
         let c = Cube::new();

@@ -2,21 +2,21 @@ use std::ops::{Add, BitXor, Div, Mul, Sub};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Tuple4D {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-    pub w: f64,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
 pub trait Tuple {
-    fn magnitude(a: &Tuple4D) -> f64;
+    fn magnitude(a: &Tuple4D) -> f32;
     fn normalize(a: &Tuple4D) -> Tuple4D;
 
-    fn new_vector(x: f64, y: f64, z: f64) -> Tuple4D;
+    fn new_vector(x: f32, y: f32, z: f32) -> Tuple4D;
     fn new_vector_from(v: &Tuple4D) -> Tuple4D;
-    fn new_point(x: f64, y: f64, z: f64) -> Tuple4D;
+    fn new_point(x: f32, y: f32, z: f32) -> Tuple4D;
     fn new_point_from(v: &Tuple4D) -> Tuple4D;
-    fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple4D;
+    fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D;
     fn empty() -> Tuple4D;
 
     fn is_point(a: &Tuple4D) -> bool;
@@ -26,7 +26,7 @@ pub trait Tuple {
 }
 
 impl Tuple for Tuple4D {
-    fn magnitude(a: &Tuple4D) -> f64 {
+    fn magnitude(a: &Tuple4D) -> f32 {
         (a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w).sqrt()
     }
 
@@ -40,7 +40,7 @@ impl Tuple for Tuple4D {
         }
     }
 
-    fn new_vector(x: f64, y: f64, z: f64) -> Tuple4D {
+    fn new_vector(x: f32, y: f32, z: f32) -> Tuple4D {
         Tuple4D {
             x: x,
             y: y,
@@ -58,7 +58,7 @@ impl Tuple for Tuple4D {
         }
     }
 
-    fn new_point(x: f64, y: f64, z: f64) -> Tuple4D {
+    fn new_point(x: f32, y: f32, z: f32) -> Tuple4D {
         Tuple4D { x, y, z, w: 1.0 }
     }
 
@@ -71,7 +71,7 @@ impl Tuple for Tuple4D {
         }
     }
 
-    fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple4D {
+    fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D {
         Tuple4D { x, y, z, w }
     }
 
@@ -149,10 +149,10 @@ impl<'a, 'b> Sub<&'b Tuple4D> for &'a Tuple4D {
     }
 }
 
-impl Mul<f64> for Tuple4D {
+impl Mul<f32> for Tuple4D {
     type Output = Tuple4D;
 
-    fn mul(self, rhs: f64) -> Tuple4D {
+    fn mul(self, rhs: f32) -> Tuple4D {
         Tuple4D {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -162,10 +162,10 @@ impl Mul<f64> for Tuple4D {
     }
 }
 
-impl<'a> Mul<f64> for &'a Tuple4D {
+impl<'a> Mul<f32> for &'a Tuple4D {
     type Output = Tuple4D;
 
-    fn mul(self, rhs: f64) -> Tuple4D {
+    fn mul(self, rhs: f32) -> Tuple4D {
         Tuple4D {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -201,26 +201,26 @@ impl<'a, 'b> Mul<&'b Tuple4D> for &'a Tuple4D {
 
 // a ^ b
 impl BitXor for Tuple4D {
-    type Output = f64;
+    type Output = f32;
 
     // rhs is the "right-hand side" of the expression `a ^ b`
-    fn bitxor(self, rhs: Self) -> f64 {
+    fn bitxor(self, rhs: Self) -> f32 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
     }
 }
 
 impl<'a, 'b> BitXor<&'b Tuple4D> for &'a Tuple4D {
-    type Output = f64;
+    type Output = f32;
 
-    fn bitxor(self, rhs: &'b Tuple4D) -> f64 {
+    fn bitxor(self, rhs: &'b Tuple4D) -> f32 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
     }
 }
 
-impl Div<f64> for Tuple4D {
+impl Div<f32> for Tuple4D {
     type Output = Tuple4D;
 
-    fn div(self, rhs: f64) -> Tuple4D {
+    fn div(self, rhs: f32) -> Tuple4D {
         Tuple4D {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -230,10 +230,10 @@ impl Div<f64> for Tuple4D {
     }
 }
 
-impl<'a> Div<f64> for &'a Tuple4D {
+impl<'a> Div<f32> for &'a Tuple4D {
     type Output = Tuple4D;
 
-    fn div(self, rhs: f64) -> Tuple4D {
+    fn div(self, rhs: f32) -> Tuple4D {
         Tuple4D {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -248,10 +248,10 @@ impl Div<usize> for Tuple4D {
 
     fn div(self, rhs: usize) -> Tuple4D {
         Tuple4D {
-            x: self.x / rhs as f64,
-            y: self.y / rhs as f64,
-            z: self.z / rhs as f64,
-            w: self.w / rhs as f64,
+            x: self.x / rhs as f32,
+            y: self.y / rhs as f32,
+            z: self.z / rhs as f32,
+            w: self.w / rhs as f32,
         }
     }
 }
@@ -261,17 +261,17 @@ impl<'a> Div<usize> for &'a Tuple4D {
 
     fn div(self, rhs: usize) -> Tuple4D {
         Tuple4D {
-            x: self.x / rhs as f64,
-            y: self.y / rhs as f64,
-            z: self.z / rhs as f64,
-            w: self.w / rhs as f64,
+            x: self.x / rhs as f32,
+            y: self.y / rhs as f32,
+            z: self.z / rhs as f32,
+            w: self.w / rhs as f32,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::SQRT_2;
+    use std::f32::consts::SQRT_2;
 
     use crate::math::common::{assert_float, assert_tuple};
 
@@ -400,7 +400,7 @@ mod tests {
         let m = Tuple4D::magnitude(&v);
         assert_eq!(m, 1.);
 
-        let expected: f64 = 14.0;
+        let expected: f32 = 14.0;
 
         let v = Tuple4D::new_vector(1., 2., 3.);
         let m = Tuple4D::magnitude(&v);
@@ -420,7 +420,7 @@ mod tests {
         assert_float(n.z, 0.);
         Tuple4D::is_vector(&n);
 
-        let expected: f64 = 14.0;
+        let expected: f32 = 14.0;
 
         let v = Tuple4D::new_vector(1., 2., 3.);
         let n = Tuple4D::normalize(&v);
