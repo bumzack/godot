@@ -11,12 +11,12 @@ use std::time::Instant;
 
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge::light::light::LightEnum;
 use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_challenge::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 3840;
@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // single_core_tests(width, height);
 
     let antialiasing = true;
-    let antialiasing_size = 2;
+    let antialiasing_size = 3;
     let filename;
     if antialiasing {
         filename = format!(
@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         filename = format!("test_no_anti_noaliasing_wxh_{}x{}_multi_core.ppm", width, height);
     }
 
-    let (world, camera) = setup_world_(width, height, antialiasing, antialiasing_size);
+    let (world, camera) = setup_world(width, height, antialiasing, antialiasing_size);
 
     let start = Instant::now();
     let num_cores = num_cpus::get();
@@ -70,9 +70,25 @@ fn main() -> Result<(), Box<dyn Error>> {
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
             #[rustfmt::skip]
-                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+                jitter_matrix = vec![
+                -two_over_six,
+                two_over_six,
+                0.0,
+                two_over_six,
+                two_over_six,
+                two_over_six,
+                -two_over_six,
+                0.0,
+                0.0,
+                0.0,
+                two_over_six,
+                0.0,
+                -two_over_six,
+                -two_over_six,
+                0.0,
+                -two_over_six,
+                two_over_six,
+                -two_over_six,
             ];
         }
 
@@ -87,7 +103,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         children.push(thread::spawn(move || {
             let mut y: usize = 0;
 
-            println!("camera height / width  {}/{}     thread_id {:?}", height, width, thread::current().id());
+            println!(
+                "camera height / width  {}/{}     thread_id {:?}",
+                height,
+                width,
+                thread::current().id()
+            );
 
             while *cloned_act_y.lock().unwrap() < height {
                 if y < height {
@@ -108,7 +129,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f64;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -128,7 +149,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let dur = Instant::now() - start;
     if camera.get_antialiasing() {
-        println!("multi core duration: {:?} with AA size = {}", dur, camera.get_antialiasing_size());
+        println!(
+            "multi core duration: {:?} with AA size = {}",
+            dur,
+            camera.get_antialiasing_size()
+        );
     } else {
         println!("multi core duration: {:?}, no AA", dur);
     }
@@ -153,14 +178,12 @@ fn single_core_tests(width: usize, height: usize) -> Result<(), Box<dyn Error>> 
     }
     let (w, c) = setup_world(width, height, antialiasing, antialiasing_size);
 
-
     // single core
     let start = Instant::now();
     let canvas = Camera::render(&c, &w);
     canvas.write_ppm(filename.as_str())?;
     let dur = Instant::now() - start;
     println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
-
 
     // WITH AA 3x3
     let antialiasing_size = 3;
@@ -180,7 +203,6 @@ fn single_core_tests(width: usize, height: usize) -> Result<(), Box<dyn Error>> 
     canvas.write_ppm(filename.as_str())?;
     let dur = Instant::now() - start;
     println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
-
 
     // old school no AA
     let antialiasing = false;

@@ -18,7 +18,7 @@ use raytracer_challenge::patterns::patterns::Pattern;
 use raytracer_challenge::patterns::stripe_patterns::StripePattern;
 use raytracer_challenge::shape::plane::Plane;
 use raytracer_challenge::shape::shape::{Shape, ShapeEnum};
-use raytracer_challenge::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;

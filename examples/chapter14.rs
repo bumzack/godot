@@ -23,7 +23,7 @@ use raytracer_challenge::shape::cylinder::{Cylinder, CylinderOps};
 use raytracer_challenge::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
