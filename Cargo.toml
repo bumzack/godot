@@ -1,10 +1,13 @@
-[package]
-name = "raytracer-challenge"
-version = "0.1.0"
-authors = ["bumzack <bumzacktrara@gmail.com>"]
-edition = "2018"
+[workspace]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+members = [
+#    "cpu_kernel_raytracer",
+#    "cuda_kernel_raytracer",
+#    "raytracer",
+#    "raytracer_example",
+#    "raytracer_lib_no_std",
+#    "raytracer_lib_std",
+     "raytracer_challenge_reference_impl",
+    ]
 
-[dependencies]
-num_cpus = "1.10.1"
+
