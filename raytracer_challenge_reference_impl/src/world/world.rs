@@ -14,6 +14,7 @@ use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::patterns::Pattern;
 use crate::patterns::stripe_patterns::StripePattern;
+use crate::patterns::test_patterns::TestPattern;
 use crate::shape::cylinder::{Cylinder, CylinderOps};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::{Shape, ShapeEnum};
@@ -344,24 +345,24 @@ pub fn default_world_soft_shadows<'a>() -> World<'a> {
 pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     let mut w = World::new();
 
+
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = LightEnum::PointLight(pl);
     w.set_light(light);
 
+    let test_pattern: TestPattern = TestPattern::new();
+    let test_pattern = Pattern::TestPattern(test_pattern);
     let mut m1 = Material::new();
     m1.set_color(Color::new(0.8, 1.0, 0.6));
     m1.set_diffuse(0.7);
     m1.set_specular(0.2);
     m1.set_ambient(1.0);
+    m1.set_pattern(test_pattern);
 
-    let pattern = StripePattern::new();
-    let pattern = Pattern::StripePattern(pattern);
     let mut s1 = Sphere::new();
     s1.set_material(m1);
-    s1.get_material_mut().set_pattern(pattern);
-    // let shape1 = Shape::Sphere(s1);
     let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_refracted_color_page_158 sphere 1");
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
@@ -995,7 +996,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&xs.get_intersections()[2], &r, &xs);
 
         let c = World::refracted_color(&w, &comps, 5);
-        let c_expected = Color::new(0.0, 0.99888, 0.04725);
+        let c_expected = Color::new(0.0, 0.99887455, 0.047218975);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
