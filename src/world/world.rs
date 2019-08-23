@@ -181,7 +181,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         for v in 0..light.get_vsteps() - 1 {
             for u in 0..light.get_usteps() - 1 {
                 let light_position = World::point_on_light(light, u, v);
-                if !World::is_shadowed(world, &light_position,point) {
+                if !World::is_shadowed(world, &light_position, point) {
                     total += 1.0;
                 }
             }
