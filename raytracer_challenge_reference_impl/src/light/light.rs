@@ -2,6 +2,7 @@ use crate::basics::color::Color;
 use crate::light::arealight::AreaLight;
 use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple4D;
+use crate::world::world::World;
 
 #[derive(Clone, Debug)]
 pub enum LightEnum {
@@ -23,6 +24,10 @@ pub trait LightOps {
 
     fn get_usteps(&self) -> usize;
     fn get_vsteps(&self) -> usize;
+
+    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32;
+
+      fn point_on_light(&self, u: usize, v: usize) -> Tuple4D ;
 }
 
 impl LightOps for LightEnum {
@@ -100,6 +105,22 @@ impl LightOps for LightEnum {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_vsteps(),
             LightEnum::AreaLight(ref pl) => pl.get_vsteps(),
+        };
+        res
+    }
+
+    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
+        let res = match self {
+            LightEnum::PointLight(ref point_light) => point_light.intensity_at_point(point, world),
+            LightEnum::AreaLight(ref pl) => pl.intensity_at_point(point, world),
+        };
+        res
+    }
+
+    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+        let res = match self {
+            LightEnum::PointLight(ref point_light) => point_light.point_on_light(u, v),
+            LightEnum::AreaLight(ref area_light) => area_light.point_on_light(u, v),
         };
         res
     }

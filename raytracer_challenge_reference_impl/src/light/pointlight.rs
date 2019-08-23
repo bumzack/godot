@@ -1,11 +1,12 @@
 use crate::basics::color::Color;
 use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
+use crate::world::world::{World, WorldOps};
 
 #[derive(Clone, Debug)]
 pub struct PointLight {
-    pub position: Tuple4D,
-    pub intensity: Color,
+    position: Tuple4D,
+    intensity: Color,
 }
 
 impl LightOps for PointLight {
@@ -34,7 +35,7 @@ impl LightOps for PointLight {
     }
 
     fn get_samples(&self) -> usize {
-        unimplemented!()
+        1
     }
 
     fn get_corner(&self) -> &Tuple4D {
@@ -42,11 +43,23 @@ impl LightOps for PointLight {
     }
 
     fn get_usteps(&self) -> usize {
-        unimplemented!()
+        1
     }
 
     fn get_vsteps(&self) -> usize {
-        unimplemented!()
+        1
+    }
+
+    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
+        if World::is_shadowed(world, self.get_position(), point) {
+            return 0.0;
+        }
+        1.0
+    }
+
+    // TODO: clone :-(
+    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+        self.position.clone()
     }
 }
 

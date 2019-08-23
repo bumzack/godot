@@ -57,9 +57,9 @@ pub trait WorldOps<'a> {
     fn add_y_axis(&mut self);
     fn add_z_axis(&mut self);
 
-    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
-
-    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
+//    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
+//
+//    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
 }
 
 impl<'a> WorldOps<'a> for World<'a> {
@@ -169,40 +169,44 @@ impl<'a> WorldOps<'a> for World<'a> {
         false
     }
 
-    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
-        if Self::is_shadowed(world, light.get_position(), point) {
-            return 0.0;
-        }
-        1.0
-    }
+//    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
+//        if Self::is_shadowed(world, light.get_position(), point) {
+//            return 0.0;
+//        }
+//        1.0
+//    }
 
-    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
-        let mut total = 0.0;
-
-        println!("light.get_usteps()  = {:?}",light.get_usteps());
-        println!("light.get_vsteps()  = {:?}",light.get_vsteps());
-        for v in 0..light.get_vsteps()  {
-            for u in 0..light.get_usteps()  {
-                let light_position = World::point_on_light(light, u, v);
-                if !World::is_shadowed(world, &light_position, point) {
-                    total += 1.0;
-                }
-            }
-        }
-
-        total / light.get_samples() as f32
-    }
+//    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
+//        let mut total = 0.0;
+//
+//        println!("light.get_usteps()  = {:?}", light.get_usteps());
+//        println!("light.get_vsteps()  = {:?}", light.get_vsteps());
+//        for v in 0..light.get_vsteps() {
+//            for u in 0..light.get_usteps() {
+//                let light_position = World::point_on_light(light, u, v);
+//                if !World::is_shadowed(world, &light_position, point) {
+//                    total += 1.0;
+//                }
+//            }
+//        }
+//
+//        total / light.get_samples() as f32
+//    }
 
     fn intensity_at(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
         let res = match light {
-            LightEnum::PointLight(ref pl) => World::intensity_at_point_light(light, point, world),
-            LightEnum::AreaLight(ref pl) => World::intensity_at_area_light(light, point, world),
+            LightEnum::PointLight(ref point_light) => point_light.intensity_at_point(point, world),
+            LightEnum::AreaLight(ref area_light) => area_light.intensity_at_point(point, world),
         };
         res
     }
 
     fn point_on_light(light: &LightEnum, u: usize, v: usize) -> Tuple4D {
-        light.get_corner() + &(&(light.get_uvec() * (u as f32 + 0.5)) + &(light.get_vvec() * (v as f32 + 0.5)))
+        let res = match light {
+            LightEnum::PointLight(ref point_light) => point_light.point_on_light(u,v),
+            LightEnum::AreaLight(ref area_light) => area_light.point_on_light(u, v),
+        };
+        res
     }
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
@@ -281,6 +285,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         unimplemented!()
     }
 }
+
 
 pub fn default_world<'a>() -> World<'a> {
     let mut w = World::new();
@@ -1192,7 +1197,7 @@ mod tests {
         let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
         let light = LightEnum::AreaLight(arealight);
 
-        let result = World::point_on_light(&light, u as usize, v as usize);
+        let result = light.point_on_light( u as usize, v as usize);
         assert_tuple(&result, &expected_result);
     }
 
@@ -1233,7 +1238,7 @@ mod tests {
 
         let result = World::intensity_at(&light, &point, &w);
 
-        println!(  "expected result = {},    result = {}",  expected_result, result   );
+        println!("expected result = {},    result = {}", expected_result, result);
 
         assert_float(expected_result, result);
     }
@@ -1256,4 +1261,58 @@ mod tests {
         let point = Tuple4D::new_point(0.0, 0.0, -2.0);
         test_area_lights_intensity_at_helper(point, 1.0);
     }
+
+
+    // bonus: Scenario Outline: Finding a single point on a jittered area light
+    fn test_area_lights_find_point_on_jittered_area_light_helper(u: usize, v: usize, expected_result: Tuple4D) {
+        let w = default_world();
+
+        let corner = Tuple4D::new_point(0., 0., 0.0);
+        let v1 = Tuple4D::new_vector(2.0, 0.0, 0.0);
+        let v2 = Tuple4D::new_vector(0.0, 0.0, 1.0);
+
+        let usteps = 4;
+        let vsteps = 2;
+
+        let intensity = Color::new(1.0, 1.0, 1.0);
+
+        let sequence = vec![0.3, 0.7];
+        let mut arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+        // arealight.set_test_sequence(sequence);
+        let light = LightEnum::AreaLight(arealight);
+
+        let result = light.point_on_light( u, v);
+
+        println!("expected result   = {:?} ", expected_result);
+        println!("result            = {:?} ", result);
+
+        assert_tuple(&expected_result, &result);
+    }
+
+    // bonus: Scenario Outline: The area light intensity function
+    // TODO: thats not sooo easy. if we have a random nr sequence on an
+    // area light, that means that the lights has to be mutable and then
+    // we have to change that everywhere and borrowing becomes a PITA
+    // so no test
+    #[ignore]
+    #[test]
+    fn test_area_lights_find_point_on_jittered_area_light() {
+        let point = Tuple4D::new_point(0.15, 0.0, 0.35);
+        test_area_lights_find_point_on_jittered_area_light_helper(0, 0, point);
+
+        let point = Tuple4D::new_point(0.65, 0.0, 0.35);
+        test_area_lights_find_point_on_jittered_area_light_helper(1, 0, point);
+
+        let point = Tuple4D::new_point(0.15, 0.0, 0.85);
+        test_area_lights_find_point_on_jittered_area_light_helper(0, 1, point);
+
+        let point = Tuple4D::new_point(1.15, 0.0, 0.35);
+        test_area_lights_find_point_on_jittered_area_light_helper(2, 0, point);
+
+        let point = Tuple4D::new_point(1.65, 0.0, 0.85);
+        test_area_lights_find_point_on_jittered_area_light_helper(3, 1, point);
+    }
+
+    // TODO: implement mussing test  from http://www.raytracerchallenge.com/bonus/area-light.html
+    // Scenario Outline: The area light with jittered samples
 }

@@ -1,6 +1,11 @@
+extern crate rand;
+
+use rand::Rng;
+
 use crate::basics::color::Color;
 use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
+use crate::world::world::{World, WorldOps};
 
 #[derive(Clone, Debug)]
 pub struct AreaLight {
@@ -11,7 +16,9 @@ pub struct AreaLight {
     usteps: usize,
     vsteps: usize,
     intensity: Color,
+//    jitter_sequence: Sequence,
 }
+
 
 impl LightOps for AreaLight {
     fn get_intensity(&self) -> &Color {
@@ -52,6 +59,38 @@ impl LightOps for AreaLight {
     fn get_vsteps(&self) -> usize {
         self.vsteps
     }
+
+    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
+        let mut total = 0.0;
+
+        println!("light.get_usteps()  = {:?}", self.get_usteps());
+        println!("light.get_vsteps()  = {:?}", self.get_vsteps());
+        for v in 0..self.get_vsteps() {
+            for u in 0..self.get_usteps() {
+                let light_position = self.point_on_light(u, v);
+                if !World::is_shadowed(world, &light_position, point) {
+                    total += 1.0;
+                }
+            }
+        }
+
+        total / self.get_samples() as f32
+    }
+
+    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+        //TODO: can we store the points in the light and return a reference?
+        // than we would not have to clone in PointLight
+
+        // TODO: when the light is created, fill a Vec with jitter values and be done with it
+        let mut rng = rand::thread_rng();
+        let u_idx: f32 = u as f32 + rng.gen::<f32>();
+        let v_idx: f32 = v as f32 + rng.gen::<f32>();
+
+        let u_pos = self.get_uvec() * u_idx;
+        let v_pos = self.get_vvec() * v_idx;
+
+        self.get_corner() + &(u_pos + v_pos)
+    }
 }
 
 impl AreaLight {
@@ -68,9 +107,65 @@ impl AreaLight {
             usteps,
             vsteps,
             intensity,
+//            jitter_sequence: Sequence::new(usteps * vsteps),
         }
     }
+
+//    pub fn set_test_sequence(&mut self, d: Vec<f32>) {
+//        self.jitter_sequence.clear();
+//        for &elem in d.iter() {
+//            self.jitter_sequence.add(elem);
+//        }
+//    }
+
+//    pub fn next(&self) -> f32 {
+//        self.jitter_sequence.next()
+//    }
 }
+
+
+// Scenario: A number generator returns a cyclic sequence of numbers
+//
+//#[derive(Clone, Debug)]
+//struct Sequence {
+//    data: Vec<f32>,
+//    act_idx: usize,
+//}
+//
+//impl Sequence {
+//    fn new(cnt: usize) -> Sequence {
+//        let mut s = Sequence {
+//            data: Vec::new(),
+//            act_idx: 0,
+//        };
+//
+//        let mut rng = rand::thread_rng();
+//
+//        for &mut mut d in s.data.iter_mut() {
+//            d = rng.gen();
+//        }
+//
+//        s
+//    }
+//
+//    fn add(&mut self, elem: f32) {
+//        self.data.push(elem);
+//    }
+//
+//    fn next(&mut self) -> f32 {
+//        let elem = self.data[self.act_idx];
+//        self.act_idx += 1;
+//        if self.act_idx >= self.data.len() {
+//            self.act_idx = 0;
+//        }
+//        elem
+//    }
+//
+//    fn clear(&mut self) {
+//        self.data.clear();
+//    }
+//}
+
 
 #[cfg(test)]
 mod tests {
