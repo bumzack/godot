@@ -50,7 +50,7 @@ impl TestPattern {
     pub fn color_at_object(pattern: &TestPattern, shape: &Shape, world_point: &Tuple4D) -> Color {
         let object_point = shape.get_inverse_transformation() * world_point;
         let pattern_point = pattern.get_inverse_transformation() * &object_point;
-        Self::stripe_at(pattern, &pattern_point)
+        Color::new(pattern_point.x, pattern_point.y, pattern_point.z)
     }
 
     pub fn set_transformation(&mut self, m: Matrix) {
@@ -72,6 +72,7 @@ impl TestPattern {
 mod tests {
     use crate::math::common::{assert_color, assert_matrix};
     use crate::math::tuple4d::Tuple;
+    use crate::patterns::patterns::Pattern;
     use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::{Sphere, SphereOps};
 
@@ -96,5 +97,64 @@ mod tests {
         p.set_transformation(matrix_transformation);
 
         assert_matrix(&matrix_expected, p.get_transformation());
+    }
+
+    // page 134 / 1
+    #[test]
+    fn test_pattern_object_transformation() {
+        let mut shape = Sphere::new();
+        let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
+        shape.set_transformation(matrix_scale);
+        let shape = Shape::new(ShapeEnum::Sphere(shape), "sphere");
+
+        let mut p = TestPattern::new();
+
+        let p = Pattern::TestPattern(p);
+        let point = Tuple4D::new_point(2.0,3.0,4.0);
+        let c = p.color_at_object(&shape, &point);
+
+
+        let color_expected = Color::new(1.0,1.5,2.0);
+        println!("c = {:?},       c_expectet = {:?}",c , color_expected);
+        assert_color(&color_expected, &c);
+    }
+
+    // page 134 / 2
+    #[test]
+    fn test_pattern_pattern_transformation() {
+        let mut shape = Sphere::new();
+        let shape = Shape::new(ShapeEnum::Sphere(shape), "sphere");
+
+        let mut p = TestPattern::new();
+        let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
+        p.set_transformation(matrix_scale);
+
+        let p = Pattern::TestPattern(p);
+        let point = Tuple4D::new_point(2.0,3.0,4.0);
+        let c = p.color_at_object(&shape, &point);
+
+        let color_expected = Color::new(1.0,1.5,2.0);
+        assert_color(&color_expected, &c);
+    }
+
+
+    // page 134 / 3
+    #[test]
+    fn test_pattern_pattern_and_object_transformation() {
+        let mut shape = Sphere::new();
+        let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
+        shape.set_transformation(matrix_scale);
+        let shape = Shape::new(ShapeEnum::Sphere(shape), "sphere");
+
+        let mut p = TestPattern::new();
+        let matrix_translate = Matrix::translation(0.5, 1.0, 1.5);
+        p.set_transformation(matrix_translate);
+
+        let p = Pattern::TestPattern(p);
+        let point = Tuple4D::new_point(2.5,3.0,3.5);
+        let c = p.color_at_object(&shape, &point);
+
+        let color_expected = Color::new(0.75,0.5,0.25);
+        assert_color(&color_expected, &c);
     }
 }
