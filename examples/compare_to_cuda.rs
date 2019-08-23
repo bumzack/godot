@@ -31,6 +31,10 @@ use std::intrinsics::transmute;
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 3840;
     let height = 2160;
+
+    let width = 800;
+    let height = 600;
+
     let filename = "compare_to_cuda.ppm";
 
     let (world, camera) = setup_world(width, height);
