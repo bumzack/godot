@@ -112,10 +112,10 @@ impl<'a> WorldOps<'a> for World<'a> {
         let refracted = World::refracted_color(w, comp, remaining);
 
         let material = comp.get_object().get_material();
-//        if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
-//            let reflectance = Intersection::schlick(comp);
-//            return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
-//        }
+        if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
+            let reflectance = Intersection::schlick(comp);
+            return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
+        }
         &surface + &(&reflected + &refracted)
     }
 

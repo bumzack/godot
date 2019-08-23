@@ -248,7 +248,7 @@ mod tests {
         // 3
         let origin = Tuple4D::new_point(0.5, 0.0, -5.0);
         let direction = Tuple4D::new_vector(0.1, 1.0, 1.0);
-        test_ray_cylinder_intersection_intersection_helper(origin, direction, 6.80798, 7.08872);
+        test_ray_cylinder_intersection_intersection_helper(origin, direction, 6.808006, 7.0886984);
     }
 
     // page 181
