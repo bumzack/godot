@@ -350,17 +350,16 @@ pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     let light = LightEnum::PointLight(pl);
     w.set_light(light);
 
-    let mut material1 = Material::new();
-    material1.set_color(Color::new(0.8, 1.0, 0.6));
-    material1.set_diffuse(0.7);
-    material1.set_specular(0.2);
-
-    material1.set_ambient(1.0);
+    let mut m1 = Material::new();
+    m1.set_color(Color::new(0.8, 1.0, 0.6));
+    m1.set_diffuse(0.7);
+    m1.set_specular(0.2);
+    m1.set_ambient(1.0);
 
     let pattern = StripePattern::new();
     let pattern = Pattern::StripePattern(pattern);
     let mut s1 = Sphere::new();
-    s1.set_material(material1);
+    s1.set_material(m1);
     s1.get_material_mut().set_pattern(pattern);
     // let shape1 = Shape::Sphere(s1);
     let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_refracted_color_page_158 sphere 1");

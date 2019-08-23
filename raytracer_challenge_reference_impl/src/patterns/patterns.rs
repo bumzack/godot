@@ -61,6 +61,3 @@ impl Pattern {
         res
     }
 }
-
-#[cfg(test)]
-mod tests {}
