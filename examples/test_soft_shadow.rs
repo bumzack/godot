@@ -20,7 +20,7 @@ use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 0.5;
+    let size_factor = 2.0;
 
     let antialiasing = true;
     let antialiasing_size = 3;
@@ -163,13 +163,13 @@ fn setup_world_shadow_glamour<'a>(
     antialiasing_size: usize,
 ) -> (World<'a>, Camera) {
     let width = (400 as f32 * size_factor) as usize;
-    let height = (160 as f32 * size_factor) as usize;
+    let height = (400 as f32 * size_factor) as usize;
 
     let corner = Tuple4D::new_point(-1.0, 2.0, 4.0);
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
     let vvec = Tuple4D::new_vector(0.0, 2.0, 0.0);
-    let usteps = 3;
-    let vsteps = 3;
+    let usteps = 10;
+    let vsteps = 10;
     let intensity = Color::new(1.5, 1.5, 1.5);
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity);
     let area_light = LightEnum::AreaLight(area_light);
@@ -200,9 +200,10 @@ fn setup_world_shadow_glamour<'a>(
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
     sphere1.get_material_mut().set_color(Color::new(1.0, 0., 0.));
-    sphere1.get_material_mut().set_ambient(1.0);
-    sphere1.get_material_mut().set_diffuse(0.0);
+    sphere1.get_material_mut().set_ambient(0.1);
+    sphere1.get_material_mut().set_diffuse(0.6);
     sphere1.get_material_mut().set_specular(0.0);
+    sphere1.get_material_mut().set_reflective(0.3);
 
     let m_trans = Matrix::translation(0.5, 0.5, 0.0);
     let m_scale = Matrix::scale(0.5, 0.5, 0.5);
@@ -213,7 +214,7 @@ fn setup_world_shadow_glamour<'a>(
 
     // ---- SPHERE 2 -------
     let mut sphere2 = Sphere::new();
-    sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.5));
+    sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
     sphere2.get_material_mut().set_ambient(0.1);
     sphere2.get_material_mut().set_diffuse(0.6);
     sphere2.get_material_mut().set_specular(0.0);
@@ -233,13 +234,14 @@ fn setup_world_shadow_glamour<'a>(
     w.add_shape(sphere1);
     w.add_shape(sphere2);
 
-    let mut c = Camera::new(width, height, 0.78540);
+    // 0.78540
+    let mut c = Camera::new(width, height, 0.80);
     c.set_antialiasing(antialiasing);
     c.set_antialiasing_size(antialiasing_size);
 
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(-3.0, 1., -2.5),
+        &Tuple4D::new_point(-3.0, 1., 2.5),
         &Tuple4D::new_point(0.0, 0.5, 0.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
     ));

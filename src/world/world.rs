@@ -181,7 +181,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         for v in 0..light.get_vsteps() - 1 {
             for u in 0..light.get_usteps() - 1 {
                 let light_position = World::point_on_light(light, u, v);
-                if !World::is_shadowed(world, point, &light_position) {
+                if !World::is_shadowed(world, &light_position,point) {
                     total += 1.0;
                 }
             }
@@ -1063,7 +1063,7 @@ mod tests {
         let point = Tuple4D::new_point(10.0, 10.0, 10.0);
         test_area_lights_occlusion_between_2_points_helper(point, true);
 
-        let point = Tuple4D::new_point(-20.0, -20.0, 20.0);
+        let point = Tuple4D::new_point(-20.0, -20.0, -20.0);
         test_area_lights_occlusion_between_2_points_helper(point, false);
 
         let point = Tuple4D::new_point(-5.0, -5.0, -5.0);

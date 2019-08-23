@@ -114,7 +114,7 @@ impl MaterialOps for Material {
                 specular = light.get_intensity() * material.specular * factor;
             }
         }
-        if intensity == 0.0 {
+        if intensity == 1.0 {
             ambient + diffuse * intensity + specular * intensity
         } else {
             ambient
