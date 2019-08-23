@@ -127,6 +127,9 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         }
         res.get_intersections_mut()
             .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
+
+        // println!("intersect_world   res = {:?}", res);
+
         res
     }
 
@@ -169,35 +172,35 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             inside,
         );
 
-        let mut container: Vec<&'a Shape<'a>> = Vec::new();
-
-        for i in list.get_intersections().iter() {
-            if i == intersection {
-                if container.is_empty() {
-                    comp.set_n1(1.0);
-                } else {
-                    let last = container.last().unwrap();
-                    comp.set_n1(last.get_material().get_refractive_index());
-                }
-            }
-
-            if container.contains(&comp.get_object()) {
-                let index = container.iter().position(|&shape| shape == comp.get_object()).unwrap();
-                container.remove(index);
-            } else {
-                container.push(i.get_shape());
-            }
-
-            if i == intersection {
-                if container.is_empty() {
-                    comp.set_n2(1.0);
-                } else {
-                    let last = container.last().unwrap();
-                    comp.set_n2(last.get_material().get_refractive_index());
-                }
-                break;
-            }
-        }
+//        let mut container: Vec<&'a Shape<'a>> = Vec::new();
+//
+//        for i in list.get_intersections().iter() {
+//            if i == intersection {
+//                if container.is_empty() {
+//                    comp.set_n1(1.0);
+//                } else {
+//                    let last = container.last().unwrap();
+//                    comp.set_n1(last.get_material().get_refractive_index());
+//                }
+//            }
+//
+//            if container.contains(&comp.get_object()) {
+//                let index = container.iter().position(|&shape| shape == comp.get_object()).unwrap();
+//                container.remove(index);
+//            } else {
+//                container.push(i.get_shape());
+//            }
+//
+//            if i == intersection {
+//                if container.is_empty() {
+//                    comp.set_n2(1.0);
+//                } else {
+//                    let last = container.last().unwrap();
+//                    comp.set_n2(last.get_material().get_refractive_index());
+//                }
+//                break;
+//            }
+//        }
         comp
     }
 

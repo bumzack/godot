@@ -96,7 +96,7 @@ impl<'a> WorldOps<'a> for World<'a> {
     }
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
-        let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
+        // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
         let surface = Material::lightning(
             comp.get_object().get_material(),
