@@ -1,0 +1,14 @@
+[package]
+name = "raytracer_lib_no_std"
+version = "0.1.0"
+authors = ["bumzack"]
+edition = "2018"
+
+[dependencies]
+rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" }
+rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" }
+
+
+# only needed for tests
+[dev-dependencies]
+cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }

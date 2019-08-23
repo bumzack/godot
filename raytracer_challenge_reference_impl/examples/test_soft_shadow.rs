@@ -1,3 +1,5 @@
+#![feature(stmt_expr_attributes)]
+
 extern crate num_cpus;
 
 use std::error::Error;
@@ -20,15 +22,15 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 0.6;
+    let size_factor = 1.;
 
     let antialiasing = true;
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!("glamour_world_aliasing_size_{}_multi_core.ppm", antialiasing_size);
+        filename = format!("ref_impl_test_soft_shadow_aa_size_{}_multi_core.ppm", antialiasing_size);
     } else {
-        filename = format!("test_no_anti_noaliasing_multi_core.ppm",);
+        filename = format!("ref_impl_test_soft_shadow_multi_core.ppm",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);

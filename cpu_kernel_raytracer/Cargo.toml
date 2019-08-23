@@ -1,0 +1,8 @@
+[package]
+name = "cpu_kernel_raytracer"
+version = "0.1.0"
+authors = ["bumzack"]
+edition = "2018"
+
+[dependencies]
+raytracer_lib_no_std = {path = "../raytracer_lib_no_std" }

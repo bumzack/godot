@@ -1,12 +1,12 @@
 [workspace]
 
 members = [
-#    "cpu_kernel_raytracer",
-#    "cuda_kernel_raytracer",
-#    "raytracer",
-#    "raytracer_example",
-#    "raytracer_lib_no_std",
-#    "raytracer_lib_std",
+    "cpu_kernel_raytracer",
+    "cuda_kernel_raytracer",
+    "raytracer",
+    "raytracer_example",
+    "raytracer_lib_no_std",
+    "raytracer_lib_std",
      "raytracer_challenge_reference_impl",
     ]
 
