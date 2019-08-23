@@ -1,3 +1,5 @@
+use core::fmt;
+
 use crate::material::material::Material;
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
@@ -16,7 +18,7 @@ pub enum ShapeEnum {
     Triangle(Triangle),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Shape<'a> {
     shape: ShapeEnum,
     name: &'a str,
@@ -88,5 +90,11 @@ impl<'a> Shape<'a> {
 
     pub fn get_name(&self) -> &'a str {
         &self.name
+    }
+}
+
+impl<'a> fmt::Debug for Shape<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "shape type = {:?},   name = {:?}", self.shape, self.name)
     }
 }

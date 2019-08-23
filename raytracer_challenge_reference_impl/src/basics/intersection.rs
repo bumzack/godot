@@ -172,35 +172,59 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             inside,
         );
 
-//        let mut container: Vec<&'a Shape<'a>> = Vec::new();
-//
-//        for i in list.get_intersections().iter() {
-//            if i == intersection {
-//                if container.is_empty() {
-//                    comp.set_n1(1.0);
-//                } else {
-//                    let last = container.last().unwrap();
-//                    comp.set_n1(last.get_material().get_refractive_index());
-//                }
-//            }
-//
-//            if container.contains(&comp.get_object()) {
-//                let index = container.iter().position(|&shape| shape == comp.get_object()).unwrap();
-//                container.remove(index);
-//            } else {
-//                container.push(i.get_shape());
-//            }
-//
-//            if i == intersection {
-//                if container.is_empty() {
-//                    comp.set_n2(1.0);
-//                } else {
-//                    let last = container.last().unwrap();
-//                    comp.set_n2(last.get_material().get_refractive_index());
-//                }
-//                break;
-//            }
-//        }
+        let mut container: Vec<&'a Shape<'a>> = Vec::new();
+
+        //println!("all intersections:  {:?}", list.get_intersections());
+        //println!("intersection :  {:?}", intersection);
+
+        for i in list.get_intersections().iter() {
+
+            println!("NEXT ITERATION");
+            println!(" i = {:?}", i);
+            println!("container  begin for    {:?}",container);
+
+            println!("");
+            println!("");
+            println!("");
+            if i == intersection {
+                // println!("i == intersection");
+                if container.is_empty() {
+                    comp.set_n1(1.0);
+                } else {
+                    let last = container.last().unwrap();
+                    println!("set n1  to last =  {:?}\n",last);
+
+                    comp.set_n1(last.get_material().get_refractive_index());
+                }
+            }
+
+            println!("container     {:?}",container);
+            println!("looking for shape :  {:?}", i.get_shape());
+            if container.contains(&i.get_shape()) {
+                println!("");
+                println!("container  contains the shape          BEFORE   {:?}",container);
+                 let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
+                // println!("remove index     {:}",index);
+                container.remove(index);
+                // println!("container   AFTER      {:?}",container);
+            } else {
+                println!("");
+                println!("container   DOES NOT contain the shape - adding it  {:?}",container);
+                container.push(i.get_shape());
+                println!("container   after PUSH        {:?}",container);
+            }
+
+            if i == intersection {
+                if container.is_empty() {
+                    comp.set_n2(1.0);
+                } else {
+                    let last = container.last().unwrap();
+                    println!("\nset n2  to last =  {:?}\n",last);
+                    comp.set_n2(last.get_material().get_refractive_index());
+                }
+                break;
+            }
+        }
         comp
     }
 
@@ -222,13 +246,13 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
 impl<'a> PartialEq for Intersection<'a> {
     fn eq(&self, other: &Self) -> bool {
-        self.t == other.t && self.shape == other.shape
+        self.shape == other.shape && self.t == other.t
     }
 }
 
 impl<'a> fmt::Debug for Intersection<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "is shape t = {}", self.t)
+        writeln!(f, "is shape t = {},   shape = {:?}", self.t, self.shape)
     }
 }
 
