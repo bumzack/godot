@@ -30,9 +30,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!("glamour_world_aliasing_size_{}_multi_core.ppm", antialiasing_size);
+        filename = format!("ref_impl_glamour_world_aliasing_size_{}_multi_core.ppm", antialiasing_size);
     } else {
-        filename = format!("test_no_anti_noaliasing_multi_core.ppm",);
+        filename = format!("ref_impl_test_no_anti_noaliasing_multi_core.ppm",);
     }
 
     //  single_core_tests(size_factor);
@@ -172,9 +172,9 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 2;
     let filename;
     if antialiasing {
-        filename = format!("shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
+        filename = format!("ref_impl_shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
     } else {
-        filename = format!("shadow_glamour_aliasing_size_single_core.ppm");
+        filename = format!("ref_impl_shadow_glamour_aliasing_size_single_core.ppm");
     }
     let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
 
@@ -189,9 +189,9 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!("shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
+        filename = format!("ref_impl_shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
     } else {
-        filename = format!("test_no_anti_aliasing.ppm");
+        filename = format!("ref_impl_test_no_anti_aliasing.ppm");
     }
     let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     // single core
@@ -205,9 +205,9 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     let antialiasing = false;
     let filename;
     if antialiasing {
-        filename = format!("test_with_anti_aliasing_size_{}_single_core.ppm", antialiasing_size,);
+        filename = format!("ref_impl_test_with_anti_aliasing_size_{}_single_core.ppm", antialiasing_size,);
     } else {
-        filename = format!("shadow_glamour_NO_aliasing_size_single_size.ppm");
+        filename = format!("ref_impl_shadow_glamour_NO_aliasing_size_single_size.ppm");
     }
     let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     // single core
