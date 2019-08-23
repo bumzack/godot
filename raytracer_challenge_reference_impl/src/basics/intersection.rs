@@ -179,39 +179,28 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
         for i in list.get_intersections().iter() {
 
-            println!("NEXT ITERATION");
-            println!(" i = {:?}", i);
-            println!("container  begin for    {:?}",container);
-
-            println!("");
-            println!("");
-            println!("");
+//            println!("NEXT ITERATION");
+//            println!(" i = {:?}", i);
+//            println!("container  begin for    {:?}",container);
+//
             if i == intersection {
                 // println!("i == intersection");
                 if container.is_empty() {
                     comp.set_n1(1.0);
                 } else {
                     let last = container.last().unwrap();
-                    println!("set n1  to last =  {:?}\n",last);
 
                     comp.set_n1(last.get_material().get_refractive_index());
                 }
             }
 
-            println!("container     {:?}",container);
-            println!("looking for shape :  {:?}", i.get_shape());
             if container.contains(&i.get_shape()) {
-                println!("");
-                println!("container  contains the shape          BEFORE   {:?}",container);
                  let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
                 // println!("remove index     {:}",index);
                 container.remove(index);
                 // println!("container   AFTER      {:?}",container);
             } else {
-                println!("");
-                println!("container   DOES NOT contain the shape - adding it  {:?}",container);
                 container.push(i.get_shape());
-                println!("container   after PUSH        {:?}",container);
             }
 
             if i == intersection {
@@ -219,7 +208,6 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     comp.set_n2(1.0);
                 } else {
                     let last = container.last().unwrap();
-                    println!("\nset n2  to last =  {:?}\n",last);
                     comp.set_n2(last.get_material().get_refractive_index());
                 }
                 break;

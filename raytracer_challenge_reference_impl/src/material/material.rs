@@ -1,6 +1,6 @@
+use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
 use crate::light::light::{LightEnum, LightOps};
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
@@ -300,7 +300,11 @@ mod tests {
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
         let result = Material::lightning(&m, &dummy_obj, &LightEnum::PointLight(l), &p, &eye_v, &normal_v, 1.0);
-        let result_expected = Color::new(1.6363961030678928, 1.6363961030678928, 1.6363961030678928);
+        let result_expected = Color::new(1.6363853, 1.6363853, 1.6363853);
+
+        println!("result = {:?}",result);
+        println!("result_Expected = {:?}",result_expected);
+
         assert_color(&result, &result_expected);
     }
 

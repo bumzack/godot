@@ -359,9 +359,9 @@ mod tests {
     // page 152
     #[test]
     fn test_n1_n2_calculations() {
-//        test_helper_n1_n2_calculations(0, 1.0, 1.5);
-//        test_helper_n1_n2_calculations(1, 1.5, 2.0);
-//        test_helper_n1_n2_calculations(2, 2.0, 2.5);
+        test_helper_n1_n2_calculations(0, 1.0, 1.5);
+        test_helper_n1_n2_calculations(1, 1.5, 2.0);
+        test_helper_n1_n2_calculations(2, 2.0, 2.5);
 
         test_helper_n1_n2_calculations(3, 2.5, 2.5);
 
