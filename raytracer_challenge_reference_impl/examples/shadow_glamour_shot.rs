@@ -21,7 +21,7 @@ use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
 use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
+use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let size_factor = 2.0;
@@ -239,9 +239,11 @@ fn setup_world_shadow_glamour<'a>(
     c.get_material_mut().set_specular(0.0);
 
     let m_trans = Matrix::translation(0.0, 3.0, 4.0);
-    let m_scale = Matrix::scale(1.0, 1.0, 0.001);
+    let m_scale = Matrix::scale(1.0, 1.0, 0.01);
     let m = &m_trans * &m_scale;
 
+    // TODO: shadow false
+    // c.set_shadow(false);
     c.set_transformation(m);
     let cube = Shape::new(ShapeEnum::Cube(c), "cube");
 
@@ -257,9 +259,10 @@ fn setup_world_shadow_glamour<'a>(
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
     sphere1.get_material_mut().set_color(Color::new(1.0, 0., 0.));
-    sphere1.get_material_mut().set_ambient(1.0);
-    sphere1.get_material_mut().set_diffuse(0.0);
+    sphere1.get_material_mut().set_ambient(0.1);
+    sphere1.get_material_mut().set_diffuse(0.6);
     sphere1.get_material_mut().set_specular(0.0);
+    sphere1.get_material_mut().set_reflective(0.3);
 
     let m_trans = Matrix::translation(0.5, 0.5, 0.0);
     let m_scale = Matrix::scale(0.5, 0.5, 0.5);
@@ -270,7 +273,7 @@ fn setup_world_shadow_glamour<'a>(
 
     // ---- SPHERE 2 -------
     let mut sphere2 = Sphere::new();
-    sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.5));
+    sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
     sphere2.get_material_mut().set_ambient(0.1);
     sphere2.get_material_mut().set_diffuse(0.6);
     sphere2.get_material_mut().set_specular(0.0);
@@ -296,7 +299,7 @@ fn setup_world_shadow_glamour<'a>(
 
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(-3.0, 1., -2.5),
+        &Tuple4D::new_point(-3.0, 1., 2.5),
         &Tuple4D::new_point(0.0, 0.5, 0.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
     ));

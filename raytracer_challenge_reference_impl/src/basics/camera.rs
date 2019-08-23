@@ -6,8 +6,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
 use crate::world::world::WorldOps;
-use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -381,7 +381,14 @@ mod tests {
 
         let r = Camera::ray_for_pixel(&c, 0, 0);
         let origin_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let direction_expected = Tuple4D::new_vector(0.66519, 0.33259, -0.66851);
+        let direction_expected = Tuple4D::new_vector(0.6651864, 0.33259323, -0.66851234);
+
+        println!("origin            = {:?}", &r.get_origin());
+        println!("origin_expected   = {:?}", origin_expected);
+
+        println!("direction             = {:?}", &r.get_direction());
+        println!("direction_expected    = {:?}", direction_expected);
+
 
         assert_tuple(&r.get_origin(), &origin_expected);
         assert_tuple(&r.get_direction(), &direction_expected);
@@ -422,7 +429,10 @@ mod tests {
 
         let image = Camera::render(&c, &w);
         let color = image.pixel_at(5, 5);
-        let c_expected = Color::new(0.38066, 0.47583, 0.2855);
+        let c_expected = Color::new(0.3806612, 0.47582647, 0.2854959);
+
+        println!("color          = {:?}", color);
+        println!("c_expected     = {:?}", c_expected);
         assert_color(color, &c_expected);
     }
 

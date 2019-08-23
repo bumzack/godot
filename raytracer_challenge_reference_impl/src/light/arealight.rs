@@ -80,6 +80,7 @@ mod tests {
 
     use super::*;
 
+    // bonus chapter:   Scenario: Creating an area light
     #[test]
     fn test_arealight_new() {
         let corner = Tuple4D::new_point(0.0, 0.0, 0.0);

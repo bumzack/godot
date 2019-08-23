@@ -307,7 +307,10 @@ mod tests {
 
         let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
         let n = s.normal_at(&p);
-        let n_expected = Tuple4D::new_vector(0.0, 0.97014, -0.24254);
+        let n_expected = Tuple4D::new_vector(0.0, 0.97014254, -0.24253564);
+
+        println!("n = {:?}   ", n);
+        println!("   n_expected = {:?}",  n_expected);
 
         assert_tuple(&n, &n_expected);
     }

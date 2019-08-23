@@ -784,9 +784,16 @@ mod tests {
 
         let b = Matrix::invert(&a).unwrap();
 
+        println!("b = {:?}", b );
+
         let det_a = Matrix::determinant(&a);
         let cofactor_a1 = Matrix::cofactor(&a, 2, 3);
         let cofactor_a2 = Matrix::cofactor(&a, 3, 2);
+
+        println!("det_a = {:?}", det_a );
+        println!("cofactor_a1 = {:?}", cofactor_a1 );
+        println!("cofactor_a2 = {:?}", cofactor_a2 );
+
 
         assert_float(det_a, 532.0);
 
@@ -796,25 +803,25 @@ mod tests {
         assert_float(b.m[3][2], -160.0 / 532.0);
         assert_float(b.m[2][3], 105.0 / 532.0);
 
-        assert_float(b.m[0][0], 0.21805);
-        assert_float(b.m[0][1], 0.45113);
-        assert_float(b.m[0][2], 0.24060);
-        assert_float(b.m[0][3], -0.04511);
+        assert_float(b.m[0][0], 0.21804512);
+        assert_float(b.m[0][1], 0.45112783);
+        assert_float(b.m[0][2], 0.24060151);
+        assert_float(b.m[0][3], -0.04511278);
 
-        assert_float(b.m[1][0], -0.80827);
-        assert_float(b.m[1][1], -1.45677);
-        assert_float(b.m[1][2], -0.44361);
-        assert_float(b.m[1][3], 0.52068);
+        assert_float(b.m[1][0], -0.8082707);
+        assert_float(b.m[1][1], -1.456767);
+        assert_float(b.m[1][2], -0.44360903);
+        assert_float(b.m[1][3], 0.5206767);
 
-        assert_float(b.m[2][0], -0.07895);
-        assert_float(b.m[2][1], -0.22368);
-        assert_float(b.m[2][2], -0.05263);
-        assert_float(b.m[2][3], 0.19737);
+        assert_float(b.m[2][0], -0.078947365);
+        assert_float(b.m[2][1], -0.2236842);
+        assert_float(b.m[2][2], -0.05263158);
+        assert_float(b.m[2][3], 0.19736843);
 
-        assert_float(b.m[3][0], -0.52256);
-        assert_float(b.m[3][1], -0.81391);
-        assert_float(b.m[3][2], -0.30075);
-        assert_float(b.m[3][3], 0.30639);
+        assert_float(b.m[3][0], -0.52255636);
+        assert_float(b.m[3][1], -0.81390977);
+        assert_float(b.m[3][2], -0.30075186);
+        assert_float(b.m[3][3], 0.30639097);
     }
 
     #[test]
@@ -824,26 +831,27 @@ mod tests {
         );
 
         let b = Matrix::invert(&a).unwrap();
+        println!("b = {:?}", b);
 
-        assert_float(b.m[0][0], -0.15385);
-        assert_float(b.m[0][1], -0.15385);
-        assert_float(b.m[0][2], -0.28205);
-        assert_float(b.m[0][3], -0.53846);
+        assert_float(b.m[0][0], -0.15384616);
+        assert_float(b.m[0][1], -0.15384616);
+        assert_float(b.m[0][2], -0.2820513);
+        assert_float(b.m[0][3], -0.53846157);
 
-        assert_float(b.m[1][0], -0.07692);
-        assert_float(b.m[1][1], 0.12308);
-        assert_float(b.m[1][2], 0.02564);
-        assert_float(b.m[1][3], 0.03077);
+        assert_float(b.m[1][0], -0.07692308);
+        assert_float(b.m[1][1], 0.12307692);
+        assert_float(b.m[1][2], 0.025641026);
+        assert_float(b.m[1][3], 0.03076923);
 
-        assert_float(b.m[2][0], 0.35897);
-        assert_float(b.m[2][1], 0.35897);
-        assert_float(b.m[2][2], 0.43590);
-        assert_float(b.m[2][3], 0.92308);
+        assert_float(b.m[2][0], 0.35897437);
+        assert_float(b.m[2][1], 0.35897437);
+        assert_float(b.m[2][2], 0.43589744);
+        assert_float(b.m[2][3], 0.9230769);
 
-        assert_float(b.m[3][0], -0.69231);
-        assert_float(b.m[3][1], -0.69231);
-        assert_float(b.m[3][2], -0.76923);
-        assert_float(b.m[3][3], -1.92308);
+        assert_float(b.m[3][0], -0.6923077);
+        assert_float(b.m[3][1], -0.6923077);
+        assert_float(b.m[3][2], -0.7692308);
+        assert_float(b.m[3][3], -1.9230769);
     }
 
     #[test]
@@ -854,25 +862,27 @@ mod tests {
 
         let b = Matrix::invert(&a).unwrap();
 
-        assert_float(b.m[0][0], -0.04074);
-        assert_float(b.m[0][1], -0.07778);
-        assert_float(b.m[0][2], 0.14444);
-        assert_float(b.m[0][3], -0.22222);
+        println!("b = {:?}", b);
 
-        assert_float(b.m[1][0], -0.07778);
-        assert_float(b.m[1][1], 0.03333);
-        assert_float(b.m[1][2], 0.36667);
-        assert_float(b.m[1][3], -0.33333);
+        assert_float(b.m[0][0], -0.04074074);
+        assert_float(b.m[0][1], -0.07777778);
+        assert_float(b.m[0][2], 0.14444445);
+        assert_float(b.m[0][3], -0.22222222);
 
-        assert_float(b.m[2][0], -0.02901);
-        assert_float(b.m[2][1], -0.14630);
-        assert_float(b.m[2][2], -0.10926);
-        assert_float(b.m[2][3], 0.12963);
+        assert_float(b.m[1][0], -0.07777778);
+        assert_float(b.m[1][1], 0.033333335);
+        assert_float(b.m[1][2], 0.36666667);
+        assert_float(b.m[1][3], -0.33333334);
 
-        assert_float(b.m[3][0], 0.17778);
-        assert_float(b.m[3][1], 0.06667);
-        assert_float(b.m[3][2], -0.26667);
-        assert_float(b.m[3][3], 0.33333);
+        assert_float(b.m[2][0], -0.029012345);
+        assert_float(b.m[2][1], -0.14629629);
+        assert_float(b.m[2][2], -0.10925926);
+        assert_float(b.m[2][3], 0.12962963);
+
+        assert_float(b.m[3][0], 0.17777778);
+        assert_float(b.m[3][1], 0.06666667);
+        assert_float(b.m[3][2], -0.26666668);
+        assert_float(b.m[3][3], 0.33333334);
     }
 
     #[test]
@@ -1257,11 +1267,14 @@ mod tests {
 
         #[rustfmt::skip]
             let v_expected = Matrix::new_matrix_4x4(
-            -0.50709, 0.50709, 0.67612, -2.36643,
-            0.76772, 0.60609, 0.12122, -2.82843,
-            -0.35857, 0.59761, -0.71714, 0.0,
+            -0.50709254, 0.50709254, 0.6761234, -2.366432,
+            0.76771593, 0.6060915, 0.12121832, -2.828427,
+            -0.35856858, 0.59761435, -0.71713716, 0.0,
             0.0, 0.0, 0.0, 1.0,
         );
+
+        println!("view_transform   {:?}", v);
+        println!("view_transform_exp   {:?}", v_expected);
 
         assert_matrix(&v, &v_expected);
     }

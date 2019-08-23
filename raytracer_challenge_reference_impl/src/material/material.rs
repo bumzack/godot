@@ -283,7 +283,12 @@ mod tests {
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
         let result = Material::lightning(&m, &dummy_obj, &LightEnum::PointLight(l), &p, &eye_v, &normal_v, 1.0);
-        let result_expected = Color::new(0.7364, 0.7364, 0.7364);
+        let result_expected = Color::new(0.7363961, 0.7363961, 0.7363961);
+
+        println!("result = {:?}",result);
+        println!("result_Expected = {:?}",result_expected);
+
+
         assert_color(&result, &result_expected);
     }
 
