@@ -2,7 +2,6 @@
 
 extern crate num_cpus;
 
-use std::any::Any;
 use std::error::Error;
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
@@ -22,7 +21,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 3840;
     let height = 2160;
 
-    // single_core_tests(width, height);
+    let width = 800;
+    let height = 600;
 
     let antialiasing = true;
     let antialiasing_size = 3;
@@ -159,69 +159,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let c = data.lock().unwrap();
     c.write_ppm(filename.as_str())?;
-
-    Ok(())
-}
-
-fn single_core_tests(width: usize, height: usize) -> Result<(), Box<dyn Error>> {
-    // WITH AA 2x2
-    let antialiasing = true;
-    let antialiasing_size = 2;
-    let filename;
-    if antialiasing {
-        filename = format!(
-            "test_with_anti_aliasing_size_{}_wxh_{}x{}_single_core.ppm",
-            antialiasing_size, width, height
-        );
-    } else {
-        filename = format!("test_no_anti_noaliasing_wxh_{}x{}_single_core.ppm", width, height);
-    }
-    let (w, c) = setup_world(width, height, antialiasing, antialiasing_size);
-
-    // single core
-    let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_ppm(filename.as_str())?;
-    let dur = Instant::now() - start;
-    println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
-
-    // WITH AA 3x3
-    let antialiasing_size = 3;
-    let filename;
-    if antialiasing {
-        filename = format!(
-            "test_with_anti_aliasing_size_{}_wxh_{}x{}.ppm",
-            antialiasing_size, width, height
-        );
-    } else {
-        filename = format!("test_no_anti_noaliasing_wxh_{}x{}.ppm", width, height);
-    }
-    let (w, c) = setup_world(width, height, antialiasing, antialiasing_size);
-    // single core
-    let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_ppm(filename.as_str())?;
-    let dur = Instant::now() - start;
-    println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
-
-    // old school no AA
-    let antialiasing = false;
-    let filename;
-    if antialiasing {
-        filename = format!(
-            "test_with_anti_aliasing_size_{}_wxh_{}x{}_single_core.ppm",
-            antialiasing_size, width, height
-        );
-    } else {
-        filename = format!("test_no_anti_noaliasing_wxh_{}x{}_single_core.ppm", width, height);
-    }
-    let (w, c) = setup_world(width, height, antialiasing, antialiasing_size);
-    // single core
-    let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_ppm(filename.as_str())?;
-    let dur = Instant::now() - start;
-    println!("single core duration  : {:?} no AA", dur);
 
     Ok(())
 }

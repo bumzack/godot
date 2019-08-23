@@ -56,9 +56,9 @@ pub trait WorldOps<'a> {
     fn add_y_axis(&mut self);
     fn add_z_axis(&mut self);
 
-    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
+    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f64;
 
-    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
+    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f64;
 }
 
 impl<'a> WorldOps<'a> for World<'a> {
@@ -1063,7 +1063,7 @@ mod tests {
         let point = Tuple4D::new_point(10.0, 10.0, 10.0);
         test_area_lights_occlusion_between_2_points_helper(point, true);
 
-        let point = Tuple4D::new_point(-20.0, -20.0, 20.0);
+        let point = Tuple4D::new_point(-20.0, -20.0, -20.0);
         test_area_lights_occlusion_between_2_points_helper(point, false);
 
         let point = Tuple4D::new_point(-5.0, -5.0, -5.0);

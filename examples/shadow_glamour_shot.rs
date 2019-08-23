@@ -4,14 +4,14 @@ extern crate num_cpus;
 
 use std::any::Any;
 use std::error::Error;
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
 use raytracer_challenge::basics::camera::{Camera, CameraOps};
 use raytracer_challenge::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge::basics::color::{Color, ColorOps, BLACK};
+use raytracer_challenge::basics::color::{BLACK, Color, ColorOps};
 use raytracer_challenge::light::light::LightEnum;
 use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;

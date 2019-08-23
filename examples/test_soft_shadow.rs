@@ -1,10 +1,6 @@
-#![feature(stmt_expr_attributes)]
-
 extern crate num_cpus;
 
-use std::any::Any;
 use std::error::Error;
-use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -14,7 +10,6 @@ use raytracer_challenge::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge::light::arealight::AreaLight;
 use raytracer_challenge::light::light::LightEnum;
-use raytracer_challenge::light::pointlight::PointLight;
 use raytracer_challenge::material::material::MaterialOps;
 use raytracer_challenge::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge::math::tuple4d::{Tuple, Tuple4D};
@@ -25,7 +20,7 @@ use raytracer_challenge::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor =4.0;
+    let size_factor = 0.6;
 
     let antialiasing = true;
     let antialiasing_size = 3;
@@ -36,12 +31,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         filename = format!("test_no_anti_noaliasing_multi_core.ppm",);
     }
 
-    //  single_core_tests(size_factor);
-
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
 
     let start = Instant::now();
-    let num_cores = num_cpus::get()+1;
+    let num_cores = num_cpus::get() + 1;
 
     println!("using {} cores", num_cores);
 
@@ -69,30 +62,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             ];
         }
 
-        if n_samples == 3 {
-            let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                jitter_matrix = vec![
-                -two_over_six,
-                two_over_six,
-                0.0,
-                two_over_six,
-                two_over_six,
-                two_over_six,
-                -two_over_six,
-                0.0,
-                0.0,
-                0.0,
-                two_over_six,
-                0.0,
-                -two_over_six,
-                -two_over_six,
-                0.0,
-                -two_over_six,
-                two_over_six,
-                -two_over_six,
-            ];
-        }
+            if n_samples == 3 {
+                let two_over_six = 2.0 / 6.0;
+                #[rustfmt::skip]
+                    jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
+                                         -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
+                                         -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+                ];
+            }
 
         let cloned_data = Arc::clone(&data);
         let cloned_act_y = Arc::clone(&act_y_mutex);
@@ -176,8 +153,8 @@ fn setup_world_shadow_glamour<'a>(
     let corner = Tuple4D::new_point(-1.0, 2.0, 4.0);
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
     let vvec = Tuple4D::new_vector(0.0, 2.0, 0.0);
-    let usteps = 20;
-    let vsteps = 20;
+    let usteps = 10;
+    let vsteps = 10;
     let intensity = Color::new(1.5, 1.5, 1.5);
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity);
     let area_light = LightEnum::AreaLight(area_light);
@@ -208,9 +185,10 @@ fn setup_world_shadow_glamour<'a>(
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
     sphere1.get_material_mut().set_color(Color::new(1.0, 0., 0.));
-    sphere1.get_material_mut().set_ambient(1.0);
-    sphere1.get_material_mut().set_diffuse(0.0);
+    sphere1.get_material_mut().set_ambient(0.1);
+    sphere1.get_material_mut().set_diffuse(0.6);
     sphere1.get_material_mut().set_specular(0.0);
+    sphere1.get_material_mut().set_reflective(0.3);
 
     let m_trans = Matrix::translation(0.5, 0.5, 0.0);
     let m_scale = Matrix::scale(0.5, 0.5, 0.5);
@@ -221,7 +199,7 @@ fn setup_world_shadow_glamour<'a>(
 
     // ---- SPHERE 2 -------
     let mut sphere2 = Sphere::new();
-    sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.5));
+    sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
     sphere2.get_material_mut().set_ambient(0.1);
     sphere2.get_material_mut().set_diffuse(0.6);
     sphere2.get_material_mut().set_specular(0.0);
@@ -247,7 +225,7 @@ fn setup_world_shadow_glamour<'a>(
 
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(-3.0, 1., -2.5),
+        &Tuple4D::new_point(-3.0, 1., 2.5),
         &Tuple4D::new_point(0.0, 0.5, 0.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
     ));
