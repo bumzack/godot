@@ -135,7 +135,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-
 fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
