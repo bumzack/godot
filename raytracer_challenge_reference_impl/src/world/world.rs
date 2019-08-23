@@ -146,14 +146,14 @@ impl<'a> WorldOps<'a> for World<'a> {
         &color * comp.get_object().get_material().get_reflective()
     }
 
-    fn is_shadowed(w: &World, light_position: &Tuple4D, position: &Tuple4D) -> bool {
-        let v = light_position - position;
+    fn is_shadowed(w: &World, light_position: &Tuple4D, point: &Tuple4D) -> bool {
+        let v = light_position - point;
 
         let distance = Tuple4D::magnitude(&v);
         let mut direction = Tuple4D::normalize(&v);
         direction.w = 0.0;
 
-        let point = Tuple4D::new_point_from(&position);
+        let point = Tuple4D::new_point_from(&point);
         let r = Ray::new(point, direction);
 
         let intersections = Intersection::intersect_world(w, &r);
@@ -181,8 +181,8 @@ impl<'a> WorldOps<'a> for World<'a> {
 
         println!("light.get_usteps()  = {:?}",light.get_usteps());
         println!("light.get_vsteps()  = {:?}",light.get_vsteps());
-        for v in 0..light.get_vsteps() - 1 {
-            for u in 0..light.get_usteps() - 1 {
+        for v in 0..light.get_vsteps()  {
+            for u in 0..light.get_usteps()  {
                 let light_position = World::point_on_light(light, u, v);
                 if !World::is_shadowed(world, &light_position, point) {
                     total += 1.0;
