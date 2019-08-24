@@ -63,8 +63,8 @@ impl LightOps for AreaLight {
     fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
         let mut total = 0.0;
 
-        println!("light.get_usteps()  = {:?}", self.get_usteps());
-        println!("light.get_vsteps()  = {:?}", self.get_vsteps());
+        // println!("light.get_usteps()  = {:?}", self.get_usteps());
+        // println!("light.get_vsteps()  = {:?}", self.get_vsteps());
         for v in 0..self.get_vsteps() {
             for u in 0..self.get_usteps() {
                 let light_position = self.point_on_light(u, v);
