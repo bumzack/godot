@@ -155,7 +155,7 @@ impl CylinderOps for Cylinder {
     fn check_cap(r: &Ray, t: f32) -> bool {
         let x = r.get_origin().x + t * r.get_direction().x;
         let z = r.get_origin().z + t * r.get_direction().z;
-        (x.powi(2) + z.powi(2)) <= 1.0
+        (x.powi(2) + z.powi(2)) - 1.0 < EPSILON
     }
 
     fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>) {
