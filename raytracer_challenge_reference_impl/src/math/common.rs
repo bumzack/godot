@@ -3,6 +3,7 @@ use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
 
 pub const EPSILON: f32 = 0.00001;
+pub const EPSILON_OVER_UNDER: f32 = 0.00001;
 
 pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
     assert_eq!(assert_two_float(actual.m[0][0], expected.m[0][0]), true);
