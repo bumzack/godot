@@ -11,21 +11,20 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge_reference_impl::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge_reference_impl::basics::ray::RayOps;
 use raytracer_challenge_reference_impl::light::light::LightEnum;
 use raytracer_challenge_reference_impl::light::pointlight::PointLight;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
 use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge_reference_impl::math::tuple4d::{Tuple, Tuple4D};
+use raytracer_challenge_reference_impl::patterns::checker3d_patterns::Checker3DPattern;
 use raytracer_challenge_reference_impl::patterns::patterns::Pattern;
 use raytracer_challenge_reference_impl::patterns::stripe_patterns::StripePattern;
+use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
 use raytracer_challenge_reference_impl::shape::plane::Plane;
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
-use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::patterns::checker3d_patterns::Checker3DPattern;
-use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
-use raytracer_challenge_reference_impl::basics::ray::RayOps;
-
+use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 800;
@@ -41,28 +40,36 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
 
-    println!("camera height / width  {}/{}     thread_id {:?}", height, width, thread::current().id());
+    println!(
+        "camera height / width  {}/{}     thread_id {:?}",
+        height,
+        width,
+        thread::current().id()
+    );
 
     let x = 300;
     let y = 240;
-
 
     let mut color = BLACK;
 
     let r = Camera::ray_for_pixel(&camera, x, y);
     color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-    println!("ray at ( {} / {} )   origin = {:?},    direction = {:?}", x, y, r.get_origin(), r.get_direction());
+    println!(
+        "ray at ( {} / {} )   origin = {:?},    direction = {:?}",
+        x,
+        y,
+        r.get_origin(),
+        r.get_direction()
+    );
     println!("color  at ( {} / {} )   c = {:?},     ", x, y, color);
 
     canvas.write_pixel(x, y, color);
 
     let dur = Instant::now() - start;
-    println!("multi core duration: {:?}  ", dur, );
-
+    println!("multi core duration: {:?}  ", dur,);
 
     Ok(())
 }
-
 
 fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
     let mut floor = Sphere::new();
@@ -127,4 +134,3 @@ fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
 
     (world, c)
 }
-

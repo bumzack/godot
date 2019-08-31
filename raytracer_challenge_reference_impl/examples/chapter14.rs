@@ -41,15 +41,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let multi_core = true;
     let single_core = true;
 
-//    if single_core {
-//        // single core
-//        let start = Instant::now();
-//        // let canvas = Camera::render_debug(&c, &w, 226, 241);
-//        let canvas = Camera::render(&c, &w);
-//        let dur = Instant::now() - start;
-//        println!("single core duration: {:?}", dur);
-//        canvas.write_ppm("chapter14_single.ppm")?;
-//    }
+    //    if single_core {
+    //        // single core
+    //        let start = Instant::now();
+    //        // let canvas = Camera::render_debug(&c, &w, 226, 241);
+    //        let canvas = Camera::render(&c, &w);
+    //        let dur = Instant::now() - start;
+    //        println!("single core duration: {:?}", dur);
+    //        canvas.write_ppm("chapter14_single.ppm")?;
+    //    }
 
     if multi_core {
         let start = Instant::now();

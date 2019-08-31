@@ -2,7 +2,6 @@
 
 extern crate num_cpus;
 
-use std::any::Any;
 use std::error::Error;
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
@@ -24,13 +23,16 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 2.0;
+    let size_factor = 1.0;
 
     let antialiasing = true;
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!("ref_impl_glamour_world_aliasing_size_{}_multi_core.ppm", antialiasing_size);
+        filename = format!(
+            "ref_impl_glamour_world_aliasing_size_{}_multi_core.ppm",
+            antialiasing_size
+        );
     } else {
         filename = format!("ref_impl_test_no_anti_noaliasing_multi_core.ppm",);
     }
@@ -205,7 +207,10 @@ fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
     let antialiasing = false;
     let filename;
     if antialiasing {
-        filename = format!("ref_impl_test_with_anti_aliasing_size_{}_single_core.ppm", antialiasing_size,);
+        filename = format!(
+            "ref_impl_test_with_anti_aliasing_size_{}_single_core.ppm",
+            antialiasing_size,
+        );
     } else {
         filename = format!("ref_impl_shadow_glamour_NO_aliasing_size_single_size.ppm");
     }
