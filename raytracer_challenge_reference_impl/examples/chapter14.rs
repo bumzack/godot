@@ -23,11 +23,11 @@ use raytracer_challenge_reference_impl::shape::cylinder::{Cylinder, CylinderOps}
 use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
+use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 1280;
-    let height = 720;
+    let width = 640;
+    let height = 480;
 
     let (w, c) = setup_world(width, height);
 
@@ -196,7 +196,7 @@ fn setup_world<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
     w.add_shape(Shape::new(ShapeEnum::Cube(cube), "cube"));
     w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder), "cylinder"));
 
-    let mut c = Camera::new(width, height, PI / 2.0);
+    let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -6.0),
