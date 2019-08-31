@@ -784,16 +784,15 @@ mod tests {
 
         let b = Matrix::invert(&a).unwrap();
 
-        println!("b = {:?}", b );
+        println!("b = {:?}", b);
 
         let det_a = Matrix::determinant(&a);
         let cofactor_a1 = Matrix::cofactor(&a, 2, 3);
         let cofactor_a2 = Matrix::cofactor(&a, 3, 2);
 
-        println!("det_a = {:?}", det_a );
-        println!("cofactor_a1 = {:?}", cofactor_a1 );
-        println!("cofactor_a2 = {:?}", cofactor_a2 );
-
+        println!("det_a = {:?}", det_a);
+        println!("cofactor_a1 = {:?}", cofactor_a1);
+        println!("cofactor_a2 = {:?}", cofactor_a2);
 
         assert_float(det_a, 532.0);
 

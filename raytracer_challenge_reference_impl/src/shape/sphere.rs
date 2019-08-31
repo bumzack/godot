@@ -95,10 +95,9 @@ impl SphereOps for Sphere {
 
 impl<'a> fmt::Debug for Sphere {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "i am a sphere  " )
+        write!(f, "i am a sphere  ")
     }
 }
-
 
 // helper
 // page 151
@@ -310,7 +309,7 @@ mod tests {
         let n_expected = Tuple4D::new_vector(0.0, 0.97014254, -0.24253564);
 
         println!("n = {:?}   ", n);
-        println!("   n_expected = {:?}",  n_expected);
+        println!("   n_expected = {:?}", n_expected);
 
         assert_tuple(&n, &n_expected);
     }

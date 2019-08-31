@@ -389,7 +389,6 @@ mod tests {
         println!("direction             = {:?}", &r.get_direction());
         println!("direction_expected    = {:?}", direction_expected);
 
-
         assert_tuple(&r.get_origin(), &origin_expected);
         assert_tuple(&r.get_direction(), &direction_expected);
     }

@@ -96,12 +96,12 @@ impl<'a> CanvasOps<'a> for Canvas {
     }
 }
 
-pub struct EnumeratePixels {
-    pixels: ColorVec,
-    x: u32,
-    y: u32,
-    width: u32,
-}
+//pub struct EnumeratePixels {
+//    pixels: ColorVec,
+//    x: u32,
+//    y: u32,
+//    width: u32,
+//}
 
 #[cfg(test)]
 mod tests {

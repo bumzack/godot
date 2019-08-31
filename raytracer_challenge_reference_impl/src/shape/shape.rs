@@ -26,12 +26,16 @@ pub enum ShapeEnum {
 pub struct Shape<'a> {
     shape: ShapeEnum,
     name: &'a str,
-    parent: Some(ShapeId),
+    parent: Option<ShapeIdx>,
 }
 
 impl<'a> Shape<'a> {
     pub fn new(shape: ShapeEnum, name: &'a str) -> Shape<'a> {
-        Shape { shape, name, parent: None }
+        Shape {
+            shape,
+            name,
+            parent: None,
+        }
     }
 
     pub fn normal_at(&self, p: &Tuple4D) -> Tuple4D {

@@ -110,12 +110,11 @@ mod tests {
         let mut p = TestPattern::new();
 
         let p = Pattern::TestPattern(p);
-        let point = Tuple4D::new_point(2.0,3.0,4.0);
+        let point = Tuple4D::new_point(2.0, 3.0, 4.0);
         let c = p.color_at_object(&shape, &point);
 
-
-        let color_expected = Color::new(1.0,1.5,2.0);
-        println!("c = {:?},       c_expectet = {:?}",c , color_expected);
+        let color_expected = Color::new(1.0, 1.5, 2.0);
+        println!("c = {:?},       c_expectet = {:?}", c, color_expected);
         assert_color(&color_expected, &c);
     }
 
@@ -130,13 +129,12 @@ mod tests {
         p.set_transformation(matrix_scale);
 
         let p = Pattern::TestPattern(p);
-        let point = Tuple4D::new_point(2.0,3.0,4.0);
+        let point = Tuple4D::new_point(2.0, 3.0, 4.0);
         let c = p.color_at_object(&shape, &point);
 
-        let color_expected = Color::new(1.0,1.5,2.0);
+        let color_expected = Color::new(1.0, 1.5, 2.0);
         assert_color(&color_expected, &c);
     }
-
 
     // page 134 / 3
     #[test]
@@ -151,10 +149,10 @@ mod tests {
         p.set_transformation(matrix_translate);
 
         let p = Pattern::TestPattern(p);
-        let point = Tuple4D::new_point(2.5,3.0,3.5);
+        let point = Tuple4D::new_point(2.5, 3.0, 3.5);
         let c = p.color_at_object(&shape, &point);
 
-        let color_expected = Color::new(0.75,0.5,0.25);
+        let color_expected = Color::new(0.75, 0.5, 0.25);
         assert_color(&color_expected, &c);
     }
 }

@@ -113,6 +113,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 }
                 intersection_list
             }
+            ShapeEnum::Group(ref group) => {
+                // let res = Cylinder::intersect(cylinder, &r2);
+                intersection_list
+            }
         };
         res
     }
@@ -178,11 +182,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         //println!("intersection :  {:?}", intersection);
 
         for i in list.get_intersections().iter() {
-
-//            println!("NEXT ITERATION");
-//            println!(" i = {:?}", i);
-//            println!("container  begin for    {:?}",container);
-//
+            //            println!("NEXT ITERATION");
+            //            println!(" i = {:?}", i);
+            //            println!("container  begin for    {:?}",container);
+            //
             if i == intersection {
                 // println!("i == intersection");
                 if container.is_empty() {
@@ -195,10 +198,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             }
 
             if container.contains(&i.get_shape()) {
-                 let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
+                let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
                 // println!("remove index     {:}",index);
                 container.remove(index);
-                // println!("container   AFTER      {:?}",container);
+            // println!("container   AFTER      {:?}",container);
             } else {
                 container.push(i.get_shape());
             }

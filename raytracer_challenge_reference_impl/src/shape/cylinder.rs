@@ -412,14 +412,14 @@ mod tests {
     #[test]
     fn test_ray_cylinder_capped() {
         // 1
-//        let point = Tuple4D::new_point(0.0, 3.0, 0.0);
-//        let direction = Tuple4D::new_vector(0.0, -1.0, 0.0);
-//        test_ray_cylinder_capped_helper(point, direction, 2);
-//
-//        // 2
-//        let point = Tuple4D::new_point(0.0, 3.0, -2.0);
-//        let direction = Tuple4D::new_vector(0.0, -1.0, 2.0);
-//        test_ray_cylinder_capped_helper(point, direction, 2);
+        //        let point = Tuple4D::new_point(0.0, 3.0, 0.0);
+        //        let direction = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        //        test_ray_cylinder_capped_helper(point, direction, 2);
+        //
+        //        // 2
+        //        let point = Tuple4D::new_point(0.0, 3.0, -2.0);
+        //        let direction = Tuple4D::new_vector(0.0, -1.0, 2.0);
+        //        test_ray_cylinder_capped_helper(point, direction, 2);
 
         // 3
         let point = Tuple4D::new_point(0.0, 4.0, -2.0);
