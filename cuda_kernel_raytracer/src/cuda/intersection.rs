@@ -1,5 +1,8 @@
 use core::f32::INFINITY;
+
+use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
+use raytracer_lib_no_std::math::common::EPSILON;
 use raytracer_lib_no_std::math::math::{intri_powi, intri_sqrt};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
@@ -7,8 +10,6 @@ use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
 
 use crate::cuda::intersection_list::IntersectionList;
 use crate::cuda::intersection_list::IntersectionListOps;
-use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
-use raytracer_lib_no_std::math::common::EPSILON;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Intersection {
@@ -117,8 +118,8 @@ impl IntersectionOps for Intersection {
         }
         let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
-        let over_point = &point + &(&normal_vector * EPSILON);
-        let under_point = &point - &(&normal_vector * EPSILON);
+        let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
+        let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
         let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
