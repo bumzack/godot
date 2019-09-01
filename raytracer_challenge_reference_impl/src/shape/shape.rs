@@ -27,6 +27,7 @@ pub struct Shape<'a> {
     shape: ShapeEnum,
     name: &'a str,
     parent: Option<ShapeIdx>,
+    casts_shadow: bool,
 }
 
 impl<'a> Shape<'a> {
@@ -35,6 +36,7 @@ impl<'a> Shape<'a> {
             shape,
             name,
             parent: None,
+            casts_shadow: true,
         }
     }
 
@@ -104,6 +106,14 @@ impl<'a> Shape<'a> {
 
     pub fn get_name(&self) -> &'a str {
         &self.name
+    }
+
+    pub fn get_casts_shadow(&self) -> bool {
+        self.casts_shadow
+    }
+
+    pub fn set_casts_shadow(&mut self, casts_shadow: bool) {
+        self.casts_shadow = casts_shadow;
     }
 }
 

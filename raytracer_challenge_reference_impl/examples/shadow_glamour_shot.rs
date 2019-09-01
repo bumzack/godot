@@ -3,7 +3,6 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -34,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             antialiasing_size
         );
     } else {
-        filename = format!("ref_impl_test_no_anti_noaliasing_multi_core.ppm",);
+        filename = format!("ref_impl_glamour_world_no_anti_noaliasing_multi_core.ppm", );
     }
 
     //  single_core_tests(size_factor);
@@ -133,7 +132,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                             }
                             color = color / n_samples as f32;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                            // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                         } else {
                             let r = Camera::ray_for_pixel(&c_clone, x, y);
                             color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -168,63 +167,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn single_core_tests(size_factor: f32) -> Result<(), Box<dyn Error>> {
-    // WITH AA 2x2
-    let antialiasing = true;
-    let antialiasing_size = 2;
-    let filename;
-    if antialiasing {
-        filename = format!("ref_impl_shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
-    } else {
-        filename = format!("ref_impl_shadow_glamour_aliasing_size_single_core.ppm");
-    }
-    let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-
-    // single core
-    let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_ppm(filename.as_str())?;
-    let dur = Instant::now() - start;
-    println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
-
-    // WITH AA 3x3
-    let antialiasing_size = 3;
-    let filename;
-    if antialiasing {
-        filename = format!("ref_impl_shadow_glamour_aliasing_size_{}.ppm", antialiasing_size,);
-    } else {
-        filename = format!("ref_impl_test_no_anti_aliasing.ppm");
-    }
-    let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    // single core
-    let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_ppm(filename.as_str())?;
-    let dur = Instant::now() - start;
-    println!("single core duration  : {:?} with AA size = {}", dur, antialiasing_size);
-
-    // old school no AA
-    let antialiasing = false;
-    let filename;
-    if antialiasing {
-        filename = format!(
-            "ref_impl_test_with_anti_aliasing_size_{}_single_core.ppm",
-            antialiasing_size,
-        );
-    } else {
-        filename = format!("ref_impl_shadow_glamour_NO_aliasing_size_single_size.ppm");
-    }
-    let (w, c) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    // single core
-    let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_ppm(filename.as_str())?;
-    let dur = Instant::now() - start;
-    println!("single core duration  : {:?} no AA", dur);
-
-    Ok(())
-}
-
 fn setup_world_shadow_glamour<'a>(
     size_factor: f32,
     antialiasing: bool,
@@ -250,7 +192,8 @@ fn setup_world_shadow_glamour<'a>(
     // TODO: shadow false
     // c.set_shadow(false);
     c.set_transformation(m);
-    let cube = Shape::new(ShapeEnum::Cube(c), "cube");
+    let mut cube = Shape::new(ShapeEnum::Cube(c), "cube");
+    cube.set_casts_shadow(false);
 
     // ---- PLANE -------
     let mut plane = Plane::new();

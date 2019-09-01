@@ -45,7 +45,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut intersection_list = IntersectionList::new();
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
-        let res = match shape.get_shape() {
+      match shape.get_shape() {
             ShapeEnum::Sphere(ref _s) => {
                 let res = Sphere::intersect(&r2);
                 match res {
@@ -57,8 +57,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
 
             ShapeEnum::Plane(ref _p) => {
                 let res = Plane::intersect(&r2);
@@ -69,8 +68,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
 
             ShapeEnum::Cube(ref _c) => {
                 let res = Cube::intersect(&r2);
@@ -83,8 +81,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
             ShapeEnum::Cylinder(ref cylinder) => {
                 let res = Cylinder::intersect(cylinder, &r2);
                 match res {
@@ -97,8 +94,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
             ShapeEnum::Triangle(ref triangle) => {
                 let res = Triangle::intersect(triangle, &r2);
                 match res {
@@ -111,14 +107,12 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
             ShapeEnum::Group(ref group) => {
                 // let res = Cylinder::intersect(cylinder, &r2);
-                intersection_list
-            }
+             }
         };
-        res
+        intersection_list
     }
 
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {

@@ -8,6 +8,7 @@ use crate::basics::ray::RayOps;
 use crate::light::light::{LightEnum, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
+use crate::math::common::EPSILON;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -162,7 +163,8 @@ impl<'a> WorldOps<'a> for World<'a> {
 
         if h.is_some() {
             // println!("t = {:?}", h.unwrap().get_t());
-            if h.unwrap().get_t() < distance {
+            let s = h.unwrap();
+            if s.get_t() - distance < EPSILON  && s.get_shape().get_casts_shadow() {
                 return true;
             }
         }
