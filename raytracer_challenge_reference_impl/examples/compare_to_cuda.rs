@@ -35,14 +35,11 @@ fn main_debug() -> Result<(), Box<dyn Error>> {
     let width = 384;
     let height = 216;
 
-
     let filename = "compare_to_cuda_no_aa.ppm";
 
     let (world, camera) = setup_world(width, height);
-
     let start = Instant::now();
     let mut canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
-
 
     let n_samples = camera.get_antialiasing_size();
     let mut jitter_matrix = Vec::new();
@@ -127,10 +124,7 @@ fn main_debug() -> Result<(), Box<dyn Error>> {
         color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
         println!("no  AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
     }
-
-
     canvas.write_pixel(x, y, color);
-
     canvas.write_ppm(filename)?;
 
     Ok(())
