@@ -1,11 +1,9 @@
 // TODO: pass Vec<Color> to kernel, not pixels and remove Pixel trait
 
-use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
+use std::error::Error;
+use std::ffi::CString;
+use std::time::Instant;
 
-use crate::backend::backend::Backend;
-use raytracer_lib_no_std::basics::color::{Color, ColorOps, BLACK};
-use raytracer_lib_std::canvas::canvas::{Canvas, CanvasOps};
-use raytracer_lib_std::world::world::{World, WorldOps};
 use rustacuda::memory::{
     cuda_device_get_limit_stacksize, cuda_device_set_limit_stacksize, DeviceBox,
 };
@@ -13,9 +11,13 @@ use rustacuda::prelude::{
     Context, ContextFlags, CopyDestination, CudaFlags, Device, DeviceBuffer, Module, Stream,
     StreamFlags,
 };
-use std::error::Error;
-use std::ffi::CString;
-use std::time::Instant;
+
+use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
+use raytracer_lib_no_std::basics::color::{BLACK, Color, ColorOps};
+use raytracer_lib_std::canvas::canvas::{Canvas, CanvasOps};
+use raytracer_lib_std::world::world::{World, WorldOps};
+
+use crate::backend::backend::Backend;
 
 pub struct BackendCuda {}
 

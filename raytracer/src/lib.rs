@@ -17,4 +17,3 @@ pub use self::cpu_kernel_raytracer::*;
 pub use self::raytracer_lib_std::*;
 
 mod backend;
-
