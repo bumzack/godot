@@ -90,6 +90,8 @@ mod tests {
     use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
     use crate::math::common::{assert_float, assert_tuple};
+    use crate::math::common::assert_matrix;
+    use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
@@ -140,7 +142,7 @@ mod tests {
 
         let s = Sphere::new();
 
-        let intersections = s.intersect(&r);
+        let intersections = Sphere::intersect(&r);
 
         assert_eq!(intersections, None);
     }
@@ -153,7 +155,7 @@ mod tests {
 
         let s = Sphere::new();
 
-        let intersections = s.intersect( &r).unwrap();
+        let intersections = Sphere::intersect(&r).unwrap();
 
         assert_eq!(intersections.len(), 2);
 
@@ -169,7 +171,7 @@ mod tests {
 
         let s = Sphere::new();
 
-        let intersections = s.intersect( &r).unwrap();
+        let intersections = Sphere::intersect(&r).unwrap();
 
         assert_eq!(intersections.len(), 2);
 
@@ -199,7 +201,7 @@ mod tests {
         let m = Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::Sphere(s);
+        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "shpere");
         let is = Intersection::intersect(&sphere_shape, &r);
 
         let intersections = is.get_intersections();
@@ -222,7 +224,7 @@ mod tests {
         let m = Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::Sphere(s);
+        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "shpere");
         let is = Intersection::intersect(&sphere_shape, &r);
 
         let intersections = is.get_intersections();
