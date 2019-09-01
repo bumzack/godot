@@ -5,6 +5,7 @@ use crate::basics::intersection::{Intersection, IntersectionList, IntersectionLi
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
+use crate::DEBUG;
 use crate::light::light::{LightEnum, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
@@ -100,7 +101,9 @@ impl<'a> WorldOps<'a> for World<'a> {
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
-        // println!("intentsity = {}", intensity);
+        if DEBUG {
+            println!("intentsity = {}", intensity);
+        }
         let surface = Material::lightning(
             comp.get_object().get_material(),
             comp.get_object(),
@@ -178,7 +181,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         if h.is_some() {
             // println!("t = {:?}", h.unwrap().get_t());
             let s = h.unwrap();
-            if s.get_t() - distance < EPSILON  && s.get_shape().get_casts_shadow() {
+            if s.get_t() - distance < EPSILON && s.get_shape().get_casts_shadow() {
                 return true;
             }
         }
@@ -512,7 +515,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let c_expected = Color::new(0.9049522,0.9049522, 0.9049522);
+        let c_expected = Color::new(0.9049522, 0.9049522, 0.9049522);
 
         println!("expected color = {:?}", c_expected);
         println!("actual   color = {:?}", c);
