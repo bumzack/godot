@@ -4,7 +4,7 @@ use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
-use crate::math::common::EPSILON;
+use crate::math::common::{EPSILON, EPSILON_OVER_UNDER};
 use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::cube::{Cube, CubeOps};
 use crate::shape::cylinder::{Cylinder, CylinderOps};
@@ -155,8 +155,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         }
         let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
-        let over_point = &point + &(&normal_vector * EPSILON);
-        let under_point = &point - &(&normal_vector * EPSILON);
+        let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
+        let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
         let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
