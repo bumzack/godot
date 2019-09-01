@@ -28,8 +28,8 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 300;
-    let height = 200;
+    let width = 1200;
+    let height = 1000;
 
     let (w, c) = setup_world(width, height);
 

@@ -3,6 +3,7 @@ use std::f32::{MAX, NAN};
 use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::DEBUG;
 use crate::light::light::{LightEnum, LightOps};
 use crate::math::common::assert_valid_color;
 use crate::math::tuple4d::Tuple;
@@ -116,6 +117,9 @@ impl MaterialOps for Material {
             if reflect_dot_eye > 0.0 {
                 let factor = reflect_dot_eye.powf(material.shininess);
                 specular = light.get_intensity() * material.specular * factor;
+                if DEBUG {
+                    println!("specular  BEFORE check     {:?}", specular);
+                }
 
                 if specular.r.is_nan(){
                     specular.r = 0.0;
@@ -126,12 +130,18 @@ impl MaterialOps for Material {
                 if specular.b.is_nan() {
                     specular.b = 0.0;
                 }
+                if DEBUG {
+                    println!("specular  AFTER check     {:?}", specular);
+                }
             }
         }
-//        println!("intensity     {}", intensity);
-//        println!("diffuse       {:?}", diffuse);
-//        println!("specular       {:?}", specular);
-//        println!("ambient       {:?}", ambient);
+        if DEBUG {
+            println!("intensity     {}", intensity);
+            println!("diffuse       {:?}", diffuse);
+            println!("specular       {:?}", specular);
+            println!("ambient       {:?}", ambient);
+        }
+
 
         assert_valid_color(&ambient);
         assert_valid_color(&diffuse);
