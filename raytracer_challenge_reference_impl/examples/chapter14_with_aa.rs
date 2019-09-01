@@ -28,8 +28,8 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 1200;
-    let height = 1000;
+    let width = 600;
+    let height = 500;
 
     let (w, c) = setup_world(width, height);
 
@@ -122,6 +122,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                     let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
+                }
+                if y % 20 ==0{
+                    println!("thread {:?}   y =  {:?}", thread::current().id(), y);
                 }
             }
         }));

@@ -122,18 +122,21 @@ impl<'a> WorldOps<'a> for World<'a> {
         let material = comp.get_object().get_material();
         if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
             let reflectance = Intersection::schlick(comp);
-//            println!("WITH  schlcik");
-//            println!("surface = {:?}", surface);
-//            println!("reflected = {:?}", reflected);
-//            println!("refracted = {:?}", refracted);
-//            println!("reflectance = {}", reflectance);
+            if DEBUG {
+                println!("WITH  schlcik");
+                println!("surface = {:?}", surface);
+                println!("reflected = {:?}", reflected);
+                println!("refracted = {:?}", refracted);
+                println!("reflectance = {}", reflectance);
+            }
             return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
         }
-//        println!("NO schlcik");
-//        println!("surface = {:?}", surface);
-//        println!("reflected = {:?}", reflected);
-//        println!("refracted = {:?}", refracted);
-
+        if DEBUG {
+            println!("NO schlcik");
+            println!("surface = {:?}", surface);
+            println!("reflected = {:?}", reflected);
+            println!("refracted = {:?}", refracted);
+        }
         &surface + &(&reflected + &refracted)
     }
 
@@ -1326,8 +1329,8 @@ mod tests {
     // area light, that means that the lights has to be mutable and then
     // we have to change that everywhere and borrowing becomes a PITA
     // so no test
-    #[ignore]
-//    #[test]
+//    #[ignore]
+    #[test]
     fn test_area_lights_find_point_on_jittered_area_light() {
         let point = Tuple4D::new_point(0.15, 0.0, 0.35);
         test_area_lights_find_point_on_jittered_area_light_helper(0, 0, point);

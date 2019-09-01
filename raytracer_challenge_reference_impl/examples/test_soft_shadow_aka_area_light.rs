@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if antialiasing {
         filename = format!("soft_shadow_aa_size_{}_multi_core.ppm", antialiasing_size);
     } else {
-        filename = format!("soft_shadow_multi_core_no_aa.ppm",);
+        filename = format!("soft_shadow_multi_core_no_aa.ppm", );
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -64,14 +64,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             ];
         }
 
-            if n_samples == 3 {
-                let two_over_six = 2.0 / 6.0;
-                #[rustfmt::skip]
-                    jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-                                         -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-                                         -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
-                ];
-            }
+        if n_samples == 3 {
+            let two_over_six = 2.0 / 6.0;
+            #[rustfmt::skip]
+                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
+                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
+                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+            ];
+        }
 
         let cloned_data = Arc::clone(&data);
         let cloned_act_y = Arc::clone(&act_y_mutex);
@@ -110,7 +110,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -119,6 +119,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                     let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
+                }
+                if y % 20 ==0{
+                    println!("thread {:?}   y =  {:?}", thread::current().id(), y);
                 }
             }
             thread::current().id()
@@ -169,12 +172,13 @@ fn setup_world_shadow_glamour<'a>(
     c.get_material_mut().set_specular(0.0);
 
     let m_trans = Matrix::translation(0.0, 3.0, 4.0);
-    let m_scale = Matrix::scale(1.0, 1.0, 0.001);
+    let m_scale = Matrix::scale(1.0, 1.0, 0.01);
     let m = &m_trans * &m_scale;
 
     c.set_transformation(m);
     let mut cube = Shape::new(ShapeEnum::Cube(c), "cube");
     cube.set_casts_shadow(false);
+
     // ---- PLANE -------
     let mut plane = Plane::new();
     plane.get_material_mut().set_color(Color::new(1., 1., 1.));

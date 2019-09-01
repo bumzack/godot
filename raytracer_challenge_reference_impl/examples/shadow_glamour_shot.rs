@@ -22,7 +22,7 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main () -> Result<(), Box<dyn Error>> {
-    let size_factor = 3.0;
+    let size_factor = 2.0;
 
     let antialiasing = true;
     let antialiasing_size = 3;

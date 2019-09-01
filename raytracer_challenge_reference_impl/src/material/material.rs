@@ -130,9 +130,9 @@ impl MaterialOps for Material {
                 diffuse = BLACK;
             } else {
                 diffuse = &effective_color * material.diffuse * light_dot_normal;
+                diffuse.fix_nan();
                 let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
                 let reflect_dot_eye = &reflect_v ^ eye;
-                assert_valid_color(&diffuse);
 
                 specular = BLACK;
                 if reflect_dot_eye > 0.0 {
@@ -144,25 +144,14 @@ impl MaterialOps for Material {
                     specular = light.get_intensity() * material.specular * factor;
 
                     // assert_valid_color(&specular);
-
-                    if specular.r.is_nan(){
-                        specular.r = 0.0;
-                    }
-                    if specular.g.is_nan() {
-                        specular.g = 0.0;
-                    }
-                    if specular.b.is_nan() {
-                        specular.b = 0.0;
-                    }
+                        specular.fix_nan();
                     if DEBUG {
                         println!("specular  AFTER check     {:?}", specular);
                     }
-
                 }
             }
             sum = &sum + &diffuse;
             sum = &sum + &specular;
-
         }
         assert_valid_color(&ambient);
         assert_valid_color(&sum);
