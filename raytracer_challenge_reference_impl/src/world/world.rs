@@ -100,6 +100,7 @@ impl<'a> WorldOps<'a> for World<'a> {
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
+        // println!("intentsity = {}", intensity);
         let surface = Material::lightning(
             comp.get_object().get_material(),
             comp.get_object(),
@@ -115,8 +116,18 @@ impl<'a> WorldOps<'a> for World<'a> {
         let material = comp.get_object().get_material();
         if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
             let reflectance = Intersection::schlick(comp);
+//            println!("WITH  schlcik");
+//            println!("surface = {:?}", surface);
+//            println!("reflected = {:?}", reflected);
+//            println!("refracted = {:?}", refracted);
+//            println!("reflectance = {}", reflectance);
             return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
         }
+//        println!("NO schlcik");
+//        println!("surface = {:?}", surface);
+//        println!("reflected = {:?}", reflected);
+//        println!("refracted = {:?}", refracted);
+
         &surface + &(&reflected + &refracted)
     }
 
