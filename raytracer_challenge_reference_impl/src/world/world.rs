@@ -488,7 +488,7 @@ mod tests {
 
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let c_expected = Color::new(0.3806612, 0.47582647, 0.2854959);
+        let c_expected = Color::new(0.3805423, 0.47567785, 0.2854067);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
@@ -515,7 +515,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let c_expected = Color::new(0.9049522, 0.9049522, 0.9049522);
+        let c_expected = Color::new(0.90335494, 0.90335494, 0.90335494);
 
         println!("expected color = {:?}", c_expected);
         println!("actual   color = {:?}", c);
@@ -547,7 +547,7 @@ mod tests {
         let r = Ray::new(origin, direction);
         let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
-        let c_expected = Color::new(0.3806612, 0.47582647, 0.2854959);
+        let c_expected = Color::new(0.3805423, 0.47567785, 0.2854067);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
@@ -674,7 +674,7 @@ mod tests {
 
         let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
-        let c_expected = Color::new(0.3806612, 0.47582647, 0.2854959);
+        let c_expected = Color::new(0.3805423, 0.47567785, 0.47567785);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
@@ -804,7 +804,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let color_expected = Color::new(0.19034664, 0.23793328, 0.14275998);
+        let color_expected = Color::new(0.1911335, 0.23891687, 0.14335012);
 
         // TODO: this fails - probably/hopefully because the is_shadowed method is broken
         // fix this, when the shadows work
@@ -836,7 +836,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-        let color_expected = Color::new(0.87676895, 0.92435557, 0.82918227);
+        let color_expected = Color::new(0.8774055, 0.9251889, 0.82962215);
 
         println!("expected color    = {:?}", color_expected);
         println!("actual color      = {:?}", color);
@@ -1060,7 +1060,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&xs.get_intersections()[2], &r, &xs);
 
         let c = World::refracted_color(&w, &comps, 5);
-        let c_expected = Color::new(0.0, 0.99878335, 0.04724201);
+        let c_expected = Color::new(0.0, 0.99381787, 0.048488345);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
@@ -1101,7 +1101,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
 
         let c = World::shade_hit(&w, &comps, 5);
-        let c_expected = Color::new(0.9364254, 0.6864253889815014, 0.6864253889815014);
+        let c_expected = Color::new(0.936272, 0.686272, 0.686272);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);

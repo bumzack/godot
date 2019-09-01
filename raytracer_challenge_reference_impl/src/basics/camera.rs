@@ -428,7 +428,7 @@ mod tests {
 
         let image = Camera::render(&c, &w);
         let color = image.pixel_at(5, 5);
-        let c_expected = Color::new(0.3806612, 0.47582647, 0.2854959);
+        let c_expected = Color::new(0.3805423, 0.47567785, 0.2854067);
 
         println!("color          = {:?}", color);
         println!("c_expected     = {:?}", c_expected);
