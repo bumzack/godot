@@ -1,5 +1,5 @@
 use crate::basics::color::Color;
-// use crate::light::arealight::AreaLight;
+use crate::light::arealight::AreaLight;
 use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::World;
@@ -7,7 +7,7 @@ use crate::world::world::World;
 #[derive(Clone, Debug)]
 pub enum LightEnum {
     PointLight(PointLight),
-    //   AreaLight(AreaLight),
+    AreaLight(AreaLight),
 }
 
 pub trait LightOps {
@@ -34,7 +34,7 @@ impl LightOps for LightEnum {
     fn get_intensity(&self) -> &Color {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_intensity(),
-            // LightEnum::AreaLight(ref pl) => pl.get_intensity(),
+            LightEnum::AreaLight(ref pl) => pl.get_intensity(),
         };
         res
     }
@@ -42,14 +42,14 @@ impl LightOps for LightEnum {
     fn set_intensity(&mut self, intensity: Color) {
         let res = match self {
             LightEnum::PointLight(ref mut pl) => pl.set_intensity(intensity),
-            // LightEnum::AreaLight(ref mut pl) => pl.set_intensity(intensity),
+            LightEnum::AreaLight(ref mut pl) => pl.set_intensity(intensity),
         };
     }
 
     fn get_position(&self) -> &Tuple4D {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_position(),
-            // LightEnum::AreaLight(ref pl) => pl.get_position(),
+            LightEnum::AreaLight(ref pl) => pl.get_position(),
         };
         res
     }
@@ -57,14 +57,14 @@ impl LightOps for LightEnum {
     fn set_position(&mut self, pos: Tuple4D) {
         let res = match self {
             LightEnum::PointLight(ref mut pl) => pl.set_position(pos),
-            //   LightEnum::AreaLight(ref mut pl) => pl.set_position(pos),
+            LightEnum::AreaLight(ref mut pl) => pl.set_position(pos),
         };
     }
 
     fn get_uvec(&self) -> &Tuple4D {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_uvec(),
-            //   LightEnum::AreaLight(ref pl) => pl.get_uvec(),
+            LightEnum::AreaLight(ref pl) => pl.get_uvec(),
         };
         res
     }
@@ -72,7 +72,7 @@ impl LightOps for LightEnum {
     fn get_vvec(&self) -> &Tuple4D {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_vvec(),
-            //  LightEnum::AreaLight(ref pl) => pl.get_vvec(),
+            LightEnum::AreaLight(ref pl) => pl.get_vvec(),
         };
         res
     }
@@ -80,7 +80,7 @@ impl LightOps for LightEnum {
     fn get_samples(&self) -> usize {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_samples(),
-            //   LightEnum::AreaLight(ref pl) => pl.get_samples(),
+            LightEnum::AreaLight(ref pl) => pl.get_samples(),
         };
         res
     }
@@ -88,7 +88,7 @@ impl LightOps for LightEnum {
     fn get_corner(&self) -> &Tuple4D {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_corner(),
-            //   LightEnum::AreaLight(ref pl) => pl.get_corner(),
+            LightEnum::AreaLight(ref pl) => pl.get_corner(),
         };
         res
     }
@@ -96,7 +96,7 @@ impl LightOps for LightEnum {
     fn get_usteps(&self) -> usize {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_usteps(),
-            //  LightEnum::AreaLight(ref pl) => pl.get_usteps(),
+            LightEnum::AreaLight(ref pl) => pl.get_usteps(),
         };
         res
     }
@@ -104,7 +104,7 @@ impl LightOps for LightEnum {
     fn get_vsteps(&self) -> usize {
         let res = match self {
             LightEnum::PointLight(ref pl) => pl.get_vsteps(),
-            //    LightEnum::AreaLight(ref pl) => pl.get_vsteps(),
+            LightEnum::AreaLight(ref pl) => pl.get_vsteps(),
         };
         res
     }
@@ -112,7 +112,7 @@ impl LightOps for LightEnum {
     fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
         let res = match self {
             LightEnum::PointLight(ref point_light) => point_light.intensity_at_point(point, world),
-            //   LightEnum::AreaLight(ref pl) => pl.intensity_at_point(point, world),
+            LightEnum::AreaLight(ref pl) => pl.intensity_at_point(point, world),
         };
         res
     }
@@ -120,7 +120,7 @@ impl LightOps for LightEnum {
     fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
         let res = match self {
             LightEnum::PointLight(ref point_light) => point_light.point_on_light(u, v),
-            //   LightEnum::AreaLight(ref area_light) => area_light.point_on_light(u, v),
+            LightEnum::AreaLight(ref area_light) => area_light.point_on_light(u, v),
         };
         res
     }

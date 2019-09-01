@@ -22,15 +22,15 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 1.;
+    let size_factor = 2.0;
 
     let antialiasing = true;
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!("ref_impl_test_soft_shadow_aa_size_{}_multi_core.ppm", antialiasing_size);
+        filename = format!("soft_shadow_aa_size_{}_multi_core.ppm", antialiasing_size);
     } else {
-        filename = format!("ref_impl_test_soft_shadow_multi_core.ppm",);
+        filename = format!("soft_shadow_multi_core_no_aa.ppm",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -173,8 +173,8 @@ fn setup_world_shadow_glamour<'a>(
     let m = &m_trans * &m_scale;
 
     c.set_transformation(m);
-    let cube = Shape::new(ShapeEnum::Cube(c), "cube");
-
+    let mut cube = Shape::new(ShapeEnum::Cube(c), "cube");
+    cube.set_casts_shadow(false);
     // ---- PLANE -------
     let mut plane = Plane::new();
     plane.get_material_mut().set_color(Color::new(1., 1., 1.));

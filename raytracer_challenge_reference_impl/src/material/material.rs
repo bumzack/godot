@@ -102,53 +102,72 @@ impl MaterialOps for Material {
         } else {
             c = Color::from_color(&material.color);
         }
+
+        // ambient
         let effective_color = &c * light.get_intensity();
-        let light_v = Tuple4D::normalize(&(light.get_position() - &point));
         let ambient = &effective_color * material.ambient;
-        let light_dot_normal = &light_v ^ &n;
-        let mut diffuse = BLACK;
-        let mut specular = BLACK;
-        if light_dot_normal >= 0.0 {
-            diffuse = &effective_color * material.diffuse * light_dot_normal;
-            let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
-            let reflect_dot_eye = &reflect_v ^ eye;
-            specular = BLACK;
 
-            if reflect_dot_eye > 0.0 {
-                let factor = reflect_dot_eye.powf(material.shininess);
-                specular = light.get_intensity() * material.specular * factor;
-                if DEBUG {
-                    println!("specular  BEFORE check     {:?}", specular);
-                }
+        let mut sum = BLACK;
 
-                if specular.r.is_nan(){
-                    specular.r = 0.0;
-                }
-                if specular.g.is_nan() {
-                    specular.g = 0.0;
-                }
-                if specular.b.is_nan() {
-                    specular.b = 0.0;
-                }
-                if DEBUG {
-                    println!("specular  AFTER check     {:?}", specular);
-                }
+        // create the sample points for the different lights
+        let mut samples = Vec::new();
+
+        for v in 0.. light.get_vsteps() {
+            for u in 0..light.get_usteps() {
+                samples.push(World::point_on_light(light, u, v));
             }
         }
-        if DEBUG {
-            println!("intensity     {}", intensity);
-            println!("diffuse       {:?}", diffuse);
-            println!("specular       {:?}", specular);
-            println!("ambient       {:?}", ambient);
+
+        for sample in samples.iter() {
+            let mut specular = BLACK;
+            let mut diffuse = BLACK;
+
+            let light_v = Tuple4D::normalize(&(sample - point));
+            let light_dot_normal = &light_v ^ &n;
+
+            if light_dot_normal < 0.0 || intensity == 0.0 {
+                specular = BLACK;
+                diffuse = BLACK;
+            } else {
+                diffuse = &effective_color * material.diffuse * light_dot_normal;
+                let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
+                let reflect_dot_eye = &reflect_v ^ eye;
+                assert_valid_color(&diffuse);
+
+                specular = BLACK;
+                if reflect_dot_eye > 0.0 {
+                    if DEBUG {
+                        println!("specular  BEFORE check     {:?}", specular);
+                    }
+
+                    let factor = reflect_dot_eye.powf(material.shininess);
+                    specular = light.get_intensity() * material.specular * factor;
+
+                    // assert_valid_color(&specular);
+
+                    if specular.r.is_nan(){
+                        specular.r = 0.0;
+                    }
+                    if specular.g.is_nan() {
+                        specular.g = 0.0;
+                    }
+                    if specular.b.is_nan() {
+                        specular.b = 0.0;
+                    }
+                    if DEBUG {
+                        println!("specular  AFTER check     {:?}", specular);
+                    }
+
+                }
+            }
+            sum = &sum + &diffuse;
+            sum = &sum + &specular;
+
         }
-
-
         assert_valid_color(&ambient);
-        assert_valid_color(&diffuse);
-        assert_valid_color(&specular);
-
+        assert_valid_color(&sum);
         if intensity == 1.0 {
-            ambient + diffuse * intensity + specular * intensity
+            ambient + sum  / light.get_samples() as f32  * intensity
         } else {
             ambient
         }
@@ -234,6 +253,7 @@ mod tests {
     use crate::basics::color::WHITE;
     use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::{Ray, RayOps};
+    use crate::light::arealight::AreaLight;
     // use crate::light::arealight::AreaLight;
     use crate::light::pointlight::PointLight;
     use crate::material::material::MaterialOps;
@@ -433,86 +453,85 @@ mod tests {
         assert_tuple(comps.get_reflected_vector(), &reflection_vector_expected);
     }
 
-    //    // bonus: soft shadows // area light
-    //    fn test_area_lights_lighning_uses_light_insenty_helper(intensity: f32, expected_result: Color) {
-    //        let w = default_world_soft_shadows();
-    //
-    //        let point = Tuple4D::new_point(0.0, 0.0, -1.0);
-    //        let eye_vector = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    //        let normal_vector = Tuple4D::new_vector(0.0, 0.0, -1.0);
-    //
-    //        let material = w.get_shapes()[0].get_material();
-    //        let s1 = &w.get_shapes()[0];
-    //
-    //        let result = Material::lightning(
-    //            material,
-    //            s1,
-    //            w.get_light(),
-    //            &point,
-    //            &eye_vector,
-    //            &normal_vector,
-    //            intensity,
-    //        );
-    //
-    //        println!("result            {:?}", result);
-    //        println!("expected_result   {:?}", expected_result);
-    //
-    //        assert_color(&result, &expected_result);
-    //    }
-    //
-    //    // lighning uses light insenty
-    //    #[test]
-    //    fn test_area_lights_lighning_uses_light_insenty() {
-    //        let result = Color::new(1.0, 1.0, 1.0);
-    //        test_area_lights_lighning_uses_light_insenty_helper(1.0, result);
-    //
-    //        let result = Color::new(0.55, 0.55, 0.55);
-    //        test_area_lights_lighning_uses_light_insenty_helper(0.5, result);
-    //
-    //        let result = Color::new(0.1, 0.1, 0.1);
-    //        test_area_lights_lighning_uses_light_insenty_helper(0.0, result);
-    //    }
-    //
-    //
-    //    // bonus:  Scenario Outline: lighting() samples the area light
-    //    fn test_area_lights_lightning_samples_area_light_helper(point: Tuple4D, expected_result: Color) {
-    //        let corner = Tuple4D::new_point(-0.5, -0.5, -5.0);
-    //        let v1 = Tuple4D::new_vector(1.0, 0.0, 0.0);
-    //        let v2 = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    //
-    //        let usteps = 2;
-    //        let vsteps = 2;
-    //
-    //        let intensity = Color::new(1.0, 1.0, 1.0);
-    //        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
-    //        let light = LightEnum::AreaLight(arealight);
-    //
-    //        let mut sphere = Sphere::new();
-    //        sphere.get_material_mut().set_ambient(1.0);
-    //        sphere.get_material_mut().set_diffuse(0.9);
-    //        sphere.get_material_mut().set_specular(0.0);
-    //        sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
-    //        let sphere = Shape::new(ShapeEnum::Sphere(sphere), "blupp");
-    //
-    //        let eye = Tuple4D::new_point(0., 0., -5.0);
-    //        let eye_vec = Tuple4D::normalize(&(&eye - &point));
-    //        let normal_v = Tuple4D::new_vector(point.x, point.y, point.z);
-    //
-    //        let result = Material::lightning(sphere.get_material(), &sphere, &light, &point, &eye_vec, &normal_v, 1.0);
-    //
-    //        assert_color(&result, &expected_result);
-    //    }
-    //
-    //
-    //    // bonus:  Scenario Outline: lighting() samples the area light
-    //    #[test]
-    //    fn test_area_lights_lightning_samples_area_light() {
-    //        let point = Tuple4D::new_point(0.0, 0.0, -1.0);
-    //        let color = Color::new(0.9965, 0.9965, 0.9965);
-    //        test_area_lights_lightning_samples_area_light_helper(point, color);
-    //
-    //        let point = Tuple4D::new_point(0.0, 0.7071, -1.7071);
-    //        let color = Color::new(0.6232, 0.6232, 0.6232);
-    //        test_area_lights_lightning_samples_area_light_helper(point, color);
-    //    }
+        // bonus: soft shadows // area light
+        fn test_area_lights_lighning_uses_light_insenty_helper(intensity: f32, expected_result: Color) {
+            let w = default_world_soft_shadows();
+
+            let point = Tuple4D::new_point(0.0, 0.0, -1.0);
+            let eye_vector = Tuple4D::new_vector(0.0, 0.0, -1.0);
+            let normal_vector = Tuple4D::new_vector(0.0, 0.0, -1.0);
+
+            let material = w.get_shapes()[0].get_material();
+            let s1 = &w.get_shapes()[0];
+
+            let result = Material::lightning(
+                material,
+                s1,
+                w.get_light(),
+                &point,
+                &eye_vector,
+                &normal_vector,
+                intensity,
+            );
+
+            println!("result            {:?}", result);
+            println!("expected_result   {:?}", expected_result);
+
+            assert_color(&result, &expected_result);
+        }
+
+        // lighning uses light insenty
+        #[test]
+        fn test_area_lights_lighning_uses_light_insenty() {
+            let result = Color::new(1.0, 1.0, 1.0);
+            test_area_lights_lighning_uses_light_insenty_helper(1.0, result);
+
+            let result = Color::new(0.55, 0.55, 0.55);
+            test_area_lights_lighning_uses_light_insenty_helper(0.5, result);
+
+            let result = Color::new(0.1, 0.1, 0.1);
+            test_area_lights_lighning_uses_light_insenty_helper(0.0, result);
+        }
+
+
+        // bonus:  Scenario Outline: lighting() samples the area light
+        fn test_area_lights_lightning_samples_area_light_helper(point: Tuple4D, expected_result: Color) {
+            let corner = Tuple4D::new_point(-0.5, -0.5, -5.0);
+            let v1 = Tuple4D::new_vector(1.0, 0.0, 0.0);
+            let v2 = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+            let usteps = 2;
+            let vsteps = 2;
+
+            let intensity = Color::new(1.0, 1.0, 1.0);
+            let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+            let light = LightEnum::AreaLight(arealight);
+
+            let mut sphere = Sphere::new();
+            sphere.get_material_mut().set_ambient(1.0);
+            sphere.get_material_mut().set_diffuse(0.9);
+            sphere.get_material_mut().set_specular(0.0);
+            sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
+            let sphere = Shape::new(ShapeEnum::Sphere(sphere), "blupp");
+
+            let eye = Tuple4D::new_point(0., 0., -5.0);
+            let eye_vec = Tuple4D::normalize(&(&eye - &point));
+            let normal_v = Tuple4D::new_vector(point.x, point.y, point.z);
+
+            let result = Material::lightning(sphere.get_material(), &sphere, &light, &point, &eye_vec, &normal_v, 1.0);
+
+            assert_color(&result, &expected_result);
+        }
+
+        // bonus:  Scenario Outline: lighting() samples the area light
+        #[test]
+        fn test_area_lights_lightning_samples_area_light() {
+            let point = Tuple4D::new_point(0.0, 0.0, -1.0);
+            let color = Color::new(0.9965, 0.9965, 0.9965);
+            test_area_lights_lightning_samples_area_light_helper(point, color);
+
+            let point = Tuple4D::new_point(0.0, 0.7071, -1.7071);
+            let color = Color::new(0.6232, 0.6232, 0.6232);
+            test_area_lights_lightning_samples_area_light_helper(point, color);
+        }
 }
