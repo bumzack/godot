@@ -36,11 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 384;
     let height = 216;
 
-    let width = 800;
-    let height = 600;
 
-    let width = 1200;
-    let height = 1000;
 
     let filename = "compare_to_cuda_no_aa.ppm";
 
@@ -163,73 +159,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
-    let mut floor = Sphere::new();
-    floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
-    floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
-    floor.get_material_mut().set_specular(0.0);
-
-    let mut left_wall = Sphere::new();
-    left_wall.set_transformation(
-        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
-            * &Matrix::scale(10.0, 0.01, 10.),
-    );
-    left_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
-    left_wall.get_material_mut().set_specular(0.0);
-
-    let mut right_wall = Sphere::new();
-    right_wall.set_transformation(
-        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
-            * &Matrix::scale(10.0, 0.01, 10.0),
-    );
-    right_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
-    right_wall.get_material_mut().set_specular(0.0);
-
-    let mut middle = Sphere::new();
-    middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
-    middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
-    middle.get_material_mut().set_diffuse(0.7);
-    middle.get_material_mut().set_specular(0.3);
-
-    let mut right = Sphere::new();
-    right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
-    right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
-    right.get_material_mut().set_diffuse(0.7);
-    right.get_material_mut().set_specular(0.3);
-
-    let mut left = Sphere::new();
-    left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
-    left.get_material_mut().set_color(Color::new(1.0, 0.8, 0.1));
-    left.get_material_mut().set_diffuse(0.7);
-    left.get_material_mut().set_specular(0.3);
-
-    let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let l = LightEnum::PointLight(pl);
-
-    let mut world = World::new();
-    world.set_light(l);
-    world.add_shape(Shape::new(ShapeEnum::Sphere(floor), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "left_wall"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "v"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
-
-    let mut c = Camera::new(w, h, PI / 3.0);
-    c.calc_pixel_size();
-    c.set_antialiasing(false);
-    c.set_antialiasing_size(3);
-
-    c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 1.5, -5.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
-    ));
-
-    (world, c)
-}
-
-
 fn setup_world_chapter14<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
     let mut floor = Plane::new();
     let mut p: GradientPattern = GradientPattern::new();
@@ -329,5 +258,72 @@ fn setup_world_chapter14<'a>(width: usize, height: usize) -> (World<'a>, Camera)
         &Tuple4D::new_point(0.0, 1.0, 0.0),
     ));
     (w, c)
+}
+
+
+fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
+    let mut floor = Sphere::new();
+    floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
+    floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
+    floor.get_material_mut().set_specular(0.0);
+
+    let mut left_wall = Sphere::new();
+    left_wall.set_transformation(
+        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
+            * &Matrix::scale(10.0, 0.01, 10.),
+    );
+    left_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
+    left_wall.get_material_mut().set_specular(0.0);
+
+    let mut right_wall = Sphere::new();
+    right_wall.set_transformation(
+        &(&(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
+            * &Matrix::scale(10.0, 0.01, 10.0),
+    );
+    right_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
+    right_wall.get_material_mut().set_specular(0.0);
+
+    let mut middle = Sphere::new();
+    middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
+    middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
+    middle.get_material_mut().set_diffuse(0.7);
+    middle.get_material_mut().set_specular(0.3);
+
+    let mut right = Sphere::new();
+    right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
+    right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
+    right.get_material_mut().set_diffuse(0.7);
+    right.get_material_mut().set_specular(0.3);
+
+    let mut left = Sphere::new();
+    left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
+    left.get_material_mut().set_color(Color::new(1.0, 0.8, 0.1));
+    left.get_material_mut().set_diffuse(0.7);
+    left.get_material_mut().set_specular(0.3);
+
+    let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    let l = LightEnum::PointLight(pl);
+
+    let mut world = World::new();
+    world.set_light(l);
+    world.add_shape(Shape::new(ShapeEnum::Sphere(floor), "floor"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "left_wall"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "v"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
+
+    let mut c = Camera::new(w, h, PI / 3.0);
+    c.calc_pixel_size();
+    c.set_antialiasing(false);
+    c.set_antialiasing_size(3);
+
+    c.set_transformation(Matrix::view_transform(
+        &Tuple4D::new_point(0.0, 1.5, -5.0),
+        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_point(0.0, 1.0, 0.0),
+    ));
+
+    (world, c)
 }
 
