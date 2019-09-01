@@ -47,7 +47,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Cube(ref cube) => cube.normal_at(p),
             ShapeEnum::Cylinder(ref cylinder) => Cylinder::normal_at(cylinder, p),
             ShapeEnum::Triangle(ref triangle) => Triangle::normal_at(triangle, p),
-            ShapeEnum::Group(ref group) => panic!("Group::normal_at should never be called "),
+            ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
         };
         res
     }
@@ -59,7 +59,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Cube(ref c) => c.get_material(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
             ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
-            ShapeEnum::Group(ref group) => panic!("Group::get_material should never be called "),
+            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
         };
         res
     }
@@ -71,7 +71,7 @@ impl<'a> Shape<'a> {
             ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
             ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
             ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
-            ShapeEnum::Group(ref group) => panic!("Group::get_material should never be called "),
+            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
         };
         res
     }

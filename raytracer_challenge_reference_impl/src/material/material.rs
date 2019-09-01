@@ -4,6 +4,7 @@ use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
 use crate::light::light::{LightEnum, LightOps};
+use crate::math::common::assert_valid_color;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::patterns::Pattern;
@@ -131,6 +132,10 @@ impl MaterialOps for Material {
 //        println!("diffuse       {:?}", diffuse);
 //        println!("specular       {:?}", specular);
 //        println!("ambient       {:?}", ambient);
+
+        assert_valid_color(&ambient);
+        assert_valid_color(&diffuse);
+        assert_valid_color(&specular);
 
         if intensity == 1.0 {
             ambient + diffuse * intensity + specular * intensity

@@ -8,7 +8,7 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::{Shape, ShapeEnum, ShapeIdx};
+use crate::shape::shape::{ShapeEnum, ShapeIdx};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Group {

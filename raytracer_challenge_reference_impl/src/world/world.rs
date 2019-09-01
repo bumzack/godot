@@ -8,7 +8,7 @@ use crate::basics::ray::RayOps;
 use crate::light::light::{LightEnum, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
-use crate::math::common::EPSILON;
+use crate::math::common::{assert_valid_color, EPSILON};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -110,8 +110,11 @@ impl<'a> WorldOps<'a> for World<'a> {
             comp.get_normal_vector(),
             intensity,
         );
+        assert_valid_color(&surface);
         let reflected = World::reflected_color(w, comp, remaining);
         let refracted = World::refracted_color(w, comp, remaining);
+        assert_valid_color(&reflected);
+        assert_valid_color(&refracted);
 
         let material = comp.get_object().get_material();
         if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {

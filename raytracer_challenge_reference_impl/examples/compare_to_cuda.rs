@@ -33,15 +33,18 @@ use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 3840;
-    let height = 2160;
+    let width = 384;
+    let height = 216;
 
     let width = 800;
     let height = 600;
 
-    let filename = "ref_impl_compare_to_cuda.ppm";
+    let width = 1200;
+    let height = 1000;
 
-    let (world, camera) = setup_world_chapter14(width, height);
+    let filename = "compare_to_cuda_no_aa.ppm";
+
+    let (world, camera) = setup_world(width, height);
 
     let start = Instant::now();
     let num_cores = num_cpus::get() + 1;
@@ -134,7 +137,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -152,7 +155,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
     }
     let dur = Instant::now() - start;
-    println!("multi core duration: {:?}  ", dur,);
+    println!("multi core duration: {:?}  ", dur, );
 
     let c = data.lock().unwrap();
     c.write_ppm(filename)?;
@@ -214,7 +217,7 @@ fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
 
     let mut c = Camera::new(w, h, PI / 3.0);
     c.calc_pixel_size();
-    c.set_antialiasing(true);
+    c.set_antialiasing(false);
     c.set_antialiasing_size(3);
 
     c.set_transformation(Matrix::view_transform(
@@ -280,7 +283,7 @@ fn setup_world_chapter14<'a>(width: usize, height: usize) -> (World<'a>, Camera)
     let mut stripe = StripePattern::new();
     stripe.set_color_a(Color::new(1.0, 0.0, 0.0));
     stripe.set_color_b(Color::new(0.1, 1.0, 0.0));
-    stripe.set_transformation( Matrix::scale(0.6, 0.6, 0.6));
+    stripe.set_transformation(Matrix::scale(0.6, 0.6, 0.6));
     let stripe = Pattern::StripePattern(stripe);
 
     let mut cube = Cube::new();
@@ -297,8 +300,8 @@ fn setup_world_chapter14<'a>(width: usize, height: usize) -> (World<'a>, Camera)
 
     let mut cylinder = Cylinder::new();
     let c_trans = Matrix::translation(1.5, 1.0, -0.75);
-     let c_scale = Matrix::scale(0.5, 0.5, 0.25);
-    cylinder.set_transformation(c_trans);
+    let c_scale = Matrix::scale(0.5, 0.5, 0.25);
+    cylinder.set_transformation(c_trans * c_scale);
     cylinder.get_material_mut().set_pattern(p);
     cylinder.get_material_mut().set_transparency(0.0);
     cylinder.set_minimum(0.0);

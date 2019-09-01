@@ -40,6 +40,16 @@ pub fn assert_color(actual: &Color, expected: &Color) {
     assert_eq!(assert_two_float(actual.b, expected.b), true);
 }
 
+pub fn assert_valid_color(c: &Color) {
+    if c.r.is_nan() || c.g.is_nan() || c.b.is_nan() {
+        panic!("c has  NAN  component            c = {:?}", c);
+    }
+
+    if c.r.is_infinite() || c.g.is_infinite() || c.b.is_infinite() {
+        panic!("c has  INFINITE  component           c = {:?}", c);
+    }
+}
+
 pub fn assert_two_float(a: f32, b: f32) -> bool {
     // println!("float_equal: a = {}, b = {}", a, b);
     if (a - b).abs() < EPSILON {
