@@ -4,11 +4,14 @@ version = "0.1.0"
 authors = ["bumzack"]
 edition = "2018"
 
-[dependencies]
-# rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" }
-# rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" }
-
-
 # only needed for tests
 [dev-dependencies]
 cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }
+
+[features]
+cuda = ["rustacuda_derive", "rustacuda_core"]
+
+[dependencies]
+rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
+rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
+

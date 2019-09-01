@@ -1,11 +1,15 @@
 // TODO: thats stupid - everything is a 4x4 matrix
 
+#[cfg(feature = "cuda")]
+extern crate rustacuda_derive;
+
 
 use core::ops::{Index, IndexMut, Mul};
 
 use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
@@ -1340,7 +1344,7 @@ mod tests {
 //            0.70710678, 0., 0.70710678, -5.,
 //            0., 0., 0., 1.,
 //        );
-        let m_inv = Matrix::invert(&m).unwrap();
+            let m_inv = Matrix::invert(&m).unwrap();
         // assert_matrix(&m_inv, &m_inv_expected);
         let p = Tuple4D::new_vector(0.0, 0.0, -1.0);
 

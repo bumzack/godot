@@ -8,14 +8,15 @@
 
 #[cfg(test)]
 extern crate cpu_kernel_raytracer;
+#[cfg(feature = "cuda")]
+#[macro_use]
+extern crate rustacuda_derive;
 // enable std for tests :-)
 #[cfg(test)]
 #[macro_use]
 extern crate std;
 
 
-// #[macro_use]
-// extern crate rustacuda_derive;
 // extern crate rustacuda_core;
 
 pub use self::basics::*;
