@@ -4,7 +4,6 @@ extern crate num_cpus;
 
 use std::error::Error;
 use std::f32::consts::PI;
-use std::intrinsics::transmute;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -32,11 +31,113 @@ use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
 use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main_debug() -> Result<(), Box<dyn Error>> {
     let width = 384;
     let height = 216;
 
+    let filename = "compare_to_cuda_no_aa.ppm";
 
+    let (world, camera) = setup_world(width, height);
+
+    let start = Instant::now();
+    let mut canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
+
+
+    let n_samples = camera.get_antialiasing_size();
+    let mut jitter_matrix = Vec::new();
+    if n_samples == 2 {
+        jitter_matrix = vec![
+            -1.0 / 4.0,
+            1.0 / 4.0,
+            1.0 / 4.0,
+            1.0 / 4.0,
+            -1.0 / 4.0,
+            -1.0 / 4.0,
+            1.0 / 4.0,
+            -3.0 / 4.0,
+        ];
+    }
+
+    if n_samples == 3 {
+        let two_over_six = 2.0 / 6.0;
+        #[rustfmt::skip]
+            jitter_matrix = vec![
+            -two_over_six,
+            two_over_six,
+            0.0,
+            two_over_six,
+            two_over_six,
+            two_over_six,
+            -two_over_six,
+            0.0,
+            0.0,
+            0.0,
+            two_over_six,
+            0.0,
+            -two_over_six,
+            -two_over_six,
+            0.0,
+            -two_over_six,
+            two_over_six,
+            -two_over_six,
+        ];
+    }
+
+    let height = camera.get_vsize();
+    let width = camera.get_hsize();
+
+
+    let x = 235;
+    let y = 70;
+
+    let mut color = BLACK;
+    if camera.get_antialiasing() {
+        // Accumulate light for N samples.
+        for sample in 0..n_samples {
+            let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
+            let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
+            let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
+            color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        }
+        color = color / n_samples as f32;
+        println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    } else {
+        let r = Camera::ray_for_pixel(&camera, x, y);
+        color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        println!("no  AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    }
+
+    let x = 236;
+    let y = 70;
+
+    let mut color = BLACK;
+    if camera.get_antialiasing() {
+        // Accumulate light for N samples.
+        for sample in 0..n_samples {
+            let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
+            let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
+            let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
+            color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        }
+        color = color / n_samples as f32;
+        println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    } else {
+        let r = Camera::ray_for_pixel(&camera, x, y);
+        color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        println!("no  AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    }
+
+
+    canvas.write_pixel(x, y, color);
+
+    canvas.write_ppm(filename)?;
+
+    Ok(())
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let width = 384;
+    let height = 216;
 
     let filename = "compare_to_cuda_no_aa.ppm";
 
@@ -123,7 +224,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 for x in 0..width {
                     let mut color = BLACK;
                     if c_clone.get_antialiasing() {
-                        // Accumulate light for N samples.
+// Accumulate light for N samples.
                         for sample in 0..n_samples {
                             let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
                             let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
@@ -133,7 +234,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+// println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
