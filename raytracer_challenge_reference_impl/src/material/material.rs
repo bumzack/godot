@@ -1,3 +1,5 @@
+use std::f32::{MAX, NAN};
+
 use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
@@ -113,8 +115,23 @@ impl MaterialOps for Material {
             if reflect_dot_eye > 0.0 {
                 let factor = reflect_dot_eye.powf(material.shininess);
                 specular = light.get_intensity() * material.specular * factor;
+
+                if specular.r.is_nan(){
+                    specular.r = 0.0;
+                }
+                if specular.g.is_nan() {
+                    specular.g = 0.0;
+                }
+                if specular.b.is_nan() {
+                    specular.b = 0.0;
+                }
             }
         }
+//        println!("intensity     {}", intensity);
+//        println!("diffuse       {:?}", diffuse);
+//        println!("specular       {:?}", specular);
+//        println!("ambient       {:?}", ambient);
+
         if intensity == 1.0 {
             ambient + diffuse * intensity + specular * intensity
         } else {
