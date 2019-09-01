@@ -1,9 +1,4 @@
-use crate::basics::color::{Color, ColorOps, BLACK};
-use crate::light::light::{Light, LightOps};
-use crate::math::math::intri_powf;
-use crate::math::tuple4d::{Tuple, Tuple4D};
-use crate::patterns::patterns::Pattern;
-use crate::shape::shape::Shape;
+use crate::{BLACK, Color, ColorOps, intri_powf, Light, LightOps, Pattern, Shape, Tuple, Tuple4D};
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;
@@ -11,7 +6,7 @@ pub const REFRACTION_WATER: f32 = 1.333;
 pub const REFRACTION_GLASS: f32 = 1.52;
 pub const REFRACTION_DIAMOND: f32 = 2.417;
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Material {
     color: Color,
     ambient: f32,

@@ -1,4 +1,4 @@
-use crate::math::tuple4d::Tuple4D;
+use crate::Tuple4D;
 
 pub struct PrecomputedComponent {
     t: f32,

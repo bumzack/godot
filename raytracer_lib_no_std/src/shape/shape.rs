@@ -1,9 +1,6 @@
-use crate::material::material::Material;
-use crate::math::matrix::Matrix;
-use crate::math::tuple4d::Tuple4D;
-use crate::shape::sphere::{Sphere, SphereOps};
+use crate::{Material, Matrix, Sphere, SphereOps, Tuple4D};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ShapeEnum {
     Sphere(Sphere),
     //    Plane(Plane),
@@ -12,7 +9,7 @@ pub enum ShapeEnum {
     //    Triangle(Triangle),
 }
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Shape {
     shape: ShapeEnum,
 }

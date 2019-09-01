@@ -1,15 +1,23 @@
-use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
-use raytracer_lib_no_std::basics::color::{Color, ColorOps};
-use raytracer_lib_no_std::material::material::MaterialOps;
-use raytracer_lib_no_std::math::matrix::{Matrix, MatrixOps};
-use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
-
-use raytracer_lib_no_std::light::light::Light;
-use raytracer_lib_no_std::light::pointlight::PointLight;
-use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_std::world::world::{World, WorldOps};
 use std::f32::consts::PI;
+
+use raytracer::Camera;
+use raytracer::CameraOps;
+use raytracer::Color;
+use raytracer::ColorOps;
+use raytracer::Light;
+use raytracer::Material;
+use raytracer::MaterialOps;
+use raytracer::Matrix;
+use raytracer::MatrixOps;
+use raytracer::PointLight;
+use raytracer::Shape;
+use raytracer::ShapeEnum;
+use raytracer::Sphere;
+use raytracer::SphereOps;
+use raytracer::Tuple;
+use raytracer::Tuple4D;
+use raytracer::World;
+use raytracer::WorldOps;
 
 pub fn setup_world(w: usize, h: usize) -> (World, Camera) {
     let mut floor = Sphere::new();

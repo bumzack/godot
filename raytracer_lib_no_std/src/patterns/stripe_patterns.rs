@@ -1,10 +1,6 @@
-use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
-use crate::math::math::intri_floor;
-use crate::math::matrix::{Matrix, MatrixOps};
-use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
+use crate::{BLACK, Color, ColorOps, intri_floor, Matrix, MatrixOps, Shape, Tuple4D, WHITE};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct StripePattern {
     color_a: Color,
     color_b: Color,

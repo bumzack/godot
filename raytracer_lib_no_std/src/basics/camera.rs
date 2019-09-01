@@ -1,13 +1,6 @@
-use crate::basics::color::BLACK;
-use crate::basics::ray::Ray;
-use crate::basics::ray::RayOps;
-use crate::math::math::intri_tan;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::{intri_tan, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
 
-#[derive(Clone, Debug, DeviceCopy)]
+#[derive(Clone, Debug)]
 pub struct Camera {
     hsize: usize,
     vsize: usize,
@@ -195,8 +188,8 @@ impl CameraOps for Camera {
 mod tests {
     use core::f32::consts::{PI, SQRT_2};
 
+    use crate::{assert_float, assert_matrix, assert_tuple, MatrixOps, Tuple4D};
     use crate::basics::color::{Color, ColorOps};
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 
     use super::*;
 

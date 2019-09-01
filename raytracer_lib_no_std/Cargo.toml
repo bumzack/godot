@@ -5,8 +5,8 @@ authors = ["bumzack"]
 edition = "2018"
 
 [dependencies]
-rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" }
-rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" }
+# rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" }
+# rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" }
 
 
 # only needed for tests

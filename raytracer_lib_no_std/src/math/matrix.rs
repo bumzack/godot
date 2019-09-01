@@ -1,12 +1,11 @@
 // TODO: thats stupid - everything is a 4x4 matrix
 
-//use crate::math::raytracer_lib_no_std::assert_two_float;
-use crate::math::common::EPSILON;
-use crate::math::math::{intri_abs, intri_cos, intri_sin};
-use crate::math::tuple4d::{Tuple, Tuple4D};
+
 use core::ops::{Index, IndexMut, Mul};
 
-#[derive(Clone, Debug, DeviceCopy)]
+use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
+
+#[derive(Clone, Debug)]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
@@ -473,7 +472,7 @@ impl IndexMut<usize> for Matrix {
 mod tests {
     use core::f32::consts::{PI, SQRT_2};
 
-    use crate::math::common::{assert_float, assert_matrix, assert_tuple};
+    use crate::{assert_float, assert_matrix, assert_tuple};
 
     use super::*;
 

@@ -1,7 +1,4 @@
-use crate::basics::color::Color;
-use crate::math::math::intri_abs;
-use crate::math::matrix::Matrix;
-use crate::math::tuple4d::Tuple4D;
+use crate::{Color, intri_abs, Matrix, Tuple4D};
 
 pub const EPSILON: f32 = 0.000001;
 

@@ -1,15 +1,14 @@
-use raytracer_lib_no_std::basics::color::{Color, ColorOps, BLACK};
+use raytracer_lib_no_std::basics::color::{BLACK, Color};
+use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::{Light, LightOps};
+use raytracer_lib_no_std::material::material::{Material, MaterialOps};
+use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::Shape;
 
 use crate::cpu::intersection::Intersection;
 use crate::cpu::intersection::IntersectionOps;
-
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
-use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
-use raytracer_lib_no_std::material::material::{Material, MaterialOps};
-use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 
 pub struct CpuKernel {}
 

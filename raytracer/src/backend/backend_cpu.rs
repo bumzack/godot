@@ -1,17 +1,17 @@
 // extern crate crossbeam;
 
-use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
 
-use crate::backend::backend::Backend;
-
-use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
-use cpu_kernel_raytracer::cpu::cpu_kernel::CpuKernel;
-use raytracer_lib_no_std::basics::color::BLACK;
-use raytracer_lib_no_std::basics::ray::RayOps;
-use raytracer_lib_std::canvas::canvas::{Canvas, CanvasOps};
-use raytracer_lib_std::world::world::{World, WorldOps};
 use std::error::Error;
 use std::time::Instant;
+
+use cpu_kernel_raytracer::camera::{Camera, CameraOps};
+use cpu_kernel_raytracer::color::{BLACK, Color, ColorOps};
+use cpu_kernel_raytracer::CpuKernel;
+use cpu_kernel_raytracer::ray::RayOps;
+use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
+
+use crate::backend::backend::Backend;
+use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
 
 pub struct BackendCpu {
     multi_core: bool,
@@ -101,13 +101,12 @@ impl BackendCpu {
 
                         let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
 
-                        color = color
-                            + CpuKernel::color_at(
-                                world.get_shapes(),
-                                &lights,
-                                &r,
-                                MAX_REFLECTION_RECURSION_DEPTH,
-                            );
+                        color = CpuKernel::color_at(
+                            world.get_shapes(),
+                            &lights,
+                            &r,
+                            MAX_REFLECTION_RECURSION_DEPTH,
+                        ) + color;
                     }
                     color = color / n_samples as f32;
                     // println!("with AA    color at ({}/{}): {:?}", x, y, color);

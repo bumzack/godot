@@ -1,10 +1,6 @@
-use crate::basics::color::Color;
-use crate::math::matrix::Matrix;
-use crate::math::tuple4d::Tuple4D;
-use crate::patterns::stripe_patterns::StripePattern;
-use crate::shape::shape::Shape;
+use crate::{Color, Matrix, Shape, StripePattern, Tuple4D};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Pattern {
     StripePattern(StripePattern),
     //    GradientPattern(GradientPattern),

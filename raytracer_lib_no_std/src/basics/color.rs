@@ -11,7 +11,7 @@ pub const WHITE: Color = Color {
     b: 1.0,
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
@@ -148,8 +148,9 @@ impl Div<f32> for Color {
 
 #[cfg(test)]
 mod tests {
+    use crate::{assert_color, assert_float};
+
     use super::*;
-    use crate::math::common::{assert_float, assert_color};
 
     #[test]
     fn test_add_color() {

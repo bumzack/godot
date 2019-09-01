@@ -1,10 +1,11 @@
-use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::math::common::EPSILON;
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
 use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
+
+use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Intersection {
@@ -81,7 +82,7 @@ impl IntersectionOps for Intersection {
     fn prepare_computations(
         intersection: &Intersection,
         r: &Ray,
-        list: &IntersectionList,
+        _list: &IntersectionList,
         shapes: &Vec<Shape>,
     ) -> PrecomputedComponent {
         let point = Ray::position(r, intersection.get_t());
@@ -99,7 +100,7 @@ impl IntersectionOps for Intersection {
         let over_point = &point + &(&normal_vector * EPSILON);
         let under_point = &point - &(&normal_vector * EPSILON);
 
-        let mut comp = PrecomputedComponent::new(
+        let   comp = PrecomputedComponent::new(
             intersection.get_t(),
             intersection.get_shape(),
             point,

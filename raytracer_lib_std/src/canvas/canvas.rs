@@ -1,7 +1,9 @@
-use image::{ImageBuffer, RgbImage};
-use raytracer_lib_no_std::basics::color::{Color, ColorOps};
 use std::fs::File;
 use std::io::{Error, Write};
+
+use image::{ImageBuffer, RgbImage};
+
+use raytracer_lib_no_std::{Color, ColorOps};
 
 pub type ColorVec = Vec<Color>;
 

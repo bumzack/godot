@@ -1,7 +1,6 @@
-use crate::math::matrix::Matrix;
-use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::{Matrix, Tuple4D};
 
-#[derive(Clone, Debug, DeviceCopy)]
+#[derive(Clone, Debug)]
 pub struct Ray {
     origin: Tuple4D,
     direction: Tuple4D,
@@ -46,15 +45,18 @@ impl RayOps for Ray {
 
 #[cfg(test)]
 mod tests {
-     use crate::math::matrix::MatrixOps;
+    use crate::{assert_float, assert_tuple, MatrixOps, Tuple};
 
     use super::*;
-    use crate::math::common::{assert_float, assert_tuple};
 
     #[test]
     fn test_ray_new() {
         let o = Tuple4D::new_point(1.0, 2.0, 3.0);
-        let d = Tuple4D::new_vector(4.0, 5.0, 6.0);
+        let d = Tuple4D::new_vector(
+            4.0,
+            5.0,
+            6.0
+        );
 
         let r = Ray::new(o, d);
 

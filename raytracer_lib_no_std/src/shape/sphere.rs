@@ -1,10 +1,6 @@
-use crate::basics::ray::{Ray, RayOps};
-use crate::material::material::{Material, MaterialOps};
-use crate::math::math::intri_sqrt;
-use crate::math::matrix::{Matrix, MatrixOps};
-use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
