@@ -35,6 +35,7 @@ fn main_debug() -> Result<(), Box<dyn Error>> {
     let width = 384;
     let height = 216;
 
+
     let filename = "compare_to_cuda_no_aa.ppm";
 
     let (world, camera) = setup_world(width, height);
@@ -138,6 +139,10 @@ fn main_debug() -> Result<(), Box<dyn Error>> {
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 384;
     let height = 216;
+
+
+    let width = 1200;
+    let height = 1000;
 
     let filename = "compare_to_cuda_no_aa.ppm";
 

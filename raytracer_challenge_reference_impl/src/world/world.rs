@@ -193,7 +193,9 @@ impl<'a> WorldOps<'a> for World<'a> {
                 return true;
             }
         }else {
-            println!("h is none");
+            if DEBUG {
+                println!("h is none");
+            }
         }
         false
     }
@@ -684,7 +686,7 @@ mod tests {
 
         let c = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
-        let c_expected = Color::new(0.3805423, 0.47567785, 0.285487);
+        let c_expected = Color::new(0.3805423, 0.47567785, 0.2854067);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);

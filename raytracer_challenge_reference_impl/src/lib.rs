@@ -8,4 +8,4 @@ pub mod patterns;
 pub mod shape;
 pub mod world;
 
-pub const DEBUG: bool = true;
+pub const DEBUG: bool = false;
