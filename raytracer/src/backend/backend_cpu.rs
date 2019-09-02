@@ -5,7 +5,7 @@ use std::error::Error;
 use std::time::Instant;
 
 use cpu_kernel_raytracer::camera::{Camera, CameraOps};
-use cpu_kernel_raytracer::color::{BLACK, Color, ColorOps};
+use cpu_kernel_raytracer::color::BLACK;
 use cpu_kernel_raytracer::CpuKernel;
 use cpu_kernel_raytracer::ray::RayOps;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
@@ -113,14 +113,13 @@ impl BackendCpu {
                     canvas.write_pixel(x, y, color);
                 } else {
                     let r = Camera::ray_for_pixel(c, x, y);
-                    let mut color = BLACK;
 
-//                    let color = CpuKernel::color_at(
-//                        world.get_shapes(),
-//                        &lights,
-//                        &r,
-//                        MAX_REFLECTION_RECURSION_DEPTH,
-//                    );
+                    let color = CpuKernel::color_at(
+                        world.get_shapes(),
+                        &lights,
+                        &r,
+                        MAX_REFLECTION_RECURSION_DEPTH,
+                    );
                     // println!("no AA    color at ({}/{}): {:?}", x, y, color);
                     canvas.write_pixel(x, y, color);
                 }
@@ -185,10 +184,10 @@ impl BackendCpu {
     }
 
     // TODO: implement using rayon ?!?!!?
-    fn render_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
+    fn render_multi_core(&self, _world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
 
-        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        let   canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
         let stopped = Instant::now();
         println!(

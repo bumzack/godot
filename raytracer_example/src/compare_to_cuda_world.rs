@@ -5,7 +5,6 @@ use raytracer::CameraOps;
 use raytracer::Color;
 use raytracer::ColorOps;
 use raytracer::Light;
-use raytracer::Material;
 use raytracer::MaterialOps;
 use raytracer::Matrix;
 use raytracer::MatrixOps;
