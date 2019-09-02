@@ -1,6 +1,5 @@
 // extern crate crossbeam;
 
-
 use std::error::Error;
 use std::time::Instant;
 
@@ -101,12 +100,8 @@ impl BackendCpu {
 
                         let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
 
-                        color = CpuKernel::color_at(
-                            world.get_shapes(),
-                            &lights,
-                            &r,
-                            MAX_REFLECTION_RECURSION_DEPTH,
-                        ) + color;
+                        color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH)
+                            + color;
                     }
                     color = color / n_samples as f32;
                     // println!("with AA    color at ({}/{}): {:?}", x, y, color);
@@ -114,12 +109,7 @@ impl BackendCpu {
                 } else {
                     let r = Camera::ray_for_pixel(c, x, y);
 
-                    let color = CpuKernel::color_at(
-                        world.get_shapes(),
-                        &lights,
-                        &r,
-                        MAX_REFLECTION_RECURSION_DEPTH,
-                    );
+                    let color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     // println!("no AA    color at ({}/{}): {:?}", x, y, color);
                     canvas.write_pixel(x, y, color);
                 }
@@ -135,11 +125,7 @@ impl BackendCpu {
         Ok(canvas)
     }
 
-    fn render_single_core_debug(
-        &self,
-        world: &mut World,
-        c: &Camera,
-    ) -> Result<Canvas, Box<dyn Error>> {
+    fn render_single_core_debug(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
 
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
@@ -158,12 +144,7 @@ impl BackendCpu {
         let y = 240;
 
         let r = Camera::ray_for_pixel(c, x, y);
-        let color = CpuKernel::color_at(
-            world.get_shapes(),
-            &lights,
-            &r,
-            MAX_REFLECTION_RECURSION_DEPTH,
-        );
+        let color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
         println!(
             "ray at ( {} / {} )   origin = {:?},    direction = {:?}",
             x,
@@ -187,7 +168,7 @@ impl BackendCpu {
     fn render_multi_core(&self, _world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
 
-        let   canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
         let stopped = Instant::now();
         println!(

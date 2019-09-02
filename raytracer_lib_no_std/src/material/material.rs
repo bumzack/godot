@@ -158,11 +158,7 @@ impl MaterialOps for Material {
         let c: Color;
         // TODO: a lot of color copying here ...
         if material.get_pattern().is_some() {
-            c = material
-                .get_pattern()
-                .as_ref()
-                .unwrap()
-                .color_at_object(shape, point);
+            c = material.get_pattern().as_ref().unwrap().color_at_object(shape, point);
         } else {
             c = Color::from_color(&material.get_color());
         }

@@ -52,11 +52,7 @@ mod tests {
     #[test]
     fn test_ray_new() {
         let o = Tuple4D::new_point(1.0, 2.0, 3.0);
-        let d = Tuple4D::new_vector(
-            4.0,
-            5.0,
-            6.0
-        );
+        let d = Tuple4D::new_vector(4.0, 5.0, 6.0);
 
         let r = Ray::new(o, d);
 

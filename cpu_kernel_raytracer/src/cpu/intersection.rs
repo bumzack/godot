@@ -100,7 +100,7 @@ impl IntersectionOps for Intersection {
         let over_point = &point + &(&normal_vector * EPSILON);
         let under_point = &point - &(&normal_vector * EPSILON);
 
-        let   comp = PrecomputedComponent::new(
+        let comp = PrecomputedComponent::new(
             intersection.get_t(),
             intersection.get_shape(),
             point,

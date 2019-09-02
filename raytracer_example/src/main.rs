@@ -15,10 +15,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (mut w, c) = compare_to_cuda_world::setup_world(w, h);
 
-//    println!("\n\n---------- CUDA   --------------------");
-//    let backend_cuda = BackendCuda::new();
-//    let canvas = backend_cuda.render_world(&mut w, &c)?;
-//    canvas.write_png(&filename_cuda);
+    //    println!("\n\n---------- CUDA   --------------------");
+    //    let backend_cuda = BackendCuda::new();
+    //    let canvas = backend_cuda.render_world(&mut w, &c)?;
+    //    canvas.write_png(&filename_cuda);
 
     println!("\n\n---------- CPU    --------------------");
     let backend_cpu = BackendCpu::new();

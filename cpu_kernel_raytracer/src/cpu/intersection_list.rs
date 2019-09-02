@@ -2,9 +2,10 @@
 // how can this be merged into 1 file?
 // use #!cfg target = ... or something ?
 
+use core::fmt;
+
 use crate::cpu::intersection::Intersection;
 use crate::cpu::intersection::IntersectionOps;
-use core::fmt;
 
 pub const MAX_INTERSECTIONLIST_LEN: usize = 1000;
 
@@ -47,9 +48,7 @@ impl IntersectionListOps for IntersectionList {
 
     fn add(&mut self, i: Intersection) {
         if !(self.len < self.capacity) {
-            panic!(
-                "IntersectionListOps::add  array is full. try increasing MAX_INTERSECTIONLIST_LEN"
-            );
+            panic!("IntersectionListOps::add  array is full. try increasing MAX_INTERSECTIONLIST_LEN");
         }
         self.list_of_intersections[self.len] = i;
         self.len += 1;
@@ -81,8 +80,7 @@ impl IntersectionListOps for IntersectionList {
         // there you go BubbleSort :-)
         for n in (1..self.len).rev() {
             for i in 0..n - 1 {
-                if self.list_of_intersections[i].get_t() > self.list_of_intersections[i + 1].get_t()
-                {
+                if self.list_of_intersections[i].get_t() > self.list_of_intersections[i + 1].get_t() {
                     let tmp = self.list_of_intersections[i];
                     self.list_of_intersections[i] = self.list_of_intersections[i + 1];
                     self.list_of_intersections[i + 1] = tmp;
@@ -114,9 +112,10 @@ impl fmt::Debug for IntersectionList {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
     use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
-    use raytracer_lib_no_std::shape::shape::{ShapeEnum, Shape};
+
+    use super::*;
 
     #[test]
     fn test_new_intersection() {
@@ -149,7 +148,7 @@ mod tests {
         println!("is = {:?}", il);
         println!("is.len = {}     s.capacity = {}     ", il.len, il.capacity);
 
-       //  assert_eq!(true, false);
+        //  assert_eq!(true, false);
         // TODO: test ???
     }
 }

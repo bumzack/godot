@@ -1,4 +1,3 @@
-
 // TODO: use Vec<Light> if multiple light sources should be supported
 
 use raytracer_lib_no_std::{Color, ColorOps, Light, PointLight, Shape, Tuple, Tuple4D};
@@ -22,10 +21,7 @@ pub trait WorldOps {
 impl WorldOps for World {
     fn new() -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
-        let pl = PointLight::new(
-            Tuple4D::new_point(-10.0, 10.0, -10.0),
-            Color::new(1.0, 1.0, 1.0),
-        );
+        let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         World {
             shapes: Vec::new(),
             light: Light::PointLight(pl),

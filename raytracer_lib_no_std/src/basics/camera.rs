@@ -36,13 +36,7 @@ pub trait CameraOps {
     fn set_transformation(&mut self, m: Matrix);
 
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
-    fn ray_for_pixel_anti_aliasing(
-        c: &Camera,
-        x: usize,
-        y: usize,
-        x_offset: f32,
-        y_offset: f32,
-    ) -> Ray;
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, x_offset: f32, y_offset: f32) -> Ray;
 }
 
 impl CameraOps for Camera {
@@ -126,13 +120,7 @@ impl CameraOps for Camera {
         Ray::new(origin, direction)
     }
 
-    fn ray_for_pixel_anti_aliasing(
-        c: &Camera,
-        x: usize,
-        y: usize,
-        delta_x: f32,
-        delta_y: f32,
-    ) -> Ray {
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, delta_x: f32, delta_y: f32) -> Ray {
         let camera_transform_inv =
             Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
 

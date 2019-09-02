@@ -3,7 +3,6 @@
 #[cfg(feature = "cuda")]
 extern crate rustacuda_derive;
 
-
 use core::ops::{Index, IndexMut, Mul};
 
 use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
@@ -21,17 +20,7 @@ pub trait MatrixOps {
 
     fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix;
 
-    fn new_matrix_3x3(
-        a1: f32,
-        b1: f32,
-        c1: f32,
-        a2: f32,
-        b2: f32,
-        c2: f32,
-        a3: f32,
-        b3: f32,
-        c3: f32,
-    ) -> Matrix;
+    fn new_matrix_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix;
 
     fn new_matrix_4x4(
         a1: f32,
@@ -97,17 +86,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_matrix_3x3(
-        a1: f32,
-        b1: f32,
-        c1: f32,
-        a2: f32,
-        b2: f32,
-        c2: f32,
-        a3: f32,
-        b3: f32,
-        c3: f32,
-    ) -> Matrix {
+    fn new_matrix_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix {
         let mut m = Matrix {
             rows: 3,
             cols: 3,
@@ -205,9 +184,7 @@ impl MatrixOps for Matrix {
         if m.rows == 2 {
             return m[0][0] * m[1][1] - m[0][1] * m[1][0];
         } else if m.rows == 3 {
-            return m[0][0] * m[1][1] * m[2][2]
-                + m[0][1] * m[1][2] * m[2][0]
-                + m[0][2] * m[1][0] * m[2][1]
+            return m[0][0] * m[1][1] * m[2][2] + m[0][1] * m[1][2] * m[2][0] + m[0][2] * m[1][0] * m[2][1]
                 - m[0][2] * m[1][1] * m[2][0]
                 - m[0][0] * m[1][2] * m[2][1]
                 - m[0][1] * m[1][0] * m[2][2];
@@ -1133,10 +1110,8 @@ mod tests {
         let half_expected = Tuple4D::new_point(-sqrt2_half, sqrt2_half, 0.0);
         assert_tuple(&half, &half_expected);
 
-
         println!("tuple half_expected = {:?}", half_expected);
         println!("tuple half = {:?}", half);
-
 
         assert_float(half.x, -sqrt2_half);
         assert_float(half.y, sqrt2_half);
@@ -1226,7 +1201,6 @@ mod tests {
         println!("tuple p2 = {:?}", p2);
         println!("tuple expected x = {:?}, y = {}, z = {}", 1.0, -1.0, 0.0);
 
-
         assert_float(p2.x, 1.0);
         assert_float(p2.y, -1.0);
         assert_float(p2.z, 0.0);
@@ -1235,7 +1209,6 @@ mod tests {
         println!("tuple p3 = {:?}", p3);
         println!("tuple expected x = {:?}, y = {}, z = {}", 5.0, -5.0, 0.0);
 
-
         assert_float(p3.x, 5.0);
         assert_float(p3.y, -5.0);
         assert_float(p3.z, 0.0);
@@ -1243,7 +1216,6 @@ mod tests {
 
         println!("tuple p4 = {:?}", p4);
         println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
-
 
         assert_float(p4.x, 15.0);
         assert_float(p4.y, 0.0);

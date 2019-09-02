@@ -70,8 +70,7 @@ impl SphereOps for Sphere {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let object_point = self.get_inverse_transformation() * world_point;
         let object_normal = &(&object_point - &o);
-        let mut world_normal =
-            &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }

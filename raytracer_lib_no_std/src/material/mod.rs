@@ -1,4 +1,3 @@
 pub use self::material::*;
 
-pub  mod material;
-
+pub mod material;

@@ -1,10 +1,8 @@
 // #![cfg_attr(target_os = "cuda", feature(abi_ptx, proc_macro_hygiene))]
 //  #![cfg_attr(target_os = "cuda", no_std)]
 
-
 #![feature(core_intrinsics)]
 #![no_std]
-
 
 #[cfg(test)]
 extern crate cpu_kernel_raytracer;
@@ -15,7 +13,6 @@ extern crate rustacuda_derive;
 #[cfg(test)]
 #[macro_use]
 extern crate std;
-
 
 // extern crate rustacuda_core;
 
@@ -41,4 +38,3 @@ pub mod prelude {
     pub use super::patterns::*;
     pub use super::shape::*;
 }
-

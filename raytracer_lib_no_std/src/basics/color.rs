@@ -1,15 +1,7 @@
 use core::ops::{Add, Div, Mul, Sub};
 
-pub const BLACK: Color = Color {
-    r: 0.0,
-    g: 0.0,
-    b: 0.0,
-};
-pub const WHITE: Color = Color {
-    r: 1.0,
-    g: 1.0,
-    b: 1.0,
-};
+pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
+pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Color {
@@ -30,11 +22,7 @@ impl ColorOps for Color {
     }
 
     fn from_color(c: &Color) -> Color {
-        Color {
-            r: c.r,
-            g: c.g,
-            b: c.b,
-        }
+        Color { r: c.r, g: c.g, b: c.b }
     }
 }
 

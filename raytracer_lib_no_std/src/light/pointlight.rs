@@ -18,10 +18,7 @@ impl LightOps for PointLight {
 
 impl PointLight {
     pub fn new(position: Tuple4D, intensity: Color) -> PointLight {
-        PointLight {
-            position,
-            intensity,
-        }
+        PointLight { position, intensity }
     }
 }
 
@@ -40,11 +37,7 @@ mod tests {
         let pl = PointLight::new(position, intensity);
 
         let intensity_expected: Color = Color::new(1.0, 1.0, 1.0);
-        let position_expected = Tuple4D::new_point(
-            0.0,
-            0.0,
-            0.0
-        );
+        let position_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
 
         assert_color(pl.get_intensity(), &intensity_expected);
         assert_tuple(pl.get_position(), &position_expected);
