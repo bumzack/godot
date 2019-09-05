@@ -45,9 +45,10 @@ impl Pattern {
 
     pub fn get_inverse_transformation(&self) -> &Matrix {
         let res = match self {
-            Pattern::StripePattern(ref stripe_pattern) => stripe_pattern.get_inverse_transformation(), //            Pattern::GradientPattern(ref gradient_pattern) => gradient_pattern.get_inverse_transformation(),
-                                                                                                       //            Pattern::RingPattern(ref ring_pattern) => ring_pattern.get_inverse_transformation(),
-                                                                                                       //            Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_inverse_transformation(),
+            Pattern::StripePattern(ref stripe_pattern) => stripe_pattern.get_inverse_transformation(),
+            //            Pattern::GradientPattern(ref gradient_pattern) => gradient_pattern.get_inverse_transformation(),
+            //            Pattern::RingPattern(ref ring_pattern) => ring_pattern.get_inverse_transformation(),
+            //            Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_inverse_transformation(),
         };
         res
     }
