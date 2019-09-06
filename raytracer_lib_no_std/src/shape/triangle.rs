@@ -1,5 +1,3 @@
-use core::f32::INFINITY;
-
 use crate::{EPSILON, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -46,7 +44,7 @@ impl ShapeOps for Triangle {
         (res, res_cnt)
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
         Tuple4D::new_vector_from(self.get_normal())
     }
 
@@ -80,7 +78,7 @@ impl ShapeOps for Triangle {
 }
 
 impl Triangle {
-         fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
+         pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
             let e1 = &p2 - &p1;
             let e2 = &p3 - &p1;
             let normal = Tuple4D::normalize(&(&e2 * &e1));
@@ -97,27 +95,6 @@ impl Triangle {
             }
         }
 
-    fn check_axis(origin: f32, direction: f32) -> (f32, f32) {
-        let tmin_numerator = -1.0 - origin;
-        let tmax_numerator = 1.0 - origin;
-
-        let mut tmin;
-        let mut tmax;
-
-        if direction.abs() >= EPSILON {
-            tmin = tmin_numerator / direction;
-            tmax = tmax_numerator / direction;
-        } else {
-            tmin = tmin_numerator * INFINITY;
-            tmax = tmax_numerator * INFINITY;
-        }
-        if tmin > tmax {
-            let tmp = tmin;
-            tmin = tmax;
-            tmax = tmp;
-        }
-        (tmin, tmax)
-    }
 
     fn get_p1(&self) -> &Tuple4D {
         &self.p1

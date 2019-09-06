@@ -40,7 +40,6 @@ impl Pattern {
     pub fn get_transformation(&self) -> &Matrix {
         match self {
             Pattern::StripePattern(ref stripe_pattern) => stripe_pattern.get_transformation(),
-            Pattern::StripePattern(ref stripe_pattern) => stripe_pattern.get_transformation(),
             Pattern::GradientPattern(ref gradient_pattern) => gradient_pattern.get_transformation(),
             Pattern::RingPattern(ref ring_pattern) => ring_pattern.get_transformation(),
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_transformation(),

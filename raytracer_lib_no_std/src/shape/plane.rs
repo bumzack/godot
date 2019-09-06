@@ -9,16 +9,18 @@ pub struct Plane {
 }
 
 impl ShapeOps for Plane {
-    fn intersect(&self,r: &Ray) -> ShapeIntersectionResult {
+    fn intersect(&self, r: &Ray) -> ShapeIntersectionResult {
         let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
         if r.get_direction().y.abs() < EPSILON {
-            return  (res, res_cnt);
+            return (res, res_cnt);
         }
         let t = -r.get_origin().y / r.get_direction().y;
         res[0] = t;
-        return  (res, 1);
+        res_cnt = 1;
+
+        return (res, res_cnt);
     }
 
     fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
@@ -43,7 +45,6 @@ impl ShapeOps for Plane {
     }
 
 
-
     fn set_material(&mut self, m: Material) {
         self.material = m;
     }
@@ -58,7 +59,7 @@ impl ShapeOps for Plane {
 }
 
 impl Plane {
-    fn new() -> Plane {
+    pub fn new() -> Plane {
         Plane {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),

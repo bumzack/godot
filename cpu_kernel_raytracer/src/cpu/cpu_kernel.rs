@@ -36,7 +36,7 @@ impl CpuKernel {
         //  let in_shadow = CpuKernel::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = CpuKernel::intensity_at(shapes, lights, comp.get_over_point());
 
-        let surface =CpuKernel::lightning(
+        let surface = CpuKernel::lightning(
             material,
             shape,
             light,
@@ -86,8 +86,8 @@ impl CpuKernel {
     fn intensity_at(shapes: &Vec<Shape>, lights: &Vec<Light>, point: &Tuple4D) -> f32 {
         let light = &lights[0];
         let res = match light {
-            Light::PointLight(ref pl) => CpuKernel::intensity_at_point_light(light, point, shapes),
-           Light::AreaLight(ref al) => CpuKernel::intensity_at_area_light(light, point, shapes),
+            Light::PointLight(ref _pl) => CpuKernel::intensity_at_point_light(light, point, shapes),
+            Light::AreaLight(ref _al) => CpuKernel::intensity_at_area_light(light, point, shapes),
         };
         res
     }
@@ -102,7 +102,7 @@ impl CpuKernel {
         for v in 0..light.get_vsteps() {
             for u in 0..light.get_usteps() {
                 let light_position = light.point_on_light(u, v);
-                if !CpuKernel::is_shadowed(shapes   , &light_position, point) {
+                if !CpuKernel::is_shadowed(shapes, &light_position, point) {
                     total += 1.0;
                 }
             }
@@ -187,7 +187,7 @@ impl CpuKernel {
 
         for v in 0..light.get_vsteps() {
             for u in 0..light.get_usteps() {
-                samples.push(light.point_on_light( u, v));
+                samples.push(light.point_on_light(u, v));
             }
         }
 

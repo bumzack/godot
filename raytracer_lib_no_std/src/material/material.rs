@@ -1,4 +1,4 @@
-use crate::{Color, ColorOps, Pattern, Tuple};
+use crate::{Color, ColorOps, Pattern};
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;

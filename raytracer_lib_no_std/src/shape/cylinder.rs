@@ -47,7 +47,7 @@ impl ShapeOps for Cylinder {
                 res_cnt += 1;
             }
         }
-       let (res_caps, res_cnt_caps) = self.intersect_caps(r);
+        let (res_caps, res_cnt_caps) = self.intersect_caps(r);
         for i in 0..res_cnt_caps {
             res[res_cnt] = res_caps[i];
             res_cnt += 1;
@@ -93,7 +93,7 @@ impl ShapeOps for Cylinder {
 }
 
 impl Cylinder {
-    fn new() -> Cylinder {
+    pub fn new() -> Cylinder {
         Cylinder {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -104,27 +104,27 @@ impl Cylinder {
         }
     }
 
-    fn get_minimum(&self) -> f32 {
+    pub fn get_minimum(&self) -> f32 {
         self.minimum
     }
 
-    fn get_maximum(&self) -> f32 {
+    pub fn get_maximum(&self) -> f32 {
         self.maximum
     }
 
-    fn set_minimum(&mut self, min: f32) {
+    pub fn set_minimum(&mut self, min: f32) {
         self.minimum = min;
     }
 
-    fn set_maximum(&mut self, max: f32) {
+    pub fn set_maximum(&mut self, max: f32) {
         self.maximum = max;
     }
 
-    fn get_closed(&self) -> bool {
+    pub fn get_closed(&self) -> bool {
         self.closed
     }
 
-    fn set_closed(&mut self, closed: bool) {
+    pub fn set_closed(&mut self, closed: bool) {
         self.closed = closed;
     }
 

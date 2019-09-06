@@ -48,10 +48,8 @@ impl LightOps for PointLight {
         1
     }
 
-
-
     // TODO: clone :-(
-    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+    fn point_on_light(&self, _u: usize, _v: usize) -> Tuple4D {
         self.position.clone()
     }
 }

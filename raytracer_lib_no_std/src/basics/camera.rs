@@ -128,9 +128,6 @@ impl CameraOps for Camera {
         let x_offset = (x as f32 + 0.5) * c.get_pixel_size();
         let y_offset = (y as f32 + 0.5) * c.get_pixel_size();
 
-        let world_x_old = c.get_half_width() - x_offset;
-        let world_y_old = c.get_half_height() - y_offset;
-
         let world_x = c.get_half_width() - x_offset + delta_x;
         let world_y = c.get_half_height() - y_offset + delta_y;
 
@@ -177,8 +174,8 @@ impl CameraOps for Camera {
 mod tests {
     use core::f32::consts::{PI, SQRT_2};
 
-    use crate::basics::color::{Color, ColorOps};
     use crate::{assert_float, assert_matrix, assert_tuple, MatrixOps, Tuple4D};
+    use crate::basics::color::{Color, ColorOps};
 
     use super::*;
 

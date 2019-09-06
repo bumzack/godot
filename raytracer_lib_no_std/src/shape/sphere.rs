@@ -9,7 +9,7 @@ pub struct Sphere {
 }
 
 impl ShapeOps for Sphere {
-    fn intersect(&self, r: &Ray) ->ShapeIntersectionResult {
+    fn intersect(&self, r: &Ray) -> ShapeIntersectionResult {
         let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
@@ -27,8 +27,9 @@ impl ShapeOps for Sphere {
         let sqrt_disc = intri_sqrt(discri);
         res[0] = (-b - sqrt_disc) / (2.0 * a);
         res[1] = (-b + sqrt_disc) / (2.0 * a);
+        res_cnt = 2;
 
-        (res, 2)
+        (res, res_cnt)
     }
 
     fn set_transformation(&mut self, m: Matrix) {

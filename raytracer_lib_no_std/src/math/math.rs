@@ -1,4 +1,4 @@
-#![feature(core_intrinsics)]
+// #![feature(core_intrinsics)]
 
 use core::intrinsics;
 

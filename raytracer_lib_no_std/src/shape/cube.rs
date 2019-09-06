@@ -80,7 +80,7 @@ impl ShapeOps for Cube {
 }
 
 impl Cube {
-    fn new() -> Cube {
+    pub fn new() -> Cube {
         Cube {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
