@@ -2,55 +2,85 @@ use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, S
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
-pub struct Sphere {
+pub struct Cylinder {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
     material: Material,
+    minimum: f32,
+    maximum: f32,
+    closed: bool,
 }
 
-impl ShapeOps for Sphere {
-    fn intersect(r: &Ray) -> ([f32; 2], usize) {
+impl ShapeOps for Cylinder {
+    fn intersect(r: &Ray) -> Option<Vec<f32>> {
+        if r.direction.y.abs() < EPSILON {
+            return None;
+        }
+        let t = -r.origin.y / r.direction.y;
+        let mut res = vec![0.0; 1];
+
+        res[0] = t;
+        Some(res)
+    }
+    fn intersect(cylinder: &Cylinder, r: &Ray) -> ([f32; 2], usize) {
         let mut res = [0f32; 2];
         let mut res_cnt = 0;
 
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let sphere_to_ray = r.get_origin() - &o;
-        let a = r.get_direction() ^ r.get_direction();
-        let b = 2.0 * (r.get_direction() ^ &sphere_to_ray);
-        let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
-        let discriminant = b * b - 4.0 * a * c;
+        let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
+        if !(a.abs() < EPSILON) {
+            let b = 2.0 * r.get_origin().x * r.get_direction().x + 2.0 * r.get_origin().z * r.get_direction().z;
+            let c = r.get_origin().x.powi(2) + r.get_origin().z.powi(2) - 1.0;
 
-        if discriminant < 0.0 {
-            return (res, res_cnt);
+            let disc = b * b - 4.0 * a * c;
+            if disc < 0.0 {
+                return (res, res_cnt);
+            }
+            let mut t0 = (-b - disc.sqrt()) / (2.0 * a);
+            let mut t1 = (-b + disc.sqrt()) / (2.0 * a);
+
+            if t0 > t1 {
+                let tmp = t0;
+                t0 = t1;
+                t1 = tmp;
+            }
+            let y0 = r.get_origin().y + t0 * r.get_direction().y;
+            if cylinder.get_minimum() < y0 && y0 < cylinder.get_maximum() {
+                res[res_cnt] = t0;
+                res_cnt += 1;
+            }
+
+            let y1 = r.get_origin().y + t1 * r.get_direction().y;
+            if cylinder.get_minimum() < y1 && y1 < cylinder.get_maximum() {
+                res[res_cnt] = t0;
+                res_cnt += 1;
+            }
         }
-
-        let sqrt_disc = intri_sqrt(discriminant);
-        res[0] = (-b - sqrt_disc) / (2.0 * a);
-        res[1] = (-b + sqrt_disc) / (2.0 * a);
-
-        (res, 2)
+        Self::intersect_caps(cylinder, r, &mut res, &mut res_cnt);
+        (res, res_cnt)
     }
 
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Sphere::set_transofrmation:  cant unwrap inverted matrix ");
+            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 
     fn get_transformation(&self) -> &Matrix {
         &self.transformation_matrix
     }
+
     fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let object_point = self.get_inverse_transformation() * world_point;
-        let object_normal = &(&object_point - &o);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
+    fn normal_at(c: &Cylinder, world_point: &Tuple4D) -> Tuple4D {
+        let dist = world_point.x.powi(2) + world_point.z.powi(2);
+        if dist < 1.0 && world_point.y >= c.get_maximum() - EPSILON {
+            return Tuple4D::new_vector(0.0, 1.0, 0.0);
+        } else if dist < 1.0 && world_point.y <= c.get_maximum() + EPSILON {
+            return Tuple4D::new_vector(0.0, -1.0, 0.0);
+        }
+        Tuple4D::new_vector(world_point.x, 0.0, world_point.z)
     }
 
     fn set_material(&mut self, m: Material) {
@@ -66,12 +96,61 @@ impl ShapeOps for Sphere {
     }
 }
 
-impl Sphere {
-    fn new() -> Sphere {
-        Sphere {
+impl Cylinder {
+    fn new() -> Cylinder {
+        Cylinder {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
             material: Material::new(),
+            minimum: -INFINITY,
+            maximum: INFINITY,
+            closed: false,
+        }
+    }
+
+    fn get_minimum(&self) -> f32 {
+        self.minimum
+    }
+
+    fn get_maximum(&self) -> f32 {
+        self.maximum
+    }
+
+    fn set_minimum(&mut self, min: f32) {
+        self.minimum = min;
+    }
+
+    fn set_maximum(&mut self, max: f32) {
+        self.maximum = max;
+    }
+
+    fn get_closed(&self) -> bool {
+        self.closed
+    }
+
+    fn set_closed(&mut self, closed: bool) {
+        self.closed = closed;
+    }
+
+    fn check_cap(r: &Ray, t: f32) -> bool {
+        let x = r.get_origin().x + t * r.get_direction().x;
+        let z = r.get_origin().z + t * r.get_direction().z;
+        (x.powi(2) + z.powi(2)) - 1.0 < EPSILON
+    }
+
+    fn intersect_caps(c: &Cylinder, r: &Ray, res: &mut [f32], res_cnt: usize) {
+        if !c.get_closed() || r.get_direction().y.abs() < EPSILON {
+            return;
+        }
+        let t = (c.get_minimum() - r.get_origin().y) / r.get_direction().y;
+        if Self::check_cap(r, t) {
+            res[res_cnt] = t;
+            res_cnt += 1;
+        }
+        let t = (c.get_maximum() - r.get_origin().y) / r.get_direction().y;
+        if Self::check_cap(r, t) {
+            res[res_cnt] = t;
+            res_cnt += 1;
         }
     }
 }

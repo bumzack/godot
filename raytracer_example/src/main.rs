@@ -1,6 +1,8 @@
 use std::error::Error;
 
-use raytracer::{Backend, BackendCpu, BackendCuda};
+#[cfg(feature = "cuda")]
+use raytracer::BackendCuda;
+use raytracer::{Backend, BackendCpu};
 use raytracer_lib_std::canvas::canvas::CanvasOps;
 
 pub mod compare_to_cuda_world;
@@ -19,6 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[cfg(feature = "cuda")]
 fn run_cuda(w: usize, h: usize) {
     let filename_cuda = format!("cuda_{}x{}.png", w, h);
     let (mut w, c) = compare_to_cuda_world::setup_world(w, h);

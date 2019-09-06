@@ -1,7 +1,8 @@
-use raytracer_lib_no_std::basics::color::{Color, BLACK};
+use raytracer_lib_no_std::basics::color::{BLACK, Color};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::{Light, LightOps};
+use raytracer_lib_no_std::LightEnum;
 use raytracer_lib_no_std::material::material::{Material, MaterialOps};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::Shape;
@@ -80,10 +81,29 @@ impl CpuKernel {
     fn intensity_at(shapes: &Vec<Shape>, lights: &Vec<Light>, point: &Tuple4D) -> f32 {
         let light = &lights[0];
         let res = match light {
-            Light::PointLight(ref _pl) => CpuKernel::intensity_at_point_light(light, point, shapes),
-            //  LightEnum::AreaLight(ref pl) => CpuKernel::intensity_at_area_light(light, point, world),
+            LightEnum::PointLight(ref pl) => CpuKernel::intensity_at_point_light(light, point, shapes),
+           LightEnum::AreaLight(ref al) => CpuKernel::intensity_at_area_light(light, point, shapes),
         };
         res
+    }
+
+    fn intensity_at_area_light(light: &Light, point: &Tuple4D, shapes: &Vec<Shape>) -> f32 {
+        let mut total = 0.0;
+
+        if DEBUG {
+            println!("light.get_usteps()  = {:?}", light.get_usteps());
+            println!("light.get_vsteps()  = {:?}", light.get_vsteps());
+        }
+        for v in 0..light.get_vsteps() {
+            for u in 0..light.get_usteps() {
+                let light_position = light.point_on_light(u, v);
+                if !CpuKernel::is_shadowed(world, &light_position, point) {
+                    total += 1.0;
+                }
+            }
+        }
+
+        total / light.get_samples() as f32
     }
 
     fn intensity_at_point_light(light: &Light, point: &Tuple4D, shapes: &Vec<Shape>) -> f32 {

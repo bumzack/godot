@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies.raytracer]
 path =  "../raytracer"
-features = [ "cuda" ]
+# features = [ "cuda" ]
 
 [features]
 cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda", "raytracer/cuda"]

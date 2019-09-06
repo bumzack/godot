@@ -12,8 +12,52 @@ impl LightOps for PointLight {
         &self.intensity
     }
 
+    fn set_intensity(&mut self, intensity: Color) {
+        self.intensity = intensity;
+    }
+
     fn get_position(&self) -> &Tuple4D {
         &self.position
+    }
+
+    fn set_position(&mut self, pos: Tuple4D) {
+        self.position = pos;
+    }
+
+    fn get_uvec(&self) -> &Tuple4D {
+        unimplemented!()
+    }
+
+    fn get_vvec(&self) -> &Tuple4D {
+        unimplemented!()
+    }
+
+    fn get_samples(&self) -> usize {
+        1
+    }
+
+    fn get_corner(&self) -> &Tuple4D {
+        unimplemented!()
+    }
+
+    fn get_usteps(&self) -> usize {
+        1
+    }
+
+    fn get_vsteps(&self) -> usize {
+        1
+    }
+
+    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
+        if World::is_shadowed(world, self.get_position(), point) {
+            return 0.0;
+        }
+        1.0
+    }
+
+    // TODO: clone :-(
+    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+        self.position.clone()
     }
 }
 

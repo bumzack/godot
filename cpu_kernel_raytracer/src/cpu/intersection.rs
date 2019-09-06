@@ -1,5 +1,6 @@
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
+use raytracer_lib_no_std::EPSILON_OVER_UNDER;
 use raytracer_lib_no_std::math::common::EPSILON;
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
@@ -48,21 +49,25 @@ impl IntersectionOps for Intersection {
     }
 
     fn intersect(shape_idx: usize, r: &Ray, shapes: &Vec<Shape>) -> IntersectionList {
+        let mut intersection_list = IntersectionList::new();
         let shape = &shapes[shape_idx];
+        let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
-        let res = match *shape.get_shape() {
-            ShapeEnum::Sphere(ref sphere) => {
-                let mut intersection_list = IntersectionList::new();
-                let r2 = Ray::transform(r, sphere.get_inverse_transformation());
-                let (res, res_cnt) = Sphere::intersect(&r2);
-                for i in 0..res_cnt {
-                    let intersection = Intersection::new(res[i], shape_idx);
-                    intersection_list.add(intersection);
-                }
-                intersection_list
-            }
+       let (res, res_cnt) =  match *shape.get_shape() {
+            ShapeEnum::Sphere(ref sphere) => Sphere::intersect(&r2),
+            ShapeEnum::Plane(ref _p) => Plane::intersect(&r2) ,
+            ShapeEnum::Cube(ref _c) =>  Cube::intersect(&r2),
+            ShapeEnum::Cylinder(ref cylinder) =>   Cylinder::intersect(&r2),
+            ShapeEnum::Triangle(ref triangle) =>Triangle::intersect(triangle, &r2),
+            // ShapeEnum::Group(ref group) =>
+                // let res = Cylinder::intersect(cylinder, &r2);
+           //  }
         };
-        res
+        for i in 0..res_cnt {
+            let intersection = Intersection::new(res[i], shape_idx);
+            intersection_list.add(intersection);
+        }
+        intersection_list
     }
 
     fn intersect_world(shapes: &Vec<Shape>, r: &Ray) -> IntersectionList {
@@ -97,8 +102,8 @@ impl IntersectionOps for Intersection {
         }
         let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
-        let over_point = &point + &(&normal_vector * EPSILON);
-        let under_point = &point - &(&normal_vector * EPSILON);
+        let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
+        let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
         let comp = PrecomputedComponent::new(
             intersection.get_t(),
@@ -113,35 +118,46 @@ impl IntersectionOps for Intersection {
         );
 
         // TODO Implement this funny thing foir reflection
-        //        let mut container: Vec<&'a Shape<'a>> = Vec::new();
-        //
-        //        for i in list.get_intersections().iter() {
-        //            if i == intersection {
-        //                if container.is_empty() {
-        //                    comp.set_n1(1.0);
-        //                } else {
-        //                    let last = container.last().unwrap();
-        //                    comp.set_n1(last.get_material().get_refractive_index());
-        //                }
-        //            }
-        //
-        //            if container.contains(&comp.get_object()) {
-        //                let index = container.iter().position(|&shape| shape == comp.get_object()).unwrap();
-        //                container.remove(index);
-        //            } else {
-        //                container.push(i.get_shape());
-        //            }
-        //
-        //            if i == intersection {
-        //                if container.is_empty() {
-        //                    comp.set_n2(1.0);
-        //                } else {
-        //                    let last = container.last().unwrap();
-        //                    comp.set_n2(last.get_material().get_refractive_index());
-        //                }
-        //                break;
-        //            }
-        //        }
+//        let mut container: Vec<&'a Shape<'a>> = Vec::new();
+//
+//        //println!("all intersections:  {:?}", list.get_intersections());
+//        //println!("intersection :  {:?}", intersection);
+//
+//        for i in list.get_intersections().iter() {
+//            //            println!("NEXT ITERATION");
+//            //            println!(" i = {:?}", i);
+//            //            println!("container  begin for    {:?}",container);
+//            //
+//            if i == intersection {
+//                // println!("i == intersection");
+//                if container.is_empty() {
+//                    comp.set_n1(1.0);
+//                } else {
+//                    let last = container.last().unwrap();
+//
+//                    comp.set_n1(last.get_material().get_refractive_index());
+//                }
+//            }
+//
+//            if container.contains(&i.get_shape()) {
+//                let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
+//                // println!("remove index     {:}",index);
+//                container.remove(index);
+//                // println!("container   AFTER      {:?}",container);
+//            } else {
+//                container.push(i.get_shape());
+//            }
+//
+//            if i == intersection {
+//                if container.is_empty() {
+//                    comp.set_n2(1.0);
+//                } else {
+//                    let last = container.last().unwrap();
+//                    comp.set_n2(last.get_material().get_refractive_index());
+//                }
+//                break;
+//            }
+//        }
         comp
     }
 
@@ -166,5 +182,11 @@ impl IntersectionOps for Intersection {
         }
         let r0 = ((comp.get_n1() - comp.get_n2()) / (comp.get_n1() + comp.get_n2())).powi(2);
         r0 + (1.0 - r0) * (1.0 - cos).powi(5)
+    }
+}
+
+impl<'a> PartialEq for Intersection  {
+    fn eq(&self, other: &Self) -> bool {
+        self.shape_idx == other.shape_idx && self.t == other.t
     }
 }

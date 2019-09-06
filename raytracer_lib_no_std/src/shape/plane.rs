@@ -7,48 +7,36 @@ pub struct Sphere {
     inverse_transformation_matrix: Matrix,
     material: Material,
 }
-
-impl ShapeOps for Sphere {
+impl ShapeOps for Plane {
     fn intersect(r: &Ray) -> ([f32; 2], usize) {
         let mut res = [0f32; 2];
         let mut res_cnt = 0;
 
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let sphere_to_ray = r.get_origin() - &o;
-        let a = r.get_direction() ^ r.get_direction();
-        let b = 2.0 * (r.get_direction() ^ &sphere_to_ray);
-        let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
-        let discriminant = b * b - 4.0 * a * c;
-
-        if discriminant < 0.0 {
-            return (res, res_cnt);
+        if r.direction.y.abs() < EPSILON {
+            return  (res, res_cnt);
         }
-
-        let sqrt_disc = intri_sqrt(discriminant);
-        res[0] = (-b - sqrt_disc) / (2.0 * a);
-        res[1] = (-b + sqrt_disc) / (2.0 * a);
-
-        (res, 2)
+        let t = -r.origin.y / r.direction.y;
+        res[0] = t;
+        return  (res, 1);
     }
 
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Sphere::set_transofrmation:  cant unwrap inverted matrix ");
+            Matrix::invert(&m).expect("plane::set_transofrmation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 
     fn get_transformation(&self) -> &Matrix {
         &self.transformation_matrix
     }
+
     fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let object_point = self.get_inverse_transformation() * world_point;
-        let object_normal = &(&object_point - &o);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
+    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
+        let n = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * &n;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }
@@ -66,9 +54,9 @@ impl ShapeOps for Sphere {
     }
 }
 
-impl Sphere {
-    fn new() -> Sphere {
-        Sphere {
+impl Plane {
+    fn new() -> Plane {
+        Plane {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
             material: Material::new(),
