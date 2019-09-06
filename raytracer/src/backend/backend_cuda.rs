@@ -130,6 +130,10 @@ impl Backend for BackendCuda {
         }
         Ok(c)
     }
+
+    fn render_world_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<Error>> {
+        self.render_world(world, c)
+    }
 }
 
 impl BackendCuda {

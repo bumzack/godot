@@ -52,16 +52,6 @@ impl<'a> CanvasOps<'a> for Canvas {
         assert!(x < self.width);
         assert!(y < self.height);
 
-        // TODO: do the value clamping somewhere more appropiate
-        if c.b > 1.0 {
-            c.b = 1.0;
-        }
-        if c.r > 1.0 {
-            c.r = 1.0;
-        }
-        if c.g > 1.0 {
-            c.g = 1.0;
-        }
         self.pixel[y * self.width + x].color = c;
     }
 

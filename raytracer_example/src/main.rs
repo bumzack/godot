@@ -51,13 +51,13 @@ fn run_cpu_chapter14_with_aa(b: &dyn Backend, backend_name: &str, w: usize, h: u
     let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
     println!("\n\n---------- single core CPU    --------------------");
     let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single);
+    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
     let filename_cpu_multi = format!("{}_chapter14_with_aa_cpu_multi_core_{}x{}.png", backend_name,w, h);
     let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
     println!("\n\n---------- multi core  CPU    --------------------");
     let canvas = b.render_world_multi_core(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_multi);
+    canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
 }
 
 fn run_cpu_compare_to_cuda(b: &dyn Backend, backend_name: &str, w: usize, h: usize) {
@@ -65,13 +65,13 @@ fn run_cpu_compare_to_cuda(b: &dyn Backend, backend_name: &str, w: usize, h: usi
     let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
     println!("\n\n---------- single core CPU    --------------------");
     let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single);
+    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
     let filename_cpu_multi = format!("{}_compare_to_cuda_cpu_multi_core_{}x{}.png",backend_name, w, h);
     let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
     println!("\n\n---------- multi core  CPU    --------------------");
     let canvas = b.render_world_multi_core(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_multi);
+    canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
 }
 
 
@@ -80,13 +80,13 @@ fn run_cpu_shadow_glamour_shot(b: &dyn Backend, backend_name: &str, size_factor:
     let (mut world, c) = shadow_glamour_shot::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     println!("\n\n---------- single core CPU    --------------------");
     let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single);
+    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
     let filename_cpu_multi = format!("{}_shadow_glamour_shot_cpu_multi_core_{:2}x{}x{}.png", backend_name,size_factor, antialiasing, antialiasing_size);
     let (mut world, c) = shadow_glamour_shot::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     println!("\n\n---------- multi core  CPU    --------------------");
     let canvas = b.render_world_multi_core(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_multi);
+    canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
 }
 
 
@@ -95,11 +95,11 @@ fn run_cpu_soft_shadow(b: &dyn Backend, backend_name: &str, size_factor: f32, an
     let (mut world, c) = test_soft_shadow_aka_area_light::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     println!("\n\n---------- single core CPU    --------------------");
     let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single);
+    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
     let filename_cpu_multi = format!("{}_test_soft_shadow_cpu_multi_core_{:2}x{}x{}.png",backend_name, size_factor, antialiasing, antialiasing_size);
     let (mut world, c) = test_soft_shadow_aka_area_light::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     println!("\n\n---------- multi core  CPU    --------------------");
     let canvas = b.render_world_multi_core(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_multi);
+    canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
 }

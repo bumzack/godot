@@ -15,6 +15,7 @@ pub trait ColorOps {
     fn new(r: f32, g: f32, b: f32) -> Color;
     fn from_color(c: &Color) -> Color;
     fn fix_nan(&mut self);
+    fn clamp_color(&mut self);
 }
 
 impl ColorOps for Color {
@@ -35,6 +36,18 @@ impl ColorOps for Color {
         }
         if self.b.is_nan() {
             self.b = 0.0;
+        }
+    }
+
+    fn clamp_color(&mut self) {
+        if self.r > 1.0 {
+            self.r = 1.0;
+        }
+        if self.g > 1.0 {
+            self.g = 1.0;
+        }
+        if self.b > 1.0 {
+            self.b = 1.0;
         }
     }
 }

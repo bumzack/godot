@@ -9,6 +9,7 @@ use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
 use raytracer_lib_no_std::basics::color::{Color, BLACK};
 use raytracer_lib_no_std::light::light::Light;
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
+use raytracer_lib_no_std::ColorOps;
 
 pub mod cuda;
 
@@ -86,7 +87,7 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
             }
 
             let mut color = BLACK;
-            for sample in 0..n_samples {
+            for sample in 0..(n_samples*n_samples) {
                 let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
                 let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
 
@@ -102,14 +103,14 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                         MAX_REFLECTION_RECURSION_DEPTH,
                     );
             }
-            color = color / n_samples as f32;
-
+            color = color / (n_samples*n_samples) as f32;
+            color.clamp_color();
             let idx = y_idx * w + x_idx;
 
             *pixels.offset(idx) = color;
         } else {
             let r = Camera::ray_for_pixel(c, x_idx as usize, y_idx as usize);
-            let color = CudaKernel::color_at(
+            let mut color = CudaKernel::color_at(
                 shapes,
                 cnt_shapes,
                 lights,
@@ -118,6 +119,8 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                 MAX_REFLECTION_RECURSION_DEPTH,
             );
             let idx = y_idx * w + x_idx;
+            color.clamp_color();
+
             *pixels.offset(idx) = color;
         }
     }
