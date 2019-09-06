@@ -49,9 +49,7 @@ impl IntersectionListOps for IntersectionList {
 
     fn add(&mut self, i: Intersection) {
         if !(self.len < self.capacity) {
-            panic!(
-                "IntersectionListOps::add  array is full. try increasing MAX_INTERSECTIONLIST_LEN"
-            );
+            panic!("IntersectionListOps::add  array is full. try increasing MAX_INTERSECTIONLIST_LEN");
         }
         self.list_of_intersections[self.len] = i;
         self.len += 1;
@@ -83,8 +81,7 @@ impl IntersectionListOps for IntersectionList {
         // there you go BubbleSort :-)
         for n in (1..self.len).rev() {
             for i in 0..n - 1 {
-                if self.list_of_intersections[i].get_t() > self.list_of_intersections[i + 1].get_t()
-                {
+                if self.list_of_intersections[i].get_t() > self.list_of_intersections[i + 1].get_t() {
                     let tmp = self.list_of_intersections[i];
                     self.list_of_intersections[i] = self.list_of_intersections[i + 1];
                     self.list_of_intersections[i + 1] = tmp;

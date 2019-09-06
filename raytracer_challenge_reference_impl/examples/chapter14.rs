@@ -23,7 +23,7 @@ use raytracer_challenge_reference_impl::shape::cylinder::{Cylinder, CylinderOps}
 use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 300;
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let start = Instant::now();
 
-    let num_cores = num_cpus::get()+1;
+    let num_cores = num_cpus::get() + 1;
     println!("using {} cores", num_cores);
     let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 for x in 0..width {
                     let r = Camera::ray_for_pixel(&c_clone, x, y);
                     let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                   let mut canvas = cloned_data.lock().unwrap();
+                    let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
                 }
             }

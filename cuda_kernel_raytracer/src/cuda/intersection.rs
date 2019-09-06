@@ -19,12 +19,7 @@ pub struct Intersection {
 pub trait IntersectionOps {
     fn new(t: f32, shape_idx: usize) -> Intersection;
     fn new_empty() -> Intersection;
-    fn intersect(
-        shape_idx: usize,
-        r: &Ray,
-        shapes: *mut Shape,
-        cnt_shapes: usize,
-    ) -> IntersectionList;
+    fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, cnt_shapes: usize) -> IntersectionList;
     fn intersect_world(shapes: *mut Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList;
 
     fn prepare_computations(
@@ -56,12 +51,7 @@ impl IntersectionOps for Intersection {
         }
     }
 
-    fn intersect(
-        shape_idx: usize,
-        r: &Ray,
-        shapes: *mut Shape,
-        cnt_shapes: usize,
-    ) -> IntersectionList {
+    fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, cnt_shapes: usize) -> IntersectionList {
         let shape = unsafe { shapes.offset(shape_idx as isize).as_ref().unwrap() };
         let mut res = IntersectionList::new();
         let res = match *shape.get_shape() {
@@ -101,12 +91,7 @@ impl IntersectionOps for Intersection {
         cnt_shapes: usize,
     ) -> PrecomputedComponent {
         let point = Ray::position(r, intersection.get_t());
-        let shape = unsafe {
-            shapes
-                .offset(intersection.get_shape() as isize)
-                .as_ref()
-                .unwrap()
-        };
+        let shape = unsafe { shapes.offset(intersection.get_shape() as isize).as_ref().unwrap() };
         let mut normal_vector = shape.normal_at(&point);
         let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;
@@ -183,10 +168,7 @@ impl IntersectionOps for Intersection {
             let cos_t = intri_sqrt(1.0 - sint2_t);
             cos = cos_t;
         }
-        let r0 = intri_powi(
-            ((comp.get_n1() - comp.get_n2()) / (comp.get_n1() + comp.get_n2())),
-            2,
-        );
+        let r0 = intri_powi(((comp.get_n1() - comp.get_n2()) / (comp.get_n1() + comp.get_n2())), 2);
         r0 + (1.0 - r0) * intri_powi(1.0 - cos, 5)
     }
 }

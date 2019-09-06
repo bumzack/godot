@@ -1,11 +1,10 @@
-use crate::basics::color::BLACK;
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
+use crate::basics::color::BLACK;
 use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
 use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::DEBUG;
 use crate::light::light::{LightEnum, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
@@ -21,6 +20,7 @@ use crate::shape::cylinder::{Cylinder, CylinderOps};
 use crate::shape::plane::{Plane, PlaneOps};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::{Sphere, SphereOps};
+use crate::DEBUG;
 
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 10;
 
@@ -190,7 +190,11 @@ impl<'a> WorldOps<'a> for World<'a> {
                 println!("s = {:?}", s);
                 println!("t = {:?}", s.get_t());
                 println!("distance = {:?}", distance);
-                println!("t  - distance = {:?}    <  {}", s.get_t() - distance, EPSILON_OVER_UNDER);
+                println!(
+                    "t  - distance = {:?}    <  {}",
+                    s.get_t() - distance,
+                    EPSILON_OVER_UNDER
+                );
             }
             if s.get_t() - distance < EPSILON_OVER_UNDER && s.get_shape().get_casts_shadow() {
                 return true;
@@ -1297,7 +1301,6 @@ mod tests {
         test_area_lights_intensity_at_helper(point, 1.0);
     }
 
-
     // bonus: Scenario Outline: Finding a single point on a jittered area light
     fn test_area_lights_find_point_on_jittered_area_light_helper(u: usize, v: usize, expected_result: Tuple4D) {
         let w = default_world();
@@ -1329,7 +1332,7 @@ mod tests {
     // area light, that means that the lights has to be mutable and then
     // we have to change that everywhere and borrowing becomes a PITA
     // so no test
-//    #[ignore]
+    //    #[ignore]
     #[test]
     fn test_area_lights_find_point_on_jittered_area_light() {
         let point = Tuple4D::new_point(0.15, 0.0, 0.35);

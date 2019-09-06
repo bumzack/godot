@@ -11,10 +11,9 @@ use rustacuda::prelude::{
     Context, ContextFlags, CopyDestination, CudaFlags, Device, DeviceBuffer, Module, Stream, StreamFlags,
 };
 
-
 use crate::backend::backend::Backend;
+use raytracer_lib_no_std::{Camera, CameraOps, BLACK};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
-use raytracer_lib_no_std::{Camera, BLACK, CameraOps};
 
 pub struct BackendCuda {}
 

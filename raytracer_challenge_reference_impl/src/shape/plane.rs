@@ -89,8 +89,8 @@ mod tests {
 
     use crate::basics::intersection::{Intersection, IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
-    use crate::math::common::{assert_float, assert_tuple};
     use crate::math::common::assert_matrix;
+    use crate::math::common::{assert_float, assert_tuple};
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::{Sphere, SphereOps};
 
@@ -132,7 +132,6 @@ mod tests {
         assert_eq!(intersections.is_some(), true);
         assert_float(intersections.unwrap()[0], 1.0);
     }
-
 
     #[test]
     fn test_ray_sphere_intersection_no_hits() {

@@ -6,8 +6,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
 use crate::world::world::WorldOps;
+use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {

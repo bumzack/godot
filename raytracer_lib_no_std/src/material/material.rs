@@ -1,4 +1,4 @@
-use crate::{BLACK, Color, ColorOps, intri_powf, Light, LightOps, Pattern, Shape, Tuple, Tuple4D};
+use crate::{intri_powf, Color, ColorOps, Light, LightOps, Pattern, Shape, Tuple, Tuple4D, BLACK};
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;

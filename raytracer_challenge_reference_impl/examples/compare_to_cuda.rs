@@ -10,7 +10,7 @@ use std::time::Instant;
 
 use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge_reference_impl::basics::ray::RayOps;
 use raytracer_challenge_reference_impl::light::light::LightEnum;
 use raytracer_challenge_reference_impl::light::pointlight::PointLight;
@@ -29,7 +29,7 @@ use raytracer_challenge_reference_impl::shape::plane::Plane;
 use raytracer_challenge_reference_impl::shape::plane::PlaneOps;
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main_debug() -> Result<(), Box<dyn Error>> {
     let width = 384;
@@ -83,7 +83,6 @@ fn main_debug() -> Result<(), Box<dyn Error>> {
 
     let height = camera.get_vsize();
     let width = camera.get_hsize();
-
 
     let x = 235;
     let y = 70;
@@ -222,7 +221,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 for x in 0..width {
                     let mut color = BLACK;
                     if c_clone.get_antialiasing() {
-// Accumulate light for N samples.
+                        // Accumulate light for N samples.
                         for sample in 0..n_samples {
                             let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
                             let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
@@ -232,7 +231,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-// println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -250,7 +249,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
     }
     let dur = Instant::now() - start;
-    println!("multi core duration: {:?}  ", dur, );
+    println!("multi core duration: {:?}  ", dur,);
 
     let c = data.lock().unwrap();
     c.write_ppm(filename)?;
@@ -359,7 +358,6 @@ fn setup_world_chapter14<'a>(width: usize, height: usize) -> (World<'a>, Camera)
     (w, c)
 }
 
-
 fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
@@ -425,4 +423,3 @@ fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
 
     (world, c)
 }
-

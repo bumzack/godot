@@ -3,15 +3,15 @@
 use std::error::Error;
 use std::time::Instant;
 
-use cpu_kernel_raytracer::camera::{Camera, CameraOps};
-use cpu_kernel_raytracer::color::BLACK;
-use cpu_kernel_raytracer::CpuKernel;
-use cpu_kernel_raytracer::ray::RayOps;
-use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
-use rayon::iter::ParallelIterator;
 use crate::backend::backend::Backend;
 use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
+use cpu_kernel_raytracer::camera::{Camera, CameraOps};
+use cpu_kernel_raytracer::color::BLACK;
+use cpu_kernel_raytracer::ray::RayOps;
+use cpu_kernel_raytracer::CpuKernel;
+use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelIterator;
+use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 pub struct BackendCpu {
     multi_core: bool,
@@ -228,8 +228,8 @@ impl BackendCpu {
 
                     let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
 
-                    color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH)
-                        + color;
+                    color =
+                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH) + color;
                 }
                 color = color / n_samples as f32;
                 // println!("with AA    color at ({}/{}): {:?}", x, y, color);
@@ -246,7 +246,6 @@ impl BackendCpu {
                 p.color.b = color.b;
             }
         });
-
 
         let stopped = Instant::now();
         println!(

@@ -3,7 +3,7 @@ use std::f32::{INFINITY, NAN};
 use crate::basics::ray::{Ray, RayOps};
 use crate::material::material::Material;
 use crate::material::material::MaterialOps;
-use crate::math::common::{EPSILON, max_float, min_float};
+use crate::math::common::{max_float, min_float, EPSILON};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -48,7 +48,7 @@ impl GroupOps for Group {
     }
 
     fn intersect(r: &Ray) -> Option<Vec<f32>> {
-        let   res = vec![0.0; 2];
+        let res = vec![0.0; 2];
 
         Some(res)
     }
@@ -130,5 +130,4 @@ mod tests {
         assert_matrix(&g.get_transformation(), &identity_matrix);
         //assert_eq!(&g.get_children().len(), 0);
     }
-
 }

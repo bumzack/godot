@@ -9,7 +9,7 @@ use std::time::Instant;
 
 use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge_reference_impl::light::light::LightEnum;
 use raytracer_challenge_reference_impl::light::pointlight::PointLight;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
@@ -19,9 +19,9 @@ use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
 use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
-fn main () -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let size_factor = 2.0;
 
     let antialiasing = true;
@@ -33,14 +33,13 @@ fn main () -> Result<(), Box<dyn Error>> {
             antialiasing_size
         );
     } else {
-        filename = format!("ref_impl_glamour_world_no_anti_noaliasing_multi_core.ppm", );
+        filename = format!("ref_impl_glamour_world_no_anti_noaliasing_multi_core.ppm",);
     }
-
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
 
     let start = Instant::now();
-    let num_cores = num_cpus::get()+1;
+    let num_cores = num_cpus::get() + 1;
 
     println!("using {} cores", num_cores);
 
@@ -130,7 +129,7 @@ fn main () -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -161,10 +160,8 @@ fn main () -> Result<(), Box<dyn Error>> {
     let c = data.lock().unwrap();
     c.write_ppm(filename.as_str())?;
 
-
     Ok(())
 }
-
 
 fn main1() -> Result<(), Box<dyn Error>> {
     let size_factor = 1.0;
@@ -173,12 +170,9 @@ fn main1() -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!(
-            "ref_impl_glamour_world_aliasing_size_{}_debug.ppm",
-            antialiasing_size
-        );
+        filename = format!("ref_impl_glamour_world_aliasing_size_{}_debug.ppm", antialiasing_size);
     } else {
-        filename = format!("ref_impl_glamour_world_no_anti_noaliasing_debug.ppm", );
+        filename = format!("ref_impl_glamour_world_no_anti_noaliasing_debug.ppm",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -202,7 +196,10 @@ fn main1() -> Result<(), Box<dyn Error>> {
         let two_over_six = 2.0 / 6.0;
         #[rustfmt::skip]
             jitter_matrix = vec![
-            -two_over_six, two_over_six,            0.0, two_over_six,
+            -two_over_six,
+            two_over_six,
+            0.0,
+            two_over_six,
             two_over_six,
             two_over_six,
             -two_over_six,
@@ -237,15 +234,14 @@ fn main1() -> Result<(), Box<dyn Error>> {
     let x = 159;
     let y = 61;
 
-
     let mut color = BLACK;
     // Accumulate light for N samples.
     println!("n_samples   {:?}\n\n\n", n_samples);
-    let sample =2;
-        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
-        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
-        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
-        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    let sample = 2;
+    let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
+    let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
+    let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
+    color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
 
     println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
     color = color / n_samples as f32;
@@ -255,69 +251,66 @@ fn main1() -> Result<(), Box<dyn Error>> {
     color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
     println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
 
-
-//    let x = 160;
-//    let y = 61;
-//    let mut color = BLACK;
-//
-//    let mut color = BLACK;
-//    // Accumulate light for N samples.
-//    for sample in 0..n_samples {
-//        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
-//        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
-//        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
-//        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//    }
-//    color = color / n_samples as f32;
-//    println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
-//
-//    let r = Camera::ray_for_pixel(&camera, x, y);
-//    color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//    println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
-//
-//    let x = 161;
-//    let y = 61;
-//    let mut color = BLACK;
-//
-//    let mut color = BLACK;
-//    // Accumulate light for N samples.
-//    for sample in 0..n_samples {
-//        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
-//        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
-//        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
-//        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//    }
-//    color = color / n_samples as f32;
-//    println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
-//
-//    let r = Camera::ray_for_pixel(&camera, x, y);
-//    color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//    println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
-//
-//    let x = 162;
-//    let y = 61;
-//    let mut color = BLACK;
-//
-//    let mut color = BLACK;
-//    // Accumulate light for N samples.
-//    for sample in 0..n_samples {
-//        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
-//        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
-//        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
-//        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//    }
-//    color = color / n_samples as f32;
-//    println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
-//
-//    let r = Camera::ray_for_pixel(&camera, x, y);
-//    color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
-//    println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
-
+    //    let x = 160;
+    //    let y = 61;
+    //    let mut color = BLACK;
+    //
+    //    let mut color = BLACK;
+    //    // Accumulate light for N samples.
+    //    for sample in 0..n_samples {
+    //        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
+    //        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
+    //        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
+    //        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    //    }
+    //    color = color / n_samples as f32;
+    //    println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    //
+    //    let r = Camera::ray_for_pixel(&camera, x, y);
+    //    color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    //    println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    //
+    //    let x = 161;
+    //    let y = 61;
+    //    let mut color = BLACK;
+    //
+    //    let mut color = BLACK;
+    //    // Accumulate light for N samples.
+    //    for sample in 0..n_samples {
+    //        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
+    //        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
+    //        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
+    //        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    //    }
+    //    color = color / n_samples as f32;
+    //    println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    //
+    //    let r = Camera::ray_for_pixel(&camera, x, y);
+    //    color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    //    println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    //
+    //    let x = 162;
+    //    let y = 61;
+    //    let mut color = BLACK;
+    //
+    //    let mut color = BLACK;
+    //    // Accumulate light for N samples.
+    //    for sample in 0..n_samples {
+    //        let delta_x = jitter_matrix[2 * sample] * camera.get_pixel_size();
+    //        let delta_y = jitter_matrix[2 * sample + 1] * camera.get_pixel_size();
+    //        let r = Camera::ray_for_pixel_anti_aliasing(&camera, x, y, delta_x, delta_y);
+    //        color = color + World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    //    }
+    //    color = color / n_samples as f32;
+    //    println!("with AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
+    //
+    //    let r = Camera::ray_for_pixel(&camera, x, y);
+    //    color = World::color_at(&world, &r, MAX_REFLECTION_RECURSION_DEPTH);
+    //    println!("no AA    color at ({}/{}): {:?}\n\n\n", x, y, color);
 
     canvas.write_pixel(x, y, color);
 
     canvas.write_ppm(filename.as_str())?;
-
 
     Ok(())
 }
@@ -333,7 +326,7 @@ fn setup_world_shadow_glamour<'a>(
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 2.0, 4.0), Color::new(1.5, 1.5, 1.5));
     let l = LightEnum::PointLight(pl);
 
-// ---- CUBE -------
+    // ---- CUBE -------
     let mut c = Cube::new();
     c.get_material_mut().set_color(Color::new(1., 0.5, 0.2));
     c.get_material_mut().set_ambient(1.0);
@@ -348,7 +341,7 @@ fn setup_world_shadow_glamour<'a>(
     let mut cube = Shape::new(ShapeEnum::Cube(c), "cube");
     cube.set_casts_shadow(false);
 
-// ---- PLANE -------
+    // ---- PLANE -------
     let mut plane = Plane::new();
     plane.get_material_mut().set_color(Color::new(1., 1., 1.));
     plane.get_material_mut().set_ambient(0.025);
@@ -357,7 +350,7 @@ fn setup_world_shadow_glamour<'a>(
 
     let plane = Shape::new(ShapeEnum::Plane(plane), "plane");
 
-// ---- SPHERE 1 -------
+    // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
     sphere1.get_material_mut().set_color(Color::new(1.0, 0., 0.));
     sphere1.get_material_mut().set_ambient(0.1);
@@ -372,7 +365,7 @@ fn setup_world_shadow_glamour<'a>(
     sphere1.set_transformation(m);
     let sphere1 = Shape::new(ShapeEnum::Sphere(sphere1), "sphere");
 
-// ---- SPHERE 2 -------
+    // ---- SPHERE 2 -------
     let mut sphere2 = Sphere::new();
     sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
     sphere2.get_material_mut().set_ambient(0.1);

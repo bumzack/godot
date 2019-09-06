@@ -11,11 +11,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let h = 720;
 
     #[cfg(feature = "cuda")]
-        run_cuda(w, h);
+    run_cuda(w, h);
 
     #[cfg(not(feature = "cuda"))]
-        run_cpu(w, h);
-
+    run_cpu(w, h);
 
     Ok(())
 }
@@ -45,7 +44,3 @@ fn run_cpu(w: usize, h: usize) {
     let canvas = backend_cpu.render_world(&mut world, &c);
     canvas.unwrap().write_png(&filename_cpu_multi);
 }
-
-
-
-

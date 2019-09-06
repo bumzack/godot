@@ -9,7 +9,7 @@ use std::time::Instant;
 
 use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge_reference_impl::light::arealight::AreaLight;
 use raytracer_challenge_reference_impl::light::light::LightEnum;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
@@ -19,7 +19,7 @@ use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
 use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let size_factor = 1.0;
@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if antialiasing {
         filename = format!("soft_shadow_aa_size_{}_multi_core.ppm", antialiasing_size);
     } else {
-        filename = format!("soft_shadow_multi_core_no_aa.ppm", );
+        filename = format!("soft_shadow_multi_core_no_aa.ppm",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -68,9 +68,25 @@ fn main() -> Result<(), Box<dyn Error>> {
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
             #[rustfmt::skip]
-                jitter_matrix = vec![-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-                                     -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-                                     -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+                jitter_matrix = vec![
+                -two_over_six,
+                two_over_six,
+                0.0,
+                two_over_six,
+                two_over_six,
+                two_over_six,
+                -two_over_six,
+                0.0,
+                0.0,
+                0.0,
+                two_over_six,
+                0.0,
+                -two_over_six,
+                -two_over_six,
+                0.0,
+                -two_over_six,
+                two_over_six,
+                -two_over_six,
             ];
         }
 
@@ -111,7 +127,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -121,7 +137,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
                 }
-                if y % 20 ==0{
+                if y % 20 == 0 {
                     println!("thread {:?}   y =  {:?}", thread::current().id(), y);
                 }
             }

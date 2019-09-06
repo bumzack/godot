@@ -10,7 +10,7 @@ use std::time::Instant;
 
 use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{BLACK, Color, ColorOps};
+use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge_reference_impl::light::light::LightEnum;
 use raytracer_challenge_reference_impl::light::pointlight::PointLight;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
@@ -25,7 +25,7 @@ use raytracer_challenge_reference_impl::shape::cylinder::{Cylinder, CylinderOps}
 use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
 use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
 use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World, WorldOps};
+use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 600;
@@ -35,9 +35,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let start = Instant::now();
 
-    let num_cores = num_cpus::get()+1;
+    let num_cores = num_cpus::get() + 1;
     println!("using {} cores", num_cores);
-    let   canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+    let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
     let data = Arc::new(Mutex::new(canvas));
     let mut children = vec![];
@@ -115,7 +115,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -123,7 +123,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let mut canvas = cloned_data.lock().unwrap();
                     canvas.write_pixel(x, y, color);
                 }
-                if y % 20 ==0{
+                if y % 20 == 0 {
                     println!("thread {:?}   y =  {:?}", thread::current().id(), y);
                 }
             }

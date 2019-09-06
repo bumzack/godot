@@ -3,10 +3,10 @@ extern crate rand;
 use rand::Rng;
 
 use crate::basics::color::Color;
-use crate::DEBUG;
 use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::{World, WorldOps};
+use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct AreaLight {
@@ -17,9 +17,8 @@ pub struct AreaLight {
     usteps: usize,
     vsteps: usize,
     intensity: Color,
-//    jitter_sequence: Sequence,
+    //    jitter_sequence: Sequence,
 }
-
 
 impl LightOps for AreaLight {
     fn get_intensity(&self) -> &Color {
@@ -110,22 +109,21 @@ impl AreaLight {
             usteps,
             vsteps,
             intensity,
-//            jitter_sequence: Sequence::new(usteps * vsteps),
+            //            jitter_sequence: Sequence::new(usteps * vsteps),
         }
     }
 
-//    pub fn set_test_sequence(&mut self, d: Vec<f32>) {
-//        self.jitter_sequence.clear();
-//        for &elem in d.iter() {
-//            self.jitter_sequence.add(elem);
-//        }
-//    }
+    //    pub fn set_test_sequence(&mut self, d: Vec<f32>) {
+    //        self.jitter_sequence.clear();
+    //        for &elem in d.iter() {
+    //            self.jitter_sequence.add(elem);
+    //        }
+    //    }
 
-//    pub fn next(&self) -> f32 {
-//        self.jitter_sequence.next()
-//    }
+    //    pub fn next(&self) -> f32 {
+    //        self.jitter_sequence.next()
+    //    }
 }
-
 
 // Scenario: A number generator returns a cyclic sequence of numbers
 //
@@ -168,7 +166,6 @@ impl AreaLight {
 //        self.data.clear();
 //    }
 //}
-
 
 #[cfg(test)]
 mod tests {

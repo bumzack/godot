@@ -1,4 +1,4 @@
-use raytracer_lib_no_std::basics::color::{BLACK, Color};
+use raytracer_lib_no_std::basics::color::{Color, BLACK};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::{Light, LightOps};

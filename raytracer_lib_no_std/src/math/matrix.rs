@@ -5,7 +5,7 @@ extern crate rustacuda_derive;
 
 use core::ops::{Index, IndexMut, Mul};
 
-use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
+use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
