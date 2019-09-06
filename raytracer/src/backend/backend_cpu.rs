@@ -1,5 +1,3 @@
-// extern crate crossbeam;
-
 use std::error::Error;
 use std::time::Instant;
 
