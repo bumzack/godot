@@ -1,4 +1,4 @@
-pub use self::arealight;
+pub use self::arealight::*;
 pub use self::light::*;
 pub use self::pointlight::*;
 

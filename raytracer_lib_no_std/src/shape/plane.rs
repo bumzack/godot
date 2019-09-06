@@ -1,23 +1,31 @@
-use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeEnum, ShapeOps, Tuple, Tuple4D};
+use crate::{EPSILON, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
-pub struct Sphere {
+pub struct Plane {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
     material: Material,
 }
+
 impl ShapeOps for Plane {
-    fn intersect(r: &Ray) -> ([f32; 2], usize) {
-        let mut res = [0f32; 2];
+    fn intersect(&self,r: &Ray) -> ShapeIntersectionResult {
+        let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
-        if r.direction.y.abs() < EPSILON {
+        if r.get_direction().y.abs() < EPSILON {
             return  (res, res_cnt);
         }
-        let t = -r.origin.y / r.direction.y;
+        let t = -r.get_origin().y / r.get_direction().y;
         res[0] = t;
         return  (res, 1);
+    }
+
+    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
+        let n = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * &n;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
     }
 
     fn set_transformation(&mut self, m: Matrix) {
@@ -34,12 +42,7 @@ impl ShapeOps for Plane {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
-        let n = Tuple4D::new_vector(0.0, 1.0, 0.0);
-        let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * &n;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
-    }
+
 
     fn set_material(&mut self, m: Material) {
         self.material = m;

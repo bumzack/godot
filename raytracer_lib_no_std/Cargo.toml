@@ -6,7 +6,7 @@ edition = "2018"
 
 # only needed for tests
 [dev-dependencies]
-cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }
+# cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }
 
 [features]
 cuda = ["rustacuda_derive", "rustacuda_core"]
@@ -15,3 +15,4 @@ cuda = ["rustacuda_derive", "rustacuda_core"]
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 
+rand = { version = "0.7", default-features = false, features = ["small_rng"]}

@@ -6,6 +6,7 @@
 
 #[cfg(test)]
 extern crate cpu_kernel_raytracer;
+extern crate rand;
 #[cfg(feature = "cuda")]
 #[macro_use]
 extern crate rustacuda_derive;
@@ -38,3 +39,6 @@ pub mod prelude {
     pub use super::patterns::*;
     pub use super::shape::*;
 }
+
+
+pub const DEBUG: bool = false;

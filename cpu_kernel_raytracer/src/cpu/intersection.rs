@@ -1,14 +1,12 @@
+use raytracer_lib_no_std::{EPSILON_OVER_UNDER, ShapeOps};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::EPSILON_OVER_UNDER;
-use raytracer_lib_no_std::math::common::EPSILON;
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
 
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct Intersection {
     t: f32,
     shape_idx: usize,
@@ -54,11 +52,11 @@ impl IntersectionOps for Intersection {
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
        let (res, res_cnt) =  match *shape.get_shape() {
-            ShapeEnum::Sphere(ref sphere) => Sphere::intersect(&r2),
-            ShapeEnum::Plane(ref _p) => Plane::intersect(&r2) ,
-            ShapeEnum::Cube(ref _c) =>  Cube::intersect(&r2),
-            ShapeEnum::Cylinder(ref cylinder) =>   Cylinder::intersect(&r2),
-            ShapeEnum::Triangle(ref triangle) =>Triangle::intersect(triangle, &r2),
+            ShapeEnum::Sphere(ref sphere) =>sphere.intersect(&r2),
+            ShapeEnum::Plane(ref plane) => plane.intersect(&r2) ,
+            ShapeEnum::Cube(ref cube) =>  cube.intersect(&r2),
+            ShapeEnum::Cylinder(ref cylinder) =>  cylinder.intersect(&r2),
+            ShapeEnum::Triangle(ref triangle) =>triangle.intersect( &r2),
             // ShapeEnum::Group(ref group) =>
                 // let res = Cylinder::intersect(cylinder, &r2);
            //  }

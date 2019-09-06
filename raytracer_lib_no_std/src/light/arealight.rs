@@ -1,9 +1,8 @@
-extern crate rand;
-
-use rand::Rng;
+// TODO
+// use rand::{Rng};
+// use rand::rngs::SmallRng;
 
 use crate::basics::color::Color;
-use crate::DEBUG;
 use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
 
@@ -69,9 +68,9 @@ impl LightOps for AreaLight {
         // than we would not have to clone in PointLight
 
         // TODO: when the light is created, fill a Vec with jitter values and be done with it
-        let mut rng = rand::thread_rng();
-        let u_idx: f32 = u as f32 + rng.gen::<f32>();
-        let v_idx: f32 = v as f32 + rng.gen::<f32>();
+        // let mut small_rng = SmallRng::from_entropy();
+        let u_idx: f32 = u as f32 ;// + small_rng.gen::<f32>();
+        let v_idx: f32 = v as f32; //  + small_rng.gen::<f32>();
 
         let u_pos = self.get_uvec() * u_idx;
         let v_pos = self.get_vvec() * v_idx;
@@ -82,8 +81,8 @@ impl LightOps for AreaLight {
 
 impl AreaLight {
     pub fn new(corner: Tuple4D, v1: Tuple4D, usteps: usize, v2: Tuple4D, vsteps: usize, intensity: Color) -> AreaLight {
-        let uvec = &v1 / usteps;
-        let vvec = &v2 / vsteps;
+        let uvec = &v1 / usteps ;
+        let vvec = &v2 / vsteps ;
         let position = &corner + &(&v1 / 2.0) + (&v2 / 2.0);
 
         AreaLight {

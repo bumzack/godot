@@ -221,6 +221,7 @@ impl<'a, 'b> BitXor<&'b Tuple4D> for &'a Tuple4D {
     }
 }
 
+
 impl Div<f32> for Tuple4D {
     type Output = Tuple4D;
 
@@ -230,6 +231,45 @@ impl Div<f32> for Tuple4D {
             y: self.y / rhs,
             z: self.z / rhs,
             w: self.w / rhs,
+        }
+    }
+}
+
+impl<'a> Div<f32> for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn div(self, rhs: f32) -> Tuple4D {
+        Tuple4D {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+            w: self.w / rhs,
+        }
+    }
+}
+
+impl Div<usize> for Tuple4D {
+    type Output = Tuple4D;
+
+    fn div(self, rhs: usize) -> Tuple4D {
+        Tuple4D {
+            x: self.x / rhs as f32,
+            y: self.y / rhs as f32,
+            z: self.z / rhs as f32,
+            w: self.w / rhs as f32,
+        }
+    }
+}
+
+impl<'a> Div<usize> for &'a Tuple4D {
+    type Output = Tuple4D;
+
+    fn div(self, rhs: usize) -> Tuple4D {
+        Tuple4D {
+            x: self.x / rhs as f32,
+            y: self.y / rhs as f32,
+            z: self.z / rhs as f32,
+            w: self.w / rhs as f32,
         }
     }
 }

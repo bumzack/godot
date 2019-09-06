@@ -1,4 +1,4 @@
-use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeEnum, ShapeOps, Tuple, Tuple4D};
+use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -9,8 +9,8 @@ pub struct Sphere {
 }
 
 impl ShapeOps for Sphere {
-    fn intersect(r: &Ray) -> ([f32; 2], usize) {
-        let mut res = [0f32; 2];
+    fn intersect(&self, r: &Ray) ->ShapeIntersectionResult {
+        let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -18,13 +18,13 @@ impl ShapeOps for Sphere {
         let a = r.get_direction() ^ r.get_direction();
         let b = 2.0 * (r.get_direction() ^ &sphere_to_ray);
         let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
-        let discriminant = b * b - 4.0 * a * c;
+        let discri = b * b - 4.0 * a * c;
 
-        if discriminant < 0.0 {
+        if discri < 0.0 {
             return (res, res_cnt);
         }
 
-        let sqrt_disc = intri_sqrt(discriminant);
+        let sqrt_disc = intri_sqrt(discri);
         res[0] = (-b - sqrt_disc) / (2.0 * a);
         res[1] = (-b + sqrt_disc) / (2.0 * a);
 
@@ -67,7 +67,7 @@ impl ShapeOps for Sphere {
 }
 
 impl Sphere {
-    fn new() -> Sphere {
+    pub fn new() -> Sphere {
         Sphere {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),

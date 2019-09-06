@@ -1,5 +1,5 @@
-use raytracer_lib_no_std::{Sphere, SphereOps};
+use raytracer_lib_no_std::Sphere;
 
 fn main() {
-    let s = Sphere::new();
+    let _s = Sphere::new();
 }

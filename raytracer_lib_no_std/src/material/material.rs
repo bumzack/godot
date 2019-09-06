@@ -1,4 +1,4 @@
-use crate::{BLACK, Color, ColorOps, intri_powf, Light, LightOps, Pattern, Shape, Tuple, Tuple4D};
+use crate::{Color, ColorOps, Pattern, Tuple};
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;
@@ -48,20 +48,10 @@ pub trait MaterialOps {
     fn get_refractive_index(&self) -> f32;
 
     fn set_refractive_index(&mut self, refractive_index: f32);
-
-    fn lightning(
-        material: &Material,
-        shape: &Shape,
-        light: &Light,
-        point: &Tuple4D,
-        eye: &Tuple4D,
-        n: &Tuple4D,
-        intensity: f32,
-    ) -> Color;
 }
 
 impl MaterialOps for Material {
-    fn new() -> Material {
+     fn new() -> Material {
         Material {
             color: Color::new(1.0, 1.0, 1.0),
             ambient: 0.1,
@@ -147,80 +137,5 @@ impl MaterialOps for Material {
         self.refractive_index = refractive_index;
     }
 
-    fn lightning(
-        material: &Material,
-        shape: &Shape,
-        light: &Light,
-        point: &Tuple4D,
-        eye: &Tuple4D,
-        n: &Tuple4D,
-        intensity: f32,
-    ) -> Color {
-        let c: Color;
-        // TODO: a lot of color copying here ...
-        if material.get_pattern().is_some() {
-            c = material.get_pattern().as_ref().unwrap().color_at_object(object, point);
-        } else {
-            c = Color::from_color(&material.color);
-        }
 
-        // ambient
-        let effective_color = &c * light.get_intensity();
-        let ambient = &effective_color * material.ambient;
-
-        let mut sum = BLACK;
-
-        // create the sample points for the different lights
-        let mut samples = Vec::new();
-
-        for v in 0..light.get_vsteps() {
-            for u in 0..light.get_usteps() {
-                samples.push(World::point_on_light(light, u, v));
-            }
-        }
-
-        for sample in samples.iter() {
-            let mut specular = BLACK;
-            let mut diffuse = BLACK;
-
-            let light_v = Tuple4D::normalize(&(sample - point));
-            let light_dot_normal = &light_v ^ &n;
-
-            if light_dot_normal < 0.0 || intensity == 0.0 {
-                specular = BLACK;
-                diffuse = BLACK;
-            } else {
-                diffuse = &effective_color * material.diffuse * light_dot_normal;
-                diffuse.fix_nan();
-                let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
-                let reflect_dot_eye = &reflect_v ^ eye;
-
-                specular = BLACK;
-                if reflect_dot_eye > 0.0 {
-                    if DEBUG {
-                        println!("specular  BEFORE check     {:?}", specular);
-                    }
-
-                    let factor = reflect_dot_eye.powf(material.shininess);
-                    specular = light.get_intensity() * material.specular * factor;
-
-                    // assert_valid_color(&specular);
-                    specular.fix_nan();
-                    if DEBUG {
-                        println!("specular  AFTER check     {:?}", specular);
-                    }
-                }
-            }
-            sum = &sum + &diffuse;
-            sum = &sum + &specular;
-        }
-        assert_valid_color(&ambient);
-        assert_valid_color(&sum);
-        if intensity == 1.0 {
-            ambient + sum / light.get_samples() as f32 * intensity
-        } else {
-            ambient
-        }
-    }
 }
-

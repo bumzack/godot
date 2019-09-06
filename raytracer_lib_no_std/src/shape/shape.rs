@@ -1,6 +1,10 @@
 use core::fmt;
 
-use crate::{Material, Matrix, Ray, Sphere, SphereOps, Tuple4D};
+use crate::{Cube, Cylinder, Material, Matrix, Plane, Ray, Sphere, Triangle, Tuple4D};
+
+pub type ShapeIdx = usize;
+pub type ShapeIntersectionResult = ([f32; 4], usize);
+
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -13,7 +17,7 @@ pub enum ShapeEnum {
     //  Group(Group),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Shape<'a> {
     shape: ShapeEnum,
@@ -22,15 +26,16 @@ pub struct Shape<'a> {
     casts_shadow: bool,
 }
 
-
 pub trait ShapeOps {
-    fn intersect(r: &Ray) -> ([f32; 2], usize);
+    fn intersect(&self, r: &Ray) -> ShapeIntersectionResult;
+    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
 
+    // TODO: intersect and normal_at are individual implementatiosn for each shape
+    // but the setters / getters are all identical for all shapes, groups, CSG (if ever implemented)
+    // move to a "BaseShape" and make a compose struct of a BaseShape and the individual componentes
     fn set_transformation(&mut self, m: Matrix);
     fn get_transformation(&self) -> &Matrix;
     fn get_inverse_transformation(&self) -> &Matrix;
-
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
 
     fn set_material(&mut self, m: Material);
     fn get_material(&self) -> &Material;
@@ -38,37 +43,37 @@ pub trait ShapeOps {
 }
 
 impl<'a> ShapeOps for Shape<'a> {
+    fn intersect(&self, r: &Ray) -> ShapeIntersectionResult {
+        match self.shape {
+            ShapeEnum::Sphere(ref s) => s.intersect(r),
+            ShapeEnum::Plane(ref plane) => plane.intersect(r),
+            ShapeEnum::Cube(ref cube) => cube.intersect(r),
+            ShapeEnum::Cylinder(ref cylinder) => cylinder.intersect(r),
+            ShapeEnum::Triangle(ref triangle) => triangle.intersect(r),
+            // ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
+        }
+    }
+
     fn normal_at(&self, p: &Tuple4D) -> Tuple4D {
-       match self.shape {
+        match self.shape {
             ShapeEnum::Sphere(ref s) => s.normal_at(p),
             ShapeEnum::Plane(ref plane) => plane.normal_at(p),
             ShapeEnum::Cube(ref cube) => cube.normal_at(p),
             ShapeEnum::Cylinder(ref cylinder) => Cylinder::normal_at(cylinder, p),
             ShapeEnum::Triangle(ref triangle) => Triangle::normal_at(triangle, p),
-            ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
+            // ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
         }
     }
 
-    fn get_material(&self) -> &Material {
-          match self.shape {
-            ShapeEnum::Sphere(ref s) => s.get_material(),
-            ShapeEnum::Plane(ref p) => p.get_material(),
-            ShapeEnum::Cube(ref c) => c.get_material(),
-            ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
-            ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
-            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
-        }
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
+    fn set_transformation(&mut self, m: Matrix) {
         match self.shape {
-            ShapeEnum::Sphere(ref mut s) => s.get_material_mut(),
-            ShapeEnum::Plane(ref mut p) => p.get_material_mut(),
-            ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
-            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
-            ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
-            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
-        }
+            ShapeEnum::Sphere(ref mut sphere) => sphere.set_transformation(m),
+            ShapeEnum::Plane(ref mut plane) => plane.set_transformation(m),
+            ShapeEnum::Cube(ref mut cube) => cube.set_transformation(m),
+            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.set_transformation(m),
+            ShapeEnum::Triangle(ref mut triangle) => triangle.set_transformation(m),
+            // ShapeEnum::Group(ref mut group) => group.set_transformation(m),
+        };
     }
 
     fn get_transformation(&self) -> &Matrix {
@@ -78,7 +83,7 @@ impl<'a> ShapeOps for Shape<'a> {
             ShapeEnum::Cube(ref c) => c.get_transformation(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_transformation(),
             ShapeEnum::Triangle(ref triangle) => triangle.get_transformation(),
-            ShapeEnum::Group(ref group) => group.get_transformation(),
+            // ShapeEnum::Group(ref group) => group.get_transformation(),
         }
     }
 
@@ -89,35 +94,46 @@ impl<'a> ShapeOps for Shape<'a> {
             ShapeEnum::Cube(ref c) => c.get_inverse_transformation(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_inverse_transformation(),
             ShapeEnum::Triangle(ref triangle) => triangle.get_inverse_transformation(),
-            ShapeEnum::Group(ref group) => group.get_inverse_transformation(),
+            // ShapeEnum::Group(ref group) => group.get_inverse_transformation(),
         }
-    }
-
-    fn set_transformation(&mut self, m: Matrix) {
-        match self.shape {
-            ShapeEnum::Sphere(ref s) => s.set_transformation(m),
-            ShapeEnum::Plane(ref p) => p.set_transformation(m),
-            ShapeEnum::Cube(ref c) => c.get_inverse_transformation(m),
-            ShapeEnum::Cylinder(ref cylinder) => cylinder.set_transformation(m),
-            ShapeEnum::Triangle(ref triangle) => triangle.set_transformation(m),
-            ShapeEnum::Group(ref group) => group.set_transformation(m),
-        };
     }
 
     fn set_material(&mut self, m: Material) {
         match self.shape {
-            ShapeEnum::Sphere(ref s) => s.set_material(m),
-            ShapeEnum::Plane(ref p) => p.set_material(m),
-            ShapeEnum::Cube(ref c) => c.set_material(m),
-            ShapeEnum::Cylinder(ref cylinder) => cylinder.set_material(m),
-            ShapeEnum::Triangle(ref triangle) => triangle.set_material(m),
-            ShapeEnum::Group(ref group) => group.set_material(m),
+            ShapeEnum::Sphere(ref mut s) => s.set_material(m),
+            ShapeEnum::Plane(ref mut p) => p.set_material(m),
+            ShapeEnum::Cube(ref mut c) => c.set_material(m),
+            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.set_material(m),
+            ShapeEnum::Triangle(ref mut triangle) => triangle.set_material(m),
+            // ShapeEnum::Group(ref mut group) => group.set_material(m),
         };
+    }
+
+    fn get_material(&self) -> &Material {
+        match self.shape {
+            ShapeEnum::Sphere(ref s) => s.get_material(),
+            ShapeEnum::Plane(ref p) => p.get_material(),
+            ShapeEnum::Cube(ref c) => c.get_material(),
+            ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
+            ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
+            // ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
+        }
+    }
+
+    fn get_material_mut(&mut self) -> &mut Material {
+        match self.shape {
+            ShapeEnum::Sphere(ref mut s) => s.get_material_mut(),
+            ShapeEnum::Plane(ref mut p) => p.get_material_mut(),
+            ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
+            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
+            ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
+            // ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
+        }
     }
 }
 
 impl<'a> Shape<'a> {
-    fn new(shape: ShapeEnum, name: &'a str) -> Shape<'a> {
+  pub  fn new(shape: ShapeEnum, name: &'a str) -> Shape<'a> {
         Shape {
             shape,
             name,
@@ -126,19 +142,19 @@ impl<'a> Shape<'a> {
         }
     }
 
-    fn get_shape(&self) -> &ShapeEnum {
+    pub fn get_shape(&self) -> &ShapeEnum {
         &self.shape
     }
 
-    fn get_name(&self) -> &'a str {
+   pub fn get_name(&self) -> &'a str {
         self.name
     }
 
-    fn get_casts_shadow(&self) -> bool {
+    pub fn get_casts_shadow(&self) -> bool {
         self.casts_shadow
     }
 
-    fn set_casts_shadow(&mut self, casts_shadow: bool) {
+  pub  fn set_casts_shadow(&mut self, casts_shadow: bool) {
         self.casts_shadow = casts_shadow;
     }
 }

@@ -1,4 +1,4 @@
-use crate::{Color, Matrix, Shape, StripePattern, Tuple4D};
+use crate::{Checker3DPattern, Color, GradientPattern, Matrix, RingPattern, Shape, StripePattern, TestPattern, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

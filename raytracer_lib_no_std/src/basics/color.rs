@@ -13,8 +13,8 @@ pub struct Color {
 
 pub trait ColorOps {
     fn new(r: f32, g: f32, b: f32) -> Color;
-
     fn from_color(c: &Color) -> Color;
+    fn fix_nan(&mut self);
 }
 
 impl ColorOps for Color {
@@ -24,6 +24,18 @@ impl ColorOps for Color {
 
     fn from_color(c: &Color) -> Color {
         Color { r: c.r, g: c.g, b: c.b }
+    }
+
+    fn fix_nan(&mut self) {
+        if self.r.is_nan() {
+            self.r = 0.0;
+        }
+        if self.g.is_nan() {
+            self.g = 0.0;
+        }
+        if self.b.is_nan() {
+            self.b = 0.0;
+        }
     }
 }
 

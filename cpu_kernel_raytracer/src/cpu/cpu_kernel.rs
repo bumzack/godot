@@ -1,8 +1,8 @@
+use raytracer_lib_no_std::{assert_valid_color, ColorOps, DEBUG, EPSILON_OVER_UNDER, Light, ShapeOps};
 use raytracer_lib_no_std::basics::color::{BLACK, Color};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::light::light::{Light, LightOps};
-use raytracer_lib_no_std::LightEnum;
+use raytracer_lib_no_std::light::light::LightOps;
 use raytracer_lib_no_std::material::material::{Material, MaterialOps};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::Shape;
@@ -36,7 +36,7 @@ impl CpuKernel {
         //  let in_shadow = CpuKernel::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = CpuKernel::intensity_at(shapes, lights, comp.get_over_point());
 
-        let surface = Material::lightning(
+        let surface =CpuKernel::lightning(
             material,
             shape,
             light,
@@ -45,8 +45,11 @@ impl CpuKernel {
             comp.get_normal_vector(),
             intensity,
         );
+        assert_valid_color(&surface);
         let reflected = CpuKernel::reflected_color(shapes, lights, comp, remaining);
         let refracted = CpuKernel::refracted_color(shapes, lights, comp, remaining);
+        assert_valid_color(&reflected);
+        assert_valid_color(&refracted);
 
         // let material = comp.get_object().get_material();
         if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
@@ -71,7 +74,9 @@ impl CpuKernel {
         let (intersection, is_hit) = intersections.hit();
 
         if is_hit {
-            if intersection.get_t() < distance {
+            let s_idx = intersection.get_shape();
+            let shape = &shapes[s_idx];
+            if intersection.get_t() - distance < EPSILON_OVER_UNDER && shape.get_casts_shadow() {
                 return true;
             }
         }
@@ -81,8 +86,8 @@ impl CpuKernel {
     fn intensity_at(shapes: &Vec<Shape>, lights: &Vec<Light>, point: &Tuple4D) -> f32 {
         let light = &lights[0];
         let res = match light {
-            LightEnum::PointLight(ref pl) => CpuKernel::intensity_at_point_light(light, point, shapes),
-           LightEnum::AreaLight(ref al) => CpuKernel::intensity_at_area_light(light, point, shapes),
+            Light::PointLight(ref pl) => CpuKernel::intensity_at_point_light(light, point, shapes),
+           Light::AreaLight(ref al) => CpuKernel::intensity_at_area_light(light, point, shapes),
         };
         res
     }
@@ -97,7 +102,7 @@ impl CpuKernel {
         for v in 0..light.get_vsteps() {
             for u in 0..light.get_usteps() {
                 let light_position = light.point_on_light(u, v);
-                if !CpuKernel::is_shadowed(world, &light_position, point) {
+                if !CpuKernel::is_shadowed(shapes   , &light_position, point) {
                     total += 1.0;
                 }
             }
@@ -139,7 +144,7 @@ impl CpuKernel {
         }
         let n_ratio = comp.get_n1() / comp.get_n2();
         let cos_i = comp.get_eye_vector() ^ comp.get_normal_vector();
-        let sin2_t = n_ratio.powf(2.0) * (1.0 - cos_i.powf(2.0));
+        let sin2_t = n_ratio.powi(2) * (1.0 - cos_i.powi(2));
 
         // total internal reflection -> return black
         if sin2_t > 1.0 {
@@ -152,6 +157,82 @@ impl CpuKernel {
         let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
 
         CpuKernel::color_at(shapes, lights, &refracted_ray, remaining - 1) * material.get_transparency()
+    }
+
+    fn lightning(
+        material: &Material,
+        shape: &Shape,
+        light: &Light,
+        point: &Tuple4D,
+        eye: &Tuple4D,
+        n: &Tuple4D,
+        intensity: f32,
+    ) -> Color {
+        let c: Color;
+        // TODO: a lot of color copying here ...
+        if material.get_pattern().is_some() {
+            c = material.get_pattern().as_ref().unwrap().color_at_object(shape, point);
+        } else {
+            c = Color::from_color(&material.get_color());
+        }
+
+        // ambient
+        let effective_color = &c * light.get_intensity();
+        let ambient = &effective_color * material.get_ambient();
+
+        let mut sum = BLACK;
+
+        // create the sample points for the different lights
+        let mut samples = Vec::new();
+
+        for v in 0..light.get_vsteps() {
+            for u in 0..light.get_usteps() {
+                samples.push(light.point_on_light( u, v));
+            }
+        }
+
+        for sample in samples.iter() {
+            let mut specular = BLACK;
+            let mut diffuse = BLACK;
+
+            let light_v = Tuple4D::normalize(&(sample - point));
+            let light_dot_normal = &light_v ^ &n;
+
+            if light_dot_normal < 0.0 || intensity == 0.0 {
+                specular = BLACK;
+                diffuse = BLACK;
+            } else {
+                diffuse = &effective_color * material.get_diffuse() * light_dot_normal;
+                diffuse.fix_nan();
+                let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
+                let reflect_dot_eye = &reflect_v ^ eye;
+
+                specular = BLACK;
+                if reflect_dot_eye > 0.0 {
+                    if DEBUG {
+                        // println!("specular  BEFORE check     {:?}", specular);
+                    }
+
+                    let factor = reflect_dot_eye.powf(material.get_shininess());
+                    specular = light.get_intensity() * material.get_specular() * factor;
+
+                    // assert_valid_color(&specular);
+                    specular.fix_nan();
+                    if DEBUG {
+                        // println!("specular  AFTER check     {:?}", specular);
+                    }
+                }
+            }
+            sum = &sum + &diffuse;
+            sum = &sum + &specular;
+        }
+        assert_valid_color(&ambient);
+        assert_valid_color(&sum);
+        if intensity == 1.0 {
+            ambient + sum / light.get_samples() as f32 * intensity
+        } else {
+            ambient
+        }
     }
 }
 
