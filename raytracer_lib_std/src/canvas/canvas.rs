@@ -3,37 +3,63 @@ use std::io::{Error, Write};
 
 use image::{ImageBuffer, RgbImage};
 
-use raytracer_lib_no_std::{Color, ColorOps};
+use raytracer_lib_no_std::{Color, ColorOps, BLACK};
 
 pub type ColorVec = Vec<Color>;
+pub type PixelVec = Vec<Pixel>;
+
+#[derive(Clone, Debug)]
+pub struct Pixel {
+  pub  color: Color,
+    pub  x: usize,
+    pub y: usize,
+}
+
+impl Pixel {
+    pub fn new() -> Pixel {
+        Pixel {
+            color: BLACK,
+            x: 0,
+            y: 0,
+        }
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct Canvas {
     width: usize,
     height: usize,
-    pixel: ColorVec,
+    pixel: PixelVec,
 }
 
 pub trait CanvasOps<'a> {
     fn new(width: usize, height: usize) -> Canvas;
     fn write_pixel(&mut self, x: usize, y: usize, c: Color);
-    fn pixel_at(&self, x: usize, y: usize) -> &Color;
+    fn pixel_at(&self, x: usize, y: usize) -> &Pixel;
 
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;
     fn write_png(&self, filename: &'a str) -> Result<(), Error>;
 
     fn calc_idx(&self, x: usize, y: usize) -> usize;
 
-    fn get_pixels_mut(&mut self) -> &ColorVec;
+    fn get_pixels_mut(&mut self) -> &mut PixelVec;
 }
 
 impl<'a> CanvasOps<'a> for Canvas {
     fn new(width: usize, height: usize) -> Canvas {
-        Canvas {
+        let mut c = Canvas {
             width,
             height,
-            pixel: vec![Color::new(0.0, 0.0, 0.0); width * height],
+            pixel: vec![Pixel::new(); width * height],
+        };
+        for x in 0..width {
+            for y in 0..height {
+                c.pixel[y * width + x].x = x;
+                c.pixel[y * width + x].y = y;
+            }
         }
+
+        c
     }
 
     fn write_pixel(&mut self, x: usize, y: usize, mut c: Color) {
@@ -51,10 +77,10 @@ impl<'a> CanvasOps<'a> for Canvas {
         if c.g > 1.0 {
             c.g = 1.0;
         }
-        self.pixel[y * self.width + x] = c;
+        self.pixel[y * self.width + x].color = c;
     }
 
-    fn pixel_at(&self, x: usize, y: usize) -> &Color {
+    fn pixel_at(&self, x: usize, y: usize) -> &Pixel {
         assert!(x < self.width);
         assert!(y < self.height);
 
@@ -84,11 +110,11 @@ impl<'a> CanvasOps<'a> for Canvas {
             let mut row = "".to_owned();
             for x in 0..self.width {
                 let c = &self.pixel[self.calc_idx(x, y)];
-                row = row.to_owned() + &format!("{} ", (c.r * 255.0) as u8);
+                row = row.to_owned() + &format!("{} ", (c.color.r * 255.0) as u8);
                 // i += 1;
-                row = row.to_owned() + &format!("{} ", (c.g * 255.0) as u8);
+                row = row.to_owned() + &format!("{} ", (c.color.g * 255.0) as u8);
                 // i += 1;
-                row = row.to_owned() + &format!("{} ", (c.b * 255.0) as u8);
+                row = row.to_owned() + &format!("{} ", (c.color.b * 255.0) as u8);
                 // i += 1;
             }
             row = row.to_owned() + new_line;
@@ -104,7 +130,7 @@ impl<'a> CanvasOps<'a> for Canvas {
         let mut image: RgbImage = ImageBuffer::new(self.width as u32, self.height as u32);
 
         for p in self.pixel.iter() {
-            let pixel = image::Rgb([(p.r * 255.0) as u8, (p.g * 255.0) as u8, (p.b * 255.0) as u8]);
+            let pixel = image::Rgb([(p.color.r * 255.0) as u8, (p.color.g * 255.0) as u8, (p.color.b * 255.0) as u8]);
             // println!("pixels_vec = {:?}, pixel = {:?}", p, pixel);
             image.put_pixel(x as u32, y as u32, pixel);
             x = x + 1;
@@ -121,8 +147,8 @@ impl<'a> CanvasOps<'a> for Canvas {
         y * self.width + x
     }
 
-    fn get_pixels_mut(&mut self) -> &Vec<Color> {
-        &self.pixel
+    fn get_pixels_mut(&mut self) -> &mut Vec<Pixel> {
+        &mut self.pixel
     }
 }
 

@@ -30,7 +30,7 @@ impl Backend for BackendCuda {
         let _context = Context::create_and_push(ContextFlags::MAP_HOST | ContextFlags::SCHED_AUTO, device)?;
 
         // Load the module containing the function we want to call
-        let ptx = env!("KERNEL_PTX_PATH_RUST_RENDER").to_owned() + "/" + "cuda_kernel_raytracer.ptx";
+        let ptx = env!("KERNEL_PTX_PATH_RUST_RENDER");
         println!("ptx = {}", ptx);
         // let ptx_content = include_str!(ptx);
         //    let module_data = CString::new(ptx_content)?;

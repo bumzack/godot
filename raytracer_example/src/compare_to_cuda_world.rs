@@ -72,7 +72,7 @@ pub fn setup_world(w: usize, h: usize) -> (World, Camera) {
 
     let mut c = Camera::new(w, h, PI / 3.0);
     c.calc_pixel_size();
-    c.set_antialiasing(true);
+    c.set_antialiasing(false);
     c.set_antialiasing_size(3);
 
     c.set_transformation(Matrix::view_transform(

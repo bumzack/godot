@@ -49,32 +49,33 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
             .as_ref()
             .expect("camera expect in 'calc_pixel' ");
 
-        // TODO: add antialising parameters to method parameter list
-        // assume aa of 3x
-        let n_samples = 3;
+        if c.get_antialiasing() {
+            // TODO: add antialising parameters to method parameter list
+            // assume aa of 3x
+            let n_samples = 3;
 
-        let two_over_six = 2.0 / 6.0;
-        #[rustfmt::skip]
-            let jitter_matrix = [-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-            -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-            -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
-        ];
+            let two_over_six = 2.0 / 6.0;
+            #[rustfmt::skip]
+                let jitter_matrix = [-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
+                -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
+                -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
+            ];
 
-        let mut color = BLACK;
-        for sample in 0..n_samples {
-            let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
-            let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
+            let mut color = BLACK;
+            for sample in 0..n_samples {
+                let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
+                let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
 
-            let r = Camera::ray_for_pixel_anti_aliasing(
-                c,
-                x_idx as usize,
-                y_idx as usize,
-                delta_x,
-                delta_y,
-            );
+                let r = Camera::ray_for_pixel_anti_aliasing(
+                    c,
+                    x_idx as usize,
+                    y_idx as usize,
+                    delta_x,
+                    delta_y,
+                );
 
-            color = color
-                + CudaKernel::color_at(
+                color = color
+                    + CudaKernel::color_at(
                     shapes,
                     cnt_shapes,
                     lights,
@@ -82,12 +83,26 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                     &r,
                     MAX_REFLECTION_RECURSION_DEPTH,
                 );
+            }
+            color = color / n_samples as f32;
+
+            let idx = y_idx * w + x_idx;
+
+            *pixels.offset(idx) = color;
         }
-        color = color / n_samples as f32;
-
-        let idx = y_idx * w + x_idx;
-
-        *pixels.offset(idx) = color;
+        else {
+            let r = Camera::ray_for_pixel(c, x_idx as usize, y_idx as usize);
+            let color = CudaKernel::color_at(
+                shapes,
+                cnt_shapes,
+                lights,
+                cnt_lights,
+                &r,
+                MAX_REFLECTION_RECURSION_DEPTH,
+            );
+            let idx = y_idx * w + x_idx;
+            *pixels.offset(idx) = color;
+        }
     }
 }
 

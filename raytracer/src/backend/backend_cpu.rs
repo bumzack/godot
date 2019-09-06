@@ -8,9 +8,10 @@ use cpu_kernel_raytracer::color::BLACK;
 use cpu_kernel_raytracer::CpuKernel;
 use cpu_kernel_raytracer::ray::RayOps;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
-
+use rayon::iter::ParallelIterator;
 use crate::backend::backend::Backend;
 use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
+use rayon::prelude::IntoParallelIterator;
 
 pub struct BackendCpu {
     multi_core: bool,
@@ -165,10 +166,86 @@ impl BackendCpu {
     }
 
     // TODO: implement using rayon ?!?!!?
-    fn render_multi_core(&self, _world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
+    fn render_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
+        let n_samples = c.get_antialiasing_size();
+        let mut jitter_matrix = Vec::new();
+        if n_samples == 2 {
+            #[rustfmt::skip]
+                jitter_matrix = vec![
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                -1.0 / 4.0,
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                -3.0 / 4.0,
+            ];
+        }
+        if n_samples == 3 {
+            let two_over_six = 2.0 / 6.0;
+            #[rustfmt::skip]
+                jitter_matrix = vec![
+                -two_over_six,
+                two_over_six,
+                0.0,
+                two_over_six,
+                two_over_six,
+                two_over_six,
+                -two_over_six,
+                0.0,
+                0.0,
+                0.0,
+                two_over_six,
+                0.0,
+                -two_over_six,
+                -two_over_six,
+                0.0,
+                -two_over_six,
+                two_over_six,
+                -two_over_six,
+            ];
+        }
+        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
-        let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        // TODO: remove, when WOrld has lights vector
+        let mut lights = Vec::new();
+        lights.push(world.get_light().clone());
+
+        canvas.get_pixels_mut().into_par_iter().for_each(|p| {
+            let x = p.x;
+            let y = p.y;
+            if c.get_antialiasing() {
+                let mut color = BLACK;
+
+                // Accumulate light for N samples.
+                for sample in 0..n_samples {
+                    let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
+                    let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
+
+                    let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
+
+                    color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH)
+                        + color;
+                }
+                color = color / n_samples as f32;
+                // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                p.color.r =  color.r;
+                p.color.g =  color.g;
+                p.color.b =  color.b;
+            } else {
+                let r = Camera::ray_for_pixel(c, x, y);
+
+                let color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                // println!("no AA    color at ({}/{}): {:?}", x, y, color);
+                p.color.r =  color.r;
+                p.color.g =  color.g;
+                p.color.b =  color.b;
+            }
+
+        });
+
 
         let stopped = Instant::now();
         println!(
