@@ -1,7 +1,7 @@
 use core::f32::INFINITY;
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::math::common::EPSILON;
+use raytracer_lib_no_std::math::common::{EPSILON, EPSILON_OVER_UNDER};
 use raytracer_lib_no_std::math::math::{intri_powi, intri_sqrt};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};

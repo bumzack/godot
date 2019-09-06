@@ -1,6 +1,7 @@
 use crate::{Color, Matrix, Shape, StripePattern, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum Pattern {
     StripePattern(StripePattern),
     //    GradientPattern(GradientPattern),

@@ -1,5 +1,7 @@
 // TODO: pass Vec<Color> to kernel, not pixels and remove Pixel trait
 
+extern crate rustacuda_derive;
+
 use std::error::Error;
 use std::ffi::CString;
 use std::time::Instant;
@@ -9,12 +11,10 @@ use rustacuda::prelude::{
     Context, ContextFlags, CopyDestination, CudaFlags, Device, DeviceBuffer, Module, Stream, StreamFlags,
 };
 
-use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
-use raytracer_lib_no_std::basics::color::{BLACK, Color, ColorOps};
-use raytracer_lib_std::canvas::canvas::{Canvas, CanvasOps};
-use raytracer_lib_std::world::world::{World, WorldOps};
 
 use crate::backend::backend::Backend;
+use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
+use raytracer_lib_no_std::{Camera, BLACK, CameraOps};
 
 pub struct BackendCuda {}
 
@@ -34,7 +34,7 @@ impl Backend for BackendCuda {
         println!("ptx = {}", ptx);
         // let ptx_content = include_str!(ptx);
         //    let module_data = CString::new(ptx_content)?;
-        let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/48a649200826c0c8/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to create sources");
+        let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/dbaccfb949de4deb/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to create sources");
         let module = Module::load_from_string(&module_data).expect("Unable to create kernel name string");
 
         //  Create a stream to submit work to

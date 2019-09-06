@@ -1,6 +1,7 @@
 use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,

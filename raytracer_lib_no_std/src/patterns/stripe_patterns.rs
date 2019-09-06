@@ -1,6 +1,7 @@
 use crate::{BLACK, Color, ColorOps, intri_floor, Matrix, MatrixOps, Shape, Tuple4D, WHITE};
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct StripePattern {
     color_a: Color,
     color_b: Color,

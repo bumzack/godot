@@ -1,6 +1,7 @@
 use crate::{intri_tan, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Camera {
     hsize: usize,
     vsize: usize,

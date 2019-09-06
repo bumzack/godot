@@ -1,6 +1,7 @@
 use crate::{Material, Matrix, Sphere, SphereOps, Tuple4D};
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum ShapeEnum {
     Sphere(Sphere),
     //    Plane(Plane),
@@ -10,6 +11,7 @@ pub enum ShapeEnum {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Shape {
     shape: ShapeEnum,
 }

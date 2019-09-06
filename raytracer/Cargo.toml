@@ -5,10 +5,12 @@ authors = ["bumzack"]
 edition = "2018"
 
 [features]
-cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core"]
+cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda"]
 
 [dependencies]
 raytracer_lib_std = {path =  "../raytracer_lib_std" }
+raytracer_lib_no_std = {path =  "../raytracer_lib_no_std" }
+
 cpu_kernel_raytracer = { path = "../cpu_kernel_raytracer" }
 
 rustacuda = { path = "../../RustaCUDA" , optional = true}

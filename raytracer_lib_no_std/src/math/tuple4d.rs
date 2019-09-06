@@ -5,6 +5,7 @@ use core::ops::{Add, BitXor, Div, Mul, Sub};
 use crate::intri_sqrt;
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Tuple4D {
     pub x: f32,
     pub y: f32,

@@ -1,6 +1,7 @@
 use crate::{Matrix, Tuple4D};
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Ray {
     origin: Tuple4D,
     direction: Tuple4D,

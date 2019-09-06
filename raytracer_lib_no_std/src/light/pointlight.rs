@@ -1,6 +1,7 @@
 use crate::{Color, LightOps, Tuple4D};
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct PointLight {
     pub position: Tuple4D,
     pub intensity: Color,
