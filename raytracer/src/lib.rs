@@ -1,17 +1,17 @@
 #![feature(stmt_expr_attributes)]
 
-#[cfg(feature = "cuda")]
-extern crate rustacuda;
+
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
-#[cfg(feature = "cuda")]
 
 
 // #[cfg(feature = "cuda")]
 // #[macro_use]
 
-#[cfg_attr(cuda, macro_use)]
-extern crate rustacuda_derive;
+// #[cfg_attr(cuda, macro_use)]
+
+#[macro_use]
+extern crate rustacuda;
 
 extern crate cpu_kernel_raytracer;
 extern crate raytracer_lib_std;

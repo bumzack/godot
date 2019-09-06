@@ -1,5 +1,3 @@
-#![no_std]
-
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
 use crate::intri_sqrt;
