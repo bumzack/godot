@@ -52,14 +52,42 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
         if c.get_antialiasing() {
             // TODO: add antialising parameters to method parameter list
             // assume aa of 3x
-            let n_samples = 3;
+            let n_samples = c.get_antialiasing_size();
 
             let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                let jitter_matrix = [-two_over_six, two_over_six, 0.0, two_over_six, two_over_six, two_over_six,
-                -two_over_six, 0.0, 0.0, 0.0, two_over_six, 0.0,
-                -two_over_six, -two_over_six, 0.0, -two_over_six, two_over_six, -two_over_six,
-            ];
+            let mut jitter_matrix = [0f32; 18];
+
+            if n_samples == 2 {
+                jitter_matrix[0] = -1.0 / 4.0;
+                jitter_matrix[1] = 1.0 / 4.0;
+                jitter_matrix[2] = 1.0 / 4.;
+                jitter_matrix[3] = 1.0 / 4.0;
+                jitter_matrix[4] = -1.0 / 4.0;
+                jitter_matrix[5] = -1.0 / 4.0;
+                jitter_matrix[6] = 1.0 / 4.0;
+                jitter_matrix[7] = -3.0 / 4.0;
+            }
+            if n_samples == 3 {
+                let two_over_six = 2.0 / 6.0;
+                jitter_matrix[0] = -two_over_six;
+                jitter_matrix[1] = two_over_six;
+                jitter_matrix[2] = 0.0;
+                jitter_matrix[3] = two_over_six;
+                jitter_matrix[4] = two_over_six;
+                jitter_matrix[5] = two_over_six;
+                jitter_matrix[6] = -two_over_six;
+                jitter_matrix[7] = 0.0;
+                jitter_matrix[8] = 0.0;
+                jitter_matrix[9] = 0.0;
+                jitter_matrix[10] = two_over_six;
+                jitter_matrix[11] = 0.0;
+                jitter_matrix[12] = -two_over_six;
+                jitter_matrix[13] = -two_over_six;
+                jitter_matrix[14] = 0.0;
+                jitter_matrix[15] = -two_over_six;
+                jitter_matrix[16] = two_over_six;
+                jitter_matrix[17] = -two_over_six;
+            }
 
             let mut color = BLACK;
             for sample in 0..n_samples {
@@ -89,8 +117,7 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
             let idx = y_idx * w + x_idx;
 
             *pixels.offset(idx) = color;
-        }
-        else {
+        } else {
             let r = Camera::ray_for_pixel(c, x_idx as usize, y_idx as usize);
             let color = CudaKernel::color_at(
                 shapes,

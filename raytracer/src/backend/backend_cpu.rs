@@ -89,9 +89,9 @@ impl BackendCpu {
         let mut lights = Vec::new();
         lights.push(world.get_light().clone());
 
-        for y in 0..c.get_vsize() {
-            for x in 0..c.get_hsize() {
-                if c.get_antialiasing() {
+        if c.get_antialiasing() {
+            for y in 0..c.get_vsize() {
+                for x in 0..c.get_hsize() {
                     let mut color = BLACK;
 
                     // Accumulate light for N samples.
@@ -107,7 +107,11 @@ impl BackendCpu {
                     color = color / n_samples as f32;
                     // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     canvas.write_pixel(x, y, color);
-                } else {
+                }
+            }
+        } else {
+            for y in 0..c.get_vsize() {
+                for x in 0..c.get_hsize() {
                     let r = Camera::ray_for_pixel(c, x, y);
 
                     let color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
@@ -115,9 +119,7 @@ impl BackendCpu {
                     canvas.write_pixel(x, y, color);
                 }
             }
-            // println!("render line  {}", y);
         }
-
         let stopped = Instant::now();
         println!(
             "\n\ncpu single core     duration: {:?} \n\n",
@@ -231,19 +233,18 @@ impl BackendCpu {
                 }
                 color = color / n_samples as f32;
                 // println!("with AA    color at ({}/{}): {:?}", x, y, color);
-                p.color.r =  color.r;
-                p.color.g =  color.g;
-                p.color.b =  color.b;
+                p.color.r = color.r;
+                p.color.g = color.g;
+                p.color.b = color.b;
             } else {
                 let r = Camera::ray_for_pixel(c, x, y);
 
                 let color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
                 // println!("no AA    color at ({}/{}): {:?}", x, y, color);
-                p.color.r =  color.r;
-                p.color.g =  color.g;
-                p.color.b =  color.b;
+                p.color.r = color.r;
+                p.color.g = color.g;
+                p.color.b = color.b;
             }
-
         });
 
 

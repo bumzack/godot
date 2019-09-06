@@ -36,6 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
 
     let start = Instant::now();
+
     let num_cores = num_cpus::get() + 1;
 
     println!("using {} cores", num_cores);
