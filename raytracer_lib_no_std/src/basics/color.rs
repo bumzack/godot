@@ -1,17 +1,10 @@
 use core::ops::{Add, Div, Mul, Sub};
 
-pub const BLACK: Color = Color {
-    r: 0.0,
-    g: 0.0,
-    b: 0.0,
-};
-pub const WHITE: Color = Color {
-    r: 1.0,
-    g: 1.0,
-    b: 1.0,
-};
+pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
+pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
-#[derive(Clone, Copy, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Color {
     pub r: f32,
     pub g: f32,
@@ -30,11 +23,7 @@ impl ColorOps for Color {
     }
 
     fn from_color(c: &Color) -> Color {
-        Color {
-            r: c.r,
-            g: c.g,
-            b: c.b,
-        }
+        Color { r: c.r, g: c.g, b: c.b }
     }
 }
 
@@ -148,8 +137,9 @@ impl Div<f32> for Color {
 
 #[cfg(test)]
 mod tests {
+    use crate::{assert_color, assert_float};
+
     use super::*;
-    use crate::math::common::{assert_float, assert_color};
 
     #[test]
     fn test_add_color() {

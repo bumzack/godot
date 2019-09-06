@@ -1,10 +1,7 @@
-use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
-use crate::math::math::intri_floor;
-use crate::math::matrix::{Matrix, MatrixOps};
-use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
+use crate::{BLACK, Color, ColorOps, intri_floor, Matrix, MatrixOps, Shape, Tuple4D, WHITE};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct StripePattern {
     color_a: Color,
     color_b: Color,
@@ -54,8 +51,8 @@ impl StripePattern {
     }
 
     pub fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m)
-            .expect("StripePattern::set_transofrmation: cant unwrap inverse matrix");
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("StripePattern::set_transofrmation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 

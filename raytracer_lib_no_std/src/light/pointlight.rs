@@ -1,8 +1,7 @@
-use crate::basics::color::Color;
-use crate::light::light::LightOps;
-use crate::math::tuple4d::Tuple4D;
+use crate::{Color, LightOps, Tuple4D};
 
-#[derive(Clone, Debug, DeviceCopy)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct PointLight {
     pub position: Tuple4D,
     pub intensity: Color,
@@ -20,18 +19,13 @@ impl LightOps for PointLight {
 
 impl PointLight {
     pub fn new(position: Tuple4D, intensity: Color) -> PointLight {
-        PointLight {
-            position,
-            intensity,
-        }
+        PointLight { position, intensity }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::basics::color::ColorOps;
-    use crate::math::common::{assert_color, assert_tuple};
-    use crate::math::tuple4d::Tuple;
+    use crate::{assert_color, assert_tuple, ColorOps, Tuple};
 
     use super::*;
 
@@ -43,7 +37,7 @@ mod tests {
 
         let pl = PointLight::new(position, intensity);
 
-        let intensity_expected = Color::new(1.0, 1.0, 1.0);
+        let intensity_expected: Color = Color::new(1.0, 1.0, 1.0);
         let position_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
 
         assert_color(pl.get_intensity(), &intensity_expected);

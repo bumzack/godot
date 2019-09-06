@@ -1,7 +1,8 @@
-use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
-use raytracer_lib_std::canvas::canvas::Canvas;
-use raytracer_lib_std::world::world::World;
 use std::error::Error;
+
+use cpu_kernel_raytracer::camera::Camera;
+use raytracer_lib_std::Canvas;
+use raytracer_lib_std::world::world::World;
 
 // TODO: use Vec<Light> if multiple light sources should be supported
 

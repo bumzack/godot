@@ -1,7 +1,8 @@
 #![feature(core_intrinsics)]
 
-use crate::math::libm_striped_to_pow::powf::powf;
 use core::intrinsics;
+
+use crate::math::libm_striped_to_pow::powf::powf;
 
 #[inline]
 pub fn intri_abs(x: f32) -> f32 {
@@ -64,11 +65,13 @@ pub fn intri_floor(f: f32) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::math::libm_striped_to_pow::fabsf::fabsf;
     use core::f32::*;
 
-     #[test]
+    use crate::math::libm_striped_to_pow::fabsf::fabsf;
+
+    use super::*;
+
+    #[test]
     fn test_powf() {
         assert!(fabsf(NAN).is_nan());
 

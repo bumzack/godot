@@ -4,15 +4,20 @@ version = "0.1.0"
 authors = ["bumzack <bumzacktrara@gmail.com>"]
 edition = "2018"
 
+[dependencies.raytracer]
+path =  "../raytracer"
+features = [ "cuda" ]
+
+[features]
+cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda", "raytracer/cuda"]
+
 [dependencies]
 image = "*"
+raytracer_lib_std = {path =  "../raytracer_lib_std" }
+cpu_kernel_raytracer = { path = "../cpu_kernel_raytracer" }
+# raytracer = { path = "../raytracer" }
 
-rustacuda = { path = "../../RustaCUDA" }
-rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" }
-rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" }
+rustacuda = { path = "../../RustaCUDA" , optional = true}
+rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
+rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 
-cuda_kernel_raytracer = { path = "../cuda_kernel_raytracer" }
-raytracer_lib_no_std = {path =  "../raytracer_lib_no_std"}
-raytracer_lib_std = {path =  "../raytracer_lib_std"}
-
-raytracer  = {path =  "../raytracer"}

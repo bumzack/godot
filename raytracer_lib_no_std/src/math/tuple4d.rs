@@ -1,10 +1,9 @@
-#![no_std]
-
-
-use crate::math::math::intri_sqrt;
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+use crate::intri_sqrt;
+
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Tuple4D {
     pub x: f32,
     pub y: f32,
@@ -239,7 +238,7 @@ impl Div<f32> for Tuple4D {
 mod tests {
     use core::f32::consts::SQRT_2;
 
-    use crate::math::common::{assert_float, assert_tuple};
+    use crate::{assert_float, assert_tuple};
 
     use super::*;
 

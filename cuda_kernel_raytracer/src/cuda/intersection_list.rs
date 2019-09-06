@@ -3,9 +3,10 @@
 // use #!cfg target = ... or something ?
 //
 
+use core::fmt;
+
 use crate::cuda::intersection::Intersection;
 use crate::cuda::intersection::IntersectionOps;
-use core::fmt;
 
 pub const MAX_INTERSECTIONLIST_LEN: usize = 100;
 

@@ -1,21 +1,20 @@
 // TODO: pass Vec<Color> to kernel, not pixels and remove Pixel trait
 
-use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
+extern crate rustacuda;
 
-use crate::backend::backend::Backend;
-use raytracer_lib_no_std::basics::color::{Color, ColorOps, BLACK};
-use raytracer_lib_std::canvas::canvas::{Canvas, CanvasOps};
-use raytracer_lib_std::world::world::{World, WorldOps};
-use rustacuda::memory::{
-    cuda_device_get_limit_stacksize, cuda_device_set_limit_stacksize, DeviceBox,
-};
-use rustacuda::prelude::{
-    Context, ContextFlags, CopyDestination, CudaFlags, Device, DeviceBuffer, Module, Stream,
-    StreamFlags,
-};
 use std::error::Error;
 use std::ffi::CString;
 use std::time::Instant;
+
+use rustacuda::memory::{cuda_device_get_limit_stacksize, cuda_device_set_limit_stacksize, DeviceBox};
+use rustacuda::prelude::{
+    Context, ContextFlags, CopyDestination, CudaFlags, Device, DeviceBuffer, Module, Stream, StreamFlags,
+};
+
+
+use crate::backend::backend::Backend;
+use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
+use raytracer_lib_no_std::{Camera, BLACK, CameraOps};
 
 pub struct BackendCuda {}
 
@@ -28,18 +27,15 @@ impl Backend for BackendCuda {
 
         let device = Device::get_device(0)?;
 
-        let _context =
-            Context::create_and_push(ContextFlags::MAP_HOST | ContextFlags::SCHED_AUTO, device)?;
+        let _context = Context::create_and_push(ContextFlags::MAP_HOST | ContextFlags::SCHED_AUTO, device)?;
 
         // Load the module containing the function we want to call
-        let ptx =
-            env!("KERNEL_PTX_PATH_RUST_RENDER").to_owned() + "/" + "cuda_kernel_raytracer.ptx";
+        let ptx = env!("KERNEL_PTX_PATH_RUST_RENDER").to_owned() + "/" + "cuda_kernel_raytracer.ptx";
         println!("ptx = {}", ptx);
         // let ptx_content = include_str!(ptx);
         //    let module_data = CString::new(ptx_content)?;
-        let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/48a649200826c0c8/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to create sources");
-        let module =
-            Module::load_from_string(&module_data).expect("Unable to create kernel name string");
+        let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/dbaccfb949de4deb/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to create sources");
+        let module = Module::load_from_string(&module_data).expect("Unable to create kernel name string");
 
         //  Create a stream to submit work to
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
@@ -56,10 +52,8 @@ impl Backend for BackendCuda {
         // width and height
         let w = c.get_hsize();
         let h = c.get_vsize();
-        let mut width = DeviceBox::new(&(w as f32))
-            .expect("DEviceBox::new(w)   image save expect in 'mandel_cuda' ");
-        let mut height = DeviceBox::new(&(h as f32))
-            .expect("DEviceBox::new(h)   image save expect in 'mandel_cuda' ");
+        let mut width = DeviceBox::new(&(w as f32)).expect("DEviceBox::new(w)   image save expect in 'mandel_cuda' ");
+        let mut height = DeviceBox::new(&(h as f32)).expect("DEviceBox::new(h)   image save expect in 'mandel_cuda' ");
 
         // PIXELS
         let mut pixels_vec = vec![BLACK; c.get_vsize() as usize * c.get_hsize() as usize];
@@ -79,8 +73,8 @@ impl Backend for BackendCuda {
 
         // CAMERA
         let mut camera_clone = c.clone();
-        let mut camera_device = DeviceBox::new(&camera_clone)
-            .expect("DEviceBox::new(camera_clone)   image save expect in 'mandel_cuda' ");
+        let mut camera_device =
+            DeviceBox::new(&camera_clone).expect("DEviceBox::new(camera_clone)   image save expect in 'mandel_cuda' ");
 
         // CUDA setup block/grid
         let b = (256, 1, 1);

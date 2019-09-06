@@ -1,7 +1,7 @@
-use crate::math::matrix::Matrix;
-use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::{Matrix, Tuple4D};
 
-#[derive(Clone, Debug, DeviceCopy)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Ray {
     origin: Tuple4D,
     direction: Tuple4D,
@@ -46,10 +46,9 @@ impl RayOps for Ray {
 
 #[cfg(test)]
 mod tests {
-     use crate::math::matrix::MatrixOps;
+    use crate::{assert_float, assert_tuple, MatrixOps, Tuple};
 
     use super::*;
-    use crate::math::common::{assert_float, assert_tuple};
 
     #[test]
     fn test_ray_new() {

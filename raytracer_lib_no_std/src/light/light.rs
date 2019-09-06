@@ -1,8 +1,7 @@
-use crate::basics::color::Color;
-use crate::light::pointlight::PointLight;
-use crate::math::tuple4d::Tuple4D;
+use crate::{Color, PointLight, Tuple4D};
 
-#[derive(Clone, Debug, DeviceCopy)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum Light {
     PointLight(PointLight),
 }

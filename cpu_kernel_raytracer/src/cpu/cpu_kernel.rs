@@ -1,15 +1,14 @@
-use raytracer_lib_no_std::basics::color::{Color, ColorOps, BLACK};
+use raytracer_lib_no_std::basics::color::{BLACK, Color};
+use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::{Light, LightOps};
+use raytracer_lib_no_std::material::material::{Material, MaterialOps};
+use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::Shape;
 
 use crate::cpu::intersection::Intersection;
 use crate::cpu::intersection::IntersectionOps;
-
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
-use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
-use raytracer_lib_no_std::material::material::{Material, MaterialOps};
-use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 
 pub struct CpuKernel {}
 
@@ -20,28 +19,18 @@ impl CpuKernel {
         let xs = Intersection::intersect_world(shapes, r);
         let (intersection, is_hit) = xs.hit();
         if is_hit {
-            let comp = Intersection::prepare_computations(
-                intersection,
-                &r,
-                &IntersectionList::new(),
-                shapes,
-            );
+            let comp = Intersection::prepare_computations(intersection, &r, &IntersectionList::new(), shapes);
             color = CpuKernel::shade_hit(shapes, lights, &comp, remaining);
         }
         color
     }
 
-    fn shade_hit(
-        shapes: &Vec<Shape>,
-        lights: &Vec<Light>,
-        comp: &PrecomputedComponent,
-        remaining: i32,
-    ) -> Color {
+    fn shade_hit(shapes: &Vec<Shape>, lights: &Vec<Light>, comp: &PrecomputedComponent, remaining: i32) -> Color {
         // TODO if there is more than 1 light??? pass that to Material::lightning?
         let light = &lights[0];
 
         let shape = &shapes[comp.get_object()];
-        let material =shape.get_material();
+        let material = shape.get_material();
 
         //  let in_shadow = CpuKernel::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = CpuKernel::intensity_at(shapes, lights, comp.get_over_point());
@@ -104,12 +93,7 @@ impl CpuKernel {
         1.0
     }
 
-    fn reflected_color(
-        shapes: &Vec<Shape>,
-        lights: &Vec<Light>,
-        comp: &PrecomputedComponent,
-        remaining: i32,
-    ) -> Color {
+    fn reflected_color(shapes: &Vec<Shape>, lights: &Vec<Light>, comp: &PrecomputedComponent, remaining: i32) -> Color {
         if remaining <= 0 {
             return BLACK;
         }
@@ -125,12 +109,7 @@ impl CpuKernel {
         &color * material.get_reflective()
     }
 
-    fn refracted_color(
-        shapes: &Vec<Shape>,
-        lights: &Vec<Light>,
-        comp: &PrecomputedComponent,
-        remaining: i32,
-    ) -> Color {
+    fn refracted_color(shapes: &Vec<Shape>, lights: &Vec<Light>, comp: &PrecomputedComponent, remaining: i32) -> Color {
         if remaining <= 0 {
             return BLACK;
         }
@@ -147,14 +126,12 @@ impl CpuKernel {
             return BLACK;
         }
         let cos_t = (1.0 - sin2_t).sqrt();
-        let mut direction =
-            comp.get_normal_vector() * (n_ratio * cos_i - cos_t) - comp.get_eye_vector() * n_ratio;
+        let mut direction = comp.get_normal_vector() * (n_ratio * cos_i - cos_t) - comp.get_eye_vector() * n_ratio;
         // fix direction to be a vector and not something in between
         direction.w = 0.0;
         let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
 
-        CpuKernel::color_at(shapes, lights, &refracted_ray, remaining - 1)
-            * material.get_transparency()
+        CpuKernel::color_at(shapes, lights, &refracted_ray, remaining - 1) * material.get_transparency()
     }
 }
 

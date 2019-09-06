@@ -1,10 +1,7 @@
-use crate::basics::ray::{Ray, RayOps};
-use crate::material::material::{Material, MaterialOps};
-use crate::math::math::intri_sqrt;
-use crate::math::matrix::{Matrix, MatrixOps};
-use crate::math::tuple4d::{Tuple, Tuple4D};
+use crate::{intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
 
-#[derive(Clone, Debug, PartialEq, DeviceCopy)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Sphere {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
@@ -74,8 +71,7 @@ impl SphereOps for Sphere {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let object_point = self.get_inverse_transformation() * world_point;
         let object_normal = &(&object_point - &o);
-        let mut world_normal =
-            &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }

@@ -1,13 +1,7 @@
-use crate::basics::color::BLACK;
-use crate::basics::ray::Ray;
-use crate::basics::ray::RayOps;
-use crate::math::math::intri_tan;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::{intri_tan, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
 
-#[derive(Clone, Debug, DeviceCopy)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Camera {
     hsize: usize,
     vsize: usize,
@@ -43,13 +37,7 @@ pub trait CameraOps {
     fn set_transformation(&mut self, m: Matrix);
 
     fn ray_for_pixel(c: &Camera, x: usize, y: usize) -> Ray;
-    fn ray_for_pixel_anti_aliasing(
-        c: &Camera,
-        x: usize,
-        y: usize,
-        x_offset: f32,
-        y_offset: f32,
-    ) -> Ray;
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, x_offset: f32, y_offset: f32) -> Ray;
 }
 
 impl CameraOps for Camera {
@@ -133,13 +121,7 @@ impl CameraOps for Camera {
         Ray::new(origin, direction)
     }
 
-    fn ray_for_pixel_anti_aliasing(
-        c: &Camera,
-        x: usize,
-        y: usize,
-        delta_x: f32,
-        delta_y: f32,
-    ) -> Ray {
+    fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, delta_x: f32, delta_y: f32) -> Ray {
         let camera_transform_inv =
             Matrix::invert(c.get_transform()).expect("ray_for_pixel:  cant calculate the inverse");
 
@@ -195,8 +177,8 @@ impl CameraOps for Camera {
 mod tests {
     use core::f32::consts::{PI, SQRT_2};
 
+    use crate::{assert_float, assert_matrix, assert_tuple, MatrixOps, Tuple4D};
     use crate::basics::color::{Color, ColorOps};
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
 
     use super::*;
 
