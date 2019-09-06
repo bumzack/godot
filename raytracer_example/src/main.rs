@@ -12,8 +12,11 @@ pub mod compare_to_cuda_world;
 pub mod dummy_world;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let w = 80;
-    let h = 60;
+    let w = 800;
+    let h = 600;
+
+    let w = 3840;
+    let h = 2160 ;
 
     let filename_cuda = format!("cuda_{}x{}.png", w, h);
     let filename_cpu_single = format!("cpu_single_{}x{}.png", w, h);

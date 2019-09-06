@@ -233,7 +233,7 @@ fn setup_world_shadow_glamour<'a>(
 
     // ---- CUBE -------
     let mut c = Cube::new();
-    c.get_material_mut().set_color(Color::new(1.5, 1.5, 1.5));
+    c.get_material_mut().set_color(Color::new(1., 0.5, 0.2));
     c.get_material_mut().set_ambient(1.0);
     c.get_material_mut().set_diffuse(0.0);
     c.get_material_mut().set_specular(0.0);
