@@ -147,6 +147,9 @@ impl Backend for BackendCpu {
         }
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
+        println!("with AA    color at ({}/{}): {:?}", x, y, color);
+
+
         // TODO: remove, when World has lights vector
         let mut lights = Vec::new();
         lights.push(world.get_light().clone());
@@ -165,7 +168,7 @@ impl Backend for BackendCpu {
                     let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
 
                     color =
-                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH) + color;
                 }
                 color = color / n_samples as f32;
                 // println!("with AA    color at ({}/{}): {:?}", x, y, color);
