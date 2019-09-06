@@ -1,5 +1,5 @@
 use raytracer::BackendCpu;
 
 fn main() {
-    let backend = BackendCpu::new();
+    let _backend = BackendCpu::new();
 }
