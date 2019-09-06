@@ -523,6 +523,7 @@ name = "raytracer"
 version = "0.1.0"
 dependencies = [
  "cpu_kernel_raytracer 0.1.0",
+ "rayon 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "raytracer_lib_no_std 0.1.0",
  "raytracer_lib_std 0.1.0",
  "rustacuda 0.1.1",
