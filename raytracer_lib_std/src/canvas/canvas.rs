@@ -3,27 +3,12 @@ use std::io::{Error, Write};
 
 use image::{ImageBuffer, RgbImage};
 
-use raytracer_lib_no_std::{Color, ColorOps, BLACK};
+use raytracer_lib_no_std::Color;
+
+use crate::Pixel;
 
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
-
-#[derive(Clone, Debug)]
-pub struct Pixel {
-    pub color: Color,
-    pub x: usize,
-    pub y: usize,
-}
-
-impl Pixel {
-    pub fn new() -> Pixel {
-        Pixel {
-            color: BLACK,
-            x: 0,
-            y: 0,
-        }
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct Canvas {
@@ -156,12 +141,12 @@ impl<'a> CanvasOps<'a> for Canvas {
     }
 }
 
-pub struct EnumeratePixels {
-    pixels: ColorVec,
-    x: u32,
-    y: u32,
-    width: u32,
-}
+//pub struct EnumeratePixels {
+//    pixels: ColorVec,
+//    x: u32,
+//    y: u32,
+//    width: u32,
+//}
 
 #[cfg(test)]
 mod tests {
