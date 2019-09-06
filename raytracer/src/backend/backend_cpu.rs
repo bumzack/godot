@@ -165,7 +165,7 @@ impl Backend for BackendCpu {
                     let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
 
                     color =
-                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH) + color;
+                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
                 }
                 color = color / n_samples as f32;
                 // println!("with AA    color at ({}/{}): {:?}", x, y, color);
