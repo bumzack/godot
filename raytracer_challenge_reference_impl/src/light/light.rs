@@ -27,7 +27,7 @@ pub trait LightOps {
 
     fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32;
 
-      fn point_on_light(&self, u: usize, v: usize) -> Tuple4D ;
+    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D;
 }
 
 impl LightOps for LightEnum {

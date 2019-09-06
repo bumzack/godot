@@ -35,6 +35,25 @@ impl<'a> CanvasOps<'a> for Canvas {
         assert!(x < self.width);
         assert!(y < self.height);
 
+        if c.r.is_nan() || c.g.is_nan() ||c.b.is_nan() {
+            panic!("color ({:?})      at pixel ({}/{}) has  is_nan component" , c,x, y);
+        }
+
+        // had a bug, where colors where nans
+        assert!(!c.r.is_nan());
+        assert!(!c.g.is_nan());
+        assert!(!c.b.is_nan());
+
+        if c.r.is_infinite() || c.g.is_infinite() ||c.b.is_infinite() {
+            panic!("color ({:?})        at pixel ({}/{}) has  infinite component" , c,x, y);
+        }
+
+        // had a bug, where colors where nans - so check for inf as precaution
+        assert!(!c.r.is_infinite());
+        assert!(!c.g.is_infinite());
+        assert!(!c.b.is_infinite());
+
+
         // TODO: do the value clamping somewhere more appropiate
         if c.b > 1.0 {
             c.b = 1.0;
@@ -96,12 +115,12 @@ impl<'a> CanvasOps<'a> for Canvas {
     }
 }
 
-pub struct EnumeratePixels {
-    pixels: ColorVec,
-    x: u32,
-    y: u32,
-    width: u32,
-}
+//pub struct EnumeratePixels {
+//    pixels: ColorVec,
+//    x: u32,
+//    y: u32,
+//    width: u32,
+//}
 
 #[cfg(test)]
 mod tests {

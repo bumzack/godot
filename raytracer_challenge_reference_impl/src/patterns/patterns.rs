@@ -30,9 +30,7 @@ impl Pattern {
             Pattern::Checker3DPattern(ref checker3d_pattern) => {
                 Checker3DPattern::color_at_object(checker3d_pattern, shape, world_point)
             }
-            Pattern::TestPattern(ref test_pattern) => {
-                TestPattern::color_at_object(test_pattern, shape, world_point)
-            }
+            Pattern::TestPattern(ref test_pattern) => TestPattern::color_at_object(test_pattern, shape, world_point),
         };
         res
     }

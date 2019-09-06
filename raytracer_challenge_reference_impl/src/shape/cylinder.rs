@@ -155,7 +155,7 @@ impl CylinderOps for Cylinder {
     fn check_cap(r: &Ray, t: f32) -> bool {
         let x = r.get_origin().x + t * r.get_direction().x;
         let z = r.get_origin().z + t * r.get_direction().z;
-        (x.powi(2) + z.powi(2)) <= 1.0
+        (x.powi(2) + z.powi(2)) - 1.0 < EPSILON
     }
 
     fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>) {
@@ -412,14 +412,14 @@ mod tests {
     #[test]
     fn test_ray_cylinder_capped() {
         // 1
-//        let point = Tuple4D::new_point(0.0, 3.0, 0.0);
-//        let direction = Tuple4D::new_vector(0.0, -1.0, 0.0);
-//        test_ray_cylinder_capped_helper(point, direction, 2);
-//
-//        // 2
-//        let point = Tuple4D::new_point(0.0, 3.0, -2.0);
-//        let direction = Tuple4D::new_vector(0.0, -1.0, 2.0);
-//        test_ray_cylinder_capped_helper(point, direction, 2);
+        //        let point = Tuple4D::new_point(0.0, 3.0, 0.0);
+        //        let direction = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        //        test_ray_cylinder_capped_helper(point, direction, 2);
+        //
+        //        // 2
+        //        let point = Tuple4D::new_point(0.0, 3.0, -2.0);
+        //        let direction = Tuple4D::new_vector(0.0, -1.0, 2.0);
+        //        test_ray_cylinder_capped_helper(point, direction, 2);
 
         // 3
         let point = Tuple4D::new_point(0.0, 4.0, -2.0);

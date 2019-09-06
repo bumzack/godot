@@ -4,7 +4,7 @@ use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
-use crate::math::common::EPSILON;
+use crate::math::common::{EPSILON, EPSILON_OVER_UNDER};
 use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::cube::{Cube, CubeOps};
 use crate::shape::cylinder::{Cylinder, CylinderOps};
@@ -45,7 +45,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut intersection_list = IntersectionList::new();
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
-        let res = match shape.get_shape() {
+      match shape.get_shape() {
             ShapeEnum::Sphere(ref _s) => {
                 let res = Sphere::intersect(&r2);
                 match res {
@@ -57,8 +57,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
 
             ShapeEnum::Plane(ref _p) => {
                 let res = Plane::intersect(&r2);
@@ -69,8 +68,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
 
             ShapeEnum::Cube(ref _c) => {
                 let res = Cube::intersect(&r2);
@@ -83,8 +81,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
             ShapeEnum::Cylinder(ref cylinder) => {
                 let res = Cylinder::intersect(cylinder, &r2);
                 match res {
@@ -97,8 +94,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
             ShapeEnum::Triangle(ref triangle) => {
                 let res = Triangle::intersect(triangle, &r2);
                 match res {
@@ -111,10 +107,12 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-                intersection_list
-            }
+             }
+            ShapeEnum::Group(ref group) => {
+                // let res = Cylinder::intersect(cylinder, &r2);
+             }
         };
-        res
+        intersection_list
     }
 
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
@@ -157,8 +155,8 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         }
         let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
-        let over_point = &point + &(&normal_vector * EPSILON);
-        let under_point = &point - &(&normal_vector * EPSILON);
+        let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
+        let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
         let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
@@ -178,11 +176,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         //println!("intersection :  {:?}", intersection);
 
         for i in list.get_intersections().iter() {
-
-//            println!("NEXT ITERATION");
-//            println!(" i = {:?}", i);
-//            println!("container  begin for    {:?}",container);
-//
+            //            println!("NEXT ITERATION");
+            //            println!(" i = {:?}", i);
+            //            println!("container  begin for    {:?}",container);
+            //
             if i == intersection {
                 // println!("i == intersection");
                 if container.is_empty() {
@@ -195,10 +192,10 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             }
 
             if container.contains(&i.get_shape()) {
-                 let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
+                let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
                 // println!("remove index     {:}",index);
                 container.remove(index);
-                // println!("container   AFTER      {:?}",container);
+            // println!("container   AFTER      {:?}",container);
             } else {
                 container.push(i.get_shape());
             }
@@ -606,7 +603,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
 
         let c = World::shade_hit(&w, &comps, 5);
-        let c_expected = Color::new(0.93391514, 0.69643426, 0.6924307);
+        let c_expected = Color::new(0.9337956, 0.6963231, 0.69230264);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
