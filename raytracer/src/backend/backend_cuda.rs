@@ -88,20 +88,20 @@ impl Backend for BackendCuda {
         let grid = (g.0 as u32, g.1 as u32, 1 as u32);
         println!("block = {:?}, grid = {:?}", block, grid);
 
-        unsafe {
-            launch!(module.calc_pixel<<<grid, block, 0, stream>>>(
-                pixels.as_device_ptr(),
-                shapes_device.as_device_ptr(),
-                cnt_shapes,
-                lights_device.as_device_ptr(),
-                cnt_lights,
-                camera_device.as_device_ptr(),
-                width.as_device_ptr(),
-                height.as_device_ptr(),
-                block.0,
-                block.1
-            ))?;
-        }
+//        unsafe {
+//            launch!(module.calc_pixel<<<grid, block, 0, stream>>>(
+//                pixels.as_device_ptr(),
+//                shapes_device.as_device_ptr(),
+//                cnt_shapes,
+//                lights_device.as_device_ptr(),
+//                cnt_lights,
+//                camera_device.as_device_ptr(),
+//                width.as_device_ptr(),
+//                height.as_device_ptr(),
+//                block.0,
+//                block.1
+//            ))?;
+//        }
         stream
             .synchronize()
             .expect("stream.synchronize()       expect in 'mandel_cuda' ");

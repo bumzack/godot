@@ -1,8 +1,7 @@
 use std::error::Error;
 
-use raytracer::{Backend, BackendCpu };
+use raytracer::{Backend, BackendCpu, BackendCuda };
 use raytracer::CanvasOps;
-use raytracer::Backend::BackendCuda;
 
 pub mod compare_to_cuda_world;
 pub mod dummy_world;
