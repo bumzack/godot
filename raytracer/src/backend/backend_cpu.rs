@@ -61,8 +61,6 @@ impl Backend for BackendCpu {
             ];
         }
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
-        println!("single core      jitter_matrix  {:?}", jitter_matrix);
-        println!("single core      n_smaples  {:?}", n_samples);
 
         // TODO: remove, when WOrld has lights vector
         let mut lights = Vec::new();
@@ -81,19 +79,9 @@ impl Backend for BackendCpu {
                         let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
                         let c = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         color = c + color;
-                        if x == 163 && y == 67 {
-                            println!("single core   with AA  sample: {},             c  {:?}", sample, c);
-                            println!("single core  with AA   sample: {},         color  {:?}", sample, color);
-                        }
                     }
-                    color = color / (n_samples*n_samples) as f32;
-                    if x == 163 && y == 67 {
-                        println!("single core  with AA    BEFORE clamp    color at ({}/{}): {:?}", x, y, color);
-                    }
+                    color = color / (n_samples * n_samples) as f32;
                     color.clamp_color();
-                    if x == 163 && y == 67 {
-                        println!("single core  with AA     AFTER  clamp    color at ({}/{}): {:?}", x, y, color);
-                    }
                     canvas.write_pixel(x, y, color);
                 }
             }
@@ -101,15 +89,8 @@ impl Backend for BackendCpu {
             for y in 0..c.get_vsize() {
                 for x in 0..c.get_hsize() {
                     let r = Camera::ray_for_pixel(c, x, y);
-
                     let mut color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                    if x == 163 && y == 67 {
-                        println!("single core    no AA   BEFORE clamp color at ({}/{}): {:?}", x, y, color);
-                    }
                     color.clamp_color();
-                    if x == 163 && y == 67 {
-                        println!("single core    no AA   AFTER  clamp color at ({}/{}): {:?}", x, y, color);
-                    }
                     canvas.write_pixel(x, y, color);
                 }
             }
@@ -165,10 +146,6 @@ impl Backend for BackendCpu {
         }
         let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
-        println!("multicore     jitter_matrix  {:?}", jitter_matrix);
-        println!("multicore     n_smaples  {:?}", n_samples);
-
-
         // TODO: remove, when World has lights vector
         let mut lights = Vec::new();
         lights.push(world.get_light().clone());
@@ -183,38 +160,20 @@ impl Backend for BackendCpu {
                 for sample in 0..(n_samples * n_samples) {
                     let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
                     let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
-
                     let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
-
                     let c = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     color = c + color;
-
-                    if x == 163 && y == 67 {
-                        println!("multicore  with AA  sample: {},             c  {:?}", sample, c);
-                        println!("multicore  with AA   sample: {},         color  {:?}", sample, color);
-                    }
                 }
-                color = color / (n_samples*n_samples) as f32;
-                if x == 163 && y == 67 {
-                    println!("multicore  with AA   BEFORE CLAMP color at ({}/{}): {:?}", x, y, color);
-                } color.clamp_color();
-                if x == 163 && y == 67 {
-                    println!("multicore  with AA    AFTER CLAMP color at ({}/{}): {:?}", x, y, color);
-                }
+                color = color / (n_samples * n_samples) as f32;
+                color.clamp_color();
                 p.color.r = color.r;
                 p.color.g = color.g;
                 p.color.b = color.b;
             } else {
                 let r = Camera::ray_for_pixel(c, x, y);
-
                 let mut color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                if x == 163 && y == 67 {
-                    println!("multicore  no AA   BEFORE CLAMP   color at ({}/{}): {:?}", x, y, color);
-                } color.clamp_color();
+                color.clamp_color();
 
-                if x == 163 && y == 67 {
-                    println!("multicore  no AA   AFTER CLAMP    color at ({}/{}): {:?}", x, y, color);
-                }
                 p.color.r = color.r;
                 p.color.g = color.g;
                 p.color.b = color.b;
@@ -235,4 +194,3 @@ impl BackendCpu {
         BackendCpu {}
     }
 }
-
