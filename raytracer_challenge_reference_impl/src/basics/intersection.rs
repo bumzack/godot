@@ -4,7 +4,7 @@ use crate::basics::precomputed_component::PrecomputedComponent;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
-use crate::math::common::{EPSILON, EPSILON_OVER_UNDER};
+use crate::math::common::EPSILON_OVER_UNDER;
 use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::shape::cube::{Cube, CubeOps};
 use crate::shape::cylinder::{Cylinder, CylinderOps};
@@ -19,15 +19,15 @@ type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 
 pub struct Intersection<'a> {
     t: f32,
-    shape: &'a Shape<'a>,
+    shape: &'a Shape,
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f32, shape: &'a Shape<'a>) -> Intersection<'a>;
-    fn intersect(shape: &'a Shape<'a>, r: &Ray) -> IntersectionList<'a>;
+    fn new(t: f32, shape: &'a Shape) -> Intersection<'a>;
+    fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f32;
-    fn get_shape(&self) -> &'a Shape<'a>;
+    fn get_shape(&self) -> &'a Shape;
     fn prepare_computations(
         intersection: &Intersection<'a>,
         r: &Ray,
@@ -37,11 +37,11 @@ pub trait IntersectionOps<'a> {
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
-    fn new(t: f32, shape: &'a Shape<'a>) -> Intersection<'a> {
+    fn new(t: f32, shape: &'a Shape) -> Intersection<'a> {
         Intersection { t, shape }
     }
 
-    fn intersect(shape: &'a Shape<'a>, r: &Ray) -> IntersectionList<'a> {
+    fn intersect(shape: &'a Shape, r: &Ray) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
@@ -135,7 +135,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.t
     }
 
-    fn get_shape(&self) -> &'a Shape<'a> {
+    fn get_shape(&self) -> &'a Shape {
         self.shape
     }
 
@@ -170,7 +170,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             inside,
         );
 
-        let mut container: Vec<&'a Shape<'a>> = Vec::new();
+        let mut container: Vec<&'a Shape> = Vec::new();
 
         //println!("all intersections:  {:?}", list.get_intersections());
         //println!("intersection :  {:?}", intersection);

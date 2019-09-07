@@ -99,6 +99,9 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                         cnt_lights,
                         &r,
                         MAX_REFLECTION_RECURSION_DEPTH,
+                        c.get_calc_reflection(),
+                        c.get_calc_refraction(),
+                        c.get_calc_shadows(),
                     );
             }
             color = color / (n_samples * n_samples) as f32;
@@ -115,6 +118,9 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                 cnt_lights,
                 &r,
                 MAX_REFLECTION_RECURSION_DEPTH,
+                c.get_calc_reflection(),
+                c.get_calc_refraction(),
+                c.get_calc_shadows(),
             );
             let idx = y_idx * w + x_idx;
             color.clamp_color();

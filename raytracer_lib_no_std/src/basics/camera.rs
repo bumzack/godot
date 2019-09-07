@@ -13,6 +13,9 @@ pub struct Camera {
     pixel_size: f32,
     antialiasing: bool,
     antialiasing_size: usize, // 2 or 3
+    calc_reflection: bool,
+    calc_refraction: bool,
+    calc_shadows: bool,
 }
 
 pub trait CameraOps {
@@ -31,6 +34,15 @@ pub trait CameraOps {
 
     fn set_antialiasing_size(&mut self, size: usize);
     fn get_antialiasing_size(&self) -> usize;
+
+    fn get_calc_reflection(&self) -> bool;
+    fn set_calc_reflection(&mut self, calc_reflection: bool);
+
+    fn get_calc_refraction(&self) -> bool;
+    fn set_calc_refraction(&mut self, calc_refraction: bool);
+
+    fn get_calc_shadows(&self) -> bool;
+    fn set_calc_shadows(&mut self, calc_shadows: bool);
 
     fn calc_pixel_size(&mut self);
 
@@ -53,6 +65,9 @@ impl CameraOps for Camera {
             pixel_size: 0.0,
             antialiasing: false,
             antialiasing_size: 2,
+            calc_reflection: false,
+            calc_refraction: false,
+            calc_shadows: false,
         };
         c
     }
@@ -167,6 +182,30 @@ impl CameraOps for Camera {
 
     fn get_antialiasing_size(&self) -> usize {
         self.antialiasing_size
+    }
+
+    fn get_calc_reflection(&self) -> bool {
+        self.calc_reflection
+    }
+
+    fn set_calc_reflection(&mut self, calc_reflection: bool) {
+        self.calc_reflection = calc_reflection;
+    }
+
+    fn get_calc_refraction(&self) -> bool {
+        self.calc_refraction
+    }
+
+    fn set_calc_refraction(&mut self, calc_refraction: bool) {
+        self.calc_refraction = calc_refraction
+    }
+
+    fn get_calc_shadows(&self) -> bool {
+        self.calc_shadows
+    }
+
+    fn set_calc_shadows(&mut self, calc_shadows: bool) {
+        self.calc_shadows = calc_shadows;
     }
 }
 

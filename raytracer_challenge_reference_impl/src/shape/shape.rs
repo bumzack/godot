@@ -23,18 +23,16 @@ pub enum ShapeEnum {
 }
 
 #[derive(Clone, PartialEq)]
-pub struct Shape<'a> {
+pub struct Shape {
     shape: ShapeEnum,
-    name: &'a str,
     parent: Option<ShapeIdx>,
     casts_shadow: bool,
 }
 
-impl<'a> Shape<'a> {
-    pub fn new(shape: ShapeEnum, name: &'a str) -> Shape<'a> {
+impl Shape {
+    pub fn new(shape: ShapeEnum) -> Shape {
         Shape {
             shape,
-            name,
             parent: None,
             casts_shadow: true,
         }
@@ -104,10 +102,6 @@ impl<'a> Shape<'a> {
         &self.shape
     }
 
-    pub fn get_name(&self) -> &'a str {
-        &self.name
-    }
-
     pub fn get_casts_shadow(&self) -> bool {
         self.casts_shadow
     }
@@ -117,8 +111,8 @@ impl<'a> Shape<'a> {
     }
 }
 
-impl<'a> fmt::Debug for Shape<'a> {
+impl fmt::Debug for Shape {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "shape type = {:?},   name = {:?}", self.shape, self.name)
+        write!(f, "shape type = {:?}", self.shape)
     }
 }

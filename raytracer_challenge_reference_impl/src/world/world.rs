@@ -8,7 +8,7 @@ use crate::basics::ray::RayOps;
 use crate::light::light::{LightEnum, LightOps};
 use crate::light::pointlight::PointLight;
 use crate::material::material::{Material, MaterialOps};
-use crate::math::common::{assert_valid_color, EPSILON, EPSILON_OVER_UNDER};
+use crate::math::common::{assert_valid_color, EPSILON_OVER_UNDER};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -25,20 +25,20 @@ use crate::DEBUG;
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 10;
 
 #[derive(Clone, Debug)]
-pub struct World<'a> {
-    shapes: Vec<Shape<'a>>,
+pub struct World {
+    shapes: Vec<Shape>,
     light: LightEnum,
 }
 
-pub trait WorldOps<'a> {
-    fn new() -> World<'a>;
+pub trait WorldOps {
+    fn new() -> World;
     fn set_light(&mut self, light: LightEnum);
     fn get_light(&self) -> &LightEnum;
     fn get_light_mut(&mut self) -> &mut LightEnum;
 
-    fn add_shape(&mut self, shape: Shape<'a>);
-    fn get_shapes(&self) -> &Vec<Shape<'a>>;
-    fn get_shapes_mut(&mut self) -> &mut Vec<Shape<'a>>;
+    fn add_shape(&mut self, shape: Shape);
+    fn get_shapes(&self) -> &Vec<Shape>;
+    fn get_shapes_mut(&mut self) -> &mut Vec<Shape>;
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
@@ -64,8 +64,8 @@ pub trait WorldOps<'a> {
     //    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32;
 }
 
-impl<'a> WorldOps<'a> for World<'a> {
-    fn new() -> World<'a> {
+impl WorldOps for World {
+    fn new() -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
         let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         World {
@@ -86,15 +86,15 @@ impl<'a> WorldOps<'a> for World<'a> {
         &mut self.light
     }
 
-    fn add_shape(&mut self, shape: Shape<'a>) {
+    fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
 
-    fn get_shapes(&self) -> &Vec<Shape<'a>> {
+    fn get_shapes(&self) -> &Vec<Shape> {
         &self.shapes
     }
 
-    fn get_shapes_mut(&mut self) -> &mut Vec<Shape<'a>> {
+    fn get_shapes_mut(&mut self) -> &mut Vec<Shape> {
         &mut self.shapes
     }
 
@@ -288,7 +288,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         let floor_stripe_pattern = Pattern::StripePattern(floor_stripe_pattern);
         floor.get_material_mut().set_pattern(floor_stripe_pattern);
 
-        self.add_shape(Shape::new(ShapeEnum::Plane(floor), "floor"));
+        self.add_shape(Shape::new(ShapeEnum::Plane(floor)));
     }
 
     fn add_x_axis(&mut self) {
@@ -310,7 +310,7 @@ impl<'a> WorldOps<'a> for World<'a> {
         x_axis.get_material_mut().set_reflective(0.0);
         x_axis.get_material_mut().set_transparency(0.0);
         x_axis.get_material_mut().set_refractive_index(0.0);
-        self.add_shape(Shape::new(ShapeEnum::Cylinder(x_axis), "x axis"));
+        self.add_shape(Shape::new(ShapeEnum::Cylinder(x_axis)));
     }
 
     fn add_y_axis(&mut self) {
@@ -324,7 +324,7 @@ impl<'a> WorldOps<'a> for World<'a> {
     }
 }
 
-pub fn default_world<'a>() -> World<'a> {
+pub fn default_world() -> World {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
@@ -340,12 +340,12 @@ pub fn default_world<'a>() -> World<'a> {
 
     let mut s1 = Sphere::new();
     s1.set_material(m);
-    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_ sphere 1");
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
     let mut s2 = Sphere::new();
     s2.set_transformation(m);
-    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_ sphere 2");
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -353,7 +353,7 @@ pub fn default_world<'a>() -> World<'a> {
     w
 }
 
-pub fn default_world_soft_shadows<'a>() -> World<'a> {
+pub fn default_world_soft_shadows() -> World {
     let mut w = World::new();
 
     // w.get_light_mut().set_position(Tuple4D::new_point(0.0, 0.0, -10.0));
@@ -373,12 +373,12 @@ pub fn default_world_soft_shadows<'a>() -> World<'a> {
 
     let mut s1 = Sphere::new();
     s1.set_material(m);
-    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_ sphere 1");
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
     let mut s2 = Sphere::new();
     s2.set_transformation(m);
-    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_ sphere 2");
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -386,7 +386,7 @@ pub fn default_world_soft_shadows<'a>() -> World<'a> {
     w
 }
 
-pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
+pub fn default_world_refracted_color_page_158() -> World {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
@@ -406,14 +406,14 @@ pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
 
     let mut s1 = Sphere::new();
     s1.set_material(m1);
-    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_refracted_color_page_158 sphere 1");
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
     let mut s2 = Sphere::new();
     s2.set_transformation(m);
     s2.get_material_mut().set_transparency(1.0);
     s2.get_material_mut().set_refractive_index(1.5);
-    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_refracted_color_page_158 sphere 2");
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -421,7 +421,7 @@ pub fn default_world_refracted_color_page_158<'a>() -> World<'a> {
     w
 }
 
-fn default_world_area_light_attenuate_color<'a>() -> World<'a> {
+fn default_world_area_light_attenuate_color() -> World {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(0.0, 0., -10.0);
@@ -438,12 +438,12 @@ fn default_world_area_light_attenuate_color<'a>() -> World<'a> {
 
     let mut s1 = Sphere::new();
     s1.set_material(m);
-    let shape1 = Shape::new(ShapeEnum::Sphere(s1), "default_world_ sphere 1");
+    let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
     let mut s2 = Sphere::new();
     s2.set_transformation(m);
-    let shape2 = Shape::new(ShapeEnum::Sphere(s2), "default_world_ sphere 2");
+    let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -451,7 +451,7 @@ fn default_world_area_light_attenuate_color<'a>() -> World<'a> {
     w
 }
 
-pub fn default_world_empty<'a>() -> World<'a> {
+pub fn default_world_empty() -> World {
     let mut w = World::new();
 
     let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);

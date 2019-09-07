@@ -3,7 +3,7 @@ use crate::shape::shape::Shape;
 
 pub struct PrecomputedComponent<'a> {
     t: f32,
-    shape: &'a Shape<'a>,
+    shape: &'a Shape,
     point: Tuple4D,
     over_point: Tuple4D,
     under_point: Tuple4D,
@@ -18,7 +18,7 @@ pub struct PrecomputedComponent<'a> {
 impl<'a> PrecomputedComponent<'a> {
     pub fn new(
         t: f32,
-        shape: &'a Shape<'a>,
+        shape: &'a Shape,
         point: Tuple4D,
         over_point: Tuple4D,
         under_point: Tuple4D,

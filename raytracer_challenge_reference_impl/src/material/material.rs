@@ -1,5 +1,3 @@
-use std::f32::{MAX, NAN};
-
 use crate::basics::color::Color;
 use crate::basics::color::ColorOps;
 use crate::basics::color::BLACK;
