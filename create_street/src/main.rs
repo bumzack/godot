@@ -11,7 +11,7 @@ fn main() {
     let backend = BackendCuda::new();
 
     let (frames, delta) = (315, 0.02);
-    let (frames, delta) = (1, 0.3);
+//    let (frames, delta) = (25, 0.6);
 
     let mut x: f32 = 0.0;
     let mut z: f32 = -2.0;
@@ -49,14 +49,23 @@ fn main() {
     let z_start_left_tilt = 2.0;
     let left_tilt = -30.0 * PI / 180.0;
 
+    let z_start_right_tilt = 4.0;
+    let right_tilt = 15.0 * PI / 180.0;
+
     let mut z_sphere = z;
 
     for i in 0..frames {
         x = amplitude * z_sphere.sin();
+        let x_filename = x;
 
         if z_sphere > z_start_left_tilt {
             // add x from 30° line
             let x_delta = (z_sphere - z_start_left_tilt) * left_tilt.sin();
+            x += x_delta;
+        }
+        if z_sphere > z_start_right_tilt{
+            // add x from 15° line
+            let x_delta = (z_sphere - z_start_right_tilt) * right_tilt.sin();
             x += x_delta;
         }
 
@@ -67,7 +76,7 @@ fn main() {
         camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
         let canvas = backend.render_world(&mut world, &camera);
 
-        let filename = format!("./create_street/img/test_{}_{}_frame_{:0>8}_dist_{:.6}.png", width, height, i, x);
+        let filename = format!("./create_street/img/test_{}_{}_frame_{:0>8}_dist_{:.6}.png", width, height, i, x_filename);
         canvas.unwrap().write_png(&filename).unwrap();
         println!("x = {}, z = {}     filename = {}", x, z, filename);
         println!("camera_from  = {:?}, camera_to = {:?}   ", camera_from, camera_to);
@@ -186,7 +195,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
 
      let left_tilt = -30.0 * PI / 180.0;
-    let right_tilt = 60.0 * PI / 180.0;
+    let right_tilt = 15.0 * PI / 180.0;
 
     // left tilt
     let mut border_left_tilt_left = border_left.clone();
@@ -209,7 +218,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     // tight tilt
     let mut border_left_tilt_right = border_left.clone();
-    let m_trans = Matrix::translation(-5.2, 0., 1.5);
+    let m_trans = Matrix::translation(-3.6, 0., 5.1);
     let m_rot = Matrix::rotate_y(right_tilt);
     let m_scale = Matrix::scale(0.02, 0.2, 1.5);
     // let m = m_rot * m_scale;
@@ -218,11 +227,11 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
 
     let mut border_right_tilt_right = border_right.clone();
-    let m_trans = Matrix::translation(95.0, 0.0, 1.83);
+    let m_trans = Matrix::translation(-1.55, 0.0, 5.8);
     let m_rot = Matrix::rotate_y(right_tilt);
     let m_scale = Matrix::scale(0.02, 0.2, 1.5);
     // let m = m_rot * m_scale;
-    let m = &m_rot * &(m_scale * m_trans);
+    let m = &m_rot * &(m_trans * m_scale );
     border_right_tilt_right.set_transformation(m);
 
 
@@ -242,7 +251,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 //   w.add_shape(sphere2_clone_clone);
 
 
-    let mut c = Camera::new(width, height, 1.990);
+    let mut c = Camera::new(width, height, 0.50);
     c.set_antialiasing(false);
 
     c.calc_pixel_size();
