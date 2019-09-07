@@ -51,7 +51,7 @@ pub trait MaterialOps {
 }
 
 impl MaterialOps for Material {
-     fn new() -> Material {
+    fn new() -> Material {
         Material {
             color: Color::new(1.0, 1.0, 1.0),
             ambient: 0.1,
@@ -136,6 +136,4 @@ impl MaterialOps for Material {
     fn set_refractive_index(&mut self, refractive_index: f32) {
         self.refractive_index = refractive_index;
     }
-
-
 }

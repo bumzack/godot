@@ -14,10 +14,10 @@ extern crate rustacuda_core;
 //extern crate rustacuda;
 
 pub use self::backend::*;
-#[cfg(feature = "cuda")]
-pub use self::BackendCuda;
 pub use self::cpu_kernel_raytracer::*;
 pub use self::raytracer_lib_no_std::*;
 pub use self::raytracer_lib_std::*;
+#[cfg(feature = "cuda")]
+pub use self::BackendCuda;
 
 mod backend;

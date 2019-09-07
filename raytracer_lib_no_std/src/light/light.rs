@@ -25,8 +25,8 @@ pub trait LightOps {
     fn point_on_light(&self, u: usize, v: usize) -> Tuple4D;
 
     // moved to Cpu/Cuda Kernel
-//    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32;
-//
+    //    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32;
+    //
 }
 
 impl LightOps for Light {
@@ -113,4 +113,3 @@ impl LightOps for Light {
         }
     }
 }
-

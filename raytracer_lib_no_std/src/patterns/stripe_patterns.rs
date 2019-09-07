@@ -1,4 +1,4 @@
-use crate::{BLACK, Color, ColorOps, intri_floor, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, WHITE};
+use crate::{intri_floor, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, BLACK, WHITE};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

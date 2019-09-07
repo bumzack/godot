@@ -5,9 +5,9 @@ pub use self::shape::*;
 pub use self::sphere::*;
 pub use self::triangle::*;
 
-pub mod shape;
-pub mod sphere;
 pub mod cube;
 pub mod cylinder;
 pub mod plane;
+pub mod shape;
+pub mod sphere;
 pub mod triangle;

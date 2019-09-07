@@ -5,7 +5,6 @@ use crate::{Cube, Cylinder, Material, Matrix, Plane, Ray, Sphere, Triangle, Tupl
 pub type ShapeIdx = usize;
 pub type ShapeIntersectionResult = ([f32; 4], usize);
 
-
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum ShapeEnum {
@@ -19,9 +18,9 @@ pub enum ShapeEnum {
 
 #[derive(Clone, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
-pub struct Shape  {
+pub struct Shape {
     shape: ShapeEnum,
-     parent: Option<ShapeIdx>,
+    parent: Option<ShapeIdx>,
     casts_shadow: bool,
 }
 
@@ -131,11 +130,11 @@ impl ShapeOps for Shape {
     }
 }
 
-impl  Shape {
-  pub  fn new(shape: ShapeEnum ) -> Shape {
+impl Shape {
+    pub fn new(shape: ShapeEnum) -> Shape {
         Shape {
             shape,
-             parent: None,
+            parent: None,
             casts_shadow: true,
         }
     }
@@ -148,7 +147,7 @@ impl  Shape {
         self.casts_shadow
     }
 
-  pub  fn set_casts_shadow(&mut self, casts_shadow: bool) {
+    pub fn set_casts_shadow(&mut self, casts_shadow: bool) {
         self.casts_shadow = casts_shadow;
     }
 }
@@ -158,4 +157,3 @@ impl fmt::Debug for Shape {
         write!(f, "shape type = {:?} ", self.shape)
     }
 }
-

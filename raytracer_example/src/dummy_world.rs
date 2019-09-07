@@ -18,7 +18,7 @@ use raytracer::Tuple4D;
 use raytracer::World;
 use raytracer::WorldOps;
 
-pub fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
+pub fn setup_world(w: usize, h: usize) -> (World, Camera) {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -64,12 +64,12 @@ pub fn setup_world<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
     let mut world = World::new();
     world.set_light(l);
 
-    world.add_shape(Shape::new(ShapeEnum::Sphere(floor), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "left_wall"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "right_wall"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right)));
 
     let mut c = Camera::new(w, h, PI / 3.0);
     c.calc_pixel_size();

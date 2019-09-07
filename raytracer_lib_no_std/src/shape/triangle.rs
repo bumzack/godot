@@ -1,4 +1,7 @@
-use crate::{EPSILON, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
+use crate::{
+    intri_abs, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple,
+    Tuple4D, EPSILON,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -15,13 +18,13 @@ pub struct Triangle {
 }
 
 impl ShapeOps for Triangle {
-    fn intersect(&self, r: &Ray) -> ShapeIntersectionResult  {
+    fn intersect(&self, r: &Ray) -> ShapeIntersectionResult {
         let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
         let dir_cross_e2 = r.get_direction() * self.get_e2();
         let det = self.get_e1() ^ &dir_cross_e2;
-        if det.abs() < EPSILON {
+        if intri_abs(det) < EPSILON {
             return (res, res_cnt);
         }
 
@@ -62,8 +65,6 @@ impl ShapeOps for Triangle {
         &self.inverse_transformation_matrix
     }
 
-
-
     fn set_material(&mut self, m: Material) {
         self.material = m;
     }
@@ -78,23 +79,22 @@ impl ShapeOps for Triangle {
 }
 
 impl Triangle {
-         pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
-            let e1 = &p2 - &p1;
-            let e2 = &p3 - &p1;
-            let normal = Tuple4D::normalize(&(&e2 * &e1));
-            Triangle {
-                transformation_matrix: Matrix::new_identity_4x4(),
-                inverse_transformation_matrix: Matrix::new_identity_4x4(),
-                material: Material::new(),
-                p1,
-                p2,
-                p3,
-                e1,
-                e2,
-                normal,
-            }
+    pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
+        let e1 = &p2 - &p1;
+        let e2 = &p3 - &p1;
+        let normal = Tuple4D::normalize(&(&e2 * &e1));
+        Triangle {
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            material: Material::new(),
+            p1,
+            p2,
+            p3,
+            e1,
+            e2,
+            normal,
         }
-
+    }
 
     fn get_p1(&self) -> &Tuple4D {
         &self.p1
@@ -120,9 +120,6 @@ impl Triangle {
         &self.normal
     }
 }
-
-
-
 
 #[cfg(test)]
 mod tests {
@@ -256,6 +253,3 @@ mod tests {
         (t, p1_clone, p2_clone, p3_clone)
     }
 }
-
-
-

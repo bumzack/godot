@@ -1,4 +1,4 @@
-use raytracer_lib_no_std::{BLACK, Color};
+use raytracer_lib_no_std::{Color, BLACK};
 
 pub type PixelVec = Vec<Pixel>;
 

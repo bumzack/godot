@@ -1,4 +1,4 @@
-use crate::{BLACK, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, WHITE};
+use crate::{intri_abs, intri_floor, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, BLACK, WHITE};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -36,7 +36,7 @@ impl Checker3DPattern {
     }
 
     pub fn color_at(pattern: &Checker3DPattern, point: &Tuple4D) -> Color {
-        if (point.x.abs() + point.y.abs() + point.z.abs()).floor() as i32 % 2 == 0 {
+        if intri_floor(intri_abs(point.x) + intri_abs(point.y) + intri_abs(point.z)) as i32 % 2 == 0 {
             Color::from_color(&pattern.get_color_a())
         } else {
             Color::from_color(&pattern.get_color_b())

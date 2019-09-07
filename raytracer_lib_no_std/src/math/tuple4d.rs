@@ -2,7 +2,7 @@ use core::ops::{Add, BitXor, Div, Mul, Sub};
 
 use crate::intri_sqrt;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Tuple4D {
     pub x: f32,
@@ -220,7 +220,6 @@ impl<'a, 'b> BitXor<&'b Tuple4D> for &'a Tuple4D {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
     }
 }
-
 
 impl Div<f32> for Tuple4D {
     type Output = Tuple4D;

@@ -1,19 +1,17 @@
-use core::f32::INFINITY;
 use raytracer_lib_no_std::basics::color::{Color, ColorOps, BLACK};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::{Light, LightOps};
 use raytracer_lib_no_std::material::material::{Material, MaterialOps};
-use raytracer_lib_no_std::math::math::{intri_powf, intri_powi, intri_sqrt};
+use raytracer_lib_no_std::math::math::{intri_powi, intri_sqrt};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_no_std::shape::sphere::SphereOps;
+use raytracer_lib_no_std::shape::shape::Shape;
 
 use crate::cuda::intersection::Intersection;
 use crate::cuda::intersection::IntersectionOps;
 use crate::cuda::intersection_list::{IntersectionList, IntersectionListOps};
-use raytracer_lib_no_std::{ EPSILON_OVER_UNDER, DEBUG, ShapeOps};
 use crate::cuda::MAX_LIGHT_SAMPLES;
+use raytracer_lib_no_std::{intri_powf, ShapeOps, EPSILON_OVER_UNDER};
 
 pub struct CudaKernel {}
 
@@ -40,7 +38,6 @@ impl CudaKernel {
         color
     }
 
-
     fn shade_hit(
         shapes: *mut Shape,
         cnt_shapes: usize,
@@ -59,7 +56,7 @@ impl CudaKernel {
         let intensity = CudaKernel::intensity_at(shapes, cnt_shapes, lights, cnt_lights, comp.get_over_point());
 
         // TODO: move lightning back to material if mehtod signatures are the same
-        let surface = Material::lightning(
+        let surface = CudaKernel::lightning(
             material,
             shape,
             light,
@@ -68,11 +65,11 @@ impl CudaKernel {
             comp.get_normal_vector(),
             intensity,
         );
-//        assert_valid_color(&surface);
+        //        assert_valid_color(&surface);
         let reflected = CudaKernel::reflected_color(shapes, cnt_shapes, lights, cnt_lights, comp, remaining);
         let refracted = CudaKernel::refracted_color(shapes, cnt_shapes, lights, cnt_lights, comp, remaining);
-//        assert_valid_color(&reflected);
-//        assert_valid_color(&refracted);
+        //        assert_valid_color(&reflected);
+        //        assert_valid_color(&refracted);
 
         // let material = comp.get_object().get_material();
         if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
@@ -97,8 +94,9 @@ impl CudaKernel {
         let (intersection, is_hit) = intersections.hit();
 
         if is_hit {
-            let s_idx = intersection.get_shape();
-            let shape = &shapes[s_idx];
+            let s_idx = intersection.get_shape() as isize;
+            let shape = unsafe { shapes.offset(s_idx).as_ref().unwrap() };
+
             if intersection.get_t() - distance < EPSILON_OVER_UNDER && shape.get_casts_shadow() {
                 return true;
             }
@@ -121,7 +119,7 @@ impl CudaKernel {
         res
     }
 
-    fn intensity_at_area_light(light: &Light, point: &Tuple4D, shapes: *mut Shape,       cnt_shapes: usize) -> f32 {
+    fn intensity_at_area_light(light: &Light, point: &Tuple4D, shapes: *mut Shape, cnt_shapes: usize) -> f32 {
         let mut total = 0.0;
 
         for v in 0..light.get_vsteps() {
@@ -228,16 +226,18 @@ impl CudaKernel {
 
         // create the sample points for the different lights
         let mut samples = [Tuple4D::empty(); MAX_LIGHT_SAMPLES];
-        let   cnt_samples = light.get_vsteps()*light.get_vsteps();
+        let cnt_samples = light.get_usteps() * light.get_vsteps();
 
+        let mut i = 0;
         for v in 0..light.get_vsteps() {
-            for u in 0..light.get_vsteps {
-                samples.push(light.point_on_light(u, v));
+            for u in 0..light.get_vsteps() {
+                samples[i] = light.point_on_light(u, v);
+                i += 1;
             }
         }
 
         for i in 0..cnt_samples {
-            let sample = samples[i];
+            let sample = &samples[i];
             let mut specular = BLACK;
             let mut diffuse = BLACK;
 
@@ -255,7 +255,7 @@ impl CudaKernel {
 
                 specular = BLACK;
                 if reflect_dot_eye > 0.0 {
-                    let factor = reflect_dot_eye.powf(material.get_shininess());
+                    let factor = intri_powf(reflect_dot_eye, material.get_shininess());
                     specular = light.get_intensity() * material.get_specular() * factor;
                     specular.fix_nan();
                 }
@@ -263,8 +263,8 @@ impl CudaKernel {
             sum = &sum + &diffuse;
             sum = &sum + &specular;
         }
-//        assert_valid_color(&ambient);
-//        assert_valid_color(&sum);
+        //        assert_valid_color(&ambient);
+        //        assert_valid_color(&sum);
         if intensity == 1.0 {
             ambient + sum / light.get_samples() as f32 * intensity
         } else {

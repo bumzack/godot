@@ -1,6 +1,9 @@
 use core::f32::{INFINITY, NAN};
 
-use crate::{EPSILON, Material, MaterialOps, Matrix, MatrixOps, max_float, min_float, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
+use crate::{
+    intri_abs, max_float, min_float, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult,
+    ShapeOps, Tuple, Tuple4D, EPSILON,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -42,10 +45,14 @@ impl ShapeOps for Cube {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let maxc = max_float(world_point.x.abs(), world_point.y.abs(), world_point.z.abs());
-        if (maxc - world_point.x.abs()) < EPSILON {
+        let maxc = max_float(
+            intri_abs(world_point.x),
+            intri_abs(world_point.y),
+            intri_abs(world_point.z),
+        );
+        if (maxc - intri_abs(world_point.x)) < EPSILON {
             return Tuple4D::new_vector(world_point.x, 0.0, 0.0);
-        } else if (maxc - world_point.y.abs()) < EPSILON {
+        } else if (maxc - intri_abs(world_point.y)) < EPSILON {
             return Tuple4D::new_vector(0.0, world_point.y, 0.0);
         }
         Tuple4D::new_vector(0.0, 0.0, world_point.z)
@@ -64,7 +71,6 @@ impl ShapeOps for Cube {
     fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
     }
-
 
     fn set_material(&mut self, m: Material) {
         self.material = m;
@@ -95,7 +101,7 @@ impl Cube {
         let mut tmin;
         let mut tmax;
 
-        if direction.abs() >= EPSILON {
+        if intri_abs(direction) >= EPSILON {
             tmin = tmin_numerator / direction;
             tmax = tmax_numerator / direction;
         } else {
@@ -110,7 +116,6 @@ impl Cube {
         (tmin, tmax)
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -277,4 +282,3 @@ mod tests {
         test_cube_normal_helper(point, n_expected);
     }
 }
-

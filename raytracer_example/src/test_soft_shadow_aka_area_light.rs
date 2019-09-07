@@ -29,11 +29,7 @@ use raytracer::Tuple4D;
 use raytracer_lib_std::World;
 use raytracer_lib_std::WorldOps;
 
-pub  fn setup_world_shadow_glamour<'a>(
-    size_factor: f32,
-    antialiasing: bool,
-    antialiasing_size: usize,
-) -> (World<'a>, Camera) {
+pub fn setup_world_shadow_glamour(size_factor: f32, antialiasing: bool, antialiasing_size: usize) -> (World, Camera) {
     let width = (400 as f32 * size_factor) as usize;
     let height = (160 as f32 * size_factor) as usize;
 
@@ -58,7 +54,7 @@ pub  fn setup_world_shadow_glamour<'a>(
     let m = &m_trans * &m_scale;
 
     c.set_transformation(m);
-    let mut cube = Shape::new(ShapeEnum::Cube(c), "cube");
+    let mut cube = Shape::new(ShapeEnum::Cube(c));
     cube.set_casts_shadow(false);
 
     // ---- PLANE -------
@@ -68,7 +64,7 @@ pub  fn setup_world_shadow_glamour<'a>(
     plane.get_material_mut().set_diffuse(0.67);
     plane.get_material_mut().set_specular(0.0);
 
-    let plane = Shape::new(ShapeEnum::Plane(plane), "plane");
+    let plane = Shape::new(ShapeEnum::Plane(plane));
 
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
@@ -83,7 +79,7 @@ pub  fn setup_world_shadow_glamour<'a>(
     let m = &m_trans * &m_scale;
 
     sphere1.set_transformation(m);
-    let sphere1 = Shape::new(ShapeEnum::Sphere(sphere1), "sphere");
+    let sphere1 = Shape::new(ShapeEnum::Sphere(sphere1));
 
     // ---- SPHERE 2 -------
     let mut sphere2 = Sphere::new();
@@ -98,7 +94,7 @@ pub  fn setup_world_shadow_glamour<'a>(
     let m = &m_trans * &m_scale;
 
     sphere2.set_transformation(m);
-    let sphere2 = Shape::new(ShapeEnum::Sphere(sphere2), "sphere2");
+    let sphere2 = Shape::new(ShapeEnum::Sphere(sphere2));
 
     let mut w = World::new();
     w.set_light(area_light);

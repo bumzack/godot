@@ -1,4 +1,4 @@
-use crate::{BLACK, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, WHITE};
+use crate::{intri_floor, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, BLACK, WHITE};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -37,7 +37,7 @@ impl TestPattern {
 
     pub fn stripe_at(pattern: &TestPattern, point: &Tuple4D) -> Color {
         // TODO: we copy here colors all the way -> may be there is a chance to returen references?
-        if point.x.floor() as i32 % 2 == 0 {
+        if intri_floor(point.x) as i32 % 2 == 0 {
             Color::from_color(&pattern.get_color_a())
         } else {
             Color::from_color(&pattern.get_color_b())
@@ -153,4 +153,3 @@ mod tests {
         assert_color(&color_expected, &c);
     }
 }
-

@@ -30,7 +30,7 @@ use raytracer::Tuple4D;
 use raytracer_lib_std::World;
 use raytracer_lib_std::WorldOps;
 
-pub(crate) fn setup_world_compare_to_cuda<'a>(w: usize, h: usize) -> (World<'a>, Camera) {
+pub(crate) fn setup_world_compare_to_cuda(w: usize, h: usize) -> (World, Camera) {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -75,12 +75,12 @@ pub(crate) fn setup_world_compare_to_cuda<'a>(w: usize, h: usize) -> (World<'a>,
 
     let mut world = World::new();
     world.set_light(l);
-    world.add_shape(Shape::new(ShapeEnum::Sphere(floor), "floor"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall), "left_wall"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall), "v"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(left)));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right)));
 
     let mut c = Camera::new(w, h, PI / 3.0);
     c.calc_pixel_size();

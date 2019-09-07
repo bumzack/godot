@@ -1,4 +1,6 @@
-use crate::{BLACK, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, WHITE};
+use crate::{
+    intri_floor, intri_powi, intri_sqrt, Color, ColorOps, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, BLACK, WHITE,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -36,7 +38,7 @@ impl RingPattern {
     }
 
     pub fn color_at(pattern: &RingPattern, point: &Tuple4D) -> Color {
-        if (point.x.powf(2.0) + point.z.powf(2.0)).sqrt().floor() as i32 % 2 == 0 {
+        if intri_floor(intri_sqrt(intri_powi(point.x, 2) + intri_powi(point.z, 2))) as i32 % 2 == 0 {
             Color::from_color(&pattern.get_color_a())
         } else {
             Color::from_color(&pattern.get_color_b())
@@ -101,4 +103,3 @@ mod tests {
         assert_color(&c4, &BLACK);
     }
 }
-

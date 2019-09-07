@@ -6,8 +6,8 @@ use rayon::prelude::IntoParallelIterator;
 
 use cpu_kernel_raytracer::camera::{Camera, CameraOps};
 use cpu_kernel_raytracer::color::BLACK;
-use cpu_kernel_raytracer::CpuKernel;
 use cpu_kernel_raytracer::ray::RayOps;
+use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 use crate::backend::backend::Backend;
@@ -87,7 +87,8 @@ impl Backend for BackendCpu {
             for y in 0..c.get_vsize() {
                 for x in 0..c.get_hsize() {
                     let r = Camera::ray_for_pixel(c, x, y);
-                    let mut color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    let mut color =
+                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     color.clamp_color();
                     canvas.write_pixel(x, y, color);
                 }

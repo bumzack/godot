@@ -3,23 +3,23 @@
 use raytracer_lib_no_std::{Color, ColorOps, Light, PointLight, Shape, Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
-pub struct World<'a> {
-    shapes: Vec<Shape<'a>>,
+pub struct World {
+    shapes: Vec<Shape>,
     light: Light,
 }
 
-pub trait WorldOps<'a> {
-    fn new() -> World<'a>;
+pub trait WorldOps {
+    fn new() -> World;
     fn set_light(&mut self, light: Light);
     fn get_light(&self) -> &Light;
 
-    fn add_shape(&mut self, shape: Shape<'a>);
-    fn get_shapes(&self) -> &Vec<Shape<'a>>;
-    fn get_shapes_mut(&mut self) -> &mut Vec<Shape<'a>>;
+    fn add_shape(&mut self, shape: Shape);
+    fn get_shapes(&self) -> &Vec<Shape>;
+    fn get_shapes_mut(&mut self) -> &mut Vec<Shape>;
 }
 
-impl<'a> WorldOps <'a> for World <'a>{
-    fn new() -> World<'a> {
+impl WorldOps for World {
+    fn new() -> World {
         // TODO: default light ?!?!?! hmm - where, color why not different solution
         let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         World {
@@ -36,15 +36,15 @@ impl<'a> WorldOps <'a> for World <'a>{
         &self.light
     }
 
-    fn add_shape(&mut self, shape: Shape<'a>) {
+    fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
 
-    fn get_shapes(&self) -> &Vec<Shape<'a>> {
+    fn get_shapes(&self) -> &Vec<Shape> {
         &self.shapes
     }
 
-    fn get_shapes_mut(&mut self) -> &mut Vec<Shape<'a>> {
+    fn get_shapes_mut(&mut self) -> &mut Vec<Shape> {
         &mut self.shapes
     }
 }

@@ -1,16 +1,15 @@
-use core::f32::INFINITY;
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::math::common::{EPSILON, EPSILON_OVER_UNDER};
+use raytracer_lib_no_std::math::common::EPSILON_OVER_UNDER;
 use raytracer_lib_no_std::math::math::{intri_powi, intri_sqrt};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
 
 use crate::cuda::intersection_list::IntersectionList;
 use crate::cuda::intersection_list::IntersectionListOps;
+use raytracer_lib_no_std::ShapeOps;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct Intersection {
     t: f32,
     shape_idx: usize,
@@ -53,20 +52,24 @@ impl IntersectionOps for Intersection {
 
     fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, cnt_shapes: usize) -> IntersectionList {
         let shape = unsafe { shapes.offset(shape_idx as isize).as_ref().unwrap() };
-        let mut res = IntersectionList::new();
-        let res = match *shape.get_shape() {
-            ShapeEnum::Sphere(ref sphere) => {
-                let mut intersection_list = IntersectionList::new();
-                let r2 = Ray::transform(r, sphere.get_inverse_transformation());
-                let (res, res_cnt) = Sphere::intersect(&r2);
-                for i in 0..res_cnt {
-                    let intersection = Intersection::new(res[i], shape_idx);
-                    intersection_list.add(intersection);
-                }
-                intersection_list
-            }
+        let mut intersection_list = IntersectionList::new();
+        let r2 = Ray::transform(r, shape.get_inverse_transformation());
+
+        let (res, res_cnt) = match *shape.get_shape() {
+            ShapeEnum::Sphere(ref sphere) => sphere.intersect(&r2),
+            ShapeEnum::Plane(ref plane) => plane.intersect(&r2),
+            ShapeEnum::Cube(ref cube) => cube.intersect(&r2),
+            ShapeEnum::Cylinder(ref cylinder) => cylinder.intersect(&r2),
+            ShapeEnum::Triangle(ref triangle) => triangle.intersect(&r2),
+            // ShapeEnum::Group(ref group) =>
+            // let res = Cylinder::intersect(cylinder, &r2);
+            //  }
         };
-        res
+        for i in 0..res_cnt {
+            let intersection = Intersection::new(res[i], shape_idx);
+            intersection_list.add(intersection);
+        }
+        intersection_list
     }
 
     fn intersect_world(shapes: *mut Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList {
@@ -168,7 +171,13 @@ impl IntersectionOps for Intersection {
             let cos_t = intri_sqrt(1.0 - sint2_t);
             cos = cos_t;
         }
-        let r0 = intri_powi(((comp.get_n1() - comp.get_n2()) / (comp.get_n1() + comp.get_n2())), 2);
+        let r0 = intri_powi((comp.get_n1() - comp.get_n2()) / (comp.get_n1() + comp.get_n2()), 2);
         r0 + (1.0 - r0) * intri_powi(1.0 - cos, 5)
+    }
+}
+
+impl<'a> PartialEq for Intersection {
+    fn eq(&self, other: &Self) -> bool {
+        self.shape_idx == other.shape_idx && self.t == other.t
     }
 }

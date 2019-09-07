@@ -10,7 +10,7 @@ use rustacuda::prelude::{
 };
 
 use crate::backend::backend::Backend;
-use raytracer_lib_no_std::{Camera, CameraOps, BLACK, ColorOps};
+use raytracer_lib_no_std::{Camera, CameraOps, ColorOps, BLACK};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 pub struct BackendCuda {}
@@ -39,7 +39,7 @@ impl Backend for BackendCuda {
 
         let a = unsafe { cuda_device_get_limit_stacksize() }?;
         println!(" cudaLimitSTackSize   = {}", a);
-        let a = a * 20;
+        let a = a * 40;
         println!(" set stack size to 20x the size   = {}", a);
         let b = unsafe { cuda_device_set_limit_stacksize(a) };
 
@@ -49,29 +49,29 @@ impl Backend for BackendCuda {
         // width and height
         let w = c.get_hsize();
         let h = c.get_vsize();
-        let mut width = DeviceBox::new(&(w as f32)).expect("DeviceBox::new(w)   image save expect in 'mandel_cuda' ");
-        let mut height = DeviceBox::new(&(h as f32)).expect("DeviceBox::new(h)   image save expect in 'mandel_cuda' ");
+        let mut width = DeviceBox::new(&(w as f32)).expect("DeviceBox::new(w)   image save expect in 'backend_cuda' ");
+        let mut height = DeviceBox::new(&(h as f32)).expect("DeviceBox::new(h)   image save expect in 'backend_cuda' ");
 
         // PIXELS
         let mut pixels_vec = vec![BLACK; c.get_vsize() as usize * c.get_hsize() as usize];
         let mut pixels = DeviceBuffer::from_slice(&pixels_vec)
-            .expect("DeviceBuffer::from_slice(&pixels_vec)    image save expect in 'mandel_cuda' ");
+            .expect("DeviceBuffer::from_slice(&pixels_vec)    image save expect in 'backend_cuda' ");
 
         let mut shapes_device = DeviceBuffer::from_slice(world.get_shapes_mut())
-            .expect("DeviceBuffer::from_slice(&shapes)    image save expect in 'mandel_cuda' ");
+            .expect("DeviceBuffer::from_slice(&shapes)    image save expect in 'backend_cuda' ");
         let cnt_shapes = world.get_shapes().len();
 
         // we are using a vec of lights, world has only 1 light
         let mut lights_vec = Vec::new();
         lights_vec.push(world.get_light().clone());
         let mut lights_device = DeviceBuffer::from_slice(&lights_vec)
-            .expect("DeviceBuffer::from_slice(&lights)    image save expect in 'mandel_cuda' ");
+            .expect("DeviceBuffer::from_slice(&lights)    image save expect in 'backend_cuda' ");
         let cnt_lights = lights_vec.len();
 
         // CAMERA
         let mut camera_clone = c.clone();
         let mut camera_device =
-            DeviceBox::new(&camera_clone).expect("DeviceBox::new(camera_clone)   image save expect in 'mandel_cuda' ");
+            DeviceBox::new(&camera_clone).expect("DeviceBox::new(camera_clone)   image save expect in 'backend_cuda' ");
 
         // CUDA setup block/grid
         let b = (256, 1, 1);
@@ -101,11 +101,11 @@ impl Backend for BackendCuda {
         }
         stream
             .synchronize()
-            .expect("stream.synchronize()       expect in 'mandel_cuda' ");
+            .expect("----     stream.synchronize()       expect in 'backend_cuda' ");
 
         pixels
             .copy_to(&mut pixels_vec)
-            .expect(" pixels.copy_to(&mut pixels_vec)             expect in 'mandel_cuda' ");
+            .expect(" pixels.copy_to(&mut pixels_vec)             expect in 'backend_cuda' ");
 
         let stopped = Instant::now();
         println!("\n\ncuda   {:?} \n\n", stopped.duration_since(start));

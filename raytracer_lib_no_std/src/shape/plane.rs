@@ -1,4 +1,7 @@
-use crate::{EPSILON, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
+use crate::{
+    intri_abs, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple,
+    Tuple4D, EPSILON,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -13,7 +16,7 @@ impl ShapeOps for Plane {
         let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
-        if r.get_direction().y.abs() < EPSILON {
+        if intri_abs(r.get_direction().y) < EPSILON {
             return (res, res_cnt);
         }
         let t = -r.get_origin().y / r.get_direction().y;
@@ -43,7 +46,6 @@ impl ShapeOps for Plane {
     fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
     }
-
 
     fn set_material(&mut self, m: Material) {
         self.material = m;

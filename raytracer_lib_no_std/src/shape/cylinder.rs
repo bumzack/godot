@@ -1,6 +1,9 @@
 use core::f32::INFINITY;
 
-use crate::{EPSILON, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple, Tuple4D};
+use crate::{
+    intri_abs, intri_powi, intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult,
+    ShapeOps, Tuple, Tuple4D, EPSILON,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -18,17 +21,17 @@ impl ShapeOps for Cylinder {
         let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
-        let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
-        if !(a.abs() < EPSILON) {
+        let a = intri_powi(r.get_direction().x, 2) + intri_powi(r.get_direction().z, 2);
+        if !(intri_abs(a) < EPSILON) {
             let b = 2.0 * r.get_origin().x * r.get_direction().x + 2.0 * r.get_origin().z * r.get_direction().z;
-            let c = r.get_origin().x.powi(2) + r.get_origin().z.powi(2) - 1.0;
+            let c = intri_powi(r.get_origin().x, 2) + intri_powi(r.get_origin().z, 2) - 1.0;
 
             let disc = b * b - 4.0 * a * c;
             if disc < 0.0 {
                 return (res, res_cnt);
             }
-            let mut t0 = (-b - disc.sqrt()) / (2.0 * a);
-            let mut t1 = (-b + disc.sqrt()) / (2.0 * a);
+            let mut t0 = (-b - intri_sqrt(disc)) / (2.0 * a);
+            let mut t1 = (-b + intri_sqrt(disc)) / (2.0 * a);
 
             if t0 > t1 {
                 let tmp = t0;
@@ -56,7 +59,7 @@ impl ShapeOps for Cylinder {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let dist = world_point.x.powi(2) + world_point.z.powi(2);
+        let dist = intri_powi(world_point.x, 2) + intri_powi(world_point.z, 2);
         if dist < 1.0 && world_point.y >= self.get_maximum() - EPSILON {
             return Tuple4D::new_vector(0.0, 1.0, 0.0);
         } else if dist < 1.0 && world_point.y <= self.get_maximum() + EPSILON {
@@ -131,14 +134,14 @@ impl Cylinder {
     fn check_cap(&self, r: &Ray, t: f32) -> bool {
         let x = r.get_origin().x + t * r.get_direction().x;
         let z = r.get_origin().z + t * r.get_direction().z;
-        (x.powi(2) + z.powi(2)) - 1.0 < EPSILON
+        (intri_powi(x, 2) + intri_powi(z, 2)) - 1.0 < EPSILON
     }
 
     fn intersect_caps(&self, r: &Ray) -> ShapeIntersectionResult {
         let mut res = [0f32; 4];
         let mut res_cnt = 0;
 
-        if !self.get_closed() || r.get_direction().y.abs() < EPSILON {
+        if !self.get_closed() || intri_abs(r.get_direction().y) < EPSILON {
             return (res, res_cnt);
         }
         let t = (self.get_minimum() - r.get_origin().y) / r.get_direction().y;
@@ -154,7 +157,6 @@ impl Cylinder {
         (res, res_cnt)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

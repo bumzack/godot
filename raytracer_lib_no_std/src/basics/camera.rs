@@ -174,8 +174,8 @@ impl CameraOps for Camera {
 mod tests {
     use core::f32::consts::{PI, SQRT_2};
 
-    use crate::{assert_float, assert_matrix, assert_tuple, MatrixOps, Tuple4D};
     use crate::basics::color::{Color, ColorOps};
+    use crate::{assert_float, assert_matrix, assert_tuple, MatrixOps, Tuple4D};
 
     use super::*;
 

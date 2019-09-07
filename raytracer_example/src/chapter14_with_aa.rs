@@ -29,7 +29,7 @@ use raytracer::Tuple4D;
 use raytracer_lib_std::World;
 use raytracer_lib_std::WorldOps;
 
-pub(crate) fn setup_world_chapter14_with_aa<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
+pub(crate) fn setup_world_chapter14_with_aa(width: usize, height: usize) -> (World, Camera) {
     let mut floor = Plane::new();
     let mut p: GradientPattern = GradientPattern::new();
     p.set_color_a(Color::new(1.0, 0.0, 0.0));
@@ -110,14 +110,14 @@ pub(crate) fn setup_world_chapter14_with_aa<'a>(width: usize, height: usize) -> 
 
     let mut w = World::new();
     w.set_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Plane(floor), "floor"));
-    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall), "left_wall"));
-    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall), "right_wall"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube), "cube"));
-    // w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder), "cylinder"));
+    w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
+    w.add_shape(Shape::new(ShapeEnum::Cube(cube)));
+    // w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
 
     let mut c = Camera::new(width, height, PI / 4.0);
     c.set_antialiasing(true);

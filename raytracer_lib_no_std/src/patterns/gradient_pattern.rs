@@ -1,4 +1,4 @@
-use crate::{BLACK, Color, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, WHITE};
+use crate::{intri_floor, Color, Matrix, MatrixOps, Shape, ShapeOps, Tuple4D, BLACK, WHITE};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -37,7 +37,7 @@ impl GradientPattern {
 
     pub fn color_at(pattern: &GradientPattern, point: &Tuple4D) -> Color {
         let distance = pattern.get_color_b() - pattern.get_color_a();
-        let fraction = point.x - point.x.floor();
+        let fraction = point.x - intri_floor(point.x);
         pattern.get_color_a() + &(distance * fraction)
     }
 
@@ -61,7 +61,6 @@ impl GradientPattern {
         &self.inverse_transformation_matrix
     }
 }
-
 
 #[cfg(test)]
 mod tests {
