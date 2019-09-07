@@ -4,7 +4,6 @@ use std::thread;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
-use std::f32::consts::PI;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 640;
@@ -53,10 +52,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     *acty = *acty + 1;
                 }
                 for x in 0..width {
-                    let mut color = BLACK;
-
                     let r = Camera::ray_for_pixel(&c_clone, x, y);
-                    color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     // println!("no AA    color at ({}/{}): {:?}", x, y, color);
 
                     let mut canvas = cloned_data.lock().unwrap();
@@ -87,128 +84,50 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
+    let mut x_axis = Cylinder::new();
+    x_axis.set_minimum(0.0);
+    x_axis.set_maximum(1.0);
+    x_axis.set_closed(true);
+    x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+    x_axis.get_material_mut().set_ambient(0.3);
+    x_axis.get_material_mut().set_diffuse(0.6);
+    x_axis.get_material_mut().set_specular(0.0);
+    x_axis.get_material_mut().set_reflective(0.1);
+    let x_axis = Shape::new(ShapeEnum::Cylinder(x_axis));
+
+    let mut floor = Cube::new();
+    floor.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
+    floor.get_material_mut().set_ambient(0.3);
+    floor.get_material_mut().set_diffuse(0.6);
+    floor.get_material_mut().set_specular(0.0);
+    floor.get_material_mut().set_reflective(0.1);
+
     let m_scale = Matrix::scale(2.0, 0.01, 4.0);
-    let m_rotate = Matrix::rotate_x(PI / 4.0);
-    let m = m_scale * m_rotate;
-    let mut floor = Sphere::new();
-    floor.set_transformation(m);
-    floor.get_material_mut().set_color(Color::new(0.0, 0.5, 0.0));
-    let mut floor = Shape::new(ShapeEnum::Sphere(floor));
-    floor.set_casts_shadow(false);
+    floor.set_transformation(m_scale);
 
-    let m = Matrix::scale(0.1, 0.1, 0.1);
-    let mut origin = Sphere::new();
-    origin.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
-    origin.set_transformation(m);
-    let mut origin = Shape::new(ShapeEnum::Sphere(origin));
-    origin.set_casts_shadow(false);
+    let floor = Shape::new(ShapeEnum::Cube(floor));
 
-    let m_scale = Matrix::scale(0.1, 5.0, 0.1);
-    let m_translate = Matrix::translation(-0.5, 0.0, 0.0);
-    let m = m_scale * m_translate;
+    let mut world = World::new();
+    world.add_shape(x_axis);
+    world.add_shape(floor);
 
-    let mut left_border = Cube::new();
-    left_border.get_material_mut().set_color(Color::new(0.5, 0.5, 0.5));
-    left_border.set_transformation(m);
-    let mut left_border = Shape::new(ShapeEnum::Cube(left_border));
-    left_border.set_casts_shadow(false);
+    let z = -2.0;
+    let camera_from = Tuple4D::new_point(3.0, 4., z - 6.0);
+    let camera_to = Tuple4D::new_point(0.0, 0.0, z);
+    let camera_up = Tuple4D::new_point(0.0, 1.0, 0.0);
 
-    //    let m = Matrix::rotate_y(PI / 4.0);
-    //    p.set_transformation(m);
-    //    let p = Pattern::GradientPattern(p);
-    //    floor.get_material_mut().set_pattern(p);
-    //    let mut p = RingPattern::new();
-    //    p.set_color_a(Color::new(0.5, 0.0, 0.0));
-    //    p.set_color_a(Color::new(0.5, 0.0, 0.8));
-    //    let m = Matrix::rotate_x(PI / 4.0);
-    //    p.set_transformation(m);
-    //    let p = Pattern::RingPattern(p);
-    //    let mut left_wall = Plane::new();
-    //    left_wall.set_transformation(
-    //        &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
-    //    );
-    //    left_wall.get_material_mut().set_pattern(p);
-    //    let mut checker_3d = Checker3DPattern::new();
-    //    checker_3d.set_color_a(Color::new(0.1, 0.8, 0.4));
-    //    checker_3d.set_color_a(Color::new(0.8, 0.2, 0.2));
-    //    let p = Pattern::Checker3DPattern(checker_3d);
-    //    let mut right_wall = Plane::new();
-    //    right_wall.set_transformation(
-    //        &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
-    //    );
-    //    right_wall.get_material_mut().set_pattern(p);
-    //    let mut middle = Sphere::new();
-    //    middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
-    //    middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
-    //    middle.get_material_mut().set_diffuse(0.7);
-    //    middle.get_material_mut().set_specular(0.3);
-    //    middle.get_material_mut().set_reflective(1.3);
-    //    middle.get_material_mut().set_refractive_index(1.3);
-    //    let mut right = Sphere::new();
-    //    right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
-    //    right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
-    //    right.get_material_mut().set_diffuse(0.7);
-    //    right.get_material_mut().set_specular(0.3);
-    //    middle.get_material_mut().set_reflective(1.8);
-    //    middle.get_material_mut().set_refractive_index(1.8);
-    //
-    //    let mut left = Sphere::new();
-    //    left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
-    //    left.get_material_mut().set_color(Color::new(1., 0., 0.));
-    //    left.get_material_mut().set_diffuse(0.7);
-    //    left.get_material_mut().set_specular(0.3);
-    //
-    //    let mut checker_3d = Checker3DPattern::new();
-    //    checker_3d.set_color_a(Color::new(1.0, 0.0, 1.0));
-    //    checker_3d.set_color_a(Color::new(0.1, 0.1, 1.0));
-    //    let p = Pattern::Checker3DPattern(checker_3d);
-    //
-    //    let mut cube = Cube::new();
-    //    let c_trans = Matrix::translation(-2.0, 2.0, -1.75);
-    //    let c_scale = Matrix::scale(0.5, 0.5, 0.25);
-    //    cube.set_transformation(c_scale * c_trans);
-    //    cube.get_material_mut().set_pattern(p);
-    //    cube.get_material_mut().set_transparency(1.5);
-    //
-    //    let mut checker = Checker3DPattern::new();
-    //    checker.set_color_a(Color::new(1.0, 0.0, 0.0));
-    //    checker.set_color_b(Color::new(0.4, 0.0, 0.0));
-    //    let p = Pattern::Checker3DPattern(checker);
-    //
-    //    let mut cylinder = Cylinder::new();
-    //    let c_trans = Matrix::translation(-3.5, 1.0, -0.75);
-    //    // let c_scale = Matrix::scale(2.0, 0.5, 0.25);
-    //    cylinder.set_transformation(c_trans);
-    //    cylinder.get_material_mut().set_pattern(p);
-    //    cylinder.get_material_mut().set_transparency(1.5);
-    //    cylinder.set_minimum(0.0);
-    //    cylinder.set_minimum(1.0);
-    //
-    let pl = PointLight::new(Tuple4D::new_point(0.0, 3.0, 0.0), Color::new(1.0, 1.0, 1.0));
+    let mut camera = Camera::new(width, height, 0.50);
+    camera.set_antialiasing(false);
+
+    camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
+
+    let light_camera_distance_y = 90.0;
+
+    let mut light_pos = Tuple4D::from(camera_from);
+    light_pos.y += light_camera_distance_y;
+    let pl = PointLight::new(light_pos, Color::new(1.5, 1.5, 1.5));
     let l = LightEnum::PointLight(pl);
+    world.set_light(l);
 
-    let mut w = World::new();
-    w.set_light(l);
-    w.add_shape(floor);
-    //  w.add_shape(origin);
-    // w.add_shape(left_border);
-
-    //    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
-    //    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
-    //    w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
-    //    w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
-    //    w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
-    //    w.add_shape(Shape::new(ShapeEnum::Cube(cube)));
-    // w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
-
-    let mut c = Camera::new(width, height, PI / 4.0);
-    c.set_antialiasing(false);
-    // c.set_antialiasing_size(3);
-    c.calc_pixel_size();
-    c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 10.0, -5.0),
-        &Tuple4D::new_point(0.0, 0.0, 0.0),
-        &Tuple4D::new_point(0.0, 0.0, 1.0),
-    ));
-    (w, c)
+    (world, camera)
 }
