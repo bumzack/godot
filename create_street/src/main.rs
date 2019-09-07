@@ -10,57 +10,80 @@ fn main() {
 
     let backend = BackendCuda::new();
 
-    let frames = 140;
+    let (frames, delta) = (315, 0.02);
+    let (frames, delta) = (1, 0.3);
+
     let mut x: f32 = 0.0;
-    let mut z: f32 = 0.0;
-    let delta = 0.05;
+    let mut z: f32 = -2.0;
+
     let amplitude = 0.8;
 
     let light_camera_distance_y = 90.0;
 
-    // for a 3D like view try this
-//    let mut camera_from = Tuple4D::new_point(1.6, 2., -3.0);
-//    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-//    let camera_up = Tuple4D::new_point(0.0, 1.0, 0.0);
+    let is_3d = false;
+    let full_raytracing = false;
 
     // from the top -> 2D View in -y direction
-    let mut camera_from = Tuple4D::new_point(0.0, 10., 0.0);
-    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let camera_up = Tuple4D::new_point(0.0, 0.0, 1.0);
+    let mut camera_from = Tuple4D::new_point(0.0, 10., z);
+    let mut camera_to = Tuple4D::new_point(0.0, 0.0, z);
+    let mut camera_up = Tuple4D::new_point(0.0, 0.0, 1.0);
 
+    if full_raytracing {
+        camera.set_calc_reflection(true);
+        camera.set_calc_refraction(true);
+    }
 
-    let mut light_pos  = Tuple4D::from(camera_from);
+    if is_3d {
+        // for a 3D like view try this
+        camera_from = Tuple4D::new_point(1.6, 1.8, -3.0);
+        camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+        camera_up = Tuple4D::new_point(0.0, 1.0, 0.0);
+    }
+
+    let mut light_pos = Tuple4D::from(camera_from);
     light_pos.y += light_camera_distance_y;
     let pl = PointLight::new(light_pos, Color::new(1.5, 1.5, 1.5));
     let l = Light::PointLight(pl);
     world.set_light(l);
 
+    let z_start_left_tilt = 2.0;
+    let left_tilt = -30.0 * PI / 180.0;
+
+    let mut z_sphere = z;
+
     for i in 0..frames {
-       x = amplitude * z.sin();
+        x = amplitude * z_sphere.sin();
+
+        if z_sphere > z_start_left_tilt {
+            // add x from 30° line
+            let x_delta = (z_sphere - z_start_left_tilt) * left_tilt.sin();
+            x += x_delta;
+        }
 
         let m_scale = Matrix::scale(0.2, 0.2, 0.2);
-        let m_trans = Matrix::translation(x, 0.0,  -z);
+        let m_trans = Matrix::translation(x, 0.0, z_sphere);
         world.get_shapes_mut()[0].set_transformation(m_trans * m_scale);
 
         camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
         let canvas = backend.render_world(&mut world, &camera);
 
-        let filename = format!("./create_street/img/test_{}_{}_frame_{:0>8}.png", width, height, i);
+        let filename = format!("./create_street/img/test_{}_{}_frame_{:0>8}_dist_{:.6}.png", width, height, i, x);
         canvas.unwrap().write_png(&filename).unwrap();
         println!("x = {}, z = {}     filename = {}", x, z, filename);
-        println!("camera_from  = {:?}, camera_to = {:?}   ", camera_from, camera_to );
+        println!("camera_from  = {:?}, camera_to = {:?}   ", camera_from, camera_to);
 
         // update coordinates camera
-        camera_from.z +=  delta;
+        camera_from.z += delta;
         camera_to.z += delta;
 
         // update light pos
-        let mut light_pos  = Tuple4D::from(camera_from);
+        let mut light_pos = Tuple4D::from(camera_from);
         light_pos.y += light_camera_distance_y;
         let pl = PointLight::new(light_pos, Color::new(1.5, 1.5, 1.5));
         let l = Light::PointLight(pl);
         world.set_light(l);
-        z-= delta;
+        z -= delta;
+        z_sphere += delta;
     }
 }
 
@@ -88,7 +111,9 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     plane.get_material_mut().set_diffuse(0.67);
     plane.get_material_mut().set_specular(0.0);
 
-    let plane = Shape::new(ShapeEnum::Plane(plane));
+    let mut plane = Shape::new(ShapeEnum::Plane(plane));
+    plane.set_casts_shadow(false);
+
 
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
@@ -120,23 +145,22 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     sphere2.set_transformation(m);
     let sphere2 = Shape::new(ShapeEnum::Sphere(sphere2));
 
-    let mut sphere2_clone =sphere2.clone();
+    let mut sphere2_clone = sphere2.clone();
     let m_trans = Matrix::translation(1.0, 0.0, 0.0);
     let m_scale = Matrix::scale(0.1, 0.1, 0.1);
     let m = &m_trans * &m_scale;
     sphere2_clone.set_transformation(m);
 
-    let mut sphere2_clone_clone =sphere2.clone();
+    let mut sphere2_clone_clone = sphere2.clone();
     let m_trans = Matrix::translation(1.0, 0.0, 3.0);
     let m_scale = Matrix::scale(0.3, 0.3, 0.3);
     let m = &m_trans * &m_scale;
     sphere2_clone_clone.set_transformation(m);
 
 
-
     // -- -left border
-    let m_trans = Matrix::translation(-1.0, 0.5, 0.0);
-    let m_scale = Matrix::scale(0.01, 0.2, 100.0);
+    let m_trans = Matrix::translation(-1.0, 0.5, -0.25);
+    let m_scale = Matrix::scale(0.01, 0.2, 2.0);
     let mut border_left = Cube::new();
     border_left.set_transformation(m_trans * m_scale);
     border_left.get_material_mut().set_color(Color::new(0.5, 0.5, 0.5));
@@ -148,8 +172,8 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     border_left.set_casts_shadow(false);
 
     // -- -right border
-    let m_trans = Matrix::translation(1.0, 0.5, 0.0);
-    let m_scale = Matrix::scale(0.01, 0.2, 100.0);
+    let m_trans = Matrix::translation(1.0, 0.5, -0.15);
+    let m_scale = Matrix::scale(0.01, 0.2, 2.0);
     let mut border_right = Cube::new();
     border_right.set_transformation(m_trans * m_scale);
     border_right.get_material_mut().set_color(Color::new(0.5, 0.5, 0.5));
@@ -160,17 +184,65 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut border_right = Shape::new(ShapeEnum::Cube(border_right));
     border_right.set_casts_shadow(false);
 
+
+     let left_tilt = -30.0 * PI / 180.0;
+    let right_tilt = 60.0 * PI / 180.0;
+
+    // left tilt
+    let mut border_left_tilt_left = border_left.clone();
+    let m_trans = Matrix::translation(0., 1.5, 2.38);
+    let m_rot = Matrix::rotate_y(left_tilt);
+    let m_scale = Matrix::scale(0.02, 0.2, 1.5);
+    // let m = m_rot * m_scale;
+    let m = &m_rot * &(m_scale * m_trans);
+    border_left_tilt_left.set_transformation(m);
+
+
+    let mut border_right_tilt_left = border_right.clone();
+    let m_trans = Matrix::translation(95.0, 0.0, 1.83);
+    let m_rot = Matrix::rotate_y(left_tilt);
+    let m_scale = Matrix::scale(0.02, 0.2, 1.5);
+    // let m = m_rot * m_scale;
+    let m = &m_rot * &(m_scale * m_trans);
+    border_right_tilt_left.set_transformation(m);
+
+
+    // tight tilt
+    let mut border_left_tilt_right = border_left.clone();
+    let m_trans = Matrix::translation(-5.2, 0., 1.5);
+    let m_rot = Matrix::rotate_y(right_tilt);
+    let m_scale = Matrix::scale(0.02, 0.2, 1.5);
+    // let m = m_rot * m_scale;
+    let m = &m_rot * &(m_trans * m_scale );
+    border_left_tilt_right.set_transformation(m);
+
+
+    let mut border_right_tilt_right = border_right.clone();
+    let m_trans = Matrix::translation(95.0, 0.0, 1.83);
+    let m_rot = Matrix::rotate_y(right_tilt);
+    let m_scale = Matrix::scale(0.02, 0.2, 1.5);
+    // let m = m_rot * m_scale;
+    let m = &m_rot * &(m_scale * m_trans);
+    border_right_tilt_right.set_transformation(m);
+
+
     let mut w = World::new();
     w.add_shape(sphere1);
     w.add_shape(cube);
     w.add_shape(plane);
     w.add_shape(border_left);
     w.add_shape(border_right);
-    w.add_shape(sphere2);
-    w.add_shape(sphere2_clone);
-    w.add_shape(sphere2_clone_clone);
+    w.add_shape(border_left_tilt_left);
+    w.add_shape(border_right_tilt_left);
+    w.add_shape(border_left_tilt_right);
+    w.add_shape(border_right_tilt_right);
 
-    let mut c = Camera::new(width, height, 0.5);
+    //     w.add_shape(sphere2);
+//     w.add_shape(sphere2_clone);
+//   w.add_shape(sphere2_clone_clone);
+
+
+    let mut c = Camera::new(width, height, 1.990);
     c.set_antialiasing(false);
 
     c.calc_pixel_size();
