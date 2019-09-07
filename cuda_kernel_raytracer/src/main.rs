@@ -47,8 +47,6 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
         let c = camera.offset(0).as_ref().expect("camera expect in 'calc_pixel' ");
 
         if c.get_antialiasing() {
-            // TODO: add antialising parameters to method parameter list
-            // assume aa of 3x
             let n_samples = c.get_antialiasing_size();
 
             let two_over_six = 2.0 / 6.0;

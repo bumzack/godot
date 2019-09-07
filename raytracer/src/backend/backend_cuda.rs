@@ -1,5 +1,3 @@
-// TODO: pass Vec<Color> to kernel, not pixels and remove Pixel trait
-
 extern crate rustacuda;
 
 use std::error::Error;
@@ -12,7 +10,7 @@ use rustacuda::prelude::{
 };
 
 use crate::backend::backend::Backend;
-use raytracer_lib_no_std::{Camera, CameraOps, BLACK};
+use raytracer_lib_no_std::{Camera, CameraOps, BLACK, ColorOps};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 pub struct BackendCuda {}
@@ -51,8 +49,8 @@ impl Backend for BackendCuda {
         // width and height
         let w = c.get_hsize();
         let h = c.get_vsize();
-        let mut width = DeviceBox::new(&(w as f32)).expect("DEviceBox::new(w)   image save expect in 'mandel_cuda' ");
-        let mut height = DeviceBox::new(&(h as f32)).expect("DEviceBox::new(h)   image save expect in 'mandel_cuda' ");
+        let mut width = DeviceBox::new(&(w as f32)).expect("DeviceBox::new(w)   image save expect in 'mandel_cuda' ");
+        let mut height = DeviceBox::new(&(h as f32)).expect("DeviceBox::new(h)   image save expect in 'mandel_cuda' ");
 
         // PIXELS
         let mut pixels_vec = vec![BLACK; c.get_vsize() as usize * c.get_hsize() as usize];
@@ -73,7 +71,7 @@ impl Backend for BackendCuda {
         // CAMERA
         let mut camera_clone = c.clone();
         let mut camera_device =
-            DeviceBox::new(&camera_clone).expect("DEviceBox::new(camera_clone)   image save expect in 'mandel_cuda' ");
+            DeviceBox::new(&camera_clone).expect("DeviceBox::new(camera_clone)   image save expect in 'mandel_cuda' ");
 
         // CUDA setup block/grid
         let b = (256, 1, 1);
@@ -118,8 +116,9 @@ impl Backend for BackendCuda {
         let mut x = 0;
         let mut y = 0;
         let mut idx = 0;
-        for p in pixels_vec.iter() {
+        for p in pixels_vec.iter_mut() {
             // println!("pixels_vec = {:?}, pixel = {:?}", p, pixel);
+            p.clamp_color();
             c.write_pixel(x, y, *p);
             x = x + 1;
             idx = idx + 1;

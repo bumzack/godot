@@ -19,10 +19,9 @@ pub enum ShapeEnum {
 
 #[derive(Clone, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
-pub struct Shape<'a> {
+pub struct Shape  {
     shape: ShapeEnum,
-    name: &'a str,
-    parent: Option<ShapeIdx>,
+     parent: Option<ShapeIdx>,
     casts_shadow: bool,
 }
 
@@ -42,7 +41,7 @@ pub trait ShapeOps {
     fn get_material_mut(&mut self) -> &mut Material;
 }
 
-impl<'a> ShapeOps for Shape<'a> {
+impl ShapeOps for Shape {
     fn intersect(&self, r: &Ray) -> ShapeIntersectionResult {
         match self.shape {
             ShapeEnum::Sphere(ref s) => s.intersect(r),
@@ -132,22 +131,17 @@ impl<'a> ShapeOps for Shape<'a> {
     }
 }
 
-impl<'a> Shape<'a> {
-  pub  fn new(shape: ShapeEnum, name: &'a str) -> Shape<'a> {
+impl  Shape {
+  pub  fn new(shape: ShapeEnum ) -> Shape {
         Shape {
             shape,
-            name,
-            parent: None,
+             parent: None,
             casts_shadow: true,
         }
     }
 
     pub fn get_shape(&self) -> &ShapeEnum {
         &self.shape
-    }
-
-   pub fn get_name(&self) -> &'a str {
-        self.name
     }
 
     pub fn get_casts_shadow(&self) -> bool {
@@ -159,9 +153,9 @@ impl<'a> Shape<'a> {
     }
 }
 
-impl<'a> fmt::Debug for Shape<'a> {
+impl fmt::Debug for Shape {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "shape type = {:?},   name = {:?}", self.shape, self.name)
+        write!(f, "shape type = {:?} ", self.shape)
     }
 }
 
