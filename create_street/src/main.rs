@@ -11,7 +11,7 @@ fn main() {
     let backend = BackendCuda::new();
 
     let (frames, delta) = (315, 0.02);
-//    let (frames, delta) = (25, 0.6);
+    //    let (frames, delta) = (25, 0.6);
 
     let mut x: f32 = 0.0;
     let mut z: f32 = -2.0;
@@ -63,7 +63,7 @@ fn main() {
             let x_delta = (z_sphere - z_start_left_tilt) * left_tilt.sin();
             x += x_delta;
         }
-        if z_sphere > z_start_right_tilt{
+        if z_sphere > z_start_right_tilt {
             // add x from 15° line
             let x_delta = (z_sphere - z_start_right_tilt) * right_tilt.sin();
             x += x_delta;
@@ -76,7 +76,10 @@ fn main() {
         camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
         let canvas = backend.render_world(&mut world, &camera);
 
-        let filename = format!("./create_street/img/test_{}_{}_frame_{:0>8}_dist_{:.6}.png", width, height, i, x_filename);
+        let filename = format!(
+            "./create_street/img/test_{}_{}_frame_{:0>8}_dist_{:.6}.png",
+            width, height, i, x_filename
+        );
         canvas.unwrap().write_png(&filename).unwrap();
         println!("x = {}, z = {}     filename = {}", x, z, filename);
         println!("camera_from  = {:?}, camera_to = {:?}   ", camera_from, camera_to);
@@ -97,7 +100,6 @@ fn main() {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-
     // ---- CUBE -------
     let mut c = Cube::new();
     c.get_material_mut().set_color(Color::new(1., 0.5, 0.2));
@@ -122,7 +124,6 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut plane = Shape::new(ShapeEnum::Plane(plane));
     plane.set_casts_shadow(false);
-
 
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
@@ -166,7 +167,6 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let m = &m_trans * &m_scale;
     sphere2_clone_clone.set_transformation(m);
 
-
     // -- -left border
     let m_trans = Matrix::translation(-1.0, 0.5, -0.25);
     let m_scale = Matrix::scale(0.01, 0.2, 2.0);
@@ -193,8 +193,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut border_right = Shape::new(ShapeEnum::Cube(border_right));
     border_right.set_casts_shadow(false);
 
-
-     let left_tilt = -30.0 * PI / 180.0;
+    let left_tilt = -30.0 * PI / 180.0;
     let right_tilt = 15.0 * PI / 180.0;
 
     // left tilt
@@ -206,7 +205,6 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let m = &m_rot * &(m_scale * m_trans);
     border_left_tilt_left.set_transformation(m);
 
-
     let mut border_right_tilt_left = border_right.clone();
     let m_trans = Matrix::translation(95.0, 0.0, 1.83);
     let m_rot = Matrix::rotate_y(left_tilt);
@@ -215,25 +213,22 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let m = &m_rot * &(m_scale * m_trans);
     border_right_tilt_left.set_transformation(m);
 
-
     // tight tilt
     let mut border_left_tilt_right = border_left.clone();
     let m_trans = Matrix::translation(-3.6, 0., 5.1);
     let m_rot = Matrix::rotate_y(right_tilt);
     let m_scale = Matrix::scale(0.02, 0.2, 1.5);
     // let m = m_rot * m_scale;
-    let m = &m_rot * &(m_trans * m_scale );
+    let m = &m_rot * &(m_trans * m_scale);
     border_left_tilt_right.set_transformation(m);
-
 
     let mut border_right_tilt_right = border_right.clone();
     let m_trans = Matrix::translation(-1.55, 0.0, 5.8);
     let m_rot = Matrix::rotate_y(right_tilt);
     let m_scale = Matrix::scale(0.02, 0.2, 1.5);
     // let m = m_rot * m_scale;
-    let m = &m_rot * &(m_trans * m_scale );
+    let m = &m_rot * &(m_trans * m_scale);
     border_right_tilt_right.set_transformation(m);
-
 
     let mut w = World::new();
     w.add_shape(sphere1);
@@ -247,9 +242,8 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     w.add_shape(border_right_tilt_right);
 
     //     w.add_shape(sphere2);
-//     w.add_shape(sphere2_clone);
-//   w.add_shape(sphere2_clone_clone);
-
+    //     w.add_shape(sphere2_clone);
+    //   w.add_shape(sphere2_clone_clone);
 
     let mut c = Camera::new(width, height, 0.50);
     c.set_antialiasing(false);
