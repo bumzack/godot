@@ -27,8 +27,8 @@ impl Backend for BackendCuda {
         let _context = Context::create_and_push(ContextFlags::MAP_HOST | ContextFlags::SCHED_AUTO, device)?;
 
         // Load the module containing the function we want to call
-        let ptx = env!("KERNEL_PTX_PATH_RUST_RENDER");
-        println!("ptx = {}", ptx);
+        // let ptx = env!("KERNEL_PTX_PATH_RUST_RENDER");
+        // println!("ptx = {}", ptx);
         // let ptx_content = include_str!(ptx);
         //    let module_data = CString::new(ptx_content)?;
         let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/dbaccfb949de4deb/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to create sources");
@@ -38,13 +38,13 @@ impl Backend for BackendCuda {
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
         let a = unsafe { cuda_device_get_limit_stacksize() }?;
-        println!(" cudaLimitSTackSize   = {}", a);
+        // println!(" cudaLimitSTackSize   = {}", a);
         let a = a * 40;
-        println!(" set stack size to 20x the size   = {}", a);
-        let b = unsafe { cuda_device_set_limit_stacksize(a) };
+        // println!(" set stack size to 20x the size   = {}", a);
+        let _b = unsafe { cuda_device_set_limit_stacksize(a) };
 
-        let a = unsafe { cuda_device_get_limit_stacksize() }?;
-        println!(" new  stack size    = {}", a);
+        let _a = unsafe { cuda_device_get_limit_stacksize() }?;
+        // println!(" new  stack size    = {}", a);
 
         // width and height
         let w = c.get_hsize();
@@ -69,7 +69,7 @@ impl Backend for BackendCuda {
         let cnt_lights = lights_vec.len();
 
         // CAMERA
-        let mut camera_clone = c.clone();
+        let camera_clone = c.clone();
         let mut camera_device =
             DeviceBox::new(&camera_clone).expect("DeviceBox::new(camera_clone)   image save expect in 'backend_cuda' ");
 
@@ -83,7 +83,7 @@ impl Backend for BackendCuda {
             1 as i32,
         );
         let grid = (g.0 as u32, g.1 as u32, 1 as u32);
-        println!("block = {:?}, grid = {:?}", block, grid);
+        // println!("block = {:?}, grid = {:?}", block, grid);
 
         unsafe {
             launch!(module.calc_pixel<<<grid, block, 0, stream>>>(
@@ -108,7 +108,7 @@ impl Backend for BackendCuda {
             .expect(" pixels.copy_to(&mut pixels_vec)             expect in 'backend_cuda' ");
 
         let stopped = Instant::now();
-        println!("\n\ncuda   {:?} \n\n", stopped.duration_since(start));
+        println!("\ncuda   {:?} \n", stopped.duration_since(start));
 
         // TODO: is there a easier way, than to iterate over all pixels ?
         let mut c = Canvas::new(w, h);
@@ -130,7 +130,7 @@ impl Backend for BackendCuda {
         Ok(c)
     }
 
-    fn render_world_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<Error>> {
+    fn render_world_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         self.render_world(world, c)
     }
 }

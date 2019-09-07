@@ -6,7 +6,6 @@ use rayon::prelude::IntoParallelIterator;
 
 use cpu_kernel_raytracer::camera::{Camera, CameraOps};
 use cpu_kernel_raytracer::color::BLACK;
-use cpu_kernel_raytracer::ray::RayOps;
 use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
