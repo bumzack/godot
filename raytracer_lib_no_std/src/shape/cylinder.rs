@@ -46,7 +46,7 @@ impl ShapeOps for Cylinder {
 
             let y1 = r.get_origin().y + t1 * r.get_direction().y;
             if self.get_minimum() < y1 && y1 < self.get_maximum() {
-                res[res_cnt] = t0;
+                res[res_cnt] = t1;
                 res_cnt += 1;
             }
         }
