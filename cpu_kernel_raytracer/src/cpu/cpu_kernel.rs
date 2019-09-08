@@ -68,8 +68,6 @@ impl CpuKernel {
             comp.get_eye_vector(),
             comp.get_normal_vector(),
             intensity,
-            calc_reflection,
-            calc_refraction,
             calc_shadows,
         );
         assert_valid_color(&surface);
@@ -250,8 +248,6 @@ impl CpuKernel {
         eye: &Tuple4D,
         n: &Tuple4D,
         intensity: f32,
-        calc_reflection: bool,
-        calc_refraction: bool,
         calc_shadows: bool,
     ) -> Color {
         let c: Color;
@@ -282,8 +278,8 @@ impl CpuKernel {
         }
 
         for sample in samples.iter() {
-            let mut specular = BLACK;
-            let mut diffuse = BLACK;
+            let mut specular;
+            let diffuse;
 
             let light_v = Tuple4D::normalize(&(sample - point));
             let light_dot_normal = &light_v ^ &n;
@@ -293,33 +289,29 @@ impl CpuKernel {
                 diffuse = BLACK;
             } else {
                 diffuse = &effective_color * material.get_diffuse() * light_dot_normal;
-                diffuse.fix_nan();
+                assert_valid_color(&diffuse);
+                // diffuse.fix_nan();
                 let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
                 let reflect_dot_eye = &reflect_v ^ eye;
 
                 specular = BLACK;
                 if reflect_dot_eye > 0.0 {
-                    if DEBUG {
-                        // println!("specular  BEFORE check     {:?}", specular);
-                    }
-
                     let factor = reflect_dot_eye.powf(material.get_shininess());
                     specular = light.get_intensity() * material.get_specular() * factor;
 
-                    // assert_valid_color(&specular);
-                    specular.fix_nan();
-                    if DEBUG {
-                        // println!("specular  AFTER check     {:?}", specular);
-                    }
+                    assert_valid_color(&specular);
+                    //specular.fix_nan();
                 }
             }
+            assert_valid_color(&diffuse);
+            assert_valid_color(&specular);
+
             sum = &sum + &diffuse;
             sum = &sum + &specular;
         }
         assert_valid_color(&ambient);
-
-        sum.replace_inf_with_max();
         assert_valid_color(&sum);
+        // sum.replace_inf_with_max();
 
         if intensity == 1.0 {
             ambient + sum / light.get_samples() as f32 * intensity

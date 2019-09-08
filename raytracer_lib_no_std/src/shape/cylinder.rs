@@ -59,13 +59,22 @@ impl ShapeOps for Cylinder {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let dist = intri_powi(world_point.x, 2) + intri_powi(world_point.z, 2);
-        if dist < 1.0 && world_point.y >= self.get_maximum() - EPSILON {
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
+
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        let dist = intri_powi(local_point.x, 2) + intri_powi(local_point.z, 2);
+        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
             return Tuple4D::new_vector(0.0, 1.0, 0.0);
-        } else if dist < 1.0 && world_point.y <= self.get_maximum() + EPSILON {
+        } else if dist < 1.0 && local_point.y <= self.get_maximum() + EPSILON {
             return Tuple4D::new_vector(0.0, -1.0, 0.0);
         }
-        Tuple4D::new_vector(world_point.x, 0.0, world_point.z)
+        Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
     }
 
     fn set_transformation(&mut self, m: Matrix) {
@@ -172,9 +181,9 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin, direction);
 
-        let xs = cyl.intersect(&r);
+        let (xs, cnt_hits) = cyl.intersect(&r);
 
-        assert_eq!(xs.unwrap().len(), 0);
+        assert_eq!(cnt_hits, 0);
     }
 
     // page 178
@@ -202,11 +211,9 @@ mod tests {
 
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin.clone(), direction.clone());
-        let xs = cyl.intersect(&r);
+        let (xs, cnt_hits) = cyl.intersect(&r);
 
-        assert_eq!(xs.is_some(), true);
-        let xs = xs.unwrap();
-        assert_eq!(xs.len(), 2);
+        assert_eq!(cnt_hits, 2);
 
         println!("origin        = {:?} ", origin);
         println!("direction n   = {:?} ", direction);
@@ -293,7 +300,7 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let xs = Cylinder::intersect(&cyl, &r);
+        let (xs, cnt_hits) = Cylinder::intersect(&cyl, &r);
         let xs_clone = xs.clone();
 
         //        println!("point        = {:?} ", point);
@@ -305,16 +312,7 @@ mod tests {
         //            println!("xs is none  ");
         //        }
 
-        if count == 0 {
-            if xs.is_some() {
-                assert_eq!(&xs.unwrap().len(), &count);
-            } else {
-                // hmmmm redundant test ?
-                assert_eq!(&xs.is_none(), &true);
-            }
-        } else {
-            assert_eq!(&xs.unwrap().len(), &count);
-        }
+        assert_eq!(&cnt_hits, &count);
     }
 
     // page 182
@@ -369,42 +367,28 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let xs = Cylinder::intersect(&cyl, &r);
+        let (xs, cnt_hits) = Cylinder::intersect(&cyl, &r);
         let xs_clone = xs.clone();
 
         println!("point        = {:?} ", point);
         println!("direction     = {:?} ", direction);
         println!("expected  count  = {:?} ", count);
-        if xs_clone.is_some() {
-            println!("xs is some        = {:?} ", &xs_clone.unwrap());
-        } else {
-            println!("xs is none  ");
-        }
 
-        if count == 0 {
-            if xs.is_some() {
-                assert_eq!(&xs.unwrap().len(), &count);
-            } else {
-                // hmmmm redundant test ?
-                assert_eq!(&xs.is_none(), &true);
-            }
-        } else {
-            assert_eq!(&xs.unwrap().len(), &count);
-        }
+        assert_eq!(&cnt_hits, &count);
     }
 
     // page 185
     #[test]
     fn test_ray_cylinder_capped() {
         // 1
-        //        let point = Tuple4D::new_point(0.0, 3.0, 0.0);
-        //        let direction = Tuple4D::new_vector(0.0, -1.0, 0.0);
-        //        test_ray_cylinder_capped_helper(point, direction, 2);
-        //
-        //        // 2
-        //        let point = Tuple4D::new_point(0.0, 3.0, -2.0);
-        //        let direction = Tuple4D::new_vector(0.0, -1.0, 2.0);
-        //        test_ray_cylinder_capped_helper(point, direction, 2);
+        let point = Tuple4D::new_point(0.0, 3.0, 0.0);
+        let direction = Tuple4D::new_vector(0.0, -1.0, 0.0);
+        test_ray_cylinder_capped_helper(point, direction, 2);
+
+        // 2
+        let point = Tuple4D::new_point(0.0, 3.0, -2.0);
+        let direction = Tuple4D::new_vector(0.0, -1.0, 2.0);
+        test_ray_cylinder_capped_helper(point, direction, 2);
 
         // 3
         let point = Tuple4D::new_point(0.0, 4.0, -2.0);

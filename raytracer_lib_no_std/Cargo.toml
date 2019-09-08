@@ -6,7 +6,8 @@ edition = "2018"
 
 # only needed for tests
 [dev-dependencies]
-# cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }
+cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }
+raytracer_lib_no_std = {path = "../raytracer_lib_no_std" }
 
 [features]
 cuda = ["rustacuda_derive", "rustacuda_core"]

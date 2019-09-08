@@ -2,8 +2,8 @@ use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
 use crate::prelude::ShapeOps;
+use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct StripePattern {
@@ -74,7 +74,7 @@ mod tests {
     use crate::math::common::assert_color;
     use crate::math::tuple4d::Tuple;
     use crate::shape::shape::ShapeEnum;
-    use crate::shape::sphere::{Sphere};
+    use crate::shape::sphere::Sphere;
 
     use super::*;
 

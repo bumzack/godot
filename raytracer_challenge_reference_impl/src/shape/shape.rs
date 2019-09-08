@@ -103,7 +103,7 @@ impl ShapeOps for Shape {
     }
 
     fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
-        unreachable!("shoudl never get here ");
+        unreachable!("should never get here ");
     }
 
     fn set_material(&mut self, m: Material) {

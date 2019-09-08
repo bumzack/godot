@@ -1,6 +1,6 @@
 use core::fmt;
 
-use crate::{Cube, Cylinder, Material, Matrix, Plane, Ray, Sphere, Triangle, Tuple4D};
+use crate::{Cube, Cylinder, Material, Matrix, MatrixOps, Plane, Ray, Sphere, Triangle, Tuple, Tuple4D};
 
 pub type ShapeIdx = usize;
 pub type ShapeIntersectionResult = ([f32; 4], usize);
@@ -26,7 +26,8 @@ pub struct Shape {
 
 pub trait ShapeOps {
     fn intersect(&self, r: &Ray) -> ShapeIntersectionResult;
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D;
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D;
 
     // TODO: intersect and normal_at are individual implementatiosn for each shape
     // but the setters / getters are all identical for all shapes, groups, CSG (if ever implemented)
@@ -52,15 +53,23 @@ impl ShapeOps for Shape {
         }
     }
 
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D {
-        match self.shape {
-            ShapeEnum::Sphere(ref s) => s.normal_at(p),
-            ShapeEnum::Plane(ref plane) => plane.normal_at(p),
-            ShapeEnum::Cube(ref cube) => cube.normal_at(p),
-            ShapeEnum::Cylinder(ref cylinder) => Cylinder::normal_at(cylinder, p),
-            ShapeEnum::Triangle(ref triangle) => Triangle::normal_at(triangle, p),
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = match self.shape {
+            ShapeEnum::Sphere(ref s) => s.local_normal_at(&object_point),
+            ShapeEnum::Plane(ref plane) => plane.local_normal_at(&object_point),
+            ShapeEnum::Cube(ref cube) => cube.local_normal_at(&object_point),
+            ShapeEnum::Cylinder(ref cylinder) => cylinder.local_normal_at(&object_point),
+            ShapeEnum::Triangle(ref triangle) => triangle.local_normal_at(&object_point),
             // ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
-        }
+        };
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
+
+    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
+        unreachable!("should never get here ");
     }
 
     fn set_transformation(&mut self, m: Matrix) {

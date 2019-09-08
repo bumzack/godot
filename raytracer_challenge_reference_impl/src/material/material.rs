@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-use crate::DEBUG;
 use crate::prelude::patterns::Pattern;
+use crate::DEBUG;
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;

@@ -47,8 +47,17 @@ impl ShapeOps for Triangle {
         (res, res_cnt)
     }
 
-    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
-        Tuple4D::new_vector_from(self.get_normal())
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
+
+    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
+        self.normal.clone()
     }
 
     fn set_transformation(&mut self, m: Matrix) {
@@ -171,10 +180,9 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(origin, direction);
 
-        let xs = Triangle::intersect(&t, &r);
+        let (intersections, cnt_hits) = t.intersect(&r);
 
-        assert_eq!(xs.is_some(), true);
-        assert_eq!(xs.unwrap().len(), 0);
+        assert_eq!(cnt_hits, 0);
     }
 
     // page 210 bottom
@@ -186,10 +194,9 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let xs = Triangle::intersect(&t, &r);
+        let (intersections, cnt_hits) = t.intersect(&r);
 
-        assert_eq!(xs.is_some(), true);
-        assert_eq!(xs.unwrap().len(), 0);
+        assert_eq!(cnt_hits, 0);
     }
 
     // page 211 top
@@ -201,10 +208,9 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let xs = Triangle::intersect(&t, &r);
+        let (intersections, cnt_hits) = t.intersect(&r);
 
-        assert_eq!(xs.is_some(), true);
-        assert_eq!(xs.unwrap().len(), 0);
+        assert_eq!(cnt_hits, 0);
     }
 
     // page 211 top part 2
@@ -216,10 +222,9 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let xs = Triangle::intersect(&t, &r);
+        let (intersections, cnt_hits) = t.intersect(&r);
 
-        assert_eq!(xs.is_some(), true);
-        assert_eq!(xs.unwrap().len(), 0);
+        assert_eq!(cnt_hits, 0);
     }
 
     // page 212 center
@@ -231,12 +236,10 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let xs = Triangle::intersect(&t, &r);
+        let (intersections, cnt_hits) = t.intersect(&r);
 
-        assert_eq!(xs.is_some(), true);
-        let xs = xs.unwrap();
-        assert_eq!(xs.len(), 1);
-        assert_float(xs[0], 2.0);
+        assert_eq!(cnt_hits, 1);
+        assert_float(intersections[0], 2.0);
     }
 
     fn setup_triangle() -> (Triangle, Tuple4D, Tuple4D, Tuple4D) {

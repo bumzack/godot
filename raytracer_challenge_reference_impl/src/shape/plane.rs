@@ -22,7 +22,7 @@ impl ShapeOps for Plane {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self,  world_point: &Tuple4D) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
         let local_normal = self.local_normal_at(&object_point);
@@ -49,7 +49,7 @@ impl ShapeOps for Plane {
 }
 
 impl Plane {
-  pub  fn new() -> Plane {
+    pub fn new() -> Plane {
         Plane {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -57,7 +57,7 @@ impl Plane {
         }
     }
 
-    pub  fn intersect(r: &Ray) -> Option<Vec<f32>> {
+    pub fn intersect(r: &Ray) -> Option<Vec<f32>> {
         if r.direction.y.abs() < EPSILON {
             return None;
         }
@@ -78,7 +78,7 @@ mod tests {
     use crate::math::common::assert_matrix;
     use crate::math::common::{assert_float, assert_tuple};
     use crate::shape::shape::{Shape, ShapeEnum};
-    use crate::shape::sphere::{ Sphere};
+    use crate::shape::sphere::Sphere;
 
     use super::*;
 

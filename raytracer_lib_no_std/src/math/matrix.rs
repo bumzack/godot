@@ -324,6 +324,10 @@ impl MatrixOps for Matrix {
     }
 
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix {
+        assert!(Tuple4D::is_point(from));
+        assert!(Tuple4D::is_point(to));
+        assert!(Tuple4D::is_vector(up));
+
         let forward = Tuple4D::normalize(&(to - from));
         let left = &forward * &Tuple4D::normalize(up);
         let true_up = &left * &forward;
@@ -341,9 +345,6 @@ impl MatrixOps for Matrix {
 
 impl PartialEq for Matrix {
     fn eq(&self, other: &Matrix) -> bool {
-        //        assert!(self.rows == other.rows);
-        //        assert!(self.cols == other.cols);
-
         // TODO: row col and widht height correct?
         for row in 0..self.cols {
             for col in 0..self.rows {

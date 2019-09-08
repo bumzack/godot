@@ -17,5 +17,4 @@ rustacuda = { path = "../../RustaCUDA" , optional = true}
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 
-
 rayon = "*"

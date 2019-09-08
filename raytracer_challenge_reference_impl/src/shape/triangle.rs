@@ -29,7 +29,6 @@ impl ShapeOps for Triangle {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
         let local_normal = self.local_normal_at(&object_point);

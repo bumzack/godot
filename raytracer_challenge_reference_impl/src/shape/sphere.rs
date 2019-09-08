@@ -24,7 +24,7 @@ impl ShapeOps for Sphere {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-       // TODO: its for the tests -remove and fix tests and add unreachable
+        // TODO: its for the tests -remove and fix tests and add unreachable
 
         let object_point = self.get_inverse_transformation() * world_point;
         let local_normal = self.local_normal_at(&object_point);
@@ -52,7 +52,7 @@ impl ShapeOps for Sphere {
 }
 
 impl Sphere {
-    pub  fn new() -> Sphere {
+    pub fn new() -> Sphere {
         Sphere {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -60,7 +60,7 @@ impl Sphere {
         }
     }
 
-  pub  fn intersect(r: &Ray) -> Option<Vec<f32>> {
+    pub fn intersect(r: &Ray) -> Option<Vec<f32>> {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let sphere_to_ray = &r.origin - &o;
         let a = &r.direction ^ &r.direction;

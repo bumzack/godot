@@ -47,8 +47,7 @@ impl<'a> CanvasOps<'a> for Canvas {
         c
     }
 
-    fn write_pixel(&mut self, x: usize, y: usize, mut c: Color) {
-        // println!("write_pixel at {}/{},   width = {}, height = {}", x, y, self.width, self.height);
+    fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
         assert!(x < self.width);
         assert!(y < self.height);
 
@@ -141,6 +140,7 @@ impl<'a> CanvasOps<'a> for Canvas {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use raytracer_lib_no_std::ColorOps;
 
     #[test]
     fn test_new_canvas() {

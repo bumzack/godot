@@ -10,7 +10,6 @@ use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
-
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 3840;
     let height = 2160;

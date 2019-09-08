@@ -2,7 +2,6 @@ use core::f32::{INFINITY, NAN};
 
 use crate::prelude::*;
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cube {
     transformation_matrix: Matrix,
@@ -58,7 +57,7 @@ impl ShapeOps for Cube {
 }
 
 impl Cube {
-  pub fn new() -> Cube {
+    pub fn new() -> Cube {
         Cube {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -66,7 +65,7 @@ impl Cube {
         }
     }
 
-    pub  fn intersect(r: &Ray) -> Option<Vec<f32>> {
+    pub fn intersect(r: &Ray) -> Option<Vec<f32>> {
         let (xt_min, xt_max) = Self::check_axis(r.get_origin().x, r.get_direction().x);
         let (yt_min, yt_max) = Self::check_axis(r.get_origin().y, r.get_direction().y);
         let (zt_min, zt_max) = Self::check_axis(r.get_origin().z, r.get_direction().z);

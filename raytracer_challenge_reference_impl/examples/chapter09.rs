@@ -3,7 +3,6 @@ use std::f32::consts::PI;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
-
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Plane::new();
     floor.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));

@@ -45,17 +45,26 @@ impl ShapeOps for Cube {
     }
 
     fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
+
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
         let maxc = max_float(
-            intri_abs(world_point.x),
-            intri_abs(world_point.y),
-            intri_abs(world_point.z),
+            intri_abs(local_point.x),
+            intri_abs(local_point.y),
+            intri_abs(local_point.z),
         );
-        if (maxc - intri_abs(world_point.x)) < EPSILON {
-            return Tuple4D::new_vector(world_point.x, 0.0, 0.0);
-        } else if (maxc - intri_abs(world_point.y)) < EPSILON {
-            return Tuple4D::new_vector(0.0, world_point.y, 0.0);
+        if (maxc - intri_abs(local_point.x)) < EPSILON {
+            return Tuple4D::new_vector(local_point.x, 0.0, 0.0);
+        } else if (maxc - intri_abs(local_point.y)) < EPSILON {
+            return Tuple4D::new_vector(0.0, local_point.y, 0.0);
         }
-        Tuple4D::new_vector(0.0, 0.0, world_point.z)
+        Tuple4D::new_vector(0.0, 0.0, local_point.z)
     }
 
     fn set_transformation(&mut self, m: Matrix) {
@@ -130,9 +139,9 @@ mod tests {
 
         let c = Cube::new();
 
-        let xs = Cube::intersect(&r).unwrap();
+        let (xs, hit_cnt) = c.intersect(&r);
 
-        assert_eq!(xs.len(), 2);
+        assert_eq!(hit_cnt, 2);
 
         println!("expected t1   = {} ", t1);
         println!("actual  t1    = {} ", xs[0]);
@@ -188,9 +197,9 @@ mod tests {
 
         let c = Cube::new();
 
-        let xs = Cube::intersect(&r);
+        let (xs, cnt_hits) = c.intersect(&r);
 
-        assert_eq!(xs.is_none(), true);
+        assert_eq!(cnt_hits, 0);
     }
 
     // page 172

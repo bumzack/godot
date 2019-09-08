@@ -4,7 +4,6 @@ use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
-
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Plane::new();
     let mut p: GradientPattern = GradientPattern::new();

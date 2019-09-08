@@ -8,8 +8,8 @@ fn main() {
 }
 
 fn main_coord_axes() {
-    let width = 320;
-    let height = 200;
+    let width = 640;
+    let height = 480;
 
     let (mut world, mut camera) = coord_axes::setup_world_coord_axes(width, height, false);
     coord_axes::add_floor(&mut world);

@@ -7,27 +7,26 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
-
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 320;
     let height = 200;
 
     let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
     add_floor(&mut world);
-   //  add_borders(&mut world);
+    //  add_borders(&mut world);
 
     let multi_core = true;
 
     // from the top -> 2D View in -y direction
-    let mut camera_from = Tuple4D::new_point(2.0, 5.0,  -2.0);
-    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    let camera_from = Tuple4D::new_point(2.0, 5.0, -2.0);
+    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
 
     let mut light_pos = Tuple4D::from(camera_from);
     light_pos.x = 2.0;
     light_pos.y = 10.0;
-        light_pos.z = - 5.0;
+    light_pos.z = -5.0;
 
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
@@ -237,9 +236,9 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     sphere_x.set_casts_shadow(false);
 
     let mut w = World::new();
-//    w.add_shape(x_axis);
-//    w.add_shape(y_axis);
-//    w.add_shape(z_axis);
+    w.add_shape(x_axis);
+    w.add_shape(y_axis);
+    w.add_shape(z_axis);
 
     if show_axis_shperes {
         w.add_shape(sphere_x);
@@ -247,7 +246,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
         w.add_shape(sphere_z);
     }
 
-    let mut c = Camera::new(width, height, 1.2);
+    let mut c = Camera::new(width, height, 0.6);
     c.set_antialiasing(false);
 
     c.calc_pixel_size();
