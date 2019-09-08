@@ -103,6 +103,8 @@ impl Backend for BackendCpu {
 
     fn render_world_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
+        println!("\n\ncpu multi core   started at : {:?} \n\n", start);
+
         let n_samples = c.get_antialiasing_size();
         let mut jitter_matrix = Vec::new();
         if n_samples == 2 {

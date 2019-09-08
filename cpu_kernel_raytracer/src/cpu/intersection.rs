@@ -2,7 +2,7 @@ use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_no_std::{ShapeOps, EPSILON_OVER_UNDER};
+use raytracer_lib_no_std::{ShapeOps, EPSILON_OVER_UNDER, MaterialOps};
 
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
 
@@ -85,7 +85,7 @@ impl IntersectionOps for Intersection {
     fn prepare_computations(
         intersection: &Intersection,
         r: &Ray,
-        _list: &IntersectionList,
+        list: &IntersectionList,
         shapes: &Vec<Shape>,
     ) -> PrecomputedComponent {
         let point = Ray::position(r, intersection.get_t());
@@ -103,7 +103,7 @@ impl IntersectionOps for Intersection {
         let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
         let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
-        let comp = PrecomputedComponent::new(
+        let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
             intersection.get_shape(),
             point,
@@ -115,47 +115,41 @@ impl IntersectionOps for Intersection {
             inside,
         );
 
-        // TODO Implement this funny thing foir reflection
-        //        let mut container: Vec<&'a Shape<'a>> = Vec::new();
-        //
-        //        //println!("all intersections:  {:?}", list.get_intersections());
-        //        //println!("intersection :  {:?}", intersection);
-        //
-        //        for i in list.get_intersections().iter() {
-        //            //            println!("NEXT ITERATION");
-        //            //            println!(" i = {:?}", i);
-        //            //            println!("container  begin for    {:?}",container);
-        //            //
-        //            if i == intersection {
-        //                // println!("i == intersection");
-        //                if container.is_empty() {
-        //                    comp.set_n1(1.0);
-        //                } else {
-        //                    let last = container.last().unwrap();
-        //
-        //                    comp.set_n1(last.get_material().get_refractive_index());
-        //                }
-        //            }
-        //
-        //            if container.contains(&i.get_shape()) {
-        //                let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
-        //                // println!("remove index     {:}",index);
-        //                container.remove(index);
-        //                // println!("container   AFTER      {:?}",container);
-        //            } else {
-        //                container.push(i.get_shape());
-        //            }
-        //
-        //            if i == intersection {
-        //                if container.is_empty() {
-        //                    comp.set_n2(1.0);
-        //                } else {
-        //                    let last = container.last().unwrap();
-        //                    comp.set_n2(last.get_material().get_refractive_index());
-        //                }
-        //                break;
-        //            }
-        //        }
+        let mut container: Vec<&Shape> = Vec::new();
+
+        for i in list.get_intersections().iter() {
+            if i == intersection {
+                // println!("i == intersection");
+                if container.is_empty() {
+                    comp.set_n1(1.0);
+                } else {
+                    let last = container.last().unwrap();
+                    comp.set_n1(last.get_material().get_refractive_index());
+                }
+            }
+
+            let shape = &shapes[i.get_shape()];
+            if container.contains(&shape) {
+                let index = container.iter().position(|&shape| {
+                    let s = &shapes[i.get_shape()];
+                    shape == s
+                }).unwrap();
+                container.remove(index);
+            } else {
+                let shape = &shapes[i.get_shape()];
+                container.push(shape);
+            }
+
+            if i == intersection {
+                if container.is_empty() {
+                    comp.set_n2(1.0);
+                } else {
+                    let last = container.last().unwrap();
+                    comp.set_n2(last.get_material().get_refractive_index());
+                }
+                break;
+            }
+        }
         comp
     }
 

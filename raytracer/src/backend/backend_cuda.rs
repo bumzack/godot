@@ -39,7 +39,7 @@ impl Backend for BackendCuda {
 
         let a = unsafe { cuda_device_get_limit_stacksize() }?;
         // println!(" cudaLimitSTackSize   = {}", a);
-        let a = a * 40;
+        let a = a * 80;
         // println!(" set stack size to 20x the size   = {}", a);
         let _b = unsafe { cuda_device_set_limit_stacksize(a) };
 

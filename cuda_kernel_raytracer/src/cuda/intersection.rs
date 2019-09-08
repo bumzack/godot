@@ -7,16 +7,17 @@ use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
 
 use crate::cuda::intersection_list::IntersectionList;
 use crate::cuda::intersection_list::IntersectionListOps;
-use raytracer_lib_no_std::ShapeOps;
+use raytracer_lib_no_std::{ShapeOps, MaterialOps, ShapeIdx};
+use crate::cuda::shape_idx_list::{ShapeIdxList, ShapeIdxListOps};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Intersection {
     t: f32,
-    shape_idx: usize,
+    shape_idx: ShapeIdx,
 }
 
 pub trait IntersectionOps {
-    fn new(t: f32, shape_idx: usize) -> Intersection;
+    fn new(t: f32, shape_idx: ShapeIdx) -> Intersection;
     fn new_empty() -> Intersection;
     fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, cnt_shapes: usize) -> IntersectionList;
     fn intersect_world(shapes: *mut Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList;
@@ -30,13 +31,13 @@ pub trait IntersectionOps {
     ) -> PrecomputedComponent;
 
     fn get_t(&self) -> f32;
-    fn get_shape(&self) -> usize;
+    fn get_shape(&self) -> ShapeIdx;
 
     fn schlick(comp: &PrecomputedComponent) -> f32;
 }
 
 impl IntersectionOps for Intersection {
-    fn new(t: f32, shape_idx: usize) -> Intersection {
+    fn new(t: f32, shape_idx: ShapeIdx) -> Intersection {
         Intersection {
             t,
             shape_idx: shape_idx,
@@ -67,7 +68,7 @@ impl IntersectionOps for Intersection {
         };
         for i in 0..res_cnt {
             let intersection = Intersection::new(res[i], shape_idx);
-            intersection_list.add(intersection);
+            intersection_list.push(intersection);
         }
         intersection_list
     }
@@ -79,7 +80,7 @@ impl IntersectionOps for Intersection {
             for idx in 0..tmp.len() {
                 // TODO: something like a drain would be awesome and avoid copying
                 // we want to move all intersections from tmp to res ...
-                res.add(tmp.at(idx));
+                res.push(*tmp.at(idx));
             }
         }
         res.sort_intersections();
@@ -120,43 +121,53 @@ impl IntersectionOps for Intersection {
             inside,
         );
 
-        // TODO Implement this funny thing foir reflection
-        //        let mut container: Vec<&'a Shape<'a>> = Vec::new();
-        //
-        //        for i in list.get_intersections().iter() {
-        //            if i == intersection {
-        //                if container.is_empty() {
-        //                    comp.set_n1(1.0);
-        //                } else {
-        //                    let last = container.last().unwrap();
-        //                    comp.set_n1(last.get_material().get_refractive_index());
-        //                }
-        //            }
-        //
-        //            if container.contains(&comp.get_object()) {
-        //                let index = container.iter().position(|&shape| shape == comp.get_object()).unwrap();
-        //                container.remove(index);
-        //            } else {
-        //                container.push(i.get_shape());
-        //            }
-        //
-        //            if i == intersection {
-        //                if container.is_empty() {
-        //                    comp.set_n2(1.0);
-        //                } else {
-        //                    let last = container.last().unwrap();
-        //                    comp.set_n2(last.get_material().get_refractive_index());
-        //                }
-        //                break;
-        //            }
-        //        }
+        // let mut container: Vec<&'a Shape> ;
+        let mut container= ShapeIdxList::new();
+
+        for idx in 0..list.len() {
+            //            println!("NEXT ITERATION");
+            //            println!(" i = {:?}", i);
+            //            println!("container  begin for    {:?}",container);
+            //
+            let i = list.at(idx);
+
+            if i == intersection {
+                // println!("i == intersection");
+                if container.is_empty() {
+                    comp.set_n1(1.0);
+                } else {
+                    let last = container.last();
+                    let last = unsafe { shapes.offset(last as isize).as_ref().unwrap() };
+
+                    comp.set_n1(last.get_material().get_refractive_index());
+                }
+            }
+
+            if container.contains(i.get_shape()) {
+                let index = container.get_position(i.get_shape());
+                container.remove(index);
+            } else {
+                container.push(i.get_shape());
+            }
+
+            if i == intersection {
+                if container.is_empty() {
+                    comp.set_n2(1.0);
+                } else {
+                    let last = container.last();
+                    let last = unsafe { shapes.offset(last as isize).as_ref().unwrap() };
+                    comp.set_n2(last.get_material().get_refractive_index());
+                }
+                break;
+            }
+        }
         comp
     }
 
     fn get_t(&self) -> f32 {
         self.t
     }
-    fn get_shape(&self) -> usize {
+    fn get_shape(&self) -> ShapeIdx {
         self.shape_idx
     }
 
