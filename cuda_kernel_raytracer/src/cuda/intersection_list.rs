@@ -37,15 +37,15 @@ pub trait IntersectionListOps {
     // TODO this is always a  copy, dont know how to borrow ?!
     fn at(&self, idx: usize) -> &Intersection;
 
-//    fn is_empty(&self) -> bool;
-//
-//    fn last(&self) -> &Intersection;
-//
-//    fn contains(&self, shape_idx: ShapeIdx) -> bool;
-//
-//    fn get_position(&self, shape_idx: ShapeIdx) -> usize;
-//
-//    fn remove(&mut self, elem_idx: usize);
+    //    fn is_empty(&self) -> bool;
+    //
+    //    fn last(&self) -> &Intersection;
+    //
+    //    fn contains(&self, shape_idx: ShapeIdx) -> bool;
+    //
+    //    fn get_position(&self, shape_idx: ShapeIdx) -> usize;
+    //
+    //    fn remove(&mut self, elem_idx: usize);
 }
 
 impl IntersectionListOps for IntersectionList {
@@ -112,41 +112,41 @@ impl IntersectionListOps for IntersectionList {
         &self.list_of_intersections[idx]
     }
 
-//    fn is_empty(&self) -> bool {
-//        self.len == 0
-//    }
-//
-//    fn last(&self) -> &Intersection {
-//        if self.len <= 0 {
-//            panic!("IntersectionListOps::last  idx is out of range . no elements in list ");
-//        }
-//        &self.list_of_intersections[self.len - 1]
-//    }
-//
-//    fn contains(&self, shape_idx: usize) -> bool {
-//        for i in 0..self.len {
-//            if self.list_of_intersections[i].get_shape() == shape_idx {
-//                return true;
-//            }
-//        }
-//        false
-//    }
-//
-//    fn get_position(&self, shape_idx: usize) -> usize {
-//        for i in 0..self.len {
-//            if self.list_of_intersections[i].get_shape() == shape_idx {
-//                return i;
-//            }
-//        }
-//        panic!("IntersectionListOps::get_position  idx  not found in array   shape_idx = {}", shape_idx);
-//    }
-//
-//    fn remove(&mut self, elem_idx: usize) {
-//        for i in elem_idx..self.len - 1 {
-//            self.list_of_intersections[i] = self.list_of_intersections[i + 1];
-//        }
-//        self.len -= 1;
-//    }
+    //    fn is_empty(&self) -> bool {
+    //        self.len == 0
+    //    }
+    //
+    //    fn last(&self) -> &Intersection {
+    //        if self.len <= 0 {
+    //            panic!("IntersectionListOps::last  idx is out of range . no elements in list ");
+    //        }
+    //        &self.list_of_intersections[self.len - 1]
+    //    }
+    //
+    //    fn contains(&self, shape_idx: usize) -> bool {
+    //        for i in 0..self.len {
+    //            if self.list_of_intersections[i].get_shape() == shape_idx {
+    //                return true;
+    //            }
+    //        }
+    //        false
+    //    }
+    //
+    //    fn get_position(&self, shape_idx: usize) -> usize {
+    //        for i in 0..self.len {
+    //            if self.list_of_intersections[i].get_shape() == shape_idx {
+    //                return i;
+    //            }
+    //        }
+    //        panic!("IntersectionListOps::get_position  idx  not found in array   shape_idx = {}", shape_idx);
+    //    }
+    //
+    //    fn remove(&mut self, elem_idx: usize) {
+    //        for i in elem_idx..self.len - 1 {
+    //            self.list_of_intersections[i] = self.list_of_intersections[i + 1];
+    //        }
+    //        self.len -= 1;
+    //    }
 }
 
 impl fmt::Debug for IntersectionList {
@@ -157,7 +157,6 @@ impl fmt::Debug for IntersectionList {
         writeln!(f, "")
     }
 }
-
 
 //#[cfg(test)]
 //mod tests {

@@ -7,8 +7,8 @@ use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
 
 use crate::cuda::intersection_list::IntersectionList;
 use crate::cuda::intersection_list::IntersectionListOps;
-use raytracer_lib_no_std::{ShapeOps, MaterialOps, ShapeIdx};
 use crate::cuda::shape_idx_list::{ShapeIdxList, ShapeIdxListOps};
+use raytracer_lib_no_std::{MaterialOps, ShapeIdx, ShapeOps};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Intersection {
@@ -122,7 +122,7 @@ impl IntersectionOps for Intersection {
         );
 
         // let mut container: Vec<&'a Shape> ;
-        let mut container= ShapeIdxList::new();
+        let mut container = ShapeIdxList::new();
 
         for idx in 0..list.len() {
             //            println!("NEXT ITERATION");

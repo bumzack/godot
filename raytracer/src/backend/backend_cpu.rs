@@ -74,7 +74,9 @@ impl Backend for BackendCpu {
                         let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
 
                         let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
-                        let c = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                        let c = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH, c.get_calc_reflection(),
+                                                    c.get_calc_refraction(),
+                                                    c.get_calc_shadows());
                         color = c + color;
                     }
                     color = color / (n_samples * n_samples) as f32;
@@ -87,7 +89,9 @@ impl Backend for BackendCpu {
                 for x in 0..c.get_hsize() {
                     let r = Camera::ray_for_pixel(c, x, y);
                     let mut color =
-                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                        CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH, c.get_calc_reflection(),
+                                            c.get_calc_refraction(),
+                                            c.get_calc_shadows() );
                     color.clamp_color();
                     canvas.write_pixel(x, y, color);
                 }
@@ -161,7 +165,9 @@ impl Backend for BackendCpu {
                     let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
                     let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
                     let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
-                    let c = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                    let c = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH,c.get_calc_reflection(),
+                                                c.get_calc_refraction(),
+                                                c.get_calc_shadows());
                     color = c + color;
                 }
                 color = color / (n_samples * n_samples) as f32;
@@ -171,7 +177,9 @@ impl Backend for BackendCpu {
                 p.color.b = color.b;
             } else {
                 let r = Camera::ray_for_pixel(c, x, y);
-                let mut color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                let mut color = CpuKernel::color_at(world.get_shapes(), &lights, &r, MAX_REFLECTION_RECURSION_DEPTH,c.get_calc_reflection(),
+                                                    c.get_calc_refraction(),
+                                                    c.get_calc_shadows());
                 color.clamp_color();
 
                 p.color.r = color.r;
