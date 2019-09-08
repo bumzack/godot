@@ -1,4 +1,5 @@
 use core::ops::{Add, Div, Mul, Sub};
+use core::f32::MAX;
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
@@ -16,6 +17,7 @@ pub trait ColorOps {
     fn from_color(c: &Color) -> Color;
     fn fix_nan(&mut self);
     fn clamp_color(&mut self);
+    fn replace_inf_with_max(&mut self);
 }
 
 impl ColorOps for Color {
@@ -48,6 +50,18 @@ impl ColorOps for Color {
         }
         if self.b > 1.0 {
             self.b = 1.0;
+        }
+    }
+
+    fn replace_inf_with_max(&mut self) {
+        if self.r.is_infinite()  {
+            self.r = MAX;
+        }
+        if self.g.is_infinite()  {
+            self.g = MAX;
+        }
+        if self.b.is_infinite()  {
+            self.b = MAX;
         }
     }
 }

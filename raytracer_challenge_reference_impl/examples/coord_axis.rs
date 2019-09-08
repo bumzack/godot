@@ -5,20 +5,9 @@ use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
+use raytracer_challenge_reference_impl::prelude::*;
 
-use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
-use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps};
-use raytracer_challenge_reference_impl::light::light::Light;
-use raytracer_challenge_reference_impl::light::pointlight::PointLight;
-use raytracer_challenge_reference_impl::material::material::MaterialOps;
-use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
-use raytracer_challenge_reference_impl::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_challenge_reference_impl::patterns::patterns::Pattern;
-use raytracer_challenge_reference_impl::patterns::stripe_patterns::StripePattern;
-use raytracer_challenge_reference_impl::shape::plane::Plane;
-use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
-use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
+mod coord_axes;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
@@ -27,23 +16,45 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 320;
     let height = 200;
 
-    let (w, c) = setup_world(width, height);
+    let (mut world, mut camera) = coord_axes::setup_world_coord_axes(width, height, false);
+    coord_axes::add_floor(&mut world);
+    coord_axes::add_borders(&mut world);
 
-    // multi core
-    //    let start = Instant::now();
-    //    let canvas = Camera::render_multi_core(&c, &w, 4);
-    //    canvas.write_ppm("chapter12_multi_core.ppm")?;
-    //    let dur = Instant::now() - start;
-    //    println!("multi core duration: {:?}", dur);
 
     let multi_core = true;
     let single_core = false;
+
+
+    let mut z: f32 = -2.0;
+    let amplitude = 0.8;
+    let light_camera_distance_y = 15.0;
+    // from the top -> 2D View in -y direction
+    let mut camera_from = Tuple4D::new_point(3.0, 1., z - 5.0);
+    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let mut camera_up = Tuple4D::new_point(0.0, 1.0, 1.0);
+    camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
+
+
+    let mut light_pos = Tuple4D::from(camera_from);
+    light_pos.y += light_camera_distance_y;
+    light_pos.x = -light_pos.x+0.5;
+    light_pos.z = -light_pos.z +0.5;
+
+    let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
+    let l = Light::PointLight(pl);
+    world.set_light(l);
+
+
+    let filename = format!(
+        "test_coord_axes_{}_{}.png",
+        width, height
+    );
 
     if single_core {
         // single core
         let start = Instant::now();
         // let canvas = Camera::render_debug(&c, &w, 226, 241);
-        let canvas = Camera::render(&c, &w);
+        let canvas = Camera::render(&camera, &world);
         let dur = Instant::now() - start;
         println!("single core duration: {:?}", dur);
         canvas.write_ppm("coord_axis_single.ppm")?;
@@ -54,7 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let num_cores = num_cpus::get();
         println!("using {} cores", num_cores);
-        let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        let canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
 
         let data = Arc::new(Mutex::new(canvas));
         let mut children = vec![];
@@ -64,12 +75,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         for _i in 0..num_cores {
             let cloned_data = Arc::clone(&data);
             let cloned_act_y = Arc::clone(&act_y_mutex);
-            let height = c.get_vsize();
-            let width = c.get_hsize();
+            let height = camera.get_vsize();
+            let width = camera.get_hsize();
             println!("camera height / width  {}/{}", height, width);
 
-            let c_clone = c.clone();
-            let w_clone = w.clone();
+            let c_clone = camera.clone();
+            let w_clone = world.clone();
 
             children.push(thread::spawn(move || {
                 let mut y: usize = 0;
@@ -82,9 +93,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     for x in 0..width {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                        //let color = Color::new(1.0,1.0,1.0);
-                        // TODO: wtf ?!
-                        // if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
                         let mut canvas = cloned_data.lock().unwrap();
                         canvas.write_pixel(x, y, color);
                     }
@@ -102,23 +110,4 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
-}
-
-fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let l = Light::PointLight(pl);
-
-    let mut w = World::new();
-    w.set_light(l);
-    w.add_floor();
-    w.add_x_axis();
-
-    let mut c = Camera::new(width, height, PI / 2.0);
-    c.calc_pixel_size();
-    c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 1.5, -6.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
-    ));
-    (w, c)
 }

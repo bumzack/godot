@@ -9,6 +9,7 @@ use crate::patterns::patterns::Pattern;
 use crate::shape::shape::Shape;
 use crate::world::world::{World, WorldOps};
 use crate::DEBUG;
+use std::f32::MAX;
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;
@@ -76,7 +77,7 @@ impl MaterialOps for Material {
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
-            shininess: 200.0,
+            shininess: 10.0,
             pattern: None,
             reflective: 0.0,
             transparency: 0.0,
@@ -135,16 +136,26 @@ impl MaterialOps for Material {
                 specular = BLACK;
                 if reflect_dot_eye > 0.0 {
                     if DEBUG {
-                        println!("specular  BEFORE check     {:?}", specular);
+                        println!("specular  BEFORE check     {:?}           point = {:?}", specular, point);
+                        println!("specular {:?}        reflect_dot_eye = {:?}    point = {:?}", specular,reflect_dot_eye, point);
+
+                        println!("refelct_dot_eye = reflect_v ^ eye = {:?} ^  {:?} = {:?}      shininess = {}", reflect_v,eye, reflect_dot_eye, material.shininess);
                     }
 
-                    let factor = reflect_dot_eye.powf(material.shininess);
+                    let mut  factor = reflect_dot_eye.powf(material.shininess);
+//                    if factor > MAX/2.0 {
+//                        factor = MAX / 2.0;
+//                    }
                     specular = light.get_intensity() * material.specular * factor;
 
-                    // assert_valid_color(&specular);
+                    if DEBUG {
+                        println!("specular {:?}       factor = {} , light.intensity = {:?}    point = {:?}", specular,factor, light.get_intensity(), point);
+                    }
+
+                    assert_valid_color(&specular);
                     specular.fix_nan();
                     if DEBUG {
-                        println!("specular  AFTER check     {:?}", specular);
+                        println!("specular  AFTER check     {:?}         point = {:?}", specular, point);
                     }
                 }
             }
@@ -152,7 +163,11 @@ impl MaterialOps for Material {
             sum = &sum + &specular;
         }
         assert_valid_color(&ambient);
+
         assert_valid_color(&sum);
+        sum.replace_inf_with_max();
+        assert_valid_color(&sum);
+
         if intensity == 1.0 {
             ambient + sum / light.get_samples() as f32 * intensity
         } else {

@@ -338,6 +338,9 @@ impl CudaKernel {
         }
         //        assert_valid_color(&ambient);
         //        assert_valid_color(&sum);
+
+        sum.replace_inf_with_max();
+
         if intensity == 1.0 {
             ambient + sum / light.get_samples() as f32 * intensity
         } else {

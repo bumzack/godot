@@ -317,7 +317,10 @@ impl CpuKernel {
             sum = &sum + &specular;
         }
         assert_valid_color(&ambient);
+
+        sum.replace_inf_with_max();
         assert_valid_color(&sum);
+
         if intensity == 1.0 {
             ambient + sum / light.get_samples() as f32 * intensity
         } else {
