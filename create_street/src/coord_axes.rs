@@ -162,7 +162,7 @@ pub fn animate(
     height: usize,
     mut world: &mut World,
     camera: &mut Camera,
-    backend: Box<Backend>,
+    backend: Box<dyn Backend>,
     frames: i32,
     delta: f32,
     is_3d: bool,

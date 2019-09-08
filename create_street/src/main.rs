@@ -1,7 +1,5 @@
 use raytracer::prelude::*;
 
-use std::f32::consts::PI;
-
 mod coord_axes;
 mod walls_with_2_tilts;
 
