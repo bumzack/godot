@@ -236,10 +236,9 @@ mod tests {
     #[test]
     fn test_sphere_translated() {
         use raytracer_lib_no_std::basics::ray::RayOps;
+        use raytracer_lib_no_std::math::matrix::MatrixOps;
         use raytracer_lib_no_std::math::tuple4d::Tuple;
         use raytracer_lib_no_std::shape::shape::ShapeOps;
-        use raytracer_lib_no_std::math::matrix::MatrixOps;
-
 
         let o = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -5.0);
         let d = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
@@ -249,7 +248,8 @@ mod tests {
         let m = raytracer_lib_no_std::math::matrix::Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let sphere_shape = raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(s));
+        let sphere_shape =
+            raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(s));
         let shapes = vec![sphere_shape];
 
         let is = Intersection::intersect(0, &r, &shapes);
@@ -324,9 +324,9 @@ mod tests {
         assert_tuple(&n, &n_expected);
     }
 
-    fn glass_sphere_module_raytracer_kernel() ->  raytracer_lib_no_std::shape::sphere::Sphere {
-        use raytracer_lib_no_std::shape::shape::ShapeOps;
+    fn glass_sphere_module_raytracer_kernel() -> raytracer_lib_no_std::shape::sphere::Sphere {
         use raytracer_lib_no_std::material::material::MaterialOps;
+        use raytracer_lib_no_std::shape::shape::ShapeOps;
         let mut s = raytracer_lib_no_std::shape::sphere::Sphere::new();
         s.get_material_mut().set_transparency(1.0);
         s.get_material_mut().set_refractive_index(1.5);
@@ -336,10 +336,10 @@ mod tests {
     // page 152
     fn test_helper_n1_n2_calculations(index: usize, n1_expected: f32, n2_expected: f32) {
         use raytracer_lib_no_std::basics::ray::RayOps;
-        use raytracer_lib_no_std::math::tuple4d::Tuple;
-        use raytracer_lib_no_std::shape::shape::ShapeOps;
         use raytracer_lib_no_std::material::material::MaterialOps;
         use raytracer_lib_no_std::math::matrix::MatrixOps;
+        use raytracer_lib_no_std::math::tuple4d::Tuple;
+        use raytracer_lib_no_std::shape::shape::ShapeOps;
 
         let mut a = glass_sphere_module_raytracer_kernel();
         let m_a = raytracer_lib_no_std::math::matrix::Matrix::scale(2.0, 2.0, 2.0);
@@ -360,9 +360,12 @@ mod tests {
         let o = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = raytracer_lib_no_std::basics::ray::Ray::new(p, o);
 
-        let a = raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(a));
-        let b = raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(b));
-        let c = raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(c));
+        let a =
+            raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(a));
+        let b =
+            raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(b));
+        let c =
+            raytracer_lib_no_std::shape::shape::Shape::new(raytracer_lib_no_std::shape::shape::ShapeEnum::Sphere(c));
 
         let shapes = vec![a, b, c];
 

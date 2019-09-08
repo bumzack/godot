@@ -4,9 +4,9 @@ use std::time::Instant;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelIterator;
 
+use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::camera::{Camera, CameraOps};
 use raytracer_lib_no_std::color::BLACK;
-use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 use crate::backend::backend::Backend;
