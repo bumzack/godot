@@ -5,7 +5,7 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::CanvasOps;
 use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps};
-use raytracer_challenge_reference_impl::light::light::LightEnum;
+use raytracer_challenge_reference_impl::light::light::Light;
 use raytracer_challenge_reference_impl::light::pointlight::PointLight;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
 use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
@@ -100,7 +100,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     cube.get_material_mut().set_pattern(p);
     cube.get_material_mut().set_transparency(1.5);
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let l = LightEnum::PointLight(pl);
+    let l = Light::PointLight(pl);
     let mut w = World::new();
     w.set_light(l);
     w.add_shape(Shape::new(ShapeEnum::Plane(floor)));

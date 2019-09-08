@@ -11,7 +11,7 @@ use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge_reference_impl::light::arealight::AreaLight;
-use raytracer_challenge_reference_impl::light::light::LightEnum;
+use raytracer_challenge_reference_impl::light::light::Light;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
 use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
 use raytracer_challenge_reference_impl::math::tuple4d::{Tuple, Tuple4D};
@@ -179,7 +179,7 @@ fn setup_world_shadow_glamour<'a>(
     let vsteps = 10;
     let intensity = Color::new(1.5, 1.5, 1.5);
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity);
-    let area_light = LightEnum::AreaLight(area_light);
+    let area_light = Light::AreaLight(area_light);
 
     // ---- CUBE -------
     let mut c = Cube::new();

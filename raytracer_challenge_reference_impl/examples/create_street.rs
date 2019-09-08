@@ -126,7 +126,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut light_pos = Tuple4D::from(camera_from);
     light_pos.y += light_camera_distance_y;
     let pl = PointLight::new(light_pos, Color::new(1.5, 1.5, 1.5));
-    let l = LightEnum::PointLight(pl);
+    let l = Light::PointLight(pl);
     world.set_light(l);
 
     (world, camera)

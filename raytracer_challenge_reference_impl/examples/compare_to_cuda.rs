@@ -12,7 +12,7 @@ use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
 use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
 use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
 use raytracer_challenge_reference_impl::basics::ray::RayOps;
-use raytracer_challenge_reference_impl::light::light::LightEnum;
+use raytracer_challenge_reference_impl::light::light::Light;
 use raytracer_challenge_reference_impl::light::pointlight::PointLight;
 use raytracer_challenge_reference_impl::material::material::MaterialOps;
 use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
@@ -335,7 +335,7 @@ fn setup_world_chapter14<'a>(width: usize, height: usize) -> (World, Camera) {
     cylinder.set_minimum(1.0);
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let l = LightEnum::PointLight(pl);
+    let l = Light::PointLight(pl);
 
     let mut w = World::new();
     w.set_light(l);
@@ -399,7 +399,7 @@ fn setup_world(w: usize, h: usize) -> (World, Camera) {
     left.get_material_mut().set_specular(0.3);
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
-    let l = LightEnum::PointLight(pl);
+    let l = Light::PointLight(pl);
 
     let mut world = World::new();
     world.set_light(l);
