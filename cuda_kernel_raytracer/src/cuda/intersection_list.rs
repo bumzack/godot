@@ -24,28 +24,13 @@ pub struct IntersectionList {
 pub trait IntersectionListOps {
     fn new() -> IntersectionList;
     fn push(&mut self, i: Intersection);
-
-    fn hit(&self) -> (&Intersection, bool);
-
     fn get_intersections(&self) -> &IntersectionContainer;
     fn get_intersections_mut(&mut self) -> &mut IntersectionContainer;
-
     fn sort_intersections(&mut self);
-
     fn len(&self) -> usize;
-
-    // TODO this is always a  copy, dont know how to borrow ?!
     fn at(&self, idx: usize) -> &Intersection;
 
-    //    fn is_empty(&self) -> bool;
-    //
-    //    fn last(&self) -> &Intersection;
-    //
-    //    fn contains(&self, shape_idx: ShapeIdx) -> bool;
-    //
-    //    fn get_position(&self, shape_idx: ShapeIdx) -> usize;
-    //
-    //    fn remove(&mut self, elem_idx: usize);
+    fn hit(&self) -> (&Intersection, bool);
 }
 
 impl IntersectionListOps for IntersectionList {
@@ -67,19 +52,6 @@ impl IntersectionListOps for IntersectionList {
         self.sort_intersections();
     }
 
-    fn hit(&self) -> (&Intersection, bool) {
-        let mut found = false;
-        let mut idx = 0;
-        for i in 0..self.len {
-            if self.list_of_intersections[i].get_t() >= 0.0 {
-                found = true;
-                idx = i;
-                break;
-            }
-        }
-        (&self.list_of_intersections[idx], found)
-    }
-
     fn get_intersections(&self) -> &IntersectionContainer {
         &self.list_of_intersections
     }
@@ -90,7 +62,7 @@ impl IntersectionListOps for IntersectionList {
 
     fn sort_intersections(&mut self) {
         // there you go BubbleSort :-)
-        for n in (1..self.len).rev() {
+        for n in (1..=self.len).rev() {
             for i in 0..n - 1 {
                 if self.list_of_intersections[i].get_t() > self.list_of_intersections[i + 1].get_t() {
                     let tmp = self.list_of_intersections[i];
@@ -112,41 +84,18 @@ impl IntersectionListOps for IntersectionList {
         &self.list_of_intersections[idx]
     }
 
-    //    fn is_empty(&self) -> bool {
-    //        self.len == 0
-    //    }
-    //
-    //    fn last(&self) -> &Intersection {
-    //        if self.len <= 0 {
-    //            panic!("IntersectionListOps::last  idx is out of range . no elements in list ");
-    //        }
-    //        &self.list_of_intersections[self.len - 1]
-    //    }
-    //
-    //    fn contains(&self, shape_idx: usize) -> bool {
-    //        for i in 0..self.len {
-    //            if self.list_of_intersections[i].get_shape() == shape_idx {
-    //                return true;
-    //            }
-    //        }
-    //        false
-    //    }
-    //
-    //    fn get_position(&self, shape_idx: usize) -> usize {
-    //        for i in 0..self.len {
-    //            if self.list_of_intersections[i].get_shape() == shape_idx {
-    //                return i;
-    //            }
-    //        }
-    //        panic!("IntersectionListOps::get_position  idx  not found in array   shape_idx = {}", shape_idx);
-    //    }
-    //
-    //    fn remove(&mut self, elem_idx: usize) {
-    //        for i in elem_idx..self.len - 1 {
-    //            self.list_of_intersections[i] = self.list_of_intersections[i + 1];
-    //        }
-    //        self.len -= 1;
-    //    }
+    fn hit(&self) -> (&Intersection, bool) {
+        let mut found = false;
+        let mut idx = 0;
+        for i in 0..self.len {
+            if self.list_of_intersections[i].get_t() >= 0.0 {
+                found = true;
+                idx = i;
+                break;
+            }
+        }
+        (&self.list_of_intersections[idx], found)
+    }
 }
 
 impl fmt::Debug for IntersectionList {
@@ -158,13 +107,45 @@ impl fmt::Debug for IntersectionList {
     }
 }
 
-//#[cfg(test)]
-//mod tests {
-//    use super::*;
-//
-//    #[test]
-//    fn i_am_no_test_just_help_compile() {
-//        let xs = IntersectionList::new();
-//        assert_eq!(i.get_t(), 3.5);
-//    }
-//}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use raytracer_lib_no_std::{Shape, ShapeEnum, Sphere};
+
+    #[test]
+    fn test_new_intersection() {
+        let s = Sphere::new();
+        let t: f32 = 3.5;
+        let o = Shape::new(ShapeEnum::Sphere(s));
+        let i = Intersection::new(t, 0);
+        assert_eq!(i.get_t(), 3.5);
+    }
+
+    #[test]
+    fn test_new_intersectionlist() {
+        // not a test at all, but helps with development to execute functons from the trait
+        let s1 = Sphere::new();
+        let t1: f32 = 3.5;
+        let o1 = Shape::new(ShapeEnum::Sphere(s1));
+        let i1 = Intersection::new(t1, 0);
+
+        let s2 = Sphere::new();
+        let t2: f32 = 4.5;
+        let o2 = Shape::new(ShapeEnum::Sphere(s2));
+        let i2 = Intersection::new(t2, 1);
+
+        // let i_list = IntersectionList::new();
+
+        let mut il = IntersectionList::new();
+        il.push(i1);
+        il.push(i2);
+
+        println!("is = {:?}", il);
+        println!("is.len = {}     s.capacity = {}     ", il.len, il.capacity);
+
+        //  assert_eq!(true, false);
+        // TODO: test ???
+    }
+}

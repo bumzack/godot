@@ -164,11 +164,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world_shadow_glamour<'a>(
-    size_factor: f32,
-    antialiasing: bool,
-    antialiasing_size: usize,
-) -> (World, Camera) {
+fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialiasing_size: usize) -> (World, Camera) {
     let width = (400 as f32 * size_factor) as usize;
     let height = (160 as f32 * size_factor) as usize;
 

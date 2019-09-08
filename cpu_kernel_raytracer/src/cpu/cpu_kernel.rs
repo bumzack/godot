@@ -14,25 +14,43 @@ use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
 pub struct CpuKernel {}
 
 impl CpuKernel {
-    pub fn color_at(shapes: &Vec<Shape>, lights: &Vec<Light>, r: &Ray, remaining: i32, calc_reflection: bool,
-                    calc_refraction: bool,
-                    calc_shadows: bool, ) -> Color {
+    pub fn color_at(
+        shapes: &Vec<Shape>,
+        lights: &Vec<Light>,
+        r: &Ray,
+        remaining: i32,
+        calc_reflection: bool,
+        calc_refraction: bool,
+        calc_shadows: bool,
+    ) -> Color {
         let mut color = BLACK;
 
         let xs = Intersection::intersect_world(shapes, r);
         let (intersection, is_hit) = xs.hit();
         if is_hit {
             let comp = Intersection::prepare_computations(intersection, &r, &IntersectionList::new(), shapes);
-            color = CpuKernel::shade_hit(shapes, lights, &comp, remaining, calc_reflection,
-                                         calc_refraction,
-                                         calc_shadows);
+            color = CpuKernel::shade_hit(
+                shapes,
+                lights,
+                &comp,
+                remaining,
+                calc_reflection,
+                calc_refraction,
+                calc_shadows,
+            );
         }
         color
     }
 
-    fn shade_hit(shapes: &Vec<Shape>, lights: &Vec<Light>, comp: &PrecomputedComponent, remaining: i32, calc_reflection: bool,
-                 calc_refraction: bool,
-                 calc_shadows: bool) -> Color {
+    fn shade_hit(
+        shapes: &Vec<Shape>,
+        lights: &Vec<Light>,
+        comp: &PrecomputedComponent,
+        remaining: i32,
+        calc_reflection: bool,
+        calc_refraction: bool,
+        calc_shadows: bool,
+    ) -> Color {
         // TODO if there is more than 1 light??? pass that to Material::lightning?
         let light = &lights[0];
 
@@ -50,32 +68,42 @@ impl CpuKernel {
             comp.get_eye_vector(),
             comp.get_normal_vector(),
             intensity,
-        calc_reflection,
-        calc_refraction,
-        calc_shadows
+            calc_reflection,
+            calc_refraction,
+            calc_shadows,
         );
         assert_valid_color(&surface);
 
         let mut reflected = BLACK;
         if calc_reflection {
-            reflected = CpuKernel::reflected_color(shapes, lights, comp, remaining,
-                                                       calc_reflection,
-                                                       calc_refraction,
-                                                       calc_shadows);
+            reflected = CpuKernel::reflected_color(
+                shapes,
+                lights,
+                comp,
+                remaining,
+                calc_reflection,
+                calc_refraction,
+                calc_shadows,
+            );
         }
         let mut refracted = BLACK;
         if calc_refraction {
-            refracted = CpuKernel::refracted_color(shapes, lights, comp, remaining,
-                                                   calc_reflection,
-                                                   calc_refraction,
-                                                   calc_shadows);
+            refracted = CpuKernel::refracted_color(
+                shapes,
+                lights,
+                comp,
+                remaining,
+                calc_reflection,
+                calc_refraction,
+                calc_shadows,
+            );
         }
 
         assert_valid_color(&reflected);
         assert_valid_color(&refracted);
 
         // let material = comp.get_object().get_material();
-        if calc_reflection &&  material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
+        if calc_reflection && material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
             let reflectance = Intersection::schlick(comp);
             return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
         }
@@ -141,9 +169,15 @@ impl CpuKernel {
         1.0
     }
 
-    fn reflected_color(shapes: &Vec<Shape>, lights: &Vec<Light>, comp: &PrecomputedComponent, remaining: i32, calc_reflection: bool,
-                       calc_refraction: bool,
-                       calc_shadows: bool) -> Color {
+    fn reflected_color(
+        shapes: &Vec<Shape>,
+        lights: &Vec<Light>,
+        comp: &PrecomputedComponent,
+        remaining: i32,
+        calc_reflection: bool,
+        calc_refraction: bool,
+        calc_shadows: bool,
+    ) -> Color {
         if remaining <= 0 {
             return BLACK;
         }
@@ -155,15 +189,27 @@ impl CpuKernel {
             Tuple4D::new_point_from(comp.get_over_point()),
             Tuple4D::new_vector_from(comp.get_reflected_vector()),
         );
-        let color = CpuKernel::color_at(shapes, lights, &reflect_ray, remaining - 1, calc_reflection,
-        calc_refraction,
-        calc_shadows);
+        let color = CpuKernel::color_at(
+            shapes,
+            lights,
+            &reflect_ray,
+            remaining - 1,
+            calc_reflection,
+            calc_refraction,
+            calc_shadows,
+        );
         &color * material.get_reflective()
     }
 
-    fn refracted_color(shapes: &Vec<Shape>, lights: &Vec<Light>, comp: &PrecomputedComponent, remaining: i32, calc_reflection: bool,
-                       calc_refraction: bool,
-                       calc_shadows: bool) -> Color {
+    fn refracted_color(
+        shapes: &Vec<Shape>,
+        lights: &Vec<Light>,
+        comp: &PrecomputedComponent,
+        remaining: i32,
+        calc_reflection: bool,
+        calc_refraction: bool,
+        calc_shadows: bool,
+    ) -> Color {
         if remaining <= 0 {
             return BLACK;
         }
@@ -185,9 +231,15 @@ impl CpuKernel {
         direction.w = 0.0;
         let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
 
-        CpuKernel::color_at(shapes, lights, &refracted_ray, remaining - 1, calc_reflection,
-                            calc_refraction,
-                            calc_shadows) * material.get_transparency()
+        CpuKernel::color_at(
+            shapes,
+            lights,
+            &refracted_ray,
+            remaining - 1,
+            calc_reflection,
+            calc_refraction,
+            calc_shadows,
+        ) * material.get_transparency()
     }
 
     fn lightning(

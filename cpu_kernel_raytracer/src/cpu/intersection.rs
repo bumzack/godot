@@ -2,7 +2,7 @@ use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_no_std::{ShapeOps, EPSILON_OVER_UNDER, MaterialOps};
+use raytracer_lib_no_std::{MaterialOps, ShapeOps, EPSILON_OVER_UNDER};
 
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
 
@@ -63,7 +63,7 @@ impl IntersectionOps for Intersection {
         };
         for i in 0..res_cnt {
             let intersection = Intersection::new(res[i], shape_idx);
-            intersection_list.add(intersection);
+            intersection_list.push(intersection);
         }
         intersection_list
     }
@@ -75,7 +75,7 @@ impl IntersectionOps for Intersection {
             for idx in 0..tmp.len() {
                 // TODO: something like a drain would be awesome and avoid copying
                 // we want to move all intersections from tmp to res ...
-                res.add(tmp.at(idx));
+                res.push(tmp.at(idx));
             }
         }
         res.sort_intersections();
@@ -130,10 +130,13 @@ impl IntersectionOps for Intersection {
 
             let shape = &shapes[i.get_shape()];
             if container.contains(&shape) {
-                let index = container.iter().position(|&shape| {
-                    let s = &shapes[i.get_shape()];
-                    shape == s
-                }).unwrap();
+                let index = container
+                    .iter()
+                    .position(|&shape| {
+                        let s = &shapes[i.get_shape()];
+                        shape == s
+                    })
+                    .unwrap();
                 container.remove(index);
             } else {
                 let shape = &shapes[i.get_shape()];
@@ -183,20 +186,28 @@ impl<'a> PartialEq for Intersection {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::f32::consts::SQRT_2;
 
     use super::*;
-    use raytracer_lib_no_std::Sphere;
+    use raytracer_lib_no_std::{assert_float, assert_tuple, ColorOps, MatrixOps, Sphere};
+
+    // helper
+    // page 151
+    fn glass_sphere() -> Sphere {
+        let mut s = Sphere::new();
+        s.get_material_mut().set_transparency(1.0);
+        s.get_material_mut().set_refractive_index(1.5);
+        s
+    }
 
     #[test]
     fn test_new_intersection() {
         let s = Sphere::new();
         let t: f32 = 3.5;
         let o = Shape::new(ShapeEnum::Sphere(s));
-        let i = Intersection::new(t, &o);
+        let i = Intersection::new(t, 0);
         assert_eq!(i.t, 3.5);
     }
 
@@ -205,18 +216,18 @@ mod tests {
         let s1 = Sphere::new();
         let t1: f32 = 3.5;
         let o1 = Shape::new(ShapeEnum::Sphere(s1));
-        let i1 = Intersection::new(t1, &o1);
+        let i1 = Intersection::new(t1, 0);
 
         let s2 = Sphere::new();
         let t2: f32 = 4.5;
         let o2 = Shape::new(ShapeEnum::Sphere(s2));
-        let i2 = Intersection::new(t2, &o2);
+        let i2 = Intersection::new(t2, 1);
 
         // let i_list = IntersectionList::new();
 
         let mut il = IntersectionList::new();
-        il.add(i1);
-        il.add(i2);
+        il.push(i1);
+        il.push(i2);
 
         // TODO: test ???
     }
@@ -228,16 +239,16 @@ mod tests {
         let o = Shape::new(ShapeEnum::Sphere(s));
 
         let t1: f32 = 1.0;
-        let i1 = Intersection::new(t1, &o);
+        let i1 = Intersection::new(t1, 0);
 
         let t2: f32 = 2.0;
-        let i2 = Intersection::new(t2, &o);
+        let i2 = Intersection::new(t2, 0);
 
         let mut il = IntersectionList::new();
-        il.add(i2);
-        il.add(i1);
+        il.push(i2);
+        il.push(i1);
 
-        let i = il.hit().unwrap();
+        let (i, is_hit) = il.hit();
 
         assert_eq!(i.t, 1.0);
     }
@@ -249,16 +260,16 @@ mod tests {
         let o = Shape::new(ShapeEnum::Sphere(s));
 
         let t1: f32 = -1.0;
-        let i1 = Intersection::new(t1, &o);
+        let i1 = Intersection::new(t1, 0);
 
         let t2: f32 = 1.0;
-        let i2 = Intersection::new(t2, &o);
+        let i2 = Intersection::new(t2, 0);
 
         let mut il = IntersectionList::new();
-        il.add(i2);
-        il.add(i1);
+        il.push(i2);
+        il.push(i1);
 
-        let i = il.hit().unwrap();
+        let (i, is_hit) = il.hit();
 
         assert_eq!(i.t, 1.0);
     }
@@ -270,19 +281,19 @@ mod tests {
         let o = Shape::new(ShapeEnum::Sphere(s));
 
         let t1: f32 = -1.0;
-        let i1 = Intersection::new(t1, &o);
+        let i1 = Intersection::new(t1, 0);
 
         let t2: f32 = -2.0;
-        let i2 = Intersection::new(t2, &o);
+        let i2 = Intersection::new(t2, 0);
 
         let mut il = IntersectionList::new();
-        il.add(i2);
-        il.add(i1);
+        il.push(i2);
+        il.push(i1);
 
-        let i = il.hit();
+        let (i, is_hit) = il.hit();
 
         // TODO - how to assert????
-        assert_eq!(i.is_none(), true);
+        assert_eq!(is_hit, false);
     }
 
     // page 66 top
@@ -292,24 +303,24 @@ mod tests {
         let o = Shape::new(ShapeEnum::Sphere(s));
 
         let t1: f32 = 5.0;
-        let i1 = Intersection::new(t1, &o);
+        let i1 = Intersection::new(t1, 0);
 
         let t2: f32 = 7.0;
-        let i2 = Intersection::new(t2, &o);
+        let i2 = Intersection::new(t2, 0);
 
         let t3: f32 = -3.0;
-        let i3 = Intersection::new(t3, &o);
+        let i3 = Intersection::new(t3, 0);
 
         let t4: f32 = 2.0;
-        let i4 = Intersection::new(t4, &o);
+        let i4 = Intersection::new(t4, 0);
 
         let mut il = IntersectionList::new();
-        il.add(i1);
-        il.add(i2);
-        il.add(i3);
-        il.add(i4);
+        il.push(i1);
+        il.push(i2);
+        il.push(i3);
+        il.push(i4);
 
-        let i = il.hit().unwrap();
+        let (i, is_hit) = il.hit();
 
         assert_eq!(i.t, 2.0);
         // intersections are sorted, t=2 is second element in list
@@ -325,9 +336,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
 
-        let i = Intersection::intersect(&o, &r);
-        let intersections = i.get_intersections();
-        assert_eq!(intersections.len(), 2);
+        let shapes = vec![o];
+
+        let i = Intersection::intersect(0, &r, &shapes);
+        assert_eq!(i.len(), 2);
     }
 
     // page 93
@@ -340,9 +352,11 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
 
-        let i = Intersection::new(4.0, &o);
+        let i = Intersection::new(4.0, 0);
 
-        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+        let shapes = vec![o];
+
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
 
         let point_expected = Tuple4D::new_point(0.0, 0., -1.0);
         let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
@@ -363,8 +377,11 @@ mod tests {
 
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
-        let i = Intersection::new(4.0, &o);
-        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+        let i = Intersection::new(4.0, 0);
+
+        let shapes = vec![o];
+
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
 
         assert_eq!(false, c.get_inside());
     }
@@ -378,8 +395,11 @@ mod tests {
 
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
-        let i = Intersection::new(1.0, &o);
-        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+        let i = Intersection::new(1.0, 0);
+
+        let shapes = vec![o];
+
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
 
         let point_expected = Tuple4D::new_point(0.0, 0.0, 1.0);
         let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
@@ -401,12 +421,15 @@ mod tests {
         let r = Ray::new(o, d);
 
         let sphere = Shape::new(ShapeEnum::Sphere(sphere));
-        let i1 = Intersection::new(-SQRT_2 / 2.0, &sphere);
-        let i2 = Intersection::new(SQRT_2 / 2.0, &sphere);
+        let i1 = Intersection::new(-SQRT_2 / 2.0, 0);
+        let i2 = Intersection::new(SQRT_2 / 2.0, 0);
         let mut xs = IntersectionList::new();
-        xs.add(i1);
-        xs.add(i2);
-        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
+        xs.push(i1);
+        xs.push(i2);
+
+        let shapes = vec![sphere];
+
+        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, &shapes);
 
         let reflectance = Intersection::schlick(&c);
 
@@ -423,12 +446,15 @@ mod tests {
         let r = Ray::new(o, d);
 
         let sphere = Shape::new(ShapeEnum::Sphere(sphere));
-        let i1 = Intersection::new(-1.0, &sphere);
-        let i2 = Intersection::new(1.0, &sphere);
+        let i1 = Intersection::new(-1.0, 0);
+        let i2 = Intersection::new(1.0, 0);
         let mut xs = IntersectionList::new();
-        xs.add(i1);
-        xs.add(i2);
-        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
+        xs.push(i1);
+        xs.push(i2);
+
+        let shapes = vec![sphere];
+
+        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, &shapes);
 
         let reflectance = Intersection::schlick(&c);
 
@@ -445,56 +471,60 @@ mod tests {
         let r = Ray::new(o, d);
 
         let sphere = Shape::new(ShapeEnum::Sphere(sphere));
-        let i1 = Intersection::new(1.8589, &sphere);
+        let i1 = Intersection::new(1.8589, 0);
         let mut xs = IntersectionList::new();
-        xs.add(i1);
-        let c = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+        xs.push(i1);
+
+        let shapes = vec![sphere];
+
+        let c = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs, &shapes);
 
         let reflectance = Intersection::schlick(&c);
 
         assert_float(reflectance, 0.48873);
     }
 
+    // test deavctivated: we dont have a World here, world is defined in "raytracer"
     // page 164 - based on test from page 159
-    #[test]
-    fn test_precomputations_schlick_reflective_transparent_material() {
-        let mut w = default_world();
-
-        let m = Matrix::translation(0.0, -1.0, 0.0);
-        let mut floor = Plane::new();
-        floor.set_transformation(m);
-        floor.get_material_mut().set_reflective(0.5);
-        floor.get_material_mut().set_transparency(0.5);
-        floor.get_material_mut().set_refractive_index(1.5);
-
-        let m = Matrix::translation(0.0, -3.5, -0.5);
-        let mut ball = Sphere::new();
-        ball.set_transformation(m);
-        ball.get_material_mut().set_ambient(0.5);
-        ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
-
-        let floor = Shape::new(ShapeEnum::Plane(floor));
-        let ball = Shape::new(ShapeEnum::Sphere(ball));
-
-        w.add_shape(floor.clone());
-        w.add_shape(ball);
-
-        let origin = Tuple4D::new_point(0.0, 0.0, -3.0);
-        let direction = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-        let r = Ray::new(origin, direction);
-
-        let i1 = Intersection::new(SQRT_2, &floor);
-        let mut xs = IntersectionList::new();
-        xs.add(i1);
-
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
-
-        let c = World::shade_hit(&w, &comps, 5);
-        let c_expected = Color::new(0.9337956, 0.6963231, 0.69230264);
-
-        println!("expected color    = {:?}", c_expected);
-        println!("actual color      = {:?}", c);
-
-        assert_color(&c, &c_expected);
-    }
+    //    #[test]
+    //    fn test_precomputations_schlick_reflective_transparent_material() {
+    //        let mut w = default_world();
+    //
+    //        let m = Matrix::translation(0.0, -1.0, 0.0);
+    //        let mut floor = Plane::new();
+    //        floor.set_transformation(m);
+    //        floor.get_material_mut().set_reflective(0.5);
+    //        floor.get_material_mut().set_transparency(0.5);
+    //        floor.get_material_mut().set_refractive_index(1.5);
+    //
+    //        let m = Matrix::translation(0.0, -3.5, -0.5);
+    //        let mut ball = Sphere::new();
+    //        ball.set_transformation(m);
+    //        ball.get_material_mut().set_ambient(0.5);
+    //        ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+    //
+    //        let floor = Shape::new(ShapeEnum::Plane(floor));
+    //        let ball = Shape::new(ShapeEnum::Sphere(ball));
+    //
+    //        w.add_shape(floor.clone());
+    //        w.add_shape(ball);
+    //
+    //        let origin = Tuple4D::new_point(0.0, 0.0, -3.0);
+    //        let direction = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+    //        let r = Ray::new(origin, direction);
+    //
+    //        let i1 = Intersection::new(SQRT_2, 0);
+    //        let mut xs = IntersectionList::new();
+    //        xs.add(i1);
+    //
+    //        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
+    //
+    //        let c = CpuKernel::shade_hit(&w, &comps, 5);
+    //        let c_expected = Color::new(0.9337956, 0.6963231, 0.69230264);
+    //
+    //        println!("expected color    = {:?}", c_expected);
+    //        println!("actual color      = {:?}", c);
+    //
+    //        assert_color(&c, &c_expected);
+    //    }
 }

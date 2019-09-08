@@ -21,7 +21,7 @@ pub struct IntersectionList {
 
 pub trait IntersectionListOps {
     fn new() -> IntersectionList;
-    fn add(&mut self, i: Intersection);
+    fn push(&mut self, i: Intersection);
 
     fn hit(&self) -> (&Intersection, bool);
 
@@ -46,7 +46,7 @@ impl IntersectionListOps for IntersectionList {
         }
     }
 
-    fn add(&mut self, i: Intersection) {
+    fn push(&mut self, i: Intersection) {
         if !(self.len < self.capacity) {
             panic!("IntersectionListOps::add  array is full. try increasing MAX_INTERSECTIONLIST_LEN");
         }
@@ -78,7 +78,7 @@ impl IntersectionListOps for IntersectionList {
 
     fn sort_intersections(&mut self) {
         // there you go BubbleSort :-)
-        for n in (1..self.len).rev() {
+        for n in (1..=self.len).rev() {
             for i in 0..n - 1 {
                 if self.list_of_intersections[i].get_t() > self.list_of_intersections[i + 1].get_t() {
                     let tmp = self.list_of_intersections[i];
@@ -112,10 +112,9 @@ impl fmt::Debug for IntersectionList {
 
 #[cfg(test)]
 mod tests {
-    use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-    use raytracer_lib_no_std::shape::sphere::{Sphere, SphereOps};
 
     use super::*;
+    use raytracer_lib_no_std::{Shape, ShapeEnum, Sphere};
 
     #[test]
     fn test_new_intersection() {
@@ -142,8 +141,8 @@ mod tests {
         // let i_list = IntersectionList::new();
 
         let mut il = IntersectionList::new();
-        il.add(i1);
-        il.add(i2);
+        il.push(i1);
+        il.push(i2);
 
         println!("is = {:?}", il);
         println!("is.len = {}     s.capacity = {}     ", il.len, il.capacity);

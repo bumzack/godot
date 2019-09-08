@@ -1,4 +1,4 @@
-use crate::basics::ray::{Ray};
+use crate::basics::ray::Ray;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
@@ -110,7 +110,7 @@ impl GroupOps for Group {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{ assert_matrix};
+    use crate::math::common::assert_matrix;
 
     use super::*;
 

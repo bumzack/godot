@@ -405,7 +405,7 @@ fn setup_world(w: usize, h: usize) -> (World, Camera) {
     world.set_light(l);
     world.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
     world.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
-    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall),));
+    world.add_shape(Shape::new(ShapeEnum::Sphere(right_wall)));
     world.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
     world.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     world.add_shape(Shape::new(ShapeEnum::Sphere(right)));
