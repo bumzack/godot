@@ -1,15 +1,7 @@
-use crate::basics::color::Color;
-use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
-use crate::light::light::{Light, LightOps};
-use crate::math::common::assert_valid_color;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
-use crate::patterns::patterns::Pattern;
-use crate::shape::shape::Shape;
-use crate::world::world::{World, WorldOps};
+use crate::prelude::*;
+
 use crate::DEBUG;
-use std::f32::MAX;
+use crate::prelude::patterns::Pattern;
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
 pub const REFRACTION_AIR: f32 = 1.00029;
@@ -77,7 +69,7 @@ impl MaterialOps for Material {
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
-            shininess: 10.0,
+            shininess: 200.0,
             pattern: None,
             reflective: 0.0,
             transparency: 0.0,
@@ -136,20 +128,35 @@ impl MaterialOps for Material {
                 specular = BLACK;
                 if reflect_dot_eye > 0.0 {
                     if DEBUG {
-                        println!("specular  BEFORE check     {:?}           point = {:?}", specular, point);
-                        println!("specular {:?}        reflect_dot_eye = {:?}    point = {:?}", specular,reflect_dot_eye, point);
+                        println!(
+                            "specular  BEFORE check     {:?}           point = {:?}",
+                            specular, point
+                        );
+                        println!(
+                            "specular {:?}        reflect_dot_eye = {:?}    point = {:?}",
+                            specular, reflect_dot_eye, point
+                        );
 
-                        println!("refelct_dot_eye = reflect_v ^ eye = {:?} ^  {:?} = {:?}      shininess = {}", reflect_v,eye, reflect_dot_eye, material.shininess);
+                        println!(
+                            "refelct_dot_eye = reflect_v ^ eye = {:?} ^  {:?} = {:?}      shininess = {}",
+                            reflect_v, eye, reflect_dot_eye, material.shininess
+                        );
                     }
 
-                    let mut  factor = reflect_dot_eye.powf(material.shininess);
-//                    if factor > MAX/2.0 {
-//                        factor = MAX / 2.0;
-//                    }
+                    let mut factor = reflect_dot_eye.powf(material.shininess);
+                    //                    if factor > MAX/2.0 {
+                    //                        factor = MAX / 2.0;
+                    //                    }
                     specular = light.get_intensity() * material.specular * factor;
 
                     if DEBUG {
-                        println!("specular {:?}       factor = {} , light.intensity = {:?}    point = {:?}", specular,factor, light.get_intensity(), point);
+                        println!(
+                            "specular {:?}       factor = {} , light.intensity = {:?}    point = {:?}",
+                            specular,
+                            factor,
+                            light.get_intensity(),
+                            point
+                        );
                     }
 
                     assert_valid_color(&specular);
@@ -252,21 +259,8 @@ impl MaterialOps for Material {
 mod tests {
     use std::f32::consts::SQRT_2;
 
-    use crate::basics::color::WHITE;
-    use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
-    use crate::basics::ray::{Ray, RayOps};
-    use crate::light::arealight::AreaLight;
-    // use crate::light::arealight::AreaLight;
-    use crate::light::pointlight::PointLight;
-    use crate::material::material::MaterialOps;
-    use crate::math::common::{assert_color, assert_float, assert_tuple};
-    use crate::patterns::stripe_patterns::StripePattern;
-    use crate::shape::plane::{Plane, PlaneOps};
-    use crate::shape::shape::ShapeEnum;
-    use crate::shape::sphere::{Sphere, SphereOps};
-    use crate::world::world::{default_world_soft_shadows, WorldOps};
-
     use super::*;
+    use crate::prelude::stripe_patterns::StripePattern;
 
     fn setup() -> (Material, Tuple4D) {
         let m = Material::new();

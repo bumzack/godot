@@ -1,5 +1,5 @@
-use std::ops::{Add, Div, Mul, Sub};
 use std::f32::MAX;
+use std::ops::{Add, Div, Mul, Sub};
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
@@ -53,13 +53,13 @@ impl ColorOps for Color {
     }
 
     fn replace_inf_with_max(&mut self) {
-        if self.r.is_infinite()  {
+        if self.r.is_infinite() {
             self.r = MAX;
         }
-        if self.g.is_infinite()  {
+        if self.g.is_infinite() {
             self.g = MAX;
         }
-        if self.b.is_infinite()  {
+        if self.b.is_infinite() {
             self.b = MAX;
         }
     }

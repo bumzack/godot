@@ -193,7 +193,6 @@ impl<'a> PartialEq for Intersection {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::f32::consts::SQRT_2;
@@ -346,7 +345,7 @@ mod tests {
 
         let mut shapes = vec![o];
         let shapes = shapes.as_mut_ptr();
-        let i = Intersection::intersect(0, &r,  shapes, 1);
+        let i = Intersection::intersect(0, &r, shapes, 1);
         assert_eq!(i.len(), 2);
     }
 
@@ -408,7 +407,7 @@ mod tests {
 
         let mut shapes = vec![o];
         let shapes = shapes.as_mut_ptr();
-        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), shapes,1);
+        let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), shapes, 1);
 
         let point_expected = Tuple4D::new_point(0.0, 0.0, 1.0);
         let eye_vector_expected = Tuple4D::new_vector(0.0, 0., -1.0);
@@ -439,7 +438,7 @@ mod tests {
         let mut shapes = vec![sphere];
         let shapes = shapes.as_mut_ptr();
 
-        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, shapes,1);
+        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, shapes, 1);
 
         let reflectance = Intersection::schlick(&c);
 
@@ -464,7 +463,7 @@ mod tests {
 
         let mut shapes = vec![sphere];
         let shapes = shapes.as_mut_ptr();
-        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, shapes,1);
+        let c = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, shapes, 1);
 
         let reflectance = Intersection::schlick(&c);
 
@@ -488,7 +487,7 @@ mod tests {
         let mut shapes = vec![sphere];
         let shapes = shapes.as_mut_ptr();
 
-        let c = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs, shapes,1);
+        let c = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs, shapes, 1);
 
         let reflectance = Intersection::schlick(&c);
 

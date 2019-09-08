@@ -7,19 +7,8 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
-use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
-use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
-use raytracer_challenge_reference_impl::light::light::Light;
-use raytracer_challenge_reference_impl::light::pointlight::PointLight;
-use raytracer_challenge_reference_impl::material::material::MaterialOps;
-use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
-use raytracer_challenge_reference_impl::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
-use raytracer_challenge_reference_impl::shape::plane::{Plane, PlaneOps};
-use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
-use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
+use raytracer_challenge_reference_impl::prelude::*;
+
 
 fn main() -> Result<(), Box<dyn Error>> {
     let size_factor = 2.0;

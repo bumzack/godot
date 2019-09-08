@@ -3,6 +3,7 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
+use crate::prelude::ShapeOps;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TestPattern {
@@ -74,9 +75,10 @@ mod tests {
     use crate::math::tuple4d::Tuple;
     use crate::patterns::patterns::Pattern;
     use crate::shape::shape::ShapeEnum;
-    use crate::shape::sphere::{Sphere, SphereOps};
+    use crate::shape::sphere::{ Sphere};
 
     use super::*;
+    use crate::prelude::ShapeOps;
 
     // page 133
     #[test]

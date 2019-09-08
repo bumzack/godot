@@ -1,11 +1,4 @@
-use crate::basics::ray::{Ray, RayOps};
-use crate::material::material::Material;
-use crate::material::material::MaterialOps;
-use crate::math::common::EPSILON;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Triangle {
@@ -20,36 +13,50 @@ pub struct Triangle {
     normal: Tuple4D,
 }
 
-pub trait TriangleOps {
-    fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle;
+impl ShapeOps for Triangle {
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("plane::set_transofrmation: cant unwrap inverse matrix");
+        self.transformation_matrix = m;
+    }
 
-    fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f32>>;
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
 
-    fn set_transformation(&mut self, m: Matrix);
+    fn get_inverse_transformation(&self) -> &Matrix {
+        &self.inverse_transformation_matrix
+    }
 
-    fn get_transformation(&self) -> &Matrix;
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
 
-    fn get_inverse_transformation(&self) -> &Matrix;
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
 
-    fn normal_at(t: &Triangle, p: &Tuple4D) -> Tuple4D;
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        self.normal.clone()
+    }
 
-    fn set_material(&mut self, m: Material);
+    fn set_material(&mut self, m: Material) {
+        self.material = m;
+    }
 
-    fn get_material(&self) -> &Material;
+    fn get_material(&self) -> &Material {
+        &self.material
+    }
 
-    fn get_material_mut(&mut self) -> &mut Material;
-
-    fn get_p1(&self) -> &Tuple4D;
-    fn get_p2(&self) -> &Tuple4D;
-    fn get_p3(&self) -> &Tuple4D;
-
-    fn get_e1(&self) -> &Tuple4D;
-    fn get_e2(&self) -> &Tuple4D;
-    fn get_normal(&self) -> &Tuple4D;
+    fn get_material_mut(&mut self) -> &mut Material {
+        &mut self.material
+    }
 }
 
-impl TriangleOps for Triangle {
-    fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
+impl Triangle {
+    pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
         let e1 = &p2 - &p1;
         let e2 = &p3 - &p1;
         let normal = Tuple4D::normalize(&(&e2 * &e1));
@@ -66,7 +73,7 @@ impl TriangleOps for Triangle {
         }
     }
 
-    fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f32>> {
+    pub(crate) fn intersect(t: &Triangle, r: &Ray) -> Option<Vec<f32>> {
         let mut res = Vec::new();
 
         let dir_cross_e2 = r.get_direction() * t.get_e2();
@@ -90,36 +97,6 @@ impl TriangleOps for Triangle {
         let t = f * (t.get_e2() ^ &origin_cross_e1);
         res.push(t);
         Some(res)
-    }
-
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("plane::set_transofrmation: cant unwrap inverse matrix");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(t: &Triangle, _world_point: &Tuple4D) -> Tuple4D {
-        Tuple4D::new_vector_from(t.get_normal())
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
     }
 
     fn get_p1(&self) -> &Tuple4D {

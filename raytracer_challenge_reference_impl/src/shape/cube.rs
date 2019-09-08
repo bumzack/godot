@@ -1,13 +1,7 @@
-use std::f32::{INFINITY, NAN};
+use core::f32::{INFINITY, NAN};
 
-use crate::basics::ray::{Ray, RayOps};
-use crate::material::material::Material;
-use crate::material::material::MaterialOps;
-use crate::math::common::{max_float, min_float, EPSILON};
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::prelude::*;
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cube {
@@ -16,25 +10,55 @@ pub struct Cube {
     material: Material,
 }
 
-pub trait CubeOps {
-    fn new() -> Cube;
-    fn intersect(r: &Ray) -> Option<Vec<f32>>;
+impl ShapeOps for Cube {
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
+        self.transformation_matrix = m;
+    }
 
-    fn set_transformation(&mut self, m: Matrix);
-    fn get_transformation(&self) -> &Matrix;
-    fn get_inverse_transformation(&self) -> &Matrix;
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
 
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
+    fn get_inverse_transformation(&self) -> &Matrix {
+        &self.inverse_transformation_matrix
+    }
 
-    fn set_material(&mut self, m: Material);
-    fn get_material(&self) -> &Material;
-    fn get_material_mut(&mut self) -> &mut Material;
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
 
-    fn check_axis(origin: f32, direction: f32) -> (f32, f32);
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        let maxc = max_float(local_point.x.abs(), local_point.y.abs(), local_point.z.abs());
+        if (maxc - local_point.x.abs()) < EPSILON {
+            return Tuple4D::new_vector(local_point.x, 0.0, 0.0);
+        } else if (maxc - local_point.y.abs()) < EPSILON {
+            return Tuple4D::new_vector(0.0, local_point.y, 0.0);
+        }
+        Tuple4D::new_vector(0.0, 0.0, local_point.z)
+    }
+
+    fn set_material(&mut self, m: Material) {
+        self.material = m;
+    }
+
+    fn get_material(&self) -> &Material {
+        &self.material
+    }
+
+    fn get_material_mut(&mut self) -> &mut Material {
+        &mut self.material
+    }
 }
 
-impl CubeOps for Cube {
-    fn new() -> Cube {
+impl Cube {
+  pub fn new() -> Cube {
         Cube {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -42,7 +66,7 @@ impl CubeOps for Cube {
         }
     }
 
-    fn intersect(r: &Ray) -> Option<Vec<f32>> {
+    pub  fn intersect(r: &Ray) -> Option<Vec<f32>> {
         let (xt_min, xt_max) = Self::check_axis(r.get_origin().x, r.get_direction().x);
         let (yt_min, yt_max) = Self::check_axis(r.get_origin().y, r.get_direction().y);
         let (zt_min, zt_max) = Self::check_axis(r.get_origin().z, r.get_direction().z);
@@ -67,42 +91,6 @@ impl CubeOps for Cube {
         res[1] = tmax;
 
         Some(res)
-    }
-
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let maxc = max_float(world_point.x.abs(), world_point.y.abs(), world_point.z.abs());
-        if (maxc - world_point.x.abs()) < EPSILON {
-            return Tuple4D::new_vector(world_point.x, 0.0, 0.0);
-        } else if (maxc - world_point.y.abs()) < EPSILON {
-            return Tuple4D::new_vector(0.0, world_point.y, 0.0);
-        }
-        Tuple4D::new_vector(0.0, 0.0, world_point.z)
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
     }
 
     fn check_axis(origin: f32, direction: f32) -> (f32, f32) {
@@ -134,6 +122,7 @@ mod tests {
     use crate::math::common::{assert_float, assert_tuple};
 
     use super::*;
+    use crate::prelude::ShapeOps;
 
     // page 168 helper
     fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f32, t2: f32) {

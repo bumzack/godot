@@ -107,7 +107,6 @@ impl fmt::Debug for IntersectionList {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
 

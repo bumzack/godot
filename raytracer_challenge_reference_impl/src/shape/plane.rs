@@ -1,11 +1,4 @@
-use crate::basics::ray::Ray;
-use crate::material::material::Material;
-use crate::material::material::MaterialOps;
-use crate::math::common::EPSILON;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Plane {
@@ -14,41 +7,7 @@ pub struct Plane {
     material: Material,
 }
 
-pub trait PlaneOps {
-    fn new() -> Plane;
-    fn intersect(r: &Ray) -> Option<Vec<f32>>;
-
-    fn set_transformation(&mut self, m: Matrix);
-    fn get_transformation(&self) -> &Matrix;
-    fn get_inverse_transformation(&self) -> &Matrix;
-
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
-
-    fn set_material(&mut self, m: Material);
-    fn get_material(&self) -> &Material;
-    fn get_material_mut(&mut self) -> &mut Material;
-}
-
-impl PlaneOps for Plane {
-    fn new() -> Plane {
-        Plane {
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            material: Material::new(),
-        }
-    }
-
-    fn intersect(r: &Ray) -> Option<Vec<f32>> {
-        if r.direction.y.abs() < EPSILON {
-            return None;
-        }
-        let t = -r.origin.y / r.direction.y;
-        let mut res = vec![0.0; 1];
-
-        res[0] = t;
-        Some(res)
-    }
-
+impl ShapeOps for Plane {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("plane::set_transofrmation: cant unwrap inverse matrix");
@@ -63,11 +22,17 @@ impl PlaneOps for Plane {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
-        let n = Tuple4D::new_vector(0.0, 1.0, 0.0);
-        let mut world_normal = &Matrix::transpose(&self.inverse_transformation_matrix) * &n;
+    fn normal_at(&self,  world_point: &Tuple4D) -> Tuple4D {
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
+    }
+
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        Tuple4D::new_vector(0.0, 1.0, 0.0)
     }
 
     fn set_material(&mut self, m: Material) {
@@ -83,6 +48,27 @@ impl PlaneOps for Plane {
     }
 }
 
+impl Plane {
+  pub  fn new() -> Plane {
+        Plane {
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            material: Material::new(),
+        }
+    }
+
+    pub  fn intersect(r: &Ray) -> Option<Vec<f32>> {
+        if r.direction.y.abs() < EPSILON {
+            return None;
+        }
+        let t = -r.origin.y / r.direction.y;
+        let mut res = vec![0.0; 1];
+
+        res[0] = t;
+        Some(res)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
@@ -92,7 +78,7 @@ mod tests {
     use crate::math::common::assert_matrix;
     use crate::math::common::{assert_float, assert_tuple};
     use crate::shape::shape::{Shape, ShapeEnum};
-    use crate::shape::sphere::{Sphere, SphereOps};
+    use crate::shape::sphere::{ Sphere};
 
     use super::*;
 

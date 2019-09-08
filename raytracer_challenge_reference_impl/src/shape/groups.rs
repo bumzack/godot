@@ -1,9 +1,4 @@
-use crate::basics::ray::Ray;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::{ShapeEnum, ShapeIdx};
-
+use crate::prelude::*;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Group {
     children: Vec<ShapeIdx>,
@@ -11,42 +6,7 @@ pub struct Group {
     inverse_transformation_matrix: Matrix,
 }
 
-pub trait GroupOps {
-    fn new() -> Group;
-    fn intersect(r: &Ray) -> Option<Vec<f32>>;
-
-    fn set_transformation(&mut self, m: Matrix);
-    fn get_transformation(&self) -> &Matrix;
-    fn get_inverse_transformation(&self) -> &Matrix;
-
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
-
-    fn get_children(&self) -> &Vec<ShapeIdx>;
-
-    fn add_child(&mut self, idx: ShapeIdx, shapes: &mut Vec<ShapeEnum>);
-    //
-    //    fn set_material(&mut self, m: Material);
-    //    fn get_material(&self) -> &Material;
-    //    fn get_material_mut(&mut self) -> &mut Material;
-    //
-    //    fn check_axis(origin: f32, direction: f32) -> (f32, f32);
-}
-
-impl GroupOps for Group {
-    fn new() -> Group {
-        Group {
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            children: Vec::new(),
-        }
-    }
-
-    fn intersect(r: &Ray) -> Option<Vec<f32>> {
-        let res = vec![0.0; 2];
-
-        Some(res)
-    }
-
+impl ShapeOps for Group {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("Group::set_transofrmation: cant unwrap inverse matrix");
@@ -65,47 +25,45 @@ impl GroupOps for Group {
         panic!("Group::normal_at() should never be called!");
     }
 
-    fn get_children(&self) -> &Vec<usize> {
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        unimplemented!()
+    }
+
+    fn set_material(&mut self, m: Material) {
+        unimplemented!()
+    }
+
+    fn get_material(&self) -> &Material {
+        unimplemented!()
+    }
+
+    fn get_material_mut(&mut self) -> &mut Material {
+        unimplemented!()
+    }
+}
+
+impl Group {
+    pub fn new() -> Group {
+        Group {
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            children: Vec::new(),
+        }
+    }
+
+    pub fn intersect(r: &Ray) -> Option<Vec<f32>> {
+        let res = vec![0.0; 2];
+
+        Some(res)
+    }
+
+    pub fn get_children(&self) -> &Vec<usize> {
         &self.children
     }
 
-    fn add_child(&mut self, idx: usize, shapes: &mut Vec<ShapeEnum>) {
+    pub fn add_child(&mut self, idx: usize, shapes: &mut Vec<ShapeEnum>) {
         // shapes[idx]
     }
-
-    //    fn set_material(&mut self, m: Material) {
-    //        self.material = m;
-    //    }
-    //
-    //    fn get_material(&self) -> &Material {
-    //        &self.material
-    //    }
-    //
-    //    fn get_material_mut(&mut self) -> &mut Material {
-    //        &mut self.material
-    //    }
-    //
-    //    fn check_axis(origin: f32, direction: f32) -> (f32, f32) {
-    //        let tmin_numerator = -1.0 - origin;
-    //        let tmax_numerator = 1.0 - origin;
-    //
-    //        let mut tmin;
-    //        let mut tmax;
-    //
-    //        if direction.abs() >= EPSILON {
-    //            tmin = tmin_numerator / direction;
-    //            tmax = tmax_numerator / direction;
-    //        } else {
-    //            tmin = tmin_numerator * INFINITY;
-    //            tmax = tmax_numerator * INFINITY;
-    //        }
-    //        if tmin > tmax {
-    //            let tmp = tmin;
-    //            tmin = tmax;
-    //            tmax = tmp;
-    //        }
-    //        (tmin, tmax)
-    //    }
 }
 
 #[cfg(test)]

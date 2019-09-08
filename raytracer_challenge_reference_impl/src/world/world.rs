@@ -1,26 +1,9 @@
-use crate::basics::color::Color;
-use crate::basics::color::ColorOps;
-use crate::basics::color::BLACK;
-use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
-use crate::basics::precomputed_component::PrecomputedComponent;
-use crate::basics::ray::Ray;
-use crate::basics::ray::RayOps;
-use crate::light::light::{Light, LightOps};
-use crate::light::pointlight::PointLight;
-use crate::material::material::{Material, MaterialOps};
-use crate::math::common::{assert_valid_color, EPSILON_OVER_UNDER};
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
-use crate::patterns::patterns::Pattern;
-use crate::patterns::stripe_patterns::StripePattern;
-use crate::patterns::test_patterns::TestPattern;
-use crate::shape::cylinder::{Cylinder, CylinderOps};
-use crate::shape::plane::{Plane, PlaneOps};
-use crate::shape::shape::{Shape, ShapeEnum};
-use crate::shape::sphere::{Sphere, SphereOps};
+use crate::prelude::*;
+
 use crate::DEBUG;
+use crate::prelude::test_patterns::TestPattern;
+use crate::prelude::patterns::Pattern;
+use crate::prelude::stripe_patterns::StripePattern;
 
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 10;
 
@@ -466,11 +449,6 @@ pub fn default_world_empty() -> World {
 #[cfg(test)]
 mod tests {
     use std::f32::consts::SQRT_2;
-
-    use crate::light::arealight::AreaLight;
-    use crate::math::common::{assert_color, assert_float, assert_tuple, EPSILON};
-    use crate::shape::plane::{Plane, PlaneOps};
-    use crate::shape::sphere::glass_sphere;
 
     use super::*;
 

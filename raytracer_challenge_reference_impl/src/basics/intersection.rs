@@ -6,14 +6,15 @@ use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON_OVER_UNDER;
 use crate::math::tuple4d::{Tuple, Tuple4D};
-use crate::shape::cube::{Cube, CubeOps};
-use crate::shape::cylinder::{Cylinder, CylinderOps};
-use crate::shape::plane::{Plane, PlaneOps};
+use crate::shape::cube::{Cube};
+use crate::shape::cylinder::{Cylinder};
+use crate::shape::plane::{Plane};
 use crate::shape::shape::{Shape, ShapeEnum};
-use crate::shape::sphere::{Sphere, SphereOps};
-use crate::shape::triangle::{Triangle, TriangleOps};
+use crate::shape::sphere::{ Sphere};
+use crate::shape::triangle::{Triangle};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
+use crate::prelude::ShapeOps;
 
 type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 

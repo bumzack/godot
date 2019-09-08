@@ -1,13 +1,6 @@
-use std::f32::INFINITY;
+use core::f32::INFINITY;
 
-use crate::basics::ray::{Ray, RayOps};
-use crate::material::material::Material;
-use crate::material::material::MaterialOps;
-use crate::math::common::EPSILON;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cylinder {
@@ -19,35 +12,55 @@ pub struct Cylinder {
     closed: bool,
 }
 
-pub trait CylinderOps {
-    fn new() -> Cylinder;
-    fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f32>>;
+impl ShapeOps for Cylinder {
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
+        self.transformation_matrix = m;
+    }
 
-    fn set_transformation(&mut self, m: Matrix);
-    fn get_transformation(&self) -> &Matrix;
-    fn get_inverse_transformation(&self) -> &Matrix;
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
 
-    fn normal_at(c: &Cylinder, p: &Tuple4D) -> Tuple4D;
+    fn get_inverse_transformation(&self) -> &Matrix {
+        &self.inverse_transformation_matrix
+    }
 
-    fn set_material(&mut self, m: Material);
-    fn get_material(&self) -> &Material;
-    fn get_material_mut(&mut self) -> &mut Material;
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+        // TODO: its for the tests -remove and fix tests and add unreachable
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
 
-    fn get_minimum(&self) -> f32;
-    fn get_maximum(&self) -> f32;
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        let dist = local_point.x.powi(2) + local_point.z.powi(2);
+        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
+            return Tuple4D::new_vector(0.0, 1.0, 0.0);
+        } else if dist < 1.0 && local_point.y <= self.get_maximum() + EPSILON {
+            return Tuple4D::new_vector(0.0, -1.0, 0.0);
+        }
+        Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
+    }
 
-    fn set_minimum(&mut self, min: f32);
-    fn set_maximum(&mut self, max: f32);
+    fn set_material(&mut self, m: Material) {
+        self.material = m;
+    }
 
-    fn get_closed(&self) -> bool;
-    fn set_closed(&mut self, closed: bool);
+    fn get_material(&self) -> &Material {
+        &self.material
+    }
 
-    fn check_cap(r: &Ray, t: f32) -> bool;
-    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>);
+    fn get_material_mut(&mut self) -> &mut Material {
+        &mut self.material
+    }
 }
 
-impl CylinderOps for Cylinder {
-    fn new() -> Cylinder {
+impl Cylinder {
+    pub fn new() -> Cylinder {
         Cylinder {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -58,7 +71,7 @@ impl CylinderOps for Cylinder {
         }
     }
 
-    fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f32>> {
+    pub fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f32>> {
         let mut res = Vec::new();
 
         let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
@@ -92,63 +105,27 @@ impl CylinderOps for Cylinder {
         Some(res)
     }
 
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(c: &Cylinder, world_point: &Tuple4D) -> Tuple4D {
-        let dist = world_point.x.powi(2) + world_point.z.powi(2);
-        if dist < 1.0 && world_point.y >= c.get_maximum() - EPSILON {
-            return Tuple4D::new_vector(0.0, 1.0, 0.0);
-        } else if dist < 1.0 && world_point.y <= c.get_maximum() + EPSILON {
-            return Tuple4D::new_vector(0.0, -1.0, 0.0);
-        }
-        Tuple4D::new_vector(world_point.x, 0.0, world_point.z)
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
-    }
-
-    fn get_minimum(&self) -> f32 {
+    pub fn get_minimum(&self) -> f32 {
         self.minimum
     }
 
-    fn get_maximum(&self) -> f32 {
+    pub fn get_maximum(&self) -> f32 {
         self.maximum
     }
 
-    fn set_minimum(&mut self, min: f32) {
+    pub fn set_minimum(&mut self, min: f32) {
         self.minimum = min;
     }
 
-    fn set_maximum(&mut self, max: f32) {
+    pub fn set_maximum(&mut self, max: f32) {
         self.maximum = max;
     }
 
-    fn get_closed(&self) -> bool {
+    pub fn get_closed(&self) -> bool {
         self.closed
     }
 
-    fn set_closed(&mut self, closed: bool) {
+    pub fn set_closed(&mut self, closed: bool) {
         self.closed = closed;
     }
 

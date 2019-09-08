@@ -1,12 +1,6 @@
 use core::fmt;
 
-use crate::basics::ray::Ray;
-use crate::material::material::Material;
-use crate::material::material::MaterialOps;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
-use crate::math::tuple4d::Tuple4D;
+use crate::prelude::*;
 
 #[derive(Clone, PartialEq)]
 pub struct Sphere {
@@ -15,23 +9,50 @@ pub struct Sphere {
     material: Material,
 }
 
-pub trait SphereOps {
-    fn new() -> Sphere;
-    fn intersect(r: &Ray) -> Option<Vec<f32>>;
+impl ShapeOps for Sphere {
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("Sphere::set_transofrmation:  cant unwrap inverted matrix ");
+        self.transformation_matrix = m;
+    }
 
-    fn set_transformation(&mut self, m: Matrix);
-    fn get_transformation(&self) -> &Matrix;
-    fn get_inverse_transformation(&self) -> &Matrix;
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
+    fn get_inverse_transformation(&self) -> &Matrix {
+        &self.inverse_transformation_matrix
+    }
 
-    fn normal_at(&self, p: &Tuple4D) -> Tuple4D;
+    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+       // TODO: its for the tests -remove and fix tests and add unreachable
 
-    fn set_material(&mut self, m: Material);
-    fn get_material(&self) -> &Material;
-    fn get_material_mut(&mut self) -> &mut Material;
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
+
+    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+        local_point - &o
+    }
+
+    fn set_material(&mut self, m: Material) {
+        self.material = m;
+    }
+
+    fn get_material(&self) -> &Material {
+        &self.material
+    }
+
+    fn get_material_mut(&mut self) -> &mut Material {
+        &mut self.material
+    }
 }
 
-impl SphereOps for Sphere {
-    fn new() -> Sphere {
+impl Sphere {
+    pub  fn new() -> Sphere {
         Sphere {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -39,7 +60,7 @@ impl SphereOps for Sphere {
         }
     }
 
-    fn intersect(r: &Ray) -> Option<Vec<f32>> {
+  pub  fn intersect(r: &Ray) -> Option<Vec<f32>> {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let sphere_to_ray = &r.origin - &o;
         let a = &r.direction ^ &r.direction;
@@ -56,40 +77,6 @@ impl SphereOps for Sphere {
 
         res.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
         Some(res)
-    }
-
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Sphere::set_transofrmation:  cant unwrap inverted matrix ");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let object_point = self.get_inverse_transformation() * world_point;
-        let object_normal = &(&object_point - &o);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * object_normal;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
     }
 }
 
@@ -118,6 +105,7 @@ mod tests {
     use crate::shape::shape::{Shape, ShapeEnum};
 
     use super::*;
+    use crate::prelude::ShapeOps;
 
     #[test]
     fn test_ray_sphere_intersection() {
@@ -295,6 +283,10 @@ mod tests {
         let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
         let n = s.normal_at(&p);
         let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
+
+        println!("n             = {:?}   ", n);
+        println!("n_expected    = {:?}", n_expected);
+
         assert_tuple(&n, &n_expected);
     }
 
@@ -306,10 +298,11 @@ mod tests {
 
         let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
         let n = s.normal_at(&p);
+
         let n_expected = Tuple4D::new_vector(0.0, 0.97014254, -0.24253564);
 
-        println!("n = {:?}   ", n);
-        println!("   n_expected = {:?}", n_expected);
+        println!("n             = {:?}   ", n);
+        println!("n_expected    = {:?}", n_expected);
 
         assert_tuple(&n, &n_expected);
     }

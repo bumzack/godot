@@ -7,29 +7,7 @@ use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
-
-use raytracer_challenge_reference_impl::basics::camera::{Camera, CameraOps};
-use raytracer_challenge_reference_impl::basics::canvas::{Canvas, CanvasOps};
-use raytracer_challenge_reference_impl::basics::color::{Color, ColorOps, BLACK};
-use raytracer_challenge_reference_impl::basics::ray::RayOps;
-use raytracer_challenge_reference_impl::light::light::Light;
-use raytracer_challenge_reference_impl::light::pointlight::PointLight;
-use raytracer_challenge_reference_impl::material::material::MaterialOps;
-use raytracer_challenge_reference_impl::math::matrix::{Matrix, MatrixOps};
-use raytracer_challenge_reference_impl::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_challenge_reference_impl::patterns::checker3d_patterns::Checker3DPattern;
-use raytracer_challenge_reference_impl::patterns::gradient_patterns::GradientPattern;
-use raytracer_challenge_reference_impl::patterns::patterns::Pattern;
-use raytracer_challenge_reference_impl::patterns::ring_patterns::RingPattern;
-use raytracer_challenge_reference_impl::patterns::stripe_patterns::StripePattern;
-use raytracer_challenge_reference_impl::shape::cube::{Cube, CubeOps};
-use raytracer_challenge_reference_impl::shape::cylinder::Cylinder;
-use raytracer_challenge_reference_impl::shape::cylinder::CylinderOps;
-use raytracer_challenge_reference_impl::shape::plane::Plane;
-use raytracer_challenge_reference_impl::shape::plane::PlaneOps;
-use raytracer_challenge_reference_impl::shape::shape::{Shape, ShapeEnum};
-use raytracer_challenge_reference_impl::shape::sphere::{Sphere, SphereOps};
-use raytracer_challenge_reference_impl::world::world::{World, WorldOps, MAX_REFLECTION_RECURSION_DEPTH};
+use raytracer_challenge_reference_impl::prelude::*;
 
 fn main_debug() -> Result<(), Box<dyn Error>> {
     let width = 384;
