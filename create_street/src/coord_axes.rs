@@ -150,7 +150,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
         w.add_shape(sphere_z);
     }
 
-    let mut c = Camera::new(width, height, 1.2);
+    let mut c = Camera::new(width, height, 0.6);
     c.set_antialiasing(false);
 
     c.calc_pixel_size();
@@ -173,7 +173,7 @@ pub fn animate(
     let amplitude = 0.8;
     let light_camera_distance_y = 5.0;
     // from the top -> 2D View in -y direction
-    let mut camera_from = Tuple4D::new_point(2.0, 5.0, -2.0);
+    let mut camera_from = Tuple4D::new_point(2.0, 2.0, -2.0);
     let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
     let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     if full_raytracing {
