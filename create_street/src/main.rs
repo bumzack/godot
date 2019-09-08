@@ -13,12 +13,12 @@ fn main_coord_axes() {
 
     let (mut world, mut camera) = coord_axes::setup_world_coord_axes(width, height, false);
     coord_axes::add_floor(&mut world);
-    // coord_axes::add_borders(&mut world);
+    coord_axes::add_borders(&mut world);
 
     let backend = BackendCuda::new();
-     let backend = BackendCpu::new();
+    // let backend = BackendCpu::new();
 
-    let (frames, delta) = (10, 1.2);
+    let (frames, delta) = (10, 0.8);
     //    let (frames, delta) = (25, 0.6);
 
     let is_3d = true;

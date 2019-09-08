@@ -56,12 +56,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut w = World::new();
     w.set_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Plane(floor), "floor"));
-    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall), "left_wall"));
-    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall), "right_wall"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
+    w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
 
     let mut c = Camera::new(120, 100, PI / 3.0);
     c.calc_pixel_size();

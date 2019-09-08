@@ -192,7 +192,7 @@ impl Plane {
 //        let m = Matrix::scale(2.0, 2.0, 2.0);
 //        s.set_transformation(m);
 //
-//        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "Sphere");
+//        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
 //
 //        let is = Intersection::intersect(&sphere_shape, &r);
 //
@@ -217,7 +217,7 @@ impl Plane {
 //        let m = Matrix::translation(5.0, 0.0, 0.0);
 //        s.set_transformation(m);
 //
-//        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "Sphere");
+//        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
 //        let is = Intersection::intersect(&sphere_shape, &r);
 //
 //        let intersections = is.get_intersections();
@@ -303,9 +303,9 @@ impl Plane {
 //        let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
 //        let r = Ray::new(p, o);
 //
-//        let a = Shape::new(ShapeEnum::Sphere(a), "Sphere");
-//        let b = Shape::new(ShapeEnum::Sphere(b), "Sphere");
-//        let c = Shape::new(ShapeEnum::Sphere(c), "Sphere");
+//        let a = Shape::new(ShapeEnum::Sphere(a));
+//        let b = Shape::new(ShapeEnum::Sphere(b));
+//        let c = Shape::new(ShapeEnum::Sphere(c));
 //
 //        let mut xs = IntersectionList::new();
 //

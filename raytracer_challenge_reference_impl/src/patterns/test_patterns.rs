@@ -105,7 +105,7 @@ mod tests {
         let mut shape = Sphere::new();
         let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
         shape.set_transformation(matrix_scale);
-        let shape = Shape::new(ShapeEnum::Sphere(shape), "sphere");
+        let shape = Shape::new(ShapeEnum::Sphere(shape));
 
         let mut p = TestPattern::new();
 
@@ -122,7 +122,7 @@ mod tests {
     #[test]
     fn test_pattern_pattern_transformation() {
         let mut shape = Sphere::new();
-        let shape = Shape::new(ShapeEnum::Sphere(shape), "sphere");
+        let shape = Shape::new(ShapeEnum::Sphere(shape));
 
         let mut p = TestPattern::new();
         let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
@@ -142,7 +142,7 @@ mod tests {
         let mut shape = Sphere::new();
         let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
         shape.set_transformation(matrix_scale);
-        let shape = Shape::new(ShapeEnum::Sphere(shape), "sphere");
+        let shape = Shape::new(ShapeEnum::Sphere(shape));
 
         let mut p = TestPattern::new();
         let matrix_translate = Matrix::translation(0.5, 1.0, 1.5);

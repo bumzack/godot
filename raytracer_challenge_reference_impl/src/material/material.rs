@@ -249,7 +249,7 @@ mod tests {
     use crate::shape::plane::{Plane, PlaneOps};
     use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::{Sphere, SphereOps};
-    use crate::world::world::{default_world, default_world_soft_shadows, WorldOps};
+    use crate::world::world::{default_world_soft_shadows, WorldOps};
 
     use super::*;
 
@@ -279,7 +279,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_between_light_and_surface() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
 
         let (m, p) = setup();
 
@@ -297,7 +297,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_offset_45() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
 
         let (m, p) = setup();
 
@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn test_material_lightning_light_opposite_eye() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
 
         let (m, p) = setup();
 
@@ -336,7 +336,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_in_path_of_reflecting_vector() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
 
         let (m, p) = setup();
 
@@ -357,7 +357,7 @@ mod tests {
     #[test]
     fn test_material_lightning_light_behind_surface() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
 
         let (m, p) = setup();
 
@@ -374,7 +374,7 @@ mod tests {
     #[test]
     fn test_material_lightning_with_surface_in_shadow() {
         let s = Sphere::new();
-        let object = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let object = Shape::new(ShapeEnum::Sphere(s));
 
         let (material, point) = setup();
 
@@ -397,7 +397,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
         let stripe_pattern = StripePattern::new();
         let pattern = Pattern::StripePattern(stripe_pattern);
 
@@ -427,7 +427,7 @@ mod tests {
     #[test]
     fn test_material_precomputing_reflection_vector() {
         let p = Plane::new();
-        let shape = Shape::new(ShapeEnum::Plane(p), "sphere");
+        let shape = Shape::new(ShapeEnum::Plane(p));
 
         let p = Tuple4D::new_point(0.0, 1.0, -1.0);
         let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
@@ -498,7 +498,7 @@ mod tests {
         sphere.get_material_mut().set_diffuse(0.9);
         sphere.get_material_mut().set_specular(0.0);
         sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere), "blupp");
+        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
 
         let eye = Tuple4D::new_point(0., 0., -5.0);
         let eye_vec = Tuple4D::normalize(&(&eye - &point));

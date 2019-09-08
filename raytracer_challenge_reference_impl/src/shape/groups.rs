@@ -1,8 +1,6 @@
-use crate::basics::ray::{Ray, RayOps};
-use crate::material::material::MaterialOps;
+use crate::basics::ray::{Ray};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::{ShapeEnum, ShapeIdx};
 
@@ -112,8 +110,7 @@ impl GroupOps for Group {
 
 #[cfg(test)]
 mod tests {
-    use crate::basics::ray::RayOps;
-    use crate::math::common::{assert_float, assert_matrix, assert_tuple};
+    use crate::math::common::{ assert_matrix};
 
     use super::*;
 

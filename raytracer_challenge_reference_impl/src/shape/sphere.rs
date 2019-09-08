@@ -45,14 +45,14 @@ impl SphereOps for Sphere {
         let a = &r.direction ^ &r.direction;
         let b = 2.0 * (&r.direction ^ &sphere_to_ray);
         let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
-        let discriminant = b * b - 4.0 * a * c;
+        let disc = b * b - 4.0 * a * c;
 
-        if discriminant < 0.0 {
+        if disc < 0.0 {
             return None;
         }
         let mut res = vec![0.0; 2];
-        res[0] = (-b - discriminant.sqrt()) / (2.0 * a);
-        res[1] = (-b + discriminant.sqrt()) / (2.0 * a);
+        res[0] = (-b - disc.sqrt()) / (2.0 * a);
+        res[1] = (-b + disc.sqrt()) / (2.0 * a);
 
         res.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
         Some(res)
@@ -221,7 +221,7 @@ mod tests {
         let m = Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "Sphere");
+        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
 
         let is = Intersection::intersect(&sphere_shape, &r);
 
@@ -246,7 +246,7 @@ mod tests {
         let m = Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "Sphere");
+        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
         let is = Intersection::intersect(&sphere_shape, &r);
 
         let intersections = is.get_intersections();
@@ -335,9 +335,9 @@ mod tests {
         let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(p, o);
 
-        let a = Shape::new(ShapeEnum::Sphere(a), "Sphere1");
-        let b = Shape::new(ShapeEnum::Sphere(b), "Sphere2");
-        let c = Shape::new(ShapeEnum::Sphere(c), "Sphere3");
+        let a = Shape::new(ShapeEnum::Sphere(a));
+        let b = Shape::new(ShapeEnum::Sphere(b));
+        let c = Shape::new(ShapeEnum::Sphere(c));
 
         let mut xs = IntersectionList::new();
 

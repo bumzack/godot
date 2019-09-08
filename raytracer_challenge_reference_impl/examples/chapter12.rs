@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
+fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut floor = Plane::new();
     let mut p: GradientPattern = GradientPattern::new();
     p.set_color_a(Color::new(1.0, 0.0, 0.0));
@@ -103,13 +103,13 @@ fn setup_world<'a>(width: usize, height: usize) -> (World<'a>, Camera) {
     let l = LightEnum::PointLight(pl);
     let mut w = World::new();
     w.set_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Plane(floor), "floor"));
-    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall), "left_wall"));
-    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall), "right_wall"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(middle), "middle"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left), "left"));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right), "right"));
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube), "cube"));
+    w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
+    w.add_shape(Shape::new(ShapeEnum::Cube(cube)));
 
     let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();

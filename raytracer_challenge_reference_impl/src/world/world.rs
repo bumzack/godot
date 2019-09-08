@@ -588,13 +588,13 @@ mod tests {
 
         let mut s1 = Sphere::new();
         s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::Sphere(s1), "Sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
         let mut s2 = Sphere::new();
         s2.set_transformation(m);
         s2.get_material_mut().set_ambient(1.0);
-        let shape2 = Shape::new(ShapeEnum::Sphere(s2), "Sphere");
+        let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -619,12 +619,12 @@ mod tests {
         w.set_light(LightEnum::PointLight(pl));
 
         let s1 = Sphere::new();
-        let shape1 = Shape::new(ShapeEnum::Sphere(s1), "Sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
         let m = Matrix::translation(0.0, 0.0, 10.0);
         let mut s2 = Sphere::new();
         s2.set_transformation(m);
-        let shape2 = Shape::new(ShapeEnum::Sphere(s2), "Sphere");
+        let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -658,7 +658,7 @@ mod tests {
         let m = Matrix::translation(0.0, 0.0, 1.0);
         let mut s1 = Sphere::new();
         s1.set_transformation(m);
-        let shape1 = Shape::new(ShapeEnum::Sphere(s1), "Sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
         let i = Intersection::new(5.0, &shape1);
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
@@ -775,13 +775,13 @@ mod tests {
 
         let mut s1 = Sphere::new();
         s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::Sphere(s1), "Sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
         let mut s2 = Sphere::new();
         s2.set_transformation(m);
         s2.get_material_mut().set_ambient(1.0);
-        let shape2 = Shape::new(ShapeEnum::Sphere(s2), "Sphere");
+        let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -810,7 +810,7 @@ mod tests {
         p.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         p.set_transformation(m);
-        let plane = Shape::new(ShapeEnum::Plane(p), "Sphere");
+        let plane = Shape::new(ShapeEnum::Plane(p));
         w.add_shape(plane);
 
         let p = Tuple4D::new_point(0.0, 0.0, -3.0);
@@ -842,7 +842,7 @@ mod tests {
         p.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         p.set_transformation(m);
-        let plane = Shape::new(ShapeEnum::Plane(p), "plane");
+        let plane = Shape::new(ShapeEnum::Plane(p));
         w.add_shape(plane);
 
         let p = Tuple4D::new_point(0.0, 0.0, -3.0);
@@ -880,8 +880,8 @@ mod tests {
         u.set_transformation(m_upper);
         u.get_material_mut().set_reflective(1.0);
 
-        let upper = Shape::new(ShapeEnum::Plane(u), "plane");
-        let lower = Shape::new(ShapeEnum::Plane(l), "plane");
+        let upper = Shape::new(ShapeEnum::Plane(u));
+        let lower = Shape::new(ShapeEnum::Plane(l));
 
         w.add_shape(lower);
         w.add_shape(upper);
@@ -904,7 +904,7 @@ mod tests {
         p.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         p.set_transformation(m);
-        let plane = Shape::new(ShapeEnum::Plane(p), "plane");
+        let plane = Shape::new(ShapeEnum::Plane(p));
 
         w.add_shape(plane);
 
@@ -936,7 +936,7 @@ mod tests {
         let m_trans = Matrix::translation(0.0, 0.0, 1.0);
         s.set_transformation(m_trans);
 
-        let shape1 = Shape::new(ShapeEnum::Sphere(s), "sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s));
 
         let i = Intersection::new(5.0, &shape1);
         let i_clone = Intersection::new(5.0, &shape1);
@@ -991,13 +991,13 @@ mod tests {
 
         let mut s1 = Sphere::new();
         s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::Sphere(s1), "sphere");
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1));
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
         let mut s2 = Sphere::new();
         s2.set_transformation(m);
         s2.get_material_mut().set_ambient(1.0);
-        let shape2 = Shape::new(ShapeEnum::Sphere(s2), "sphere");
+        let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -1104,8 +1104,8 @@ mod tests {
         ball.get_material_mut().set_ambient(0.5);
         ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
-        let plane = Shape::new(ShapeEnum::Plane(plane), "sphere");
-        let sphere = Shape::new(ShapeEnum::Sphere(ball), "sphere");
+        let plane = Shape::new(ShapeEnum::Plane(plane));
+        let sphere = Shape::new(ShapeEnum::Sphere(ball));
         w.add_shape(plane.clone());
         w.add_shape(sphere);
 

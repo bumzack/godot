@@ -163,7 +163,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world<'a>(width: usize, height: usize, antialiasing: bool, antialiasing_size: usize) -> (World<'a>, Camera) {
+fn setup_world(width: usize, height: usize, antialiasing: bool, antialiasing_size: usize) -> (World, Camera) {
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = LightEnum::PointLight(pl);
 

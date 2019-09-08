@@ -200,7 +200,7 @@ mod tests {
         let m = Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "shpere");
+        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
         let is = Intersection::intersect(&sphere_shape, &r);
 
         let intersections = is.get_intersections();
@@ -223,7 +223,7 @@ mod tests {
         let m = Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s), "shpere");
+        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
         let is = Intersection::intersect(&sphere_shape, &r);
 
         let intersections = is.get_intersections();

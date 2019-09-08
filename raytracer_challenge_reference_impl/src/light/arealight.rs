@@ -170,7 +170,7 @@ impl AreaLight {
 #[cfg(test)]
 mod tests {
     use crate::basics::color::ColorOps;
-    use crate::math::common::{assert_color, assert_tuple};
+    use crate::math::common::{assert_tuple};
     use crate::math::tuple4d::Tuple;
 
     use super::*;
