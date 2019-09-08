@@ -9,32 +9,25 @@ use std::time::Instant;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 1280;
-    let height = 720;
-
     let width = 320;
     let height = 200;
 
     let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
     add_floor(&mut world);
-    add_borders(&mut world);
+   //  add_borders(&mut world);
 
     let multi_core = true;
-    let single_core = false;
 
-    let mut z: f32 = -2.0;
-    let amplitude = 0.8;
-    let light_camera_distance_y = 15.0;
     // from the top -> 2D View in -y direction
-    let mut camera_from = Tuple4D::new_point(3.0, 1., z - 5.0);
+    let mut camera_from = Tuple4D::new_point(2.0, 5.0,  -2.0);
     let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let mut camera_up = Tuple4D::new_point(0.0, 1.0, 1.0);
+    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
 
     let mut light_pos = Tuple4D::from(camera_from);
-    light_pos.y += light_camera_distance_y;
-    light_pos.x = -light_pos.x + 0.5;
-    light_pos.z = -light_pos.z + 0.5;
+    light_pos.x = 2.0;
+    light_pos.y = 10.0;
+        light_pos.z = - 5.0;
 
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
@@ -42,7 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let filename = format!("test_coord_axes_{}_{}.png", width, height);
 
-    if single_core {
+    if !multi_core {
         // single core
         let start = Instant::now();
         // let canvas = Camera::render_debug(&c, &w, 226, 241);
@@ -114,6 +107,7 @@ pub fn add_floor(world: &mut World) {
     floor.get_material_mut().set_reflective(0.1);
 
     let m_scale = Matrix::scale(3.0, 0.01, 10.0);
+    let m_scam_transle = Matrix::translation(0.0, -1.5, 0.0);
     floor.set_transformation(m_scale);
     let mut floor = Shape::new(ShapeEnum::Cube(floor));
     floor.set_casts_shadow(false);
@@ -243,9 +237,9 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     sphere_x.set_casts_shadow(false);
 
     let mut w = World::new();
-    w.add_shape(x_axis);
-    w.add_shape(y_axis);
-    w.add_shape(z_axis);
+//    w.add_shape(x_axis);
+//    w.add_shape(y_axis);
+//    w.add_shape(z_axis);
 
     if show_axis_shperes {
         w.add_shape(sphere_x);
@@ -253,7 +247,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
         w.add_shape(sphere_z);
     }
 
-    let mut c = Camera::new(width, height, 0.6);
+    let mut c = Camera::new(width, height, 1.2);
     c.set_antialiasing(false);
 
     c.calc_pixel_size();

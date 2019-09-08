@@ -322,6 +322,10 @@ impl MatrixOps for Matrix {
     }
 
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix {
+        assert!(Tuple4D::is_point(from));
+        assert!(Tuple4D::is_point(to));
+        assert!(Tuple4D::is_vector(up));
+
         let forward = Tuple4D::normalize(&(to - from));
         let left = &forward * &Tuple4D::normalize(up);
         let true_up = &left * &forward;
