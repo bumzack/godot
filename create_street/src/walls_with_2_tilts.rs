@@ -144,9 +144,9 @@ pub fn setup_world_2_walls_and_tilts(width: usize, height: usize) -> (World, Cam
     w.add_shape(border_left_tilt_right);
     w.add_shape(border_right_tilt_right);
 
-     w.add_shape(sphere2);
-     w.add_shape(sphere2_clone);
-     w.add_shape(sphere2_clone_clone);
+    w.add_shape(sphere2);
+    w.add_shape(sphere2_clone);
+    w.add_shape(sphere2_clone_clone);
 
     let mut c = Camera::new(width, height, 0.50);
     c.set_antialiasing(false);

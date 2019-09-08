@@ -173,7 +173,7 @@ pub fn animate(
     let amplitude = 0.8;
     let light_camera_distance_y = 5.0;
     // from the top -> 2D View in -y direction
-    let mut camera_from = Tuple4D::new_point(5.0, 4., z - 10.0);
+    let mut camera_from = Tuple4D::new_point(3.0, -3., z - 5.0);
     let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
     let mut camera_up = Tuple4D::new_point(0.0, 1.0, 0.0);
     if full_raytracing {
@@ -200,7 +200,7 @@ pub fn animate(
         println!("x = {}, z = {}     filename = {}", x, z, filename);
         println!("camera_from  = {:?}, camera_to = {:?}   ", camera_from, camera_to);
 
-        // camera_from.y += delta;
+        camera_from.y += delta;
         camera_from.z += 2.0 * delta;
     }
 }

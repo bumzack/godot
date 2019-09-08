@@ -6,21 +6,21 @@ mod coord_axes;
 mod walls_with_2_tilts;
 
 fn main() {
-    main_wall_with_2_tilsts();
+    main_coord_axes();
 }
-fn main_coord_axes() {
-    let width = 640;
-    let height = 480;
 
-    // let (mut world, mut camera) = walls_with_2_tilts::setup_world_2_walls_and_tilts(width, height);
+fn main_coord_axes() {
+    let width = 320;
+    let height = 200;
+
     let (mut world, mut camera) = coord_axes::setup_world_coord_axes(width, height, false);
     coord_axes::add_floor(&mut world);
-    coord_axes::add_borders(&mut world);
+    // coord_axes::add_borders(&mut world);
 
     let backend = BackendCuda::new();
-    // let backend = BackendCpu::new();
+     let backend = BackendCpu::new();
 
-    let (frames, delta) = (10, 1.);
+    let (frames, delta) = (10, 1.2);
     //    let (frames, delta) = (25, 0.6);
 
     let is_3d = true;
@@ -42,7 +42,7 @@ fn main_coord_axes() {
     )
 }
 
-fn main_wall_with_2_tilsts (){
+fn main_wall_with_2_tilsts() {
     let width = 1280;
     let height = 720;
 
