@@ -1,28 +1,16 @@
 use crate::{intri_abs, Color, Matrix, Tuple4D};
 
 pub const EPSILON: f32 = 0.00001;
-pub const EPSILON_OVER_UNDER: f32 = 0.005;
+pub const EPSILON_OVER_UNDER: f32 = 0.0005;
 
 pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
-    assert_eq!(assert_two_float(actual[0][0], expected[0][0]), true);
-    assert_eq!(assert_two_float(actual[0][1], expected[0][1]), true);
-    assert_eq!(assert_two_float(actual[0][2], expected[0][2]), true);
-    assert_eq!(assert_two_float(actual[0][3], expected[0][3]), true);
-
-    assert_eq!(assert_two_float(actual[1][0], expected[1][0]), true);
-    assert_eq!(assert_two_float(actual[1][1], expected[1][1]), true);
-    assert_eq!(assert_two_float(actual[1][2], expected[1][2]), true);
-    assert_eq!(assert_two_float(actual[1][3], expected[1][3]), true);
-
-    assert_eq!(assert_two_float(actual[2][0], expected[2][0]), true);
-    assert_eq!(assert_two_float(actual[2][1], expected[2][1]), true);
-    assert_eq!(assert_two_float(actual[2][2], expected[2][2]), true);
-    assert_eq!(assert_two_float(actual[2][3], expected[2][3]), true);
-
-    assert_eq!(assert_two_float(actual[3][0], expected[3][0]), true);
-    assert_eq!(assert_two_float(actual[3][1], expected[3][1]), true);
-    assert_eq!(assert_two_float(actual[3][2], expected[3][2]), true);
-    assert_eq!(assert_two_float(actual[3][3], expected[3][3]), true);
+    assert_eq!(actual.rows, expected.rows);
+    assert_eq!(actual.cols, expected.cols);
+    for c in 0..expected.cols {
+        for r in 0..expected.rows {
+            assert_eq!(assert_two_float(actual[r][c], expected[r][c]), true);
+        }
+    }
 }
 
 pub fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
