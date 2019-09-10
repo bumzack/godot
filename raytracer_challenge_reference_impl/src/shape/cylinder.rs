@@ -75,7 +75,7 @@ impl Cylinder {
         let mut res = Vec::new();
 
         let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
-        if !(a.abs() < EPSILON) {
+        if !(a.abs() < EPSILON_OVER_UNDER) {
             let b = 2.0 * r.get_origin().x * r.get_direction().x + 2.0 * r.get_origin().z * r.get_direction().z;
             let c = r.get_origin().x.powi(2) + r.get_origin().z.powi(2) - 1.0;
 
@@ -132,7 +132,7 @@ impl Cylinder {
     fn check_cap(r: &Ray, t: f32) -> bool {
         let x = r.get_origin().x + t * r.get_direction().x;
         let z = r.get_origin().z + t * r.get_direction().z;
-        (x.powi(2) + z.powi(2)) - 1.0 < EPSILON
+        (x.powi(2) + z.powi(2)) - 1.0 < EPSILON_OVER_UNDER
     }
 
     fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>) {

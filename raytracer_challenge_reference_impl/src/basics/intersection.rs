@@ -604,7 +604,7 @@ mod tests {
         let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
 
         let c = World::shade_hit(&w, &comps, 5);
-        let c_expected = Color::new(0.9337956, 0.6963231, 0.69230264);
+        let c_expected = Color::new(0.93391275, 0.696432, 0.6924281);
 
         println!("expected color    = {:?}", c_expected);
         println!("actual color      = {:?}", c);
