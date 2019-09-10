@@ -183,7 +183,7 @@ pub fn animate(
 
     let mut light_pos = Tuple4D::from(camera_from);
     light_pos.y += light_camera_distance_y;
-    light_pos.x = -light_pos.x;
+    light_pos.x =  light_pos.x;
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
     world.set_light(l);
@@ -201,6 +201,6 @@ pub fn animate(
         println!("camera_from  = {:?}, camera_to = {:?}   ", camera_from, camera_to);
 
         // camera_from.y += delta;
-        camera_from.z += 2.0 * delta;
+        camera_from.z += 1.0 * delta;
     }
 }

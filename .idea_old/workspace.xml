@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="679928f0-b2fc-4a7e-8dab-44f9f8d7e1c4" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+        <option value="Rust File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature5_multi_core" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="WpBMjOvH" />
+  </component>
+  <component name="ProjectId" id="1PhvhO85YdNx2nJEBSTuvfjyXK3" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../grgdl" />
+    <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+    <property name="org.rust.hideDetachedFileNotifications/home/bumzack/stoff/rust/raytracer-challenge/raytracer_challenge_reference_impl/examples/shadow_glamour_shot.rs" value="true" />
+    <property name="org.rust.hideDetachedFileNotifications/home/bumzack/stoff/rust/raytracer-challenge/raytracer_challenge_reference_impl/examples/test_soft_shadow_aka_area_light.rs" value="true" />
+    <property name="restartRequiresConfirmation" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/raytracer_challenge_reference_impl" />
+      <recent name="$PROJECT_DIR$/examples/archiv" />
+      <recent name="$PROJECT_DIR$/examples" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Cargo Command.Run cuda_kernel_raytracer">
+    <configuration name="Run cuda_kernel_raytracer" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="run --package cuda_kernel_raytracer --bin cuda_kernel_raytracer" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run raytracer_example" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="run --package raytracer_example --bin raytracer_example" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run test_soft_shadow" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="run --package raytracer_challenge_reference_impl --example test_soft_shadow" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run test_soft_shadow_aka_area_light" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="run --package raytracer_challenge_reference_impl --example test_soft_shadow_aka_area_light" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test intersection_list::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package cpu_kernel_raytracer --lib cpu::intersection_list::tests" />
+      <option name="allFeatures" value="false" />
+      <option name="nocapture" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Cargo Command.Run test_soft_shadow" />
+      <item itemvalue="Cargo Command.Test intersection_list::tests" />
+      <item itemvalue="Cargo Command.Run test_soft_shadow_aka_area_light" />
+      <item itemvalue="Cargo Command.Run raytracer_example" />
+      <item itemvalue="Cargo Command.Run cuda_kernel_raytracer" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo Command.Run cuda_kernel_raytracer" />
+        <item itemvalue="Cargo Command.Run raytracer_example" />
+        <item itemvalue="Cargo Command.Run test_soft_shadow_aka_area_light" />
+        <item itemvalue="Cargo Command.Test intersection_list::tests" />
+        <item itemvalue="Cargo Command.Run test_soft_shadow" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+    <option name="version" value="2" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="679928f0-b2fc-4a7e-8dab-44f9f8d7e1c4" name="Default Changelist" comment="" />
+      <created>1566339260391</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1566339260391</updated>
+      <workItem from="1566339261498" duration="1422000" />
+      <workItem from="1566395948450" duration="259000" />
+      <workItem from="1566396506253" duration="113000" />
+      <workItem from="1566498345977" duration="6024000" />
+      <workItem from="1566511067135" duration="4845000" />
+      <workItem from="1566517941732" duration="1294000" />
+      <workItem from="1566543129729" duration="1505000" />
+      <workItem from="1566544659246" duration="1202000" />
+      <workItem from="1566567437271" duration="1695000" />
+      <workItem from="1566603306374" duration="717000" />
+      <workItem from="1566604158776" duration="1463000" />
+      <workItem from="1567764024226" duration="966000" />
+      <workItem from="1567765043589" duration="2049000" />
+      <workItem from="1567767269457" duration="1365000" />
+      <workItem from="1567768774803" duration="7164000" />
+      <workItem from="1567779550725" duration="51000" />
+    </task>
+    <task id="LOCAL-00001" summary="use f32 as the cuda code to be able to compare results &#10;added debug render&#10;enabled AA in cuda_compare example">
+      <created>1566504340499</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1566504340499</updated>
+    </task>
+    <task id="LOCAL-00002" summary="added compare_to_cuda example">
+      <created>1566543427826</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1566543427826</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Merge branch 'master' of https://github.com/bumzack/raytracer-challenge&#10;&#10;# Conflicts:&#10;#&#9;examples/shadow_glamour_shot.rs&#10;#&#9;examples/test_antialiasing.rs&#10;#&#9;examples/test_soft_shadow.rs&#10;#&#9;src/world/world.rs">
+      <created>1566543716284</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1566543716284</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Merge branch 'master' of https://github.com/bumzack/raytracer-challenge&#10;&#10;# Conflicts:&#10;#&#9;examples/shadow_glamour_shot.rs&#10;#&#9;examples/test_antialiasing.rs&#10;#&#9;examples/test_soft_shadow.rs&#10;#&#9;src/world/world.rs">
+      <created>1566545250703</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1566545250703</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Merge branch 'master' of https://github.com/bumzack/raytracer-challenge&#10;&#10;# Conflicts:&#10;#&#9;examples/shadow_glamour_shot.rs&#10;#&#9;examples/test_antialiasing.rs&#10;#&#9;examples/test_soft_shadow.rs&#10;#&#9;src/world/world.rs">
+      <created>1566567995295</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1566567995295</updated>
+    </task>
+    <task id="LOCAL-00006" summary="added prefix to output images for ref_impl">
+      <created>1566568109949</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1566568109949</updated>
+    </task>
+    <task id="LOCAL-00007" summary="added all the CUDA fun stuff">
+      <created>1566569056733</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1566569056733</updated>
+    </task>
+    <task id="LOCAL-00008" summary="resolution and color changed">
+      <created>1567764391906</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1567764391906</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fixed a lot of stuff - but the launch!  macro is not working :-(">
+      <created>1567767023012</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1567767023012</updated>
+    </task>
+    <task id="LOCAL-00010" summary="looking good - fixed linker issues by adding a LIBRARY_PATH variable to bashrc&#10;in addition to LD_LIBRARY_PATH">
+      <created>1567768413398</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1567768413398</updated>
+    </task>
+    <task id="LOCAL-00011" summary="done!&#10;CUDA behind a cargo feature - yeah!">
+      <created>1567770042918</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1567770042918</updated>
+    </task>
+    <task id="LOCAL-00012" summary="implemented multi core raytracing using rayon&#10;&#10;image: 1280x720&#10;&#10;single core:       50.4  sec&#10;multi core (8x):   13.5  sec &#10;cuda:              809.667871ms !!!">
+      <created>1567773186277</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1567773186277</updated>
+    </task>
+    <task id="LOCAL-00013" summary="implemented multi core raytracing using rayon&#10;speed up not impressive but 4x on a 8 core cpu">
+      <created>1567778248418</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1567778248418</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="use f32 as the cuda code to be able to compare results &#10;added debug render&#10;enabled AA in cuda_compare example" />
+    <MESSAGE value="added compare_to_cuda example" />
+    <MESSAGE value="Merge branch 'master' of https://github.com/bumzack/raytracer-challenge&#10;&#10;# Conflicts:&#10;#&#9;examples/shadow_glamour_shot.rs&#10;#&#9;examples/test_antialiasing.rs&#10;#&#9;examples/test_soft_shadow.rs&#10;#&#9;src/world/world.rs" />
+    <MESSAGE value="added prefix to output images for ref_impl" />
+    <MESSAGE value="added all the CUDA fun stuff" />
+    <MESSAGE value="resolution and color changed" />
+    <MESSAGE value="fixed a lot of stuff - but the launch!  macro is not working :-(" />
+    <MESSAGE value="looking good - fixed linker issues by adding a LIBRARY_PATH variable to bashrc&#10;in addition to LD_LIBRARY_PATH" />
+    <MESSAGE value="done!&#10;CUDA behind a cargo feature - yeah!" />
+    <MESSAGE value="implemented multi core raytracing using rayon&#10;&#10;image: 1280x720&#10;&#10;single core:       50.4  sec&#10;multi core (8x):   13.5  sec &#10;cuda:              809.667871ms !!!" />
+    <MESSAGE value="implemented multi core raytracing using rayon&#10;speed up not impressive but 4x on a 8 core cpu" />
+    <MESSAGE value="fix anti aliasing" />
+    <MESSAGE value="cargo fmt" />
+    <option name="LAST_COMMIT_MESSAGE" value="cargo fmt" />
+  </component>
+</project>
