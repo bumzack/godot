@@ -123,7 +123,7 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                 c.get_calc_shadows(),
             );
             let idx = y_idx * w + x_idx;
-           //  color.clamp_color();
+            //  color.clamp_color();
 
             *pixels.offset(idx) = color;
         }

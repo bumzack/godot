@@ -20,27 +20,26 @@ fn main_coord_axes() {
     let backend = BackendCuda::new();
     // let backend = BackendCpu::new();
 
-//    let x = 82;
-//    let y = 10;
-//
-//
-//    let mut camera_from = Tuple4D::new_point(2.0, 2.0, -2.0);
-//    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-//    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
-//
-//    let mut light_pos = Tuple4D::new_point(2.0, 7.0, -2.0);
-//
-//    println!("light pos = {:?}", light_pos);
-//
-//    let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
-//    let l = Light::PointLight(pl);
-//    world.set_light(l);
-//    camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
-//    let canvas = backend.render_world_debug(&mut world, &camera, x, y);
-//    let filename = format!("./create_street/img/debug_point_{}_{}.png", x, y);
+    //    let x = 82;
+    //    let y = 10;
+    //
+    //
+    //    let mut camera_from = Tuple4D::new_point(2.0, 2.0, -2.0);
+    //    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    //    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    //
+    //    let mut light_pos = Tuple4D::new_point(2.0, 7.0, -2.0);
+    //
+    //    println!("light pos = {:?}", light_pos);
+    //
+    //    let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
+    //    let l = Light::PointLight(pl);
+    //    world.set_light(l);
+    //    camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
+    //    let canvas = backend.render_world_debug(&mut world, &camera, x, y);
+    //    let filename = format!("./create_street/img/debug_point_{}_{}.png", x, y);
 
     // real deal
-
 
     let (frames, delta) = (10, 0.8);
     //    let (frames, delta) = (25, 0.6);
