@@ -8,8 +8,8 @@ fn main() {
 }
 
 fn main_coord_axes() {
-    let width = 640;
-    let height = 480;
+    let width = 3840;
+    let height = 2160;
 
     let debug = true;
 
@@ -39,7 +39,6 @@ fn main_coord_axes() {
 //    let canvas = backend.render_world_debug(&mut world, &camera, x, y);
 //    let filename = format!("./create_street/img/debug_point_{}_{}.png", x, y);
 
-
     // real deal
 
 
@@ -47,7 +46,7 @@ fn main_coord_axes() {
     //    let (frames, delta) = (25, 0.6);
 
     let is_3d = true;
-    let full_raytracing = false;
+    let full_raytracing = true;
 
     let mut x: f32 = 0.0;
 
