@@ -1,5 +1,6 @@
 use crate::Tuple4D;
 
+#[derive(Debug)]
 pub struct PrecomputedComponent {
     t: f32,
     shape_idx: usize,

@@ -22,13 +22,32 @@ impl CpuKernel {
         calc_reflection: bool,
         calc_refraction: bool,
         calc_shadows: bool,
+        is_debug_render: bool,
     ) -> Color {
         let mut color = BLACK;
 
         let xs = Intersection::intersect_world(shapes, r);
+
         let (intersection, is_hit) = xs.hit();
+
+        if is_debug_render {
+            println!("'color_at'   intersection_list   = {:?}", xs);
+            println!("'color_at'   intersection        = {:?}", intersection);
+            println!("'color_at'   is_hit              = {:?}", is_hit);
+        }
+
         if is_hit {
             let comp = Intersection::prepare_computations(intersection, &r, &IntersectionList::new(), shapes);
+            if is_debug_render {
+                println!("'color_at'   comp   t                        = {:?}", comp.get_t());
+                println!("'color_at'   comp  get_eye_vector            = {:?}", comp.get_eye_vector());
+                println!("'color_at'   comp  get_normal_vector         = {:?}", comp.get_normal_vector());
+                println!("'color_at'   comp  get_reflected_vector      = {:?}", comp.get_reflected_vector());
+                println!("'color_at'   comp  get_point                  = {:?}", comp.get_point());
+                println!("'color_at'   comp  get_over_point             = {:?}", comp.get_over_point());
+                println!("'color_at'   comp  get_under_point            = {:?}", comp.get_under_point());
+
+            }
             color = CpuKernel::shade_hit(
                 shapes,
                 lights,
@@ -37,6 +56,7 @@ impl CpuKernel {
                 calc_reflection,
                 calc_refraction,
                 calc_shadows,
+                is_debug_render,
             );
         }
         color
@@ -50,6 +70,7 @@ impl CpuKernel {
         calc_reflection: bool,
         calc_refraction: bool,
         calc_shadows: bool,
+        is_debug_render: bool,
     ) -> Color {
         // TODO if there is more than 1 light??? pass that to Material::lightning?
         let light = &lights[0];
@@ -69,7 +90,9 @@ impl CpuKernel {
             comp.get_normal_vector(),
             intensity,
             calc_shadows,
+            is_debug_render,
         );
+
         assert_valid_color(&surface);
 
         let mut reflected = BLACK;
@@ -82,6 +105,7 @@ impl CpuKernel {
                 calc_reflection,
                 calc_refraction,
                 calc_shadows,
+                is_debug_render,
             );
         }
         let mut refracted = BLACK;
@@ -94,7 +118,15 @@ impl CpuKernel {
                 calc_reflection,
                 calc_refraction,
                 calc_shadows,
+                is_debug_render,
             );
+        }
+
+        if is_debug_render {
+            println!("'shade_hit'   intensity   = {:?}", intensity);
+            println!("'shade_hit'   surface        = {:?}", surface);
+            println!("'shade_hit'   reflected        = {:?}", reflected);
+            println!("'shade_hit'   refracted        = {:?}", refracted);
         }
 
         assert_valid_color(&reflected);
@@ -103,7 +135,20 @@ impl CpuKernel {
         // let material = comp.get_object().get_material();
         if calc_reflection && material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
             let reflectance = Intersection::schlick(comp);
+            if is_debug_render {
+                println!(
+                    "'shade_hit'   with schlick    return    = {:?}",
+                    &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance))
+                );
+            }
+
             return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
+        }
+        if is_debug_render {
+            println!(
+                "'shade_hit'   no schlick    return    = {:?}",
+                &surface + &(&reflected + &refracted)
+            );
         }
         &surface + &(&reflected + &refracted)
     }
@@ -175,6 +220,7 @@ impl CpuKernel {
         calc_reflection: bool,
         calc_refraction: bool,
         calc_shadows: bool,
+        is_debug_render: bool,
     ) -> Color {
         if remaining <= 0 {
             return BLACK;
@@ -195,6 +241,7 @@ impl CpuKernel {
             calc_reflection,
             calc_refraction,
             calc_shadows,
+            is_debug_render,
         );
         &color * material.get_reflective()
     }
@@ -207,6 +254,7 @@ impl CpuKernel {
         calc_reflection: bool,
         calc_refraction: bool,
         calc_shadows: bool,
+        is_debug_render: bool,
     ) -> Color {
         if remaining <= 0 {
             return BLACK;
@@ -237,6 +285,7 @@ impl CpuKernel {
             calc_reflection,
             calc_refraction,
             calc_shadows,
+            is_debug_render,
         ) * material.get_transparency()
     }
 
@@ -249,6 +298,7 @@ impl CpuKernel {
         n: &Tuple4D,
         intensity: f32,
         calc_shadows: bool,
+        is_debug_render: bool,
     ) -> Color {
         let c: Color;
         // TODO: a lot of color copying here ...
@@ -261,6 +311,12 @@ impl CpuKernel {
         // ambient
         let effective_color = &c * light.get_intensity();
         let ambient = &effective_color * material.get_ambient();
+
+        if is_debug_render {
+            println!("'lightning'           light.get_intensity(     = {:?} ", light.get_intensity());
+            println!("'lightning'           effective_color     = {:?} ", effective_color);
+            println!("'lightning'           ambient             = {:?} ", ambient);
+        }
 
         if !calc_shadows {
             return ambient;
@@ -284,6 +340,15 @@ impl CpuKernel {
             let light_v = Tuple4D::normalize(&(sample - point));
             let light_dot_normal = &light_v ^ &n;
 
+            if is_debug_render {
+                println!("");
+                println!("'lightning'           point                    = {:?} ", point);
+                println!("'lightning'           sample  (light_position)    = {:?} ", sample);
+
+                println!("'lightning'           light_v              = {:?} ", light_v);
+                println!("'lightning'           light_dot_normal     = {:?} ", light_dot_normal);
+            }
+
             if light_dot_normal < 0.0 || intensity == 0.0 {
                 specular = BLACK;
                 diffuse = BLACK;
@@ -305,10 +370,17 @@ impl CpuKernel {
             }
             assert_valid_color(&diffuse);
             assert_valid_color(&specular);
+            if is_debug_render {
+                println!("'lightning'           diffuse     = {:?} ", diffuse);
+                println!("'lightning'           specular     = {:?} ", specular);
+            }
 
             sum = &sum + &diffuse;
             sum = &sum + &specular;
         }
+
+
+
         assert_valid_color(&ambient);
         assert_valid_color(&sum);
         // sum.replace_inf_with_max();
