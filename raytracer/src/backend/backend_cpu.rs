@@ -95,7 +95,7 @@ impl Backend for BackendCpu {
             for y in 0..c.get_vsize() {
                 for x in 0..c.get_hsize() {
                     let r = Camera::ray_for_pixel(c, x, y);
-                    let mut color = CpuKernel::color_at(
+                    let color = CpuKernel::color_at(
                         world.get_shapes(),
                         &lights,
                         &r,
@@ -197,7 +197,7 @@ impl Backend for BackendCpu {
                 p.color.b = color.b;
             } else {
                 let r = Camera::ray_for_pixel(c, x, y);
-                let mut color = CpuKernel::color_at(
+                let color = CpuKernel::color_at(
                     world.get_shapes(),
                     &lights,
                     &r,

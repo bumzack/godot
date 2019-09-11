@@ -193,7 +193,7 @@ pub fn animate(
         let canvas = backend.render_world_multi_core(&mut world, &camera);
 
         let filename = format!(
-            "./create_street/img/coord_axes_{}_{}_frame_{:0>8}_dist_{:.6}.png",
+            "/home/bumzack/stoff/rust/raytracer-challenge/create_street/img/cpu_coord_axes_{}_{}_frame_{:0>8}_dist_{:.6}.png",
             width, height, i, i
         );
         canvas.unwrap().write_png(&filename).unwrap();

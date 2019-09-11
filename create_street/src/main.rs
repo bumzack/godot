@@ -1,10 +1,26 @@
 use raytracer::prelude::*;
+use crate::path_with_tilts::{PathWithTilts, PathWithTiltsOps};
 
 mod coord_axes;
 mod walls_with_2_tilts;
+mod path_with_tilts;
 
 fn main() {
     main_coord_axes();
+
+    let mut path = PathWithTilts::new();
+
+    let segment1 = (2.0, -30.0);
+    let segment2 = (3.0, 0.0);
+    let segment3 = (1.0, 45.0);
+
+    path.add(segment1);
+    path.add(segment2);
+    path.add(segment3);
+
+    for p in path.get_segments().iter() {
+        println!("segment:   len = {}, angle = {}", p.0, p.1);
+    }
 }
 
 fn main_coord_axes() {
@@ -18,7 +34,7 @@ fn main_coord_axes() {
     coord_axes::add_borders(&mut world);
 
     let backend = BackendCuda::new();
-    // let backend = BackendCpu::new();
+    let backend = BackendCpu::new();
 
     //    let x = 82;
     //    let y = 10;
@@ -41,7 +57,7 @@ fn main_coord_axes() {
 
     // real deal
 
-    let (frames, delta) = (10, 0.8);
+    let (frames, delta) = (1, 0.8);
     //    let (frames, delta) = (25, 0.6);
 
     let is_3d = true;
