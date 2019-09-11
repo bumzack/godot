@@ -18,3 +18,5 @@ rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = tru
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 
 rayon = "*"
+crossbeam-utils = "*"
+num_cpus = "*"

@@ -1,8 +1,8 @@
 use std::error::Error;
 
+use raytracer::{Backend, BackendCpu};
 #[cfg(feature = "cuda")]
 use raytracer::BackendCuda;
-use raytracer::{Backend, BackendCpu};
 use raytracer_lib_std::canvas::canvas::CanvasOps;
 
 pub mod chapter14_with_aa;
@@ -12,8 +12,8 @@ pub mod shadow_glamour_shot;
 pub mod test_soft_shadow_aka_area_light;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let w = 640;
-    let h = 480;
+    let w = 120;
+    let h = 100;
     let size_factor = 1.0;
     let anitaliasing = true;
     let antialiasing_size = 3;
@@ -39,9 +39,9 @@ fn run_cuda_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, anti
 fn run_cpu_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, antialiasing_size: usize) {
     let backend_cpu = BackendCpu::new();
     run_cpu_chapter14_with_aa(&backend_cpu, false, w, h);
-    run_cpu_compare_to_cuda(&backend_cpu, false, w, h);
-    run_cpu_shadow_glamour_shot(&backend_cpu, false, size_factor, anitaliasing, antialiasing_size);
-    run_cpu_soft_shadow(&backend_cpu, false, size_factor, anitaliasing, antialiasing_size);
+//    run_cpu_compare_to_cuda(&backend_cpu, false, w, h);
+//    run_cpu_shadow_glamour_shot(&backend_cpu, false, size_factor, anitaliasing, antialiasing_size);
+//    run_cpu_soft_shadow(&backend_cpu, false, size_factor, anitaliasing, antialiasing_size);
 }
 
 fn run_cpu_chapter14_with_aa(b: &dyn Backend, is_cuda: bool, w: usize, h: usize) {
@@ -49,17 +49,17 @@ fn run_cpu_chapter14_with_aa(b: &dyn Backend, is_cuda: bool, w: usize, h: usize)
         true => "cuda",
         false => "cpu",
     };
-    let filename_cpu_single = format!("{}_chapter14_with_aa_cpu_single_{}x{}.png", backend_name, w, h);
-    let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
-    println!("\n\n---------- single core CPU    --------------------");
-    let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
+//    let filename_cpu_single = format!("{}_chapter14_with_aa_cpu_single_{}x{}.png", backend_name, w, h);
+//    let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
+//    println!("\n\n---------- single core CPU    --------------------");
+//    let canvas = b.render_world(&mut world, &c);
+//    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
     if !is_cuda {
         let filename_cpu_multi = format!("{}_chapter14_with_aa_cpu_multi_core_{}x{}.png", backend_name, w, h);
         let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
         println!("\n\n---------- multi core  CPU    --------------------");
-        let canvas = b.render_world_multi_core(&mut world, &c);
+        let canvas = b.render_world_multi_core_crossbeam(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
     }
 }
