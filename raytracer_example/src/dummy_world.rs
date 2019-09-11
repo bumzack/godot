@@ -1,22 +1,6 @@
 use std::f32::consts::PI;
 
-use raytracer::Camera;
-use raytracer::CameraOps;
-use raytracer::Color;
-use raytracer::ColorOps;
-use raytracer::Light;
-use raytracer::MaterialOps;
-use raytracer::Matrix;
-use raytracer::MatrixOps;
-use raytracer::PointLight;
-use raytracer::Shape;
-use raytracer::ShapeEnum;
-use raytracer::ShapeOps;
-use raytracer::Sphere;
-use raytracer::Tuple;
-use raytracer::Tuple4D;
-use raytracer::World;
-use raytracer::WorldOps;
+use raytracer::prelude::*;
 
 pub fn setup_world(w: usize, h: usize) -> (World, Camera) {
     let mut floor = Sphere::new();
