@@ -1,11 +1,11 @@
-use raytracer_lib_no_std::basics::color::{Color, BLACK};
+use raytracer_lib_no_std::{assert_valid_color, ColorOps, DEBUG, EPSILON_OVER_UNDER, Light, ShapeOps};
+use raytracer_lib_no_std::basics::color::{BLACK, Color};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::LightOps;
 use raytracer_lib_no_std::material::material::{Material, MaterialOps};
 use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::Shape;
-use raytracer_lib_no_std::{assert_valid_color, ColorOps, Light, ShapeOps, DEBUG, EPSILON_OVER_UNDER};
 
 use crate::cpu::intersection::Intersection;
 use crate::cpu::intersection::IntersectionOps;
@@ -40,13 +40,27 @@ impl CpuKernel {
             let comp = Intersection::prepare_computations(intersection, &r, &IntersectionList::new(), shapes);
             if is_debug_render {
                 println!("'color_at'   comp   t                        = {:?}", comp.get_t());
-                println!("'color_at'   comp  get_eye_vector            = {:?}", comp.get_eye_vector());
-                println!("'color_at'   comp  get_normal_vector         = {:?}", comp.get_normal_vector());
-                println!("'color_at'   comp  get_reflected_vector      = {:?}", comp.get_reflected_vector());
+                println!(
+                    "'color_at'   comp  get_eye_vector            = {:?}",
+                    comp.get_eye_vector()
+                );
+                println!(
+                    "'color_at'   comp  get_normal_vector         = {:?}",
+                    comp.get_normal_vector()
+                );
+                println!(
+                    "'color_at'   comp  get_reflected_vector      = {:?}",
+                    comp.get_reflected_vector()
+                );
                 println!("'color_at'   comp  get_point                  = {:?}", comp.get_point());
-                println!("'color_at'   comp  get_over_point             = {:?}", comp.get_over_point());
-                println!("'color_at'   comp  get_under_point            = {:?}", comp.get_under_point());
-
+                println!(
+                    "'color_at'   comp  get_over_point             = {:?}",
+                    comp.get_over_point()
+                );
+                println!(
+                    "'color_at'   comp  get_under_point            = {:?}",
+                    comp.get_under_point()
+                );
             }
             color = CpuKernel::shade_hit(
                 shapes,
@@ -313,7 +327,10 @@ impl CpuKernel {
         let ambient = &effective_color * material.get_ambient();
 
         if is_debug_render {
-            println!("'lightning'           light.get_intensity(     = {:?} ", light.get_intensity());
+            println!(
+                "'lightning'           light.get_intensity(     = {:?} ",
+                light.get_intensity()
+            );
             println!("'lightning'           effective_color     = {:?} ", effective_color);
             println!("'lightning'           ambient             = {:?} ", ambient);
         }
@@ -378,8 +395,6 @@ impl CpuKernel {
             sum = &sum + &diffuse;
             sum = &sum + &specular;
         }
-
-
 
         assert_valid_color(&ambient);
         assert_valid_color(&sum);

@@ -1,5 +1,6 @@
-use raytracer::prelude::*;
 use std::f32::consts::PI;
+
+use raytracer::prelude::*;
 
 pub fn add_floor(world: &mut World) {
     // floor
@@ -183,7 +184,7 @@ pub fn animate(
 
     let mut light_pos = Tuple4D::from(camera_from);
     light_pos.y += light_camera_distance_y;
-    light_pos.x =  light_pos.x;
+    light_pos.x = light_pos.x;
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
     world.set_light(l);
