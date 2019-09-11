@@ -98,7 +98,7 @@ pub fn setup_world_shadow_glamour(size_factor: f32, antialiasing: bool, antialia
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(-3.0, 1., 2.5),
         &Tuple4D::new_point(0.0, 0.5, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }

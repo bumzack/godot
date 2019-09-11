@@ -90,7 +90,7 @@ pub(crate) fn setup_world_compare_to_cuda(w: usize, h: usize) -> (World, Camera)
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -5.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
 
     (world, c)
