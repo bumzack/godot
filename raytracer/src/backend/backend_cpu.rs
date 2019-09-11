@@ -7,6 +7,7 @@ use rayon::prelude::IntoParallelIterator;
 use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::camera::{Camera, CameraOps};
 use raytracer_lib_no_std::color::BLACK;
+use raytracer_lib_no_std::ColorOps;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 use crate::backend::backend::Backend;
@@ -87,7 +88,7 @@ impl Backend for BackendCpu {
                         color = c + color;
                     }
                     color = color / (n_samples * n_samples) as f32;
-                    //                    color.clamp_color();
+                    color.clamp_color();
                     canvas.write_pixel(x, y, color);
                 }
             }
@@ -105,7 +106,7 @@ impl Backend for BackendCpu {
                         c.get_calc_shadows(),
                         false,
                     );
-                    // color.clamp_color();
+                    color.clamp_color();
                     canvas.write_pixel(x, y, color);
                 }
             }
@@ -191,7 +192,7 @@ impl Backend for BackendCpu {
                     color = c + color;
                 }
                 color = color / (n_samples * n_samples) as f32;
-                // color.clamp_color();
+                color.clamp_color();
                 p.color.r = color.r;
                 p.color.g = color.g;
                 p.color.b = color.b;
@@ -207,7 +208,7 @@ impl Backend for BackendCpu {
                     c.get_calc_shadows(),
                     false,
                 );
-                //color.clamp_color();
+                color.clamp_color();
 
                 p.color.r = color.r;
                 p.color.g = color.g;

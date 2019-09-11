@@ -1,5 +1,6 @@
-use raytracer::prelude::*;
 use std::f32::consts::PI;
+
+use raytracer::prelude::*;
 
 pub fn add_floor(world: &mut World) {
     // floor

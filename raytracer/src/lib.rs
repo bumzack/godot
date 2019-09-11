@@ -10,8 +10,8 @@ extern crate rustacuda_core;
 
 // #[cfg_attr(cuda, macro_use)]
 
-#[cfg_attr(feature = "cuda", macro_use)]
-extern crate rustacuda;
+//#[cfg_attr(feature = "cuda", macro_use)]
+//extern crate rustacuda;
 
 pub use self::backend::*;
 pub use self::cpu_kernel_raytracer::*;

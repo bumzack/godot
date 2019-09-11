@@ -1,8 +1,8 @@
 use std::error::Error;
 
+use raytracer::{Backend, BackendCpu};
 #[cfg(feature = "cuda")]
 use raytracer::BackendCuda;
-use raytracer::{Backend, BackendCpu};
 use raytracer_lib_std::canvas::canvas::CanvasOps;
 
 pub mod chapter14_with_aa;
@@ -12,8 +12,8 @@ pub mod shadow_glamour_shot;
 pub mod test_soft_shadow_aka_area_light;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let w = 640;
-    let h = 480;
+    let w = 320;
+    let h = 200;
     let size_factor = 1.0;
     let anitaliasing = true;
     let antialiasing_size = 3;

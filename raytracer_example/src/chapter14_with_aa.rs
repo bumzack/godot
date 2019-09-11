@@ -1,33 +1,6 @@
-#![feature(stmt_expr_attributes)]
-
 use std::f32::consts::PI;
-use std::time::Instant;
 
-use raytracer::AreaLight;
-use raytracer::Camera;
-use raytracer::CameraOps;
-use raytracer::Checker3DPattern;
-use raytracer::Color;
-use raytracer::ColorOps;
-use raytracer::Cube;
-use raytracer::Cylinder;
-use raytracer::GradientPattern;
-use raytracer::Light;
-use raytracer::MaterialOps;
-use raytracer::Matrix;
-use raytracer::MatrixOps;
-use raytracer::Pattern;
-use raytracer::Plane;
-use raytracer::PointLight;
-use raytracer::RingPattern;
-use raytracer::Shape;
-use raytracer::ShapeEnum;
-use raytracer::ShapeOps;
-use raytracer::Sphere;
-use raytracer::Tuple;
-use raytracer::Tuple4D;
-use raytracer_lib_std::World;
-use raytracer_lib_std::WorldOps;
+use raytracer::prelude::*;
 
 pub(crate) fn setup_world_chapter14_with_aa(width: usize, height: usize) -> (World, Camera) {
     let mut floor = Plane::new();
@@ -126,7 +99,7 @@ pub(crate) fn setup_world_chapter14_with_aa(width: usize, height: usize) -> (Wor
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -6.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }

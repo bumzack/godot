@@ -1,33 +1,4 @@
-#![feature(stmt_expr_attributes)]
-
-use std::f32::consts::PI;
-use std::time::Instant;
-
-use raytracer::AreaLight;
-use raytracer::Camera;
-use raytracer::CameraOps;
-use raytracer::Checker3DPattern;
-use raytracer::Color;
-use raytracer::ColorOps;
-use raytracer::Cube;
-use raytracer::Cylinder;
-use raytracer::GradientPattern;
-use raytracer::Light;
-use raytracer::MaterialOps;
-use raytracer::Matrix;
-use raytracer::MatrixOps;
-use raytracer::Pattern;
-use raytracer::Plane;
-use raytracer::PointLight;
-use raytracer::RingPattern;
-use raytracer::Shape;
-use raytracer::ShapeEnum;
-use raytracer::ShapeOps;
-use raytracer::Sphere;
-use raytracer::Tuple;
-use raytracer::Tuple4D;
-use raytracer_lib_std::World;
-use raytracer_lib_std::WorldOps;
+use raytracer::prelude::*;
 
 pub fn setup_world_shadow_glamour(size_factor: f32, antialiasing: bool, antialiasing_size: usize) -> (World, Camera) {
     let width = (400 as f32 * size_factor) as usize;
@@ -111,7 +82,7 @@ pub fn setup_world_shadow_glamour(size_factor: f32, antialiasing: bool, antialia
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(-3.0, 1., 2.5),
         &Tuple4D::new_point(0.0, 0.5, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }
