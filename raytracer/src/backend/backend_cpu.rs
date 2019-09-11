@@ -12,7 +12,6 @@ use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 use crate::backend::backend::Backend;
 use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
-use raytracer_lib_no_std::ColorOps;
 
 pub struct BackendCpu {}
 

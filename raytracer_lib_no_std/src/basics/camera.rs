@@ -65,8 +65,8 @@ impl CameraOps for Camera {
             pixel_size: 0.0,
             antialiasing: false,
             antialiasing_size: 2,
-            calc_reflection: false,
-            calc_refraction: false,
+            calc_reflection: true,
+            calc_refraction: true,
             calc_shadows: true,
         };
         c

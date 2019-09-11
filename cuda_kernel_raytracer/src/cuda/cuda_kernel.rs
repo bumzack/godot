@@ -322,7 +322,7 @@ impl CudaKernel {
                 diffuse = BLACK;
             } else {
                 diffuse = &effective_color * material.get_diffuse() * light_dot_normal;
-                diffuse.fix_nan();
+                //diffuse.fix_nan();
                 let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
                 let reflect_dot_eye = &reflect_v ^ eye;
 
@@ -330,7 +330,7 @@ impl CudaKernel {
                 if reflect_dot_eye > 0.0 {
                     let factor = intri_powf(reflect_dot_eye, material.get_shininess());
                     specular = light.get_intensity() * material.get_specular() * factor;
-                    specular.fix_nan();
+                    //specular.fix_nan();
                 }
             }
             sum = &sum + &diffuse;
@@ -339,7 +339,7 @@ impl CudaKernel {
         //        assert_valid_color(&ambient);
         //        assert_valid_color(&sum);
 
-        sum.replace_inf_with_max();
+        // sum.replace_inf_with_max();
 
         if intensity == 1.0 {
             ambient + sum / light.get_samples() as f32 * intensity

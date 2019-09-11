@@ -60,23 +60,28 @@ pub(crate) fn setup_world_chapter14_with_aa(width: usize, height: usize) -> (Wor
     let mut cube = Cube::new();
     let c_trans = Matrix::translation(-2.0, 2.0, -1.75);
     let c_scale = Matrix::scale(0.5, 0.5, 0.25);
-    cube.set_transformation(c_scale * c_trans);
+    let c_rot = Matrix::rotate_y(PI/5.0);
+    let c_trans2 = Matrix::translation(-2.0, 2.0, -1.75);
+    let m = c_scale * c_trans;
+    let m = c_rot * m;
+    let m = c_trans2 * m;
+    cube.set_transformation(m);
     cube.get_material_mut().set_pattern(p);
     cube.get_material_mut().set_transparency(1.5);
 
     let mut checker = Checker3DPattern::new();
     checker.set_color_a(Color::new(1.0, 0.0, 0.0));
-    checker.set_color_b(Color::new(0.4, 0.0, 0.0));
+    checker.set_color_b(Color::new(0.0, 1.0, 1.0));
     let p = Pattern::Checker3DPattern(checker);
 
     let mut cylinder = Cylinder::new();
-    let c_trans = Matrix::translation(-3.5, 1.0, -0.75);
+    let c_trans = Matrix::translation(1.5, 1.0, -0.75);
     // let c_scale = Matrix::scale(2.0, 0.5, 0.25);
     cylinder.set_transformation(c_trans);
     cylinder.get_material_mut().set_pattern(p);
     cylinder.get_material_mut().set_transparency(1.5);
-    cylinder.set_minimum(0.0);
     cylinder.set_minimum(1.0);
+    cylinder.set_minimum(2.0);
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
@@ -90,11 +95,9 @@ pub(crate) fn setup_world_chapter14_with_aa(width: usize, height: usize) -> (Wor
     w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
     w.add_shape(Shape::new(ShapeEnum::Cube(cube)));
-    // w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
+    w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
 
-    let mut c = Camera::new(width, height, PI / 4.0);
-    c.set_antialiasing(true);
-    c.set_antialiasing_size(3);
+    let mut c = Camera::new(width, height, PI / 1.5);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -6.0),

@@ -93,19 +93,19 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
 
                 color = color
                     + CudaKernel::color_at(
-                        shapes,
-                        cnt_shapes,
-                        lights,
-                        cnt_lights,
-                        &r,
-                        MAX_REFLECTION_RECURSION_DEPTH,
-                        c.get_calc_reflection(),
-                        c.get_calc_refraction(),
-                        c.get_calc_shadows(),
-                    );
+                    shapes,
+                    cnt_shapes,
+                    lights,
+                    cnt_lights,
+                    &r,
+                    MAX_REFLECTION_RECURSION_DEPTH,
+                    c.get_calc_reflection(),
+                    c.get_calc_refraction(),
+                    c.get_calc_shadows(),
+                );
             }
             color = color / (n_samples * n_samples) as f32;
-            // color.clamp_color();
+            color.clamp_color();
             let idx = y_idx * w + x_idx;
 
             *pixels.offset(idx) = color;
@@ -123,7 +123,7 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                 c.get_calc_shadows(),
             );
             let idx = y_idx * w + x_idx;
-            //  color.clamp_color();
+            color.clamp_color();
 
             *pixels.offset(idx) = color;
         }
