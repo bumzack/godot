@@ -5,6 +5,10 @@
 #[macro_use]
 extern crate rustacuda_derive;
 
+#[cfg(test)]
+#[macro_use]
+extern crate std;
+
 pub mod matrix_math;
 pub use self::matrix_math::*;
 

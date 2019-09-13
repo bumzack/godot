@@ -66,10 +66,10 @@ impl GradientPattern {
 #[cfg(test)]
 mod tests {
     use crate::basics::color::ColorOps;
-    use crate::math::common::assert_color;
     use crate::math::tuple4d::Tuple;
 
     use super::*;
+    use crate::assert_color;
 
     // page 128
     #[test]

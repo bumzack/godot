@@ -94,6 +94,7 @@ mod tests {
     use cpu_kernel_raytracer::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
 
     use crate::{assert_color, assert_float, assert_matrix, assert_tuple, Shape, ShapeEnum};
+    use math::MatrixOps;
 
     fn glass_sphere() -> Sphere {
         let mut s = Sphere::new();
@@ -173,6 +174,7 @@ mod tests {
         assert_float(intersections[0], -6.0);
         assert_float(intersections[1], -4.0);
     }
+
     //
     // page 69
     #[test]
@@ -201,17 +203,17 @@ mod tests {
     // page 69 bottom
     #[test]
     fn test_sphere_scale() {
+        use math::prelude::*;
         use raytracer_lib_no_std::basics::ray::RayOps;
-        use raytracer_lib_no_std::math::matrix::MatrixOps;
-        use raytracer_lib_no_std::math::tuple4d::Tuple;
+
         use raytracer_lib_no_std::shape::shape::ShapeOps;
 
-        let o = ::raytracer_lib_no_std::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -5.0);
-        let d = ::raytracer_lib_no_std::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let o = ::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -5.0);
+        let d = ::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = ::raytracer_lib_no_std::basics::ray::Ray::new(o, d);
 
         let mut s = raytracer_lib_no_std::shape::sphere::Sphere::new();
-        let m = raytracer_lib_no_std::math::matrix::Matrix::scale(2.0, 2.0, 2.0);
+        let m = math::matrix::Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
         let sphere_shape =
@@ -233,17 +235,17 @@ mod tests {
     // page 70
     #[test]
     fn test_sphere_translated() {
+        use math::prelude::*;
         use raytracer_lib_no_std::basics::ray::RayOps;
-        use raytracer_lib_no_std::math::matrix::MatrixOps;
-        use raytracer_lib_no_std::math::tuple4d::Tuple;
+
         use raytracer_lib_no_std::shape::shape::ShapeOps;
 
-        let o = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -5.0);
-        let d = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let o = ::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -5.0);
+        let d = ::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = ::raytracer_lib_no_std::basics::ray::Ray::new(o, d);
 
         let mut s = raytracer_lib_no_std::shape::sphere::Sphere::new();
-        let m = raytracer_lib_no_std::math::matrix::Matrix::translation(5.0, 0.0, 0.0);
+        let m = ::math::matrix::Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
         let sphere_shape =
@@ -333,29 +335,28 @@ mod tests {
 
     // page 152
     fn test_helper_n1_n2_calculations(index: usize, n1_expected: f32, n2_expected: f32) {
-        use raytracer_lib_no_std::basics::ray::RayOps;
+        use math::prelude::*;
         use raytracer_lib_no_std::material::material::MaterialOps;
-        use raytracer_lib_no_std::math::matrix::MatrixOps;
-        use raytracer_lib_no_std::math::tuple4d::Tuple;
+        use raytracer_lib_no_std::prelude::*;
         use raytracer_lib_no_std::shape::shape::ShapeOps;
 
         let mut a = glass_sphere_module_raytracer_kernel();
-        let m_a = raytracer_lib_no_std::math::matrix::Matrix::scale(2.0, 2.0, 2.0);
+        let m_a = ::math::matrix::Matrix::scale(2.0, 2.0, 2.0);
         a.set_transformation(m_a);
         a.get_material_mut().set_refractive_index(1.5);
 
         let mut b = glass_sphere_module_raytracer_kernel();
-        let m_b = raytracer_lib_no_std::math::matrix::Matrix::translation(0.0, 0.0, -0.25);
+        let m_b = matrix::Matrix::translation(0.0, 0.0, -0.25);
         b.set_transformation(m_b);
         b.get_material_mut().set_refractive_index(2.0);
 
         let mut c = glass_sphere_module_raytracer_kernel();
-        let m_c = raytracer_lib_no_std::math::matrix::Matrix::translation(0.0, 0.0, 0.25);
+        let m_c = ::math::matrix::Matrix::translation(0.0, 0.0, 0.25);
         c.set_transformation(m_c);
         c.get_material_mut().set_refractive_index(2.5);
 
-        let p = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -4.0);
-        let o = raytracer_lib_no_std::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let p = ::math::tuple4d::Tuple4D::new_point(0.0, 0.0, -4.0);
+        let o = ::math::tuple4d::Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = raytracer_lib_no_std::basics::ray::Ray::new(p, o);
 
         let a =

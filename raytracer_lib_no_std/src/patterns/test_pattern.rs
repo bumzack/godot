@@ -68,13 +68,13 @@ impl TestPattern {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::common::{assert_color, assert_matrix};
     use crate::math::tuple4d::Tuple;
     use crate::patterns::patterns::Pattern;
     use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;
 
     use super::*;
+    use crate::assert_color;
 
     // page 133
     #[test]
