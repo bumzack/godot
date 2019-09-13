@@ -21,10 +21,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("main");
 
     #[cfg(feature = "cuda")]
-    run_cuda_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
+    println!("cuda");
 
     #[cfg(feature = "cuda")]
-    println!("cuda");
+    run_cuda_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
+
 
     #[cfg(not(feature = "cuda"))]
     println!("cpu");
