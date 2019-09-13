@@ -10,6 +10,7 @@ use crate::cuda::intersection_list::IntersectionListOps;
 use crate::cuda::shape_idx_list::{ShapeIdxList, ShapeIdxListOps};
 use raytracer_lib_no_std::{MaterialOps, ShapeIdx, ShapeOps};
 
+
 #[derive(Clone, Copy, Debug)]
 pub struct Intersection {
     t: f32,

@@ -1,9 +1,10 @@
 use core::f32::{INFINITY, NAN};
 
 use crate::{
-    intri_abs, max_float, min_float, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult,
-    ShapeOps, Tuple, Tuple4D, EPSILON,
+   Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult,
+    ShapeOps,
 };
+use math::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

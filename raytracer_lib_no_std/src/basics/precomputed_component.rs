@@ -1,4 +1,4 @@
-use crate::Tuple4D;
+use math::prelude::*;
 
 #[derive(Debug)]
 pub struct PrecomputedComponent {

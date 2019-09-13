@@ -1,10 +1,10 @@
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-use raytracer_lib_no_std::{MaterialOps, ShapeOps, EPSILON_OVER_UNDER};
+ use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
+use raytracer_lib_no_std::{MaterialOps, ShapeOps};
 
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};
+use math::prelude::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Intersection {

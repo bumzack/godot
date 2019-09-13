@@ -1,15 +1,10 @@
 // TODO: thats stupid - everything is a 4x4 matrix
 
-//#![cfg(feature = "cuda")]
-//extern crate rustacuda_derive;
-//
-//use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
-//
-//use core::ops::{Index, IndexMut, Mul};
+use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
+use core::ops::{Index, IndexMut, Mul};
 
-
-use crate::{Tuple4D, Tuple, intri_cos, intri_sin, EPSILON, intri_abs};
-use core::ops::{Mul, Index, IndexMut};
+#[cfg(feature = "cuda")]
+extern crate rustacuda_core;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -401,7 +396,6 @@ impl<'a, 'b> Mul<&'b Matrix> for &'a Matrix {
                     sum += self[row][i] * rhs[i][col];
                 }
                 m[row][col] = sum;
-
             }
         }
         m

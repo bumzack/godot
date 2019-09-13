@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 pub const EPSILON: f32 = 0.00001;
+pub const EPSILON_OVER_UNDER: f32 = 0.005;
 
 pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
     assert_eq!(actual.rows, expected.rows);
@@ -18,7 +19,6 @@ pub fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
     assert_eq!(assert_two_float(actual.z, expected.z), true);
     assert_eq!(assert_two_float(actual.w, expected.w), true);
 }
-
 
 pub fn assert_two_float(a: f32, b: f32) -> bool {
     // println!("float_equal: a = {}, b = {}", a, b);

@@ -1,4 +1,5 @@
-use crate::{intri_tan, Matrix, MatrixOps, Ray, RayOps, Tuple, Tuple4D};
+use math::prelude::*;
+use crate::{Ray, RayOps};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

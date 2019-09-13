@@ -1,6 +1,7 @@
 use core::fmt;
 
-use crate::{Cube, Cylinder, Material, Matrix, MatrixOps, Plane, Ray, Sphere, Triangle, Tuple, Tuple4D};
+use crate::{Cube, Cylinder, Material,  Plane, Ray, Sphere, Triangle};
+use math::prelude::*;
 
 pub type ShapeIdx = usize;
 pub type ShapeIntersectionResult = ([f32; 4], usize);

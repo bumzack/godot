@@ -108,6 +108,7 @@ dependencies = [
 name = "cpu_kernel_raytracer"
 version = "0.1.0"
 dependencies = [
+ "math 0.1.0",
  "raytracer_lib_no_std 0.1.0",
 ]
 
@@ -572,6 +573,7 @@ name = "raytracer_lib_no_std"
 version = "0.1.0"
 dependencies = [
  "cpu_kernel_raytracer 0.1.0",
+ "math 0.1.0",
  "raytracer_lib_no_std 0.1.0",
  "rustacuda_core 0.1.1",
  "rustacuda_derive 0.1.1",

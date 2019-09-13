@@ -1,8 +1,7 @@
  #![feature(core_intrinsics)]
 
-use core::intrinsics;
 use crate::matrix_math::libm_striped_to_pow::powf::powf;
-
+use core::intrinsics;
 
 #[inline]
 pub fn intri_abs(x: f32) -> f32 {
@@ -67,9 +66,8 @@ pub fn intri_floor(f: f32) -> f32 {
 mod tests {
     use core::f32::*;
 
-    use crate::math::libm_striped_to_pow::fabsf::fabsf;
-
     use super::*;
+    use crate::matrix_math::libm_striped_to_pow::fabsf::fabsf;
 
     #[test]
     fn test_powf() {

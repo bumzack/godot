@@ -14,19 +14,19 @@ extern crate rustacuda_derive;
 #[macro_use]
 extern crate std;
 
-// extern crate rustacuda_core;
+
+extern crate math;
+
 
 pub use self::basics::*;
 pub use self::light::*;
 pub use self::material::*;
-pub use self::math::*;
 pub use self::patterns::*;
 pub use self::shape::*;
 
 pub mod basics;
 pub mod light;
 pub mod material;
-pub mod math;
 pub mod patterns;
 pub mod shape;
 
@@ -34,9 +34,9 @@ pub mod prelude {
     pub use super::basics::*;
     pub use super::light::*;
     pub use super::material::*;
-    pub use super::math::*;
     pub use super::patterns::*;
     pub use super::shape::*;
+    pub use super::math::*;
 }
 
 pub const DEBUG: bool = false;

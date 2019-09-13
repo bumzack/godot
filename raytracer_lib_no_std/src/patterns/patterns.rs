@@ -1,6 +1,7 @@
 use crate::{
-    Checker3DPattern, Color, GradientPattern, Matrix, RingPattern, Shape, StripePattern, TestPattern, Tuple4D,
+    Checker3DPattern, Color, GradientPattern,  RingPattern, Shape, StripePattern, TestPattern,
 };
+use math::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

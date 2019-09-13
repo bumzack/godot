@@ -1,4 +1,5 @@
-use crate::{Color, LightOps, Tuple4D};
+use crate::{Color, LightOps};
+use math::prelude::*;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

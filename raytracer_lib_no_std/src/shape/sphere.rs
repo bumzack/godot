@@ -1,7 +1,7 @@
 use crate::{
-    intri_sqrt, Material, MaterialOps, Matrix, MatrixOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps, Tuple,
-    Tuple4D,
+    Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps,
 };
+use math::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

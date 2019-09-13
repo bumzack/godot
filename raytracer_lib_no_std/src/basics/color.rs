@@ -1,5 +1,6 @@
 use core::f32::MAX;
 use core::ops::{Add, Div, Mul, Sub};
+use math::assert_two_float;
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
@@ -173,6 +174,24 @@ impl Div<f32> for Color {
         }
     }
 }
+
+pub fn assert_color(actual: &Color, expected: &Color) {
+    assert_eq!(assert_two_float(actual.r, expected.r), true);
+    assert_eq!(assert_two_float(actual.g, expected.g), true);
+    assert_eq!(assert_two_float(actual.b, expected.b), true);
+}
+
+pub fn assert_valid_color(c: &Color) {
+    if c.r.is_nan() || c.g.is_nan() || c.b.is_nan() {
+        panic!("c has  NAN  component            c = {:?}", c);
+    }
+
+    if c.r.is_infinite() || c.g.is_infinite() || c.b.is_infinite() {
+        panic!("c has  INFINITE  component           c = {:?}", c);
+    }
+}
+
+
 
 #[cfg(test)]
 mod tests {

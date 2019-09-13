@@ -1,4 +1,4 @@
-use crate::{Matrix, Tuple4D};
+use math::prelude::*;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

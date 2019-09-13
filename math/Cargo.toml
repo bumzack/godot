@@ -6,8 +6,7 @@ edition = "2018"
 
 
 [features]
-cuda = [  "rustacuda_core", "rustacuda_derive"]
-
+cuda = [ "rustacuda_core", "rustacuda_derive" ]
 
 [dependencies]
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}

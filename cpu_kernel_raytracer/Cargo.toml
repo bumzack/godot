@@ -5,7 +5,8 @@ authors = ["bumzack"]
 edition = "2018"
 
 [features]
-cuda = ["raytracer_lib_no_std/cuda"]
+cuda = ["raytracer_lib_no_std/cuda", "math/cuda"]
 
 [dependencies]
 raytracer_lib_no_std = {path = "../raytracer_lib_no_std" }
+math = { path = "../math/" }
