@@ -14,7 +14,7 @@ pub mod test_soft_shadow_aka_area_light;
 fn main() -> Result<(), Box<dyn Error>> {
     let w =  3840;
     let h = 2160;
-    let size_factor = 4.0;
+    let size_factor = 5.0;
     let anitaliasing = true;
     let antialiasing_size = 3;
 
@@ -31,9 +31,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn run_cuda_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, antialiasing_size: usize) {
     let backend_gpu = BackendCuda::new();
     run_cpu_chapter14_with_aa(&backend_gpu, true, w, h);
-//    run_cpu_compare_to_cuda(&backend_gpu, true, w, h);
-//    run_cpu_shadow_glamour_shot(&backend_gpu, true, size_factor, anitaliasing, antialiasing_size);
-//    run_cpu_soft_shadow(&backend_gpu, true, size_factor, anitaliasing, antialiasing_size);
+    run_cpu_compare_to_cuda(&backend_gpu, true, w, h);
+    run_cpu_shadow_glamour_shot(&backend_gpu, true, size_factor, anitaliasing, antialiasing_size);
+    run_cpu_soft_shadow(&backend_gpu, true, size_factor, anitaliasing, antialiasing_size);
 }
 
 fn run_cpu_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, antialiasing_size: usize) {
