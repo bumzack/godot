@@ -26,6 +26,14 @@ pub trait Tuple {
     fn is_vector(a: &Tuple4D) -> bool;
 
     fn reflect(v: &Tuple4D, n: &Tuple4D) -> Tuple4D;
+
+    fn get_x(self) -> f32;
+    fn get_y(self) -> f32;
+    fn get_z(self) -> f32;
+
+    fn set_x(&mut self, x: f32);
+    fn set_y(&mut self, y: f32);
+    fn set_z(&mut self, z: f32);
 }
 
 impl Tuple for Tuple4D {
@@ -98,6 +106,30 @@ impl Tuple for Tuple4D {
     #[inline]
     fn reflect(v: &Tuple4D, n: &Tuple4D) -> Tuple4D {
         v - &((n * 2.0) * (v ^ n))
+    }
+
+    fn get_x(self) -> f32 {
+        self.x
+    }
+
+    fn get_y(self) -> f32 {
+        self.y
+    }
+
+    fn get_z(self) -> f32 {
+        self.z
+    }
+
+    fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+
+    fn set_z(&mut self, z: f32) {
+        self.z = z;
     }
 }
 

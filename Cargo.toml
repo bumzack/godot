@@ -9,5 +9,6 @@ members = [
     "raytracer_lib_no_std",
     "raytracer_lib_std",
      "raytracer_challenge_reference_impl",
-     "create_street"
+     "create_street",
+     "game-physics"
 ]
