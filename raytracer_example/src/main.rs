@@ -18,19 +18,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let anitaliasing = true;
     let antialiasing_size = 3;
 
-    println!("main");
-
-    #[cfg(feature = "cuda")]
-    println!("cuda");
-
     #[cfg(feature = "cuda")]
     run_cuda_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
 
-
     #[cfg(not(feature = "cuda"))]
-    println!("cpu");
-
-    //    run_cpu_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
+    run_cpu_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
 
     Ok(())
 }
@@ -57,16 +49,17 @@ fn run_cpu_chapter14_with_aa(b: &dyn Backend, is_cuda: bool, w: usize, h: usize)
         true => "CUDA",
         false => "CPU",
     };
-    let filename_cpu_single = format!("{}_chapter14_with_aa_cpu_single_{}x{}.png", backend_name, w, h);
-    let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
-    println!(
-        "{}",
-        format!("\n\n---------- single core   {}     --------------------", backend_name)
-    );
-    let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
-    if !is_cuda {
+    if is_cuda {
+        let filename_cpu_single = format!("{}_chapter14_with_aa_cpu_{}x{}.png", backend_name, w, h);
+        let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
+        println!(
+            "{}",
+            format!("\n\n---------- CUDA    chapter14_with_aa_  --------------------")
+        );
+        let canvas = b.render_world(&mut world, &c);
+        canvas.unwrap().write_png(&filename_cpu_single).unwrap();
+    } else {
         let filename_cpu_multi = format!("{}_chapter14_with_aa_cpu_multi_core_{}x{}.png", backend_name, w, h);
         let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
         println!("\n\n---------- multi core  CPU    --------------------");
@@ -80,16 +73,16 @@ fn run_cpu_compare_to_cuda(b: &dyn Backend, is_cuda: bool, w: usize, h: usize) {
         true => "cuda",
         false => "cpu",
     };
-    let filename_cpu_single = format!("{}_compare_to_cuda_cpu_single_{}x{}.png", backend_name, w, h);
-    let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
-    println!(
-        "{}",
-        format!("\n\n---------- single core   {}     --------------------", backend_name)
-    );
-    let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
-
-    if !is_cuda {
+    if is_cuda {
+        let filename_cpu_single = format!("{}_compare_to_cuda_cpu_{}x{}.png", backend_name, w, h);
+        let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
+        println!(
+            "{}",
+            format!("\n\n---------- CUDA    compare_to_cuda   --------------------")
+        );
+        let canvas = b.render_world(&mut world, &c);
+        canvas.unwrap().write_png(&filename_cpu_single).unwrap();
+    } else {
         let filename_cpu_multi = format!("{}_compare_to_cuda_cpu_multi_core_{}x{}.png", backend_name, w, h);
         let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
         println!("\n\n---------- multi core  CPU    --------------------");
@@ -110,19 +103,20 @@ fn run_cpu_shadow_glamour_shot(
         false => "cpu",
     };
 
-    let filename_cpu_single = format!(
-        "{}_shadow_glamour_shotcpu_single_{:2}x{}x{}.png",
-        backend_name, size_factor, antialiasing, antialiasing_size
-    );
-    let (mut world, c) = shadow_glamour_shot::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    println!(
-        "{}",
-        format!("\n\n---------- single core   {}     --------------------", backend_name)
-    );
-    let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
-
-    if !is_cuda {
+    if is_cuda {
+        let filename_cpu_single = format!(
+            "{}_shadow_glamour_shot_cpu_{:2}x{}x{}.png",
+            backend_name, size_factor, antialiasing, antialiasing_size
+        );
+        let (mut world, c) =
+            shadow_glamour_shot::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
+        println!(
+            "{}",
+            format!("\n\n---------- CUDA    shadow_glamour_shot  --------------------")
+        );
+        let canvas = b.render_world(&mut world, &c);
+        canvas.unwrap().write_png(&filename_cpu_single).unwrap();
+    } else {
         let filename_cpu_multi = format!(
             "{}_shadow_glamour_shot_cpu_multi_core_{:2}x{}x{}.png",
             backend_name, size_factor, antialiasing, antialiasing_size
@@ -141,20 +135,20 @@ fn run_cpu_soft_shadow(b: &dyn Backend, is_cuda: bool, size_factor: f32, antiali
         false => "cpu",
     };
 
-    let filename_cpu_single = format!(
-        "{}_test_soft_shadow_cpu_single_{:2}x{}x{}.png",
-        backend_name, size_factor, antialiasing, antialiasing_size
-    );
-    let (mut world, c) =
-        test_soft_shadow_aka_area_light::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    println!(
-        "{}",
-        format!("\n\n---------- single core   {}     --------------------", backend_name)
-    );
-    let canvas = b.render_world(&mut world, &c);
-    canvas.unwrap().write_png(&filename_cpu_single).unwrap();
-
-    if !is_cuda {
+    if is_cuda {
+        let filename_cpu_single = format!(
+            "{}_test_soft_shadow_cpu_{:2}x{}x{}.png",
+            backend_name, size_factor, antialiasing, antialiasing_size
+        );
+        let (mut world, c) =
+            test_soft_shadow_aka_area_light::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
+        println!(
+            "{}",
+            format!("\n\n---------- CUDA    test_soft_shadow --------------------")
+        );
+        let canvas = b.render_world(&mut world, &c);
+        canvas.unwrap().write_png(&filename_cpu_single).unwrap();
+    } else {
         let filename_cpu_multi = format!(
             "{}_test_soft_shadow_cpu_multi_core_{:2}x{}x{}.png",
             backend_name, size_factor, antialiasing, antialiasing_size
