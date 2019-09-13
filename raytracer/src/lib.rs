@@ -6,7 +6,6 @@ extern crate raytracer_lib_std;
 extern crate rustacuda_core;
 
 #[cfg_attr(feature = "cuda", macro_use)]
-
 #[cfg(feature = "cuda")]
 extern crate rustacuda;
 

@@ -1,9 +1,6 @@
 use core::f32::{INFINITY, NAN};
 
-use crate::{
-   Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult,
-    ShapeOps,
-};
+use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
 use math::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]

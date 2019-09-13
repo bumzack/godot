@@ -1,4 +1,4 @@
-use crate::{ Color, ColorOps, Shape, ShapeOps,  BLACK, WHITE};
+use crate::{Color, ColorOps, Shape, ShapeOps, BLACK, WHITE};
 use math::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]

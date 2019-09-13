@@ -1,6 +1,4 @@
-use crate::{
-    Checker3DPattern, Color, GradientPattern,  RingPattern, Shape, StripePattern, TestPattern,
-};
+use crate::{Checker3DPattern, Color, GradientPattern, RingPattern, Shape, StripePattern, TestPattern};
 use math::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]

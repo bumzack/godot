@@ -6,10 +6,10 @@ extern crate raytracer_lib_no_std;
 
 use cuda::cuda_kernel::CudaKernel;
 use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
-use raytracer_lib_no_std::basics::color::{BLACK, Color};
-use raytracer_lib_no_std::ColorOps;
+use raytracer_lib_no_std::basics::color::{Color, BLACK};
 use raytracer_lib_no_std::light::light::Light;
 use raytracer_lib_no_std::shape::shape::Shape;
+use raytracer_lib_no_std::ColorOps;
 
 pub mod cuda;
 
@@ -93,16 +93,16 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
 
                 color = color
                     + CudaKernel::color_at(
-                    shapes,
-                    cnt_shapes,
-                    lights,
-                    cnt_lights,
-                    &r,
-                    MAX_REFLECTION_RECURSION_DEPTH,
-                    c.get_calc_reflection(),
-                    c.get_calc_refraction(),
-                    c.get_calc_shadows(),
-                );
+                        shapes,
+                        cnt_shapes,
+                        lights,
+                        cnt_lights,
+                        &r,
+                        MAX_REFLECTION_RECURSION_DEPTH,
+                        c.get_calc_reflection(),
+                        c.get_calc_refraction(),
+                        c.get_calc_shadows(),
+                    );
             }
             color = color / (n_samples * n_samples) as f32;
             color.clamp_color();

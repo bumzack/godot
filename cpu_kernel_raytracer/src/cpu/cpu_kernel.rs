@@ -1,11 +1,11 @@
-use raytracer_lib_no_std::{assert_valid_color, ColorOps, DEBUG,  Light, ShapeOps};
-use raytracer_lib_no_std::basics::color::{BLACK, Color};
+use math::prelude::*;
+use raytracer_lib_no_std::basics::color::{Color, BLACK};
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::LightOps;
 use raytracer_lib_no_std::material::material::{Material, MaterialOps};
 use raytracer_lib_no_std::shape::shape::Shape;
-use math::prelude::*;
+use raytracer_lib_no_std::{assert_valid_color, ColorOps, Light, ShapeOps, DEBUG};
 
 use crate::cpu::intersection::Intersection;
 use crate::cpu::intersection::IntersectionOps;

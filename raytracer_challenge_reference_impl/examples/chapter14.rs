@@ -121,7 +121,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut cube = Cube::new();
     let c_trans = Matrix::translation(-2.0, 2.0, -1.75);
     let c_scale = Matrix::scale(0.5, 0.5, 0.25);
-    let c_rot = Matrix::rotate_y(PI/5.0);
+    let c_rot = Matrix::rotate_y(PI / 5.0);
     let c_trans2 = Matrix::translation(-2.0, 2.0, -1.75);
     let m = c_scale * c_trans;
     let m = c_rot * m;

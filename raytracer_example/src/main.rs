@@ -1,8 +1,8 @@
 use std::error::Error;
 
-use raytracer::{Backend, BackendCpu};
 #[cfg(feature = "cuda")]
 use raytracer::BackendCuda;
+use raytracer::{Backend, BackendCpu};
 use raytracer_lib_std::canvas::canvas::CanvasOps;
 
 pub mod chapter14_with_aa;
@@ -12,17 +12,24 @@ pub mod shadow_glamour_shot;
 pub mod test_soft_shadow_aka_area_light;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let w =  3840;
+    let w = 3840;
     let h = 2160;
     let size_factor = 5.0;
     let anitaliasing = true;
     let antialiasing_size = 3;
 
+    println!("main");
+
     #[cfg(feature = "cuda")]
     run_cuda_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
 
+    #[cfg(feature = "cuda")]
+    println!("cuda");
+
     #[cfg(not(feature = "cuda"))]
-    run_cpu_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
+    println!("cpu");
+
+    //    run_cpu_stuff(w, h, size_factor, anitaliasing, antialiasing_size);
 
     Ok(())
 }
@@ -51,7 +58,10 @@ fn run_cpu_chapter14_with_aa(b: &dyn Backend, is_cuda: bool, w: usize, h: usize)
     };
     let filename_cpu_single = format!("{}_chapter14_with_aa_cpu_single_{}x{}.png", backend_name, w, h);
     let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
-    println!("{}", format!("\n\n---------- single core   {}     --------------------", backend_name));
+    println!(
+        "{}",
+        format!("\n\n---------- single core   {}     --------------------", backend_name)
+    );
     let canvas = b.render_world(&mut world, &c);
     canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
@@ -71,7 +81,10 @@ fn run_cpu_compare_to_cuda(b: &dyn Backend, is_cuda: bool, w: usize, h: usize) {
     };
     let filename_cpu_single = format!("{}_compare_to_cuda_cpu_single_{}x{}.png", backend_name, w, h);
     let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
-    println!("{}", format!("\n\n---------- single core   {}     --------------------", backend_name));
+    println!(
+        "{}",
+        format!("\n\n---------- single core   {}     --------------------", backend_name)
+    );
     let canvas = b.render_world(&mut world, &c);
     canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
@@ -101,7 +114,10 @@ fn run_cpu_shadow_glamour_shot(
         backend_name, size_factor, antialiasing, antialiasing_size
     );
     let (mut world, c) = shadow_glamour_shot::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    println!("{}", format!("\n\n---------- single core   {}     --------------------", backend_name));
+    println!(
+        "{}",
+        format!("\n\n---------- single core   {}     --------------------", backend_name)
+    );
     let canvas = b.render_world(&mut world, &c);
     canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 
@@ -130,7 +146,10 @@ fn run_cpu_soft_shadow(b: &dyn Backend, is_cuda: bool, size_factor: f32, antiali
     );
     let (mut world, c) =
         test_soft_shadow_aka_area_light::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    println!("{}", format!("\n\n---------- single core   {}     --------------------", backend_name));
+    println!(
+        "{}",
+        format!("\n\n---------- single core   {}     --------------------", backend_name)
+    );
     let canvas = b.render_world(&mut world, &c);
     canvas.unwrap().write_png(&filename_cpu_single).unwrap();
 

@@ -45,14 +45,13 @@ impl ShapeOps for Cylinder {
         }
         Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
 
-
-//        let dist = intri_powi(local_point.x, 2) + intri_powi(local_point.z, 2);
-//        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
-//            return Tuple4D::new_vector(0.0, 1.0, 0.0);
-//        } else if dist < 1.0 && local_point.y <= self.get_minimum() + EPSILON {
-//            return Tuple4D::new_vector(0.0, -1.0, 0.0);
-//        }
-//        Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
+        //        let dist = intri_powi(local_point.x, 2) + intri_powi(local_point.z, 2);
+        //        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
+        //            return Tuple4D::new_vector(0.0, 1.0, 0.0);
+        //        } else if dist < 1.0 && local_point.y <= self.get_minimum() + EPSILON {
+        //            return Tuple4D::new_vector(0.0, -1.0, 0.0);
+        //        }
+        //        Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
     }
 
     fn set_material(&mut self, m: Material) {

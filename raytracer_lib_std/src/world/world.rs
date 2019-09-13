@@ -1,7 +1,7 @@
 // TODO: use Vec<Light> if multiple light sources should be supported
 
-use raytracer_lib_no_std::{Color, ColorOps, Light, PointLight, Shape};
 use math::prelude::*;
+use raytracer_lib_no_std::{Color, ColorOps, Light, PointLight, Shape};
 
 #[derive(Clone, Debug)]
 pub struct World {

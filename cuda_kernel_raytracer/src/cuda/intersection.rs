@@ -12,7 +12,6 @@ use raytracer_lib_no_std::prelude::intri_powi;
 use raytracer_lib_no_std::prelude::intri_sqrt;
 use raytracer_lib_no_std::prelude::EPSILON_OVER_UNDER;
 
-
 #[derive(Clone, Copy, Debug)]
 pub struct Intersection {
     t: f32,

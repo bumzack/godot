@@ -191,8 +191,6 @@ pub fn assert_valid_color(c: &Color) {
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use crate::{assert_color, assert_float};

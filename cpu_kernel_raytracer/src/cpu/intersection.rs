@@ -1,6 +1,6 @@
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
- use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
+use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
 use raytracer_lib_no_std::{MaterialOps, ShapeOps};
 
 use crate::cpu::intersection_list::{IntersectionList, IntersectionListOps};

@@ -1,6 +1,6 @@
 use core::fmt;
 
-use crate::{Cube, Cylinder, Material,  Plane, Ray, Sphere, Triangle};
+use crate::{Cube, Cylinder, Material, Plane, Ray, Sphere, Triangle};
 use math::prelude::*;
 
 pub type ShapeIdx = usize;

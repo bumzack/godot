@@ -1,5 +1,5 @@
-use math::prelude::*;
 use crate::{Ray, RayOps};
+use math::prelude::*;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
