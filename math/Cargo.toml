@@ -1,0 +1,14 @@
+[package]
+name = "math"
+version = "0.1.0"
+authors = ["bumzack"]
+edition = "2018"
+
+
+[features]
+cuda = [  "rustacuda_core", "rustacuda_derive"]
+
+
+[dependencies]
+rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
+rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}

@@ -287,6 +287,14 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "math"
+version = "0.1.0"
+dependencies = [
+ "rustacuda_core 0.1.1",
+ "rustacuda_derive 0.1.1",
+]
+
+[[package]]
 name = "memchr"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
