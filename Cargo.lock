@@ -584,6 +584,7 @@ name = "raytracer_lib_std"
 version = "0.1.0"
 dependencies = [
  "image 0.22.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "math 0.1.0",
  "raytracer_lib_no_std 0.1.0",
 ]
 

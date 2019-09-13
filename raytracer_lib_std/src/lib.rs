@@ -1,4 +1,5 @@
 extern crate image;
+extern crate math;
 
 pub use self::canvas::*;
 pub use self::world::*;

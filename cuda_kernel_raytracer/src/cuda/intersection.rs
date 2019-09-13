@@ -1,14 +1,16 @@
 use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::math::common::EPSILON_OVER_UNDER;
-use raytracer_lib_no_std::math::math::{intri_powi, intri_sqrt};
-use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
+use raytracer_lib_no_std::prelude::{Tuple, Tuple4D};
 use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
 
 use crate::cuda::intersection_list::IntersectionList;
 use crate::cuda::intersection_list::IntersectionListOps;
 use crate::cuda::shape_idx_list::{ShapeIdxList, ShapeIdxListOps};
 use raytracer_lib_no_std::{MaterialOps, ShapeIdx, ShapeOps};
+
+use raytracer_lib_no_std::prelude::intri_powi;
+use raytracer_lib_no_std::prelude::intri_sqrt;
+use raytracer_lib_no_std::prelude::EPSILON_OVER_UNDER;
 
 
 #[derive(Clone, Copy, Debug)]

@@ -3,15 +3,13 @@ use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
 use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
 use raytracer_lib_no_std::light::light::{Light, LightOps};
 use raytracer_lib_no_std::material::material::{Material, MaterialOps};
-use raytracer_lib_no_std::math::math::{intri_powi, intri_sqrt};
-use raytracer_lib_no_std::math::tuple4d::{Tuple, Tuple4D};
-use raytracer_lib_no_std::shape::shape::Shape;
+
+use raytracer_lib_no_std::prelude::*;
 
 use crate::cuda::intersection::Intersection;
 use crate::cuda::intersection::IntersectionOps;
 use crate::cuda::intersection_list::{IntersectionList, IntersectionListOps};
 use crate::cuda::MAX_LIGHT_SAMPLES;
-use raytracer_lib_no_std::{intri_powf, ShapeOps, EPSILON_OVER_UNDER};
 
 pub struct CudaKernel {}
 
