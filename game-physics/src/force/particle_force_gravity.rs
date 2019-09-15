@@ -1,17 +1,15 @@
-use crate::force::particle_force_generator::ParticleForceGeneratorOps;
-use crate::force::particle_force_registry::ParticleForceRegistry;
-use crate::force::particle_force_types::ParticleContainer;
-
-use crate::particle::particle::{Particle, ParticleOps};
 use math::prelude::*;
 
-#[derive(Clone)]
+use crate::force::particle_force_generator::ParticleForceGeneratorOps;
+use crate::particle::particle::{Particle, ParticleOps};
+
+#[derive(Debug, Clone)]
 pub struct ParticleForceGravity {
     gravity: Tuple4D,
 }
 
 impl<'a> ParticleForceGeneratorOps for ParticleForceGravity {
-    fn update_force(&self, particle: &mut Particle, duration: f32, all_particles: &ParticleContainer) {
+    fn update_force(&self, particle: &mut Particle, duration: f32, all_particles: &Vec<Particle>) {
         if !particle.has_finite_mass() {
             return;
         }

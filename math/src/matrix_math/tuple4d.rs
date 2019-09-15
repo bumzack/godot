@@ -34,6 +34,8 @@ pub trait Tuple {
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
     fn set_z(&mut self, z: f32);
+
+    fn up() -> Tuple4D;
 }
 
 impl Tuple for Tuple4D {
@@ -130,6 +132,10 @@ impl Tuple for Tuple4D {
 
     fn set_z(&mut self, z: f32) {
         self.z = z;
+    }
+
+    fn up() -> Tuple4D {
+        Tuple4D::new_vector(0.0, 1.0, 0.0)
     }
 }
 

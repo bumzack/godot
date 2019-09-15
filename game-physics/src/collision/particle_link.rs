@@ -1,14 +1,7 @@
 // ToDO remove this file? inheritance is not Rusts strong suit
 
-use std::f32::MAX;
-
-use crate::collision::particle_contact::{ParticleContact, ParticleContactOps};
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::{ParticleContactsContainer, ParticleIdx};
-
-use crate::particle::particle::Particle;
-use crate::particle::particle::ParticleOps;
-use math::prelude::*;
+use crate::collision::particle_contact::ParticleContact;
+use crate::force::particle_force_registry::ParticleForceRegistry;
 
 pub trait ParticleLinkOps {
     fn current_length(&self, registry: &ParticleForceRegistry) -> f32;

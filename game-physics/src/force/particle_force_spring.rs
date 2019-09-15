@@ -1,8 +1,8 @@
-use crate::force::particle_force_generator::ParticleForceGeneratorOps;
-use crate::force::particle_force_types::{ParticleContainer, ParticleIdx};
-
-use crate::particle::particle::{Particle, ParticleOps};
 use math::prelude::*;
+
+use crate::force::particle_force_generator::ParticleForceGeneratorOps;
+use crate::force::particle_force_types::ParticleIdx;
+use crate::particle::particle::{Particle, ParticleOps};
 
 #[derive(Clone)]
 pub struct ParticleForceSpring {
@@ -12,7 +12,7 @@ pub struct ParticleForceSpring {
 }
 
 impl ParticleForceGeneratorOps for ParticleForceSpring {
-    fn update_force(&self, particle: &mut Particle, _duration: f32, all_particles: &ParticleContainer) {
+    fn update_force(&self, particle: &mut Particle, _duration: f32, all_particles: &Vec<Particle>) {
         let other_particle = all_particles[self.other.unwrap()];
         let mut f = Tuple4D::new_point_from(particle.get_position());
         f = &f - other_particle.get_position();

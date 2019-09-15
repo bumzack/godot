@@ -1,10 +1,10 @@
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::ParticleIdx;
-
-use crate::particle::particle::Particle;
-use crate::particle::particle::ParticleOps;
 use math::prelude::*;
 
+use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
+use crate::force::particle_force_types::ParticleIdx;
+use crate::particle::particle::ParticleOps;
+
+#[derive(Debug, Clone)]
 pub struct ParticleContact {
     particle: Vec<Option<ParticleIdx>>,
     restitution: f32,
@@ -63,7 +63,7 @@ impl ParticleContactOps for ParticleContact {
         if self.particle[1].is_some() {
             acc_caused_velocity = &acc_caused_velocity - p1.get_acceleration();
         }
-        let mut acc_caused_sep_velocity = (acc_caused_velocity ^ self.contact_normal) * duration;
+        let acc_caused_sep_velocity = (acc_caused_velocity ^ self.contact_normal) * duration;
 
         //if closing velocity due to acc. build up exists -> remove it from sep. velocity
         if acc_caused_sep_velocity < 0.0 {
@@ -77,7 +77,7 @@ impl ParticleContactOps for ParticleContact {
 
         // apply change in veloctiy to all objects
         let total_inverse_mass = self.calc_total_inverse_mass(registry);
-        if (total_inverse_mass <= 0.0) {
+        if total_inverse_mass <= 0.0 {
             return;
         }
 
@@ -124,7 +124,7 @@ impl ParticleContactOps for ParticleContact {
 
         // total movement is based on both inverse masses
         let total_inverse_mass = self.calc_total_inverse_mass(registry);
-        if (total_inverse_mass <= 0.0) {
+        if total_inverse_mass <= 0.0 {
             return;
         }
 
@@ -182,7 +182,3 @@ impl ParticleContact {
         self.contact_normal = contact_normal;
     }
 }
-
-// TODO
-#[test]
-fn test_particle_contact() {}

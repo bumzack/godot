@@ -1,23 +1,24 @@
 use std::collections::HashMap;
 
+use math::prelude::*;
+
 use crate::force::particle_force_generator::ParticleForceGeneratorOps;
 use crate::force::particle_force_types::{
-    ParticleContainer, ParticleForceGeneratorOpsContainer, ParticleForceGeneratorOpsIdx, ParticleIdx,
+    ParticleForceGeneratorOpsContainer, ParticleForceGeneratorOpsIdx, ParticleIdx,
 };
 use crate::particle::particle::{Particle, ParticleOps};
-use math::prelude::*;
 
 #[derive(Clone)]
 pub struct ParticleForceRegistry {
     particle_force_generators: ParticleForceGeneratorOpsContainer,
-    particles: ParticleContainer,
+    particles: Vec<Particle>,
     registry: HashMap<ParticleForceGeneratorOpsIdx, Vec<ParticleIdx>>,
 }
 
 pub trait ParticleForceRegistryOps {
     fn add_particle(&mut self, p: Particle) -> ParticleIdx;
 
-    fn add_particle_force_generator(&mut self, g: Box<ParticleForceGeneratorOps>) -> ParticleForceGeneratorOpsIdx;
+    fn add_particle_force_generator(&mut self, g: Box<dyn ParticleForceGeneratorOps>) -> ParticleForceGeneratorOpsIdx;
 
     fn add_force_for_particle(&mut self, p_idx: ParticleIdx, g_idx: ParticleForceGeneratorOpsIdx);
 
@@ -30,12 +31,12 @@ pub trait ParticleForceRegistryOps {
 
     fn get_particle_mut(&mut self, idx: ParticleIdx) -> &mut Particle;
 
-    fn get_particle_force_generators(&self, idx: ParticleForceGeneratorOpsIdx) -> &ParticleForceGeneratorOps;
+    fn get_particle_force_generators(&self, idx: ParticleForceGeneratorOpsIdx) -> &dyn ParticleForceGeneratorOps;
 
     fn get_particle_force_generators_mut(
         &mut self,
         idx: ParticleForceGeneratorOpsIdx,
-    ) -> &mut ParticleForceGeneratorOps;
+    ) -> &mut dyn ParticleForceGeneratorOps;
 
     fn set_velocity(&mut self, p_idx: ParticleIdx, v: Tuple4D);
 }
@@ -46,7 +47,7 @@ impl ParticleForceRegistryOps for ParticleForceRegistry {
         self.particles.len() - 1
     }
 
-    fn add_particle_force_generator(&mut self, g: Box<ParticleForceGeneratorOps>) -> ParticleForceGeneratorOpsIdx {
+    fn add_particle_force_generator(&mut self, g: Box<dyn ParticleForceGeneratorOps>) -> ParticleForceGeneratorOpsIdx {
         self.particle_force_generators.push(g);
         self.particle_force_generators.len() - 1
     }
@@ -98,7 +99,7 @@ impl ParticleForceRegistryOps for ParticleForceRegistry {
         &mut self.particles[idx]
     }
 
-    fn get_particle_force_generators(&self, idx: ParticleForceGeneratorOpsIdx) -> &ParticleForceGeneratorOps {
+    fn get_particle_force_generators(&self, idx: ParticleForceGeneratorOpsIdx) -> &dyn ParticleForceGeneratorOps {
         // TODO: index check?
         &*self.particle_force_generators[idx]
     }

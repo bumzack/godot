@@ -1,13 +1,10 @@
 use std::f32::MAX;
 
 use crate::collision::particle_contact::ParticleContactOps;
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::{ParticleContactsContainer, ParticleIdx};
+use crate::force::particle_force_registry::ParticleForceRegistry;
+use crate::ParticleContact;
 
-use crate::particle::particle::Particle;
-use crate::particle::particle::ParticleOps;
-use math::prelude::*;
-
+#[derive(Clone, Debug)]
 pub struct ParticleContactResolver {
     iterations: usize,
     iterations_used: usize,
@@ -15,7 +12,7 @@ pub struct ParticleContactResolver {
 pub trait ParticleContactResolverOps {
     fn resolve_contacts(
         &mut self,
-        contact_array: &mut ParticleContactsContainer,
+        contact_array: &mut Vec<ParticleContact>,
         num_contacts: usize,
         duration: f32,
         registry: &mut ParticleForceRegistry,
@@ -25,7 +22,7 @@ pub trait ParticleContactResolverOps {
 impl ParticleContactResolverOps for ParticleContactResolver {
     fn resolve_contacts(
         &mut self,
-        contact_array: &mut ParticleContactsContainer,
+        contact_array: &mut Vec<ParticleContact>,
         num_contacts: usize,
         duration: f32,
         registry: &mut ParticleForceRegistry,

@@ -1,9 +1,7 @@
-use crate::force::particle_force_generator::ParticleForceGeneratorOps;
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::{ParticleContainer, ParticleIdx};
-
-use crate::particle::particle::{Particle, ParticleOps};
 use math::prelude::*;
+
+use crate::force::particle_force_generator::ParticleForceGeneratorOps;
+use crate::particle::particle::{Particle, ParticleOps};
 
 #[derive(Clone)]
 pub struct ParticleForceFakeSpring {
@@ -13,7 +11,7 @@ pub struct ParticleForceFakeSpring {
 }
 
 impl ParticleForceGeneratorOps for ParticleForceFakeSpring {
-    fn update_force(&self, particle: &mut Particle, duration: f32, all_particles: &ParticleContainer) {
+    fn update_force(&self, particle: &mut Particle, duration: f32, all_particles: &Vec<Particle>) {
         if !particle.has_finite_mass() {
             return;
         }

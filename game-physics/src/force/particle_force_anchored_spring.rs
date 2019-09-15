@@ -1,9 +1,8 @@
-use crate::force::particle_force_generator::ParticleForceGeneratorOps;
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::ParticleContainer;
-
-use crate::particle::particle::{Particle, ParticleOps};
 use math::prelude::*;
+
+use crate::force::particle_force_generator::ParticleForceGeneratorOps;
+use crate::particle::particle::{Particle, ParticleOps};
+use crate::ParticleContact;
 
 #[derive(Clone)]
 pub struct ParticleForceAnchoredSpring {
@@ -13,7 +12,7 @@ pub struct ParticleForceAnchoredSpring {
 }
 
 impl ParticleForceGeneratorOps for ParticleForceAnchoredSpring {
-    fn update_force(&self, particle: &mut Particle, _duration: f32, all_particles: &ParticleContainer) {
+    fn update_force(&self, particle: &mut Particle, _duration: f32, all_particles: &Vec<Particle>) {
         let mut f = Tuple4D::new_point_from(particle.get_position());
         f = &f - &self.anchor;
 

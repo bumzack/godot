@@ -1,12 +1,9 @@
-use core::f32::MAX;
-
-use crate::collision::particle_contact::{ParticleContact, ParticleContactOps};
-use crate::collision::particle_link::ParticleLinkOps;
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::{ParticleContactsContainer, ParticleIdx};
 use math::prelude::*;
 
-use crate::particle::particle::Particle;
+use crate::collision::particle_contact::ParticleContact;
+use crate::collision::particle_link::ParticleLinkOps;
+use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
+use crate::force::particle_force_types::ParticleIdx;
 use crate::particle::particle::ParticleOps;
 
 pub struct ParticleCableLink {
@@ -39,7 +36,7 @@ impl ParticleLinkOps for ParticleCableLink {
         contact.set_particle1(self.particle[1].unwrap());
 
         let mut normal = p1.get_position() - p0.get_position();
-        let normal = Tuple4D::normalize(&normal);
+        normal = Tuple4D::normalize(&normal);
         contact.set_contact_normal(normal);
         contact.set_penetration(length - self.max_length);
         contact.set_restitution(self.restitution);

@@ -1,5 +1,7 @@
 use math::prelude::*;
 
+pub type ParticleContainer = Vec<Particle>;
+
 #[derive(Clone, Debug, Copy)]
 pub struct Particle {
     position: Tuple4D,
@@ -8,7 +10,7 @@ pub struct Particle {
     force_accum: Tuple4D,
     damping: f32,
     inverse_mass: f32,
-    pub mass: f32,
+    mass: f32,
     id: i32,
 }
 

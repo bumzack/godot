@@ -1,12 +1,9 @@
-use std::f32::MAX;
-
-use crate::collision::particle_contact::{ParticleContact, ParticleContactOps};
-use crate::collision::particle_link::ParticleLinkOps;
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
-use crate::force::particle_force_types::{ParticleContactsContainer, ParticleIdx};
 use math::prelude::*;
 
-use crate::particle::particle::Particle;
+use crate::collision::particle_contact::ParticleContact;
+use crate::collision::particle_link::ParticleLinkOps;
+use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
+use crate::force::particle_force_types::ParticleIdx;
 use crate::particle::particle::ParticleOps;
 
 pub struct ParticleRod {
