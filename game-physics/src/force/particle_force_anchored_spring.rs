@@ -2,7 +2,6 @@ use math::prelude::*;
 
 use crate::force::particle_force_generator::ParticleForceGeneratorOps;
 use crate::particle::particle::{Particle, ParticleOps};
-use crate::ParticleContact;
 
 #[derive(Clone)]
 pub struct ParticleForceAnchoredSpring {

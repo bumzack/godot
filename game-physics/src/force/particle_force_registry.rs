@@ -39,6 +39,10 @@ pub trait ParticleForceRegistryOps {
     ) -> &mut dyn ParticleForceGeneratorOps;
 
     fn set_velocity(&mut self, p_idx: ParticleIdx, v: Tuple4D);
+
+    fn get_particles(&self) -> &Vec<Particle>;
+
+    fn get_particles_mut(&mut self) -> &mut Vec<Particle>;
 }
 
 impl ParticleForceRegistryOps for ParticleForceRegistry {
@@ -110,6 +114,14 @@ impl ParticleForceRegistryOps for ParticleForceRegistry {
 
     fn set_velocity(&mut self, p_idx: usize, v: Tuple4D) {
         self.particles[p_idx].set_velocity(v);
+    }
+
+    fn get_particles(&self) -> &Vec<Particle> {
+        &self.particles
+    }
+
+    fn get_particles_mut(&mut self) -> &mut Vec<Particle> {
+        &mut self.particles
     }
 }
 

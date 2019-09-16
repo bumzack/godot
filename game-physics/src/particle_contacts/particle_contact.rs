@@ -1,8 +1,7 @@
 use math::prelude::*;
 
-use crate::force::particle_force_registry::{ParticleForceRegistry, ParticleForceRegistryOps};
+use crate::{ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps};
 use crate::force::particle_force_types::ParticleIdx;
-use crate::particle::particle::ParticleOps;
 
 #[derive(Debug, Clone)]
 pub struct ParticleContact {
@@ -158,12 +157,12 @@ impl ParticleContact {
         }
     }
 
-    pub fn set_particle0(&mut self, p0: ParticleIdx) {
-        self.particle[0] = Some(p0);
+    pub fn set_particle0(&mut self, p0: Option<ParticleIdx>) {
+        self.particle[0] = p0;
     }
 
-    pub fn set_particle1(&mut self, p1: ParticleIdx) {
-        self.particle[1] = Some(p1);
+    pub fn set_particle1(&mut self, p1: Option<ParticleIdx>) {
+        self.particle[1] = p1;
     }
 
     pub fn set_restitution(&mut self, restitution: f32) {

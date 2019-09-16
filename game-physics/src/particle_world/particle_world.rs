@@ -3,7 +3,6 @@ use crate::{
     ParticleContactResolverOps, ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps,
 };
 
-#[derive(Clone)]
 pub struct ParticleWorld {
     particles: Vec<Particle>,
     contact_generators: Vec<ParticleContactGenerator>,
@@ -16,30 +15,32 @@ pub struct ParticleWorld {
 }
 
 pub trait ParticleWorldOps {
-    fn generate_contacts(&mut self) -> usize;
+    fn generate_contacts(&mut self, registry: &ParticleForceRegistry) -> usize;
     fn integrate(&mut self, duration: f32);
-    fn run_physics(&mut self, duration: f32);
+    fn run_physics(&mut self, duration: f32, registry: &ParticleForceRegistry);
     fn start_frame(&mut self);
 
     fn get_particles(&self) -> &Vec<Particle>;
     fn get_contact_generators(&self) -> &Vec<ParticleContactGenerator>;
     fn get_particle_force_registry(&self) -> &ParticleForceRegistry;
+
+    fn add_contact_generator(&mut self, contact_generator: ParticleContactGenerator);
 }
 
 impl ParticleWorldOps for ParticleWorld {
-    fn generate_contacts(&mut self) -> usize {
+    fn generate_contacts(&mut self, registry: &ParticleForceRegistry) -> usize {
         let mut limit = self.max_contacts;
         let mut res: Vec<ParticleContact> = Vec::new();
 
-        self.contact_generators.iter().for_each(|cg| {
-            let mut new_contacts = cg.add_contact(limit);
+        for cg in &mut self.contact_generators.iter_mut() {
+            let mut new_contacts = cg.add_contact(registry, limit).unwrap();
             limit -= new_contacts.len();
             // TODO: exit closure?!
             //            if limit <= 0 {
             //                break;
             //            }
             res.append(new_contacts.as_mut());
-        });
+        }
         self.max_contacts - limit
     }
 
@@ -47,10 +48,10 @@ impl ParticleWorldOps for ParticleWorld {
         self.particles.iter_mut().for_each(|p| p.integrate(duration));
     }
 
-    fn run_physics(&mut self, duration: f32) {
+    fn run_physics(&mut self, duration: f32, registry: &ParticleForceRegistry) {
         self.particle_force_registry.update_forces(duration);
         self.integrate(duration);
-        let used_contacts = self.generate_contacts();
+        let used_contacts = self.generate_contacts(registry);
         if used_contacts > 0 {
             if self.calculate_iterations {
                 self.particle_contact_resolver.set_iterations(used_contacts * 2);
@@ -78,6 +79,10 @@ impl ParticleWorldOps for ParticleWorld {
 
     fn get_particle_force_registry(&self) -> &ParticleForceRegistry {
         &self.particle_force_registry
+    }
+
+    fn add_contact_generator(&mut self, contact_generator: ParticleContactGenerator) {
+        self.contact_generators.push(contact_generator);
     }
 }
 

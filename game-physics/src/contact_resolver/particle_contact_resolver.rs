@@ -1,8 +1,7 @@
 use std::f32::MAX;
 
-use crate::collision::particle_contact::ParticleContactOps;
+use crate::{ParticleContact, ParticleContactOps};
 use crate::force::particle_force_registry::ParticleForceRegistry;
-use crate::ParticleContact;
 
 #[derive(Clone, Debug)]
 pub struct ParticleContactResolver {
