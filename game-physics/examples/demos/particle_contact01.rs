@@ -1,5 +1,4 @@
 use game_physics::prelude::*;
-
 use math::prelude::*;
 
 fn main() {
@@ -7,11 +6,12 @@ fn main() {
 
     let anchor = Tuple4D::new_point(10.0, 10.0, 10.0);
 
-    let mut pfg1 = ParticleForceElasticBungeeSpring::new();
-    // TODO???  pfg1.set(9.0);
-    pfg1.set_spring_constant(10.0);
+    let mut pfg1 = ParticleForceFakeSpring::new();
+    pfg1.set_anchor(anchor);
+    pfg1.set_spring_constant(4.0);
+    pfg1.set_damping(0.98);
 
-    let v1 = Tuple4D::new_vector(1.0, 2.0, 3.0);
+    let v1 = Tuple4D::new_vector(-1.0, -2.0, -3.0);
     let mut p1 = Particle::new();
     p1.set_inverse_mass(0.1);
     p1.set_velocity(v1);
@@ -21,16 +21,15 @@ fn main() {
     let mut p2 = Particle::new();
     p2.set_inverse_mass(0.1);
     p2.set_velocity(v2);
-    p2.set_id(2);
+    p2.set_id(1);
 
     let p1_idx = registry.add_particle(p1);
     let p2_idx = registry.add_particle(p2);
 
-    pfg1.set_other(p2_idx);
-
     let pfg1_idx = registry.add_particle_force_generator(Box::new(pfg1));
 
     registry.add_force_for_particle(p1_idx, pfg1_idx);
+    registry.add_force_for_particle(p2_idx, pfg1_idx);
 
     println!("initial position and velocity");
     println!("p1 position = {:?}", registry.get_particle(p1_idx).get_position());
@@ -53,4 +52,14 @@ fn main() {
     println!("after p1 has been 2x integrated1 ");
     println!("p1 position = {:?}", registry.get_particle(p1_idx).get_position());
     println!("p1 velocity = {:?}", registry.get_particle(p1_idx).get_velocity());
+
+    let mut pc = ParticleContact::new();
+    let n = Tuple4D::new_vector(1.0, 2.0, 3.0);
+    pc.set_contact_normal(n);
+    pc.set_penetration(2.0);
+    pc.set_restitution(3.0);
+    pc.set_particle0(p1_idx);
+    pc.set_particle1(p2_idx);
+
+    pc.resolve(2.0, &mut registry);
 }

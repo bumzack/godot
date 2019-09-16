@@ -1,5 +1,6 @@
 use game_physics::prelude::*;
 use math::prelude::*;
+
 fn main() {
     let mut registry = ParticleForceRegistry::new();
 
