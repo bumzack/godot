@@ -249,6 +249,5 @@ fn main() {
             .get_particle_world_mut()
             .run_physics(duration, &mut registry);
         println!("\n\n");
-
     }
 }

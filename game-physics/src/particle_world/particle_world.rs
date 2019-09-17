@@ -38,7 +38,10 @@ impl ParticleWorldOps for ParticleWorld {
                 Some(c) => c,
                 None => vec![],
             };
-            println!("'ParticleWorld::generate_contacts     new_contacts  {:?} ", new_contacts);
+            println!(
+                "'ParticleWorld::generate_contacts     new_contacts  {:?} ",
+                new_contacts
+            );
 
             limit -= new_contacts.len();
             // TODO: exit closure?!
@@ -47,8 +50,14 @@ impl ParticleWorldOps for ParticleWorld {
             //            }
             self.contacts.append(new_contacts.as_mut());
         }
-        println!("'ParticleWorld::generate_contacts      self.contacts  {:?} ",  self.contacts);
-        println!("'ParticleWorld::generate_contacts      return      self.max_contacts - limit {:?} ",  self.max_contacts - limit);
+        println!(
+            "'ParticleWorld::generate_contacts      self.contacts  {:?} ",
+            self.contacts
+        );
+        println!(
+            "'ParticleWorld::generate_contacts      return      self.max_contacts - limit {:?} ",
+            self.max_contacts - limit
+        );
 
         self.max_contacts - limit
     }
@@ -95,8 +104,8 @@ impl ParticleWorldOps for ParticleWorld {
         let support_scale = 0.1;
         let support_color = Color::new(0.0, 0.0, 1.0);
 
-        let width = 240;
-        let height = 200;
+        let width = 120;
+        let height = 100;
         let b = BackendCpu::new();
 
         let mut world = World::new();
@@ -105,7 +114,7 @@ impl ParticleWorldOps for ParticleWorld {
         let l = Light::PointLight(pl);
         world.set_light(l);
 
-        let mut c = Camera::new(width, height, PI / 5.5);
+        let mut c = Camera::new(width, height, PI / 13.5);
         c.calc_pixel_size();
         c.set_transformation(Matrix::view_transform(
             &Tuple4D::new_point(0.0, 10.5, -15.0),
