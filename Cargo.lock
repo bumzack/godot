@@ -224,6 +224,7 @@ name = "game-physics"
 version = "0.1.0"
 dependencies = [
  "math 0.1.0",
+ "raytracer 0.1.0",
 ]
 
 [[package]]

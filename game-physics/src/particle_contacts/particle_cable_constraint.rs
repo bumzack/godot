@@ -56,7 +56,7 @@ impl ParticleCableConstraint {
         self.max_length = max_length;
     }
 
-    pub fn set_restitutiond(&mut self, restitution: f32) {
+    pub fn set_restitution(&mut self, restitution: f32) {
         self.restitution = restitution;
     }
 
@@ -70,6 +70,10 @@ impl ParticleCableConstraint {
 
     pub fn set_particle0(&mut self, p0: Option<ParticleIdx>) {
         self.particle = p0;
+    }
+
+    pub fn set_anchor(&mut self, anchor: Tuple4D) {
+        self.anchor = anchor;
     }
 }
 

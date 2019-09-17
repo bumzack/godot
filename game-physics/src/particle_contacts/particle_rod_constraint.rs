@@ -1,7 +1,7 @@
 use math::prelude::*;
 
 use crate::{
-    ParticleConstraintOps, ParticleContact, ParticleContactGeneratorOps, ParticleForceRegistry,
+    ParticleConstraintOps, ParticleContact, ParticleForceRegistry,
     ParticleForceRegistryOps, ParticleOps,
 };
 use crate::force::particle_force_types::ParticleIdx;

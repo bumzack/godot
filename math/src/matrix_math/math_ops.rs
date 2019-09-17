@@ -1,7 +1,10 @@
- #![feature(core_intrinsics)]
+#![feature(core_intrinsics)]
 
-use crate::matrix_math::libm_striped_to_pow::powf::powf;
 use core::intrinsics;
+
+use crate::matrix_math;
+use crate::matrix_math::libm_striped_to_pow::fmod::fmod_no_std;
+use crate::matrix_math::libm_striped_to_pow::powf::powf;
 
 #[inline]
 pub fn intri_abs(x: f32) -> f32 {
@@ -62,12 +65,20 @@ pub fn intri_floor(f: f32) -> f32 {
     unsafe { intrinsics::floorf32(f) }
 }
 
+
+#[inline]
+pub fn fmod(x: f32, y: f32) -> f32 {
+    fmod_no_std(x as f64, y as f64) as f32
+}
+
+
 #[cfg(test)]
 mod tests {
     use core::f32::*;
 
-    use super::*;
     use crate::matrix_math::libm_striped_to_pow::fabsf::fabsf;
+
+    use super::*;
 
     #[test]
     fn test_powf() {

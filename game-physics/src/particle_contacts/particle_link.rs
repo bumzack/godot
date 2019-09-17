@@ -1,5 +1,3 @@
-use math::{Tuple, Tuple4D};
-
 use crate::{
     GroundContact, ParticleCable, ParticleContact, ParticleContactGeneratorOps, ParticleForceRegistry, ParticleRod,
 };

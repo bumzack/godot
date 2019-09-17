@@ -53,11 +53,11 @@ impl ParticleCable {
         }
     }
 
-    pub fn set_max_lengths(&mut self, max_length: f32) {
+    pub fn set_max_length(&mut self, max_length: f32) {
         self.max_length = max_length;
     }
 
-    pub fn set_restitutiond(&mut self, restitution: f32) {
+    pub fn set_restitution(&mut self, restitution: f32) {
         self.restitution = restitution;
     }
 

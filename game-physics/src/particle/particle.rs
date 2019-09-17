@@ -33,6 +33,8 @@ pub trait ParticleOps {
 
     fn set_inverse_mass(&mut self, m: f32);
     fn get_inverse_mass(self) -> f32;
+    fn set_mass(&mut self, m: f32);
+
     fn get_mass(self) -> f32;
     fn has_finite_mass(&self) -> bool;
 
@@ -93,6 +95,11 @@ impl ParticleOps for Particle {
 
     fn set_inverse_mass(&mut self, m: f32) {
         self.inverse_mass = m;
+    }
+
+    fn set_mass(&mut self, m: f32) {
+        assert_ne!(m, 0.0);
+        self.inverse_mass = 1.0 / m;
     }
 
     fn get_inverse_mass(self) -> f32 {

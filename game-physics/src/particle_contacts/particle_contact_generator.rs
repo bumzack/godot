@@ -1,10 +1,14 @@
-use crate::{GroundContact, ParticleCable, ParticleContact, ParticleForceRegistry, ParticleLinkOps, ParticleRod};
+use crate::{
+    GroundContact, ParticleCable, ParticleCableConstraint, ParticleConstraintOps, ParticleContact,
+    ParticleForceRegistry, ParticleLinkOps, ParticleRod,
+};
 
 // #[derive(Debug)]
 pub enum ParticleContactGeneratorEnum {
     GroundContactGeneratorEnum(GroundContact),
     ParticleRodEnum(ParticleRod),
     ParticleCableEnum(ParticleCable),
+    ParticleCableConstraintEnum(ParticleCableConstraint),
 }
 
 // #[derive(Debug)]
@@ -28,6 +32,9 @@ impl ParticleContactGeneratorOps for ParticleContactGenerator {
             }
             ParticleContactGeneratorEnum::ParticleCableEnum(ref mut particle_cable) => {
                 particle_cable.add_contact(registry, limit)
+            }
+            ParticleContactGeneratorEnum::ParticleCableConstraintEnum(ref mut particle_cable_contraint) => {
+                particle_cable_contraint.add_contact(registry, limit)
             }
         }
     }
