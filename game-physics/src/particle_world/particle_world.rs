@@ -21,33 +21,35 @@ pub trait ParticleWorldOps {
     fn run_physics(&mut self, duration: f32, registry: &mut ParticleForceRegistry);
     fn start_frame(&mut self, registry: &mut ParticleForceRegistry);
 
-    //    fn get_particles(&self) -> &Vec<Particle>;
-    //    fn get_particles_mut(&mut self) -> &mut Vec<Particle>;
-
-    // fn get_contact_generators(&self) -> &Vec<ParticleContactGenerator>;
     fn add_contact_generator(&mut self, contact_generator: ParticleContactGenerator) -> usize;
 
-    fn render_world(&self ,cnt: usize,  registry: &ParticleForceRegistry);
+    fn render_world(&self, cnt: usize, registry: &ParticleForceRegistry);
 }
 
 impl ParticleWorldOps for ParticleWorld {
     fn generate_contacts(&mut self, registry: &ParticleForceRegistry) -> usize {
         let mut limit = self.max_contacts;
-        let mut res: Vec<ParticleContact> = Vec::new();
+        // let mut res: Vec<ParticleContact> = Vec::new();
 
+        println!("'ParticleWorld::generate_contacts   ");
         for cg in &mut self.contact_generators.iter_mut() {
             // TODO: if let ...
             let mut new_contacts = match cg.add_contact(registry, limit) {
                 Some(c) => c,
                 None => vec![],
             };
+            println!("'ParticleWorld::generate_contacts     new_contacts  {:?} ", new_contacts);
+
             limit -= new_contacts.len();
             // TODO: exit closure?!
             //            if limit <= 0 {
             //                break;
             //            }
-            res.append(new_contacts.as_mut());
+            self.contacts.append(new_contacts.as_mut());
         }
+        println!("'ParticleWorld::generate_contacts      self.contacts  {:?} ",  self.contacts);
+        println!("'ParticleWorld::generate_contacts      return      self.max_contacts - limit {:?} ",  self.max_contacts - limit);
+
         self.max_contacts - limit
     }
 
@@ -65,12 +67,8 @@ impl ParticleWorldOps for ParticleWorld {
         if used_contacts > 0 {
             if self.calculate_iterations {
                 self.particle_contact_resolver.set_iterations(used_contacts * 2);
-                self.particle_contact_resolver.resolve_contacts(
-                    &mut self.contacts,
-                    used_contacts,
-                    duration,
-                    registry,
-                );
+                self.particle_contact_resolver
+                    .resolve_contacts(&mut self.contacts, used_contacts, duration, registry);
             }
         }
     }
@@ -82,22 +80,6 @@ impl ParticleWorldOps for ParticleWorld {
             .for_each(|p| p.clear_accumulator());
     }
 
-    //    fn get_particles(&self) -> &Vec<Particle> {
-    //        &self.particles
-    //    }
-    //
-    //    fn get_particles_mut(&mut self) -> &mut Vec<Particle> {
-    //        &mut self.particles
-    //    }
-
-//    fn get_contact_generators(&self) -> &Vec<ParticleContactGenerator> {
-//        &self.contact_generators
-//    }
-//
-//    fn get_particle_force_registry(&self) -> &ParticleForceRegistry {
-//        &self.particle_force_registry
-//    }
-
     fn add_contact_generator(&mut self, contact_generator: ParticleContactGenerator) -> usize {
         self.contact_generators.push(contact_generator);
         self.contact_generators.len() - 1
@@ -105,14 +87,13 @@ impl ParticleWorldOps for ParticleWorld {
 
     fn render_world(&self, cnt: usize, registry: &ParticleForceRegistry) {
         let particle_scale = 0.1;
-        let particle_color = Color::new(1.0, 0.0,0.0);
+        let particle_color = Color::new(1.0, 0.0, 0.0);
 
         let rod_scale = 0.1;
-        let rod_color = Color::new(0.0, 1.0,0.0);
+        let rod_color = Color::new(0.0, 1.0, 0.0);
 
         let support_scale = 0.1;
-        let support_color = Color::new(0.0, 0.0,1.0);
-
+        let support_color = Color::new(0.0, 0.0, 1.0);
 
         let width = 240;
         let height = 200;
@@ -143,18 +124,19 @@ impl ParticleWorldOps for ParticleWorld {
         let floor = Shape::new(ShapeEnum::Plane(floor));
         world.add_shape(floor);
 
-
         for p in registry.get_particles().iter() {
-           let mut  sphere = Sphere::new();
+            let mut sphere = Sphere::new();
             let m_trans = Matrix::translation(p.get_position().x, p.get_position().y, p.get_position().z);
-            let m_scale = Matrix::scale(particle_scale,particle_scale, particle_scale);
+            let m_scale = Matrix::scale(particle_scale, particle_scale, particle_scale);
             sphere.set_transformation(m_trans * m_scale);
             sphere.get_material_mut().set_color(particle_color.clone());
-            let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+            let mut sphere = Shape::new(ShapeEnum::Sphere(sphere));
+            sphere.set_casts_shadow(false);
+
             world.add_shape(sphere);
         }
 
-        let filename  = format!("bridge_{}.png", cnt);
+        let filename = format!("bridge_{}.png", cnt);
         let canvas = b.render_world_multi_core(&mut world, &c);
         canvas.unwrap().write_png(&filename).unwrap();
     }

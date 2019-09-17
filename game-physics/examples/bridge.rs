@@ -55,7 +55,7 @@ impl BridgeDemo {
         &mut self.world
     }
 
-    pub fn get_particle_world(& self) -> & ParticleWorld {
+    pub fn get_particle_world(&self) -> &ParticleWorld {
         &self.world
     }
 
@@ -95,12 +95,12 @@ impl BridgeDemo {
         self.mass_display_pos.z = 0.0;
 
         let idx = x * 2 + z;
-        let prop = (1.0 - xp)*(1.0 - zp);
+        let prop = (1.0 - xp) * (1.0 - zp);
         let particle = &mut registry.get_particle_mut(idx as usize);
 
         particle.set_mass(BASE_MASS + EXTRA_MASS * prop as f32);
         let mut mdp = self.get_mass_display_pos();
-       let mdp =  mdp + &(particle.get_position() * prop as f32);
+        let mdp = mdp + &(particle.get_position() * prop as f32);
         self.set_mass_display_pos(mdp);
 
         if xp > 0.0 {
@@ -109,8 +109,8 @@ impl BridgeDemo {
 
             let prop = xp * (1.0 - zp);
             let mut mdp = self.get_mass_display_pos();
-           let  mdp = mdp + &(particle.get_position() * prop as f32);
-            self.set_mass_display_pos( mdp);
+            let mdp = mdp + &(particle.get_position() * prop as f32);
+            self.set_mass_display_pos(mdp);
 
             if zp > 0.0 {
                 let idx = x * 2 + z + 3;
@@ -129,7 +129,7 @@ impl BridgeDemo {
 
             let prop = (1.0 - xp) * zp;
             let mut mdp = self.get_mass_display_pos();
-            let mdp =  mdp + &(particle.get_position() * prop as f32);
+            let mdp = mdp + &(particle.get_position() * prop as f32);
             self.set_mass_display_pos(mdp);
         }
     }
@@ -209,8 +209,9 @@ fn main() {
         }
         cable_constraint.set_restitution(0.5);
 
-        let cable_constraint =
-            ParticleContactGenerator::new(ParticleContactGeneratorEnum::ParticleCableConstraintEnum(cable_constraint));
+        let cable_constraint = ParticleContactGenerator::new(
+            ParticleContactGeneratorEnum::ParticleCableConstraintEnum(cable_constraint),
+        );
 
         let idx = bridge_demo
             .get_particle_world_mut()
@@ -226,28 +227,28 @@ fn main() {
 
         particle_rod.set_length(2.0);
 
-        let particle_rod =
-            ParticleContactGenerator::new(ParticleContactGeneratorEnum::ParticleRodEnum(particle_rod));
+        let particle_rod = ParticleContactGenerator::new(ParticleContactGeneratorEnum::ParticleRodEnum(particle_rod));
 
-        let idx = bridge_demo
-            .get_particle_world_mut()
-            .add_contact_generator(particle_rod);
+        let idx = bridge_demo.get_particle_world_mut().add_contact_generator(particle_rod);
         bridge_demo.add_rod(idx);
     }
 
     bridge_demo.update_additional_mass(particle_count, BASE_MASS, &mut registry);
 
-
     bridge_demo.get_particle_world_mut().start_frame(&mut registry);
 
-    let cnt_frames = 1;
-    let duration = 0.05;
+    let cnt_frames = 20;
+    let duration = 0.1;
     for i in 0..cnt_frames {
-
         bridge_demo.get_particle_world().render_world(i, &registry);
 
+        println!("-----------------------------");
+        println!("------frame {}  -----------------------", i);
+        println!("-----------------------------\n\n");
         bridge_demo
             .get_particle_world_mut()
             .run_physics(duration, &mut registry);
+        println!("\n\n");
+
     }
 }

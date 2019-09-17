@@ -65,12 +65,10 @@ pub fn intri_floor(f: f32) -> f32 {
     unsafe { intrinsics::floorf32(f) }
 }
 
-
 #[inline]
 pub fn fmod(x: f32, y: f32) -> f32 {
     fmod_no_std(x as f64, y as f64) as f32
 }
-
 
 #[cfg(test)]
 mod tests {

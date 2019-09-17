@@ -1,7 +1,6 @@
 extern crate math;
 extern crate raytracer;
 
-
 pub use self::contact_resolver::*;
 pub use self::force::*;
 pub use self::particle::*;
