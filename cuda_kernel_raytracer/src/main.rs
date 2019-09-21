@@ -6,15 +6,15 @@ extern crate raytracer_lib_no_std;
 
 use cuda::cuda_kernel::CudaKernel;
 use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
-use raytracer_lib_no_std::basics::color::{Color, BLACK};
+use raytracer_lib_no_std::basics::color::{BLACK, Color};
+use raytracer_lib_no_std::ColorOps;
 use raytracer_lib_no_std::light::light::Light;
 use raytracer_lib_no_std::shape::shape::Shape;
-use raytracer_lib_no_std::ColorOps;
 
 pub mod cuda;
 
 // TODO: there are multiple definitions of this constant
-pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 10;
+pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 
 #[no_mangle]
 #[cfg(target_os = "cuda")]

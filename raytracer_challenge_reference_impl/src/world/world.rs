@@ -1,11 +1,10 @@
+use crate::DEBUG;
 use crate::prelude::*;
-
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
-use crate::DEBUG;
 
-pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 10;
+pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 
 #[derive(Clone, Debug)]
 pub struct World {
