@@ -8,7 +8,6 @@ use std::ops::Add;
 
 use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
 
-
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Matrix {
@@ -43,7 +42,9 @@ pub trait MatrixOps {
         d4: f32,
     ) -> Matrix;
 
+    fn new_identity_3x3() -> Matrix;
     fn new_identity_4x4() -> Matrix;
+
     fn transpose(m: &Matrix) -> Matrix;
 
     fn determinant(m: &Matrix) -> f32;
@@ -136,18 +137,35 @@ impl MatrixOps for Matrix {
         m[0][1] = b1;
         m[0][2] = c1;
         m[0][3] = d1;
+
         m[1][0] = a2;
         m[1][1] = b2;
         m[1][2] = c2;
         m[1][3] = d2;
+
         m[2][0] = a3;
         m[2][1] = b3;
         m[2][2] = c3;
         m[2][3] = d3;
+
         m[3][0] = a4;
         m[3][1] = b4;
         m[3][2] = c4;
         m[3][3] = d4;
+
+        m
+    }
+
+    fn new_identity_3x3() -> Matrix {
+        let mut m = Matrix {
+            rows: 3,
+            cols: 3,
+            m: [0.0; 16],
+        };
+
+        m[0][0] = 1.0;
+        m[1][1] = 1.0;
+        m[2][2] = 1.0;
 
         m
     }
@@ -426,7 +444,7 @@ impl<'a, 'b> Mul<&'b Tuple4D> for &'a Matrix {
     type Output = Tuple4D;
 
     fn mul(self, rhs: &'b Tuple4D) -> Tuple4D {
-        //        assert_eq!(self.rows, 4);
+        //  assert_eq!(self.rows, 4);
         let mut t = Tuple4D::empty();
 
         // TODO: not a generic code for general matrix dimensions
