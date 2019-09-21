@@ -2,12 +2,13 @@
 
 extern crate num_cpus;
 
-use raytracer_challenge_reference_impl::prelude::*;
 use std::error::Error;
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
+
+use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 600;
@@ -44,8 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                jitter_matrix = vec![
+            jitter_matrix = vec![
                 -two_over_six,
                 two_over_six,
                 0.0,

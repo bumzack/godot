@@ -50,14 +50,6 @@ pub fn cylinder_between_two_points(p1: &Tuple4D, p2: &Tuple4D, radius: f32) -> C
     //  &m_trans * &(m_rot * m_scale);
     let m = &m_trans * &(&m_rot * &m_scale);
 
-    println!("p1  :         {:?}", p1);
-    println!("p2  :         {:?}", p2);
-    println!("center  :     {:?}", center);
-
-    //    let delta_calc = &m_rot * &y_axis;
-    //    println!("delta_norm  expected:     {:?}", delta_norm);
-    //    println!("delta_calc:               {:?}", delta_calc);
-
     let mut c = Cylinder::new();
     c.set_transformation(m);
     c.set_minimum(-0.5);

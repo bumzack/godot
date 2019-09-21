@@ -13,7 +13,7 @@ fn main() {
 
     let points = vec![&p1, &p2, &p3, &p4, &p5];
 
-    add_spheres(&mut world, &points);
+    create_spheres(&mut world, &points);
 
     add_cylinder(&mut world, &points);
 
@@ -47,29 +47,17 @@ fn render_multiple_scene(backend: &BackendCpu, mut world: &mut World, camera: &m
     render_and_save_world(&backend, &mut world, &camera, "geom_pos3.png");
 }
 
-fn add_spheres(world: &mut World, points: &Vec<&Tuple4D>) {
-    let mut spheres = create_spheres(points);
-
-    for s in spheres.drain(..) {
-        world.add_shape(s);
-    }
-}
-
-fn create_spheres(points: &Vec<&Tuple4D>) -> Vec<Shape> {
+fn create_spheres(world: &mut World, points: &Vec<&Tuple4D>) {
     let scale_factor = 0.1;
-    let m_scale = Matrix::scale(scale_factor, scale_factor, scale_factor);
+    // let m_scale = Matrix::scale(scale_factor, scale_factor, scale_factor);
 
-    let spheres = points
-        .iter()
-        .map(|p| {
-            let mut s = Sphere::new();
-            s.set_transformation(&Matrix::translation(p.x, p.y, p.z) * &m_scale);
-            s.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
-            Shape::new(ShapeEnum::Sphere(s))
-        })
-        .collect();
-
-    spheres
+    points.iter().for_each(|p| {
+        let mut s = Sphere::new();
+        s.set_transformation(Matrix::translation(p.x, p.y, p.z));
+        s.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+        let s = Shape::new(ShapeEnum::Sphere(s));
+        world.add_shape(s);
+    });
 }
 
 fn render_and_save_world(backend: &BackendCpu, world: &mut World, camera: &Camera, filename: &str) {
@@ -121,8 +109,8 @@ pub fn add_floor(world: &mut World) {
 }
 
 pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bool) -> (World, Camera) {
-    let radius = 0.05;
-    let len = 0.8;
+    let radius = 1.0;
+    let len = 2.0;
 
     let mut x_axis = Cylinder::new();
     x_axis.set_minimum(0.0);

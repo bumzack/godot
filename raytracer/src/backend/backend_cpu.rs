@@ -21,8 +21,7 @@ impl Backend for BackendCpu {
         let n_samples = c.get_antialiasing_size();
         let mut jitter_matrix = Vec::new();
         if n_samples == 2 {
-            #[rustfmt::skip]
-                jitter_matrix = vec![
+            jitter_matrix = vec![
                 -1.0 / 4.0,
                 1.0 / 4.0,
                 1.0 / 4.0,
@@ -35,8 +34,7 @@ impl Backend for BackendCpu {
         }
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                jitter_matrix = vec![
+            jitter_matrix = vec![
                 -two_over_six,
                 two_over_six,
                 0.0,
@@ -117,13 +115,12 @@ impl Backend for BackendCpu {
 
     fn render_world_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
-        // println!("cpu multi core   started at : {:?}    ", start);
+        println!("cpu multi core   started at : {:?}    ", start);
 
         let n_samples = c.get_antialiasing_size();
         let mut jitter_matrix = Vec::new();
         if n_samples == 2 {
-            #[rustfmt::skip]
-                jitter_matrix = vec![
+            jitter_matrix = vec![
                 -1.0 / 4.0,
                 1.0 / 4.0,
                 1.0 / 4.0,
@@ -136,8 +133,7 @@ impl Backend for BackendCpu {
         }
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                jitter_matrix = vec![
+            jitter_matrix = vec![
                 -two_over_six,
                 two_over_six,
                 0.0,
@@ -213,7 +209,7 @@ impl Backend for BackendCpu {
         });
 
         let stopped = Instant::now();
-        println!("cpu multicore       duration  {:?}  ", stopped.duration_since(start));
+        println!("cpu multicore       duration  {:?}  \n ", stopped.duration_since(start));
         Ok(canvas)
     }
 }

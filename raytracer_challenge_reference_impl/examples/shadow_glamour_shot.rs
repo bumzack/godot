@@ -57,8 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if n_samples == 3 {
             let two_over_six = 2.0 / 6.0;
-            #[rustfmt::skip]
-                jitter_matrix = vec![
+            jitter_matrix = vec![
                 -two_over_six,
                 two_over_six,
                 0.0,
@@ -182,8 +181,7 @@ fn main1() -> Result<(), Box<dyn Error>> {
 
     if n_samples == 3 {
         let two_over_six = 2.0 / 6.0;
-        #[rustfmt::skip]
-            jitter_matrix = vec![
+        jitter_matrix = vec![
             -two_over_six,
             two_over_six,
             0.0,

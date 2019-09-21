@@ -54,7 +54,7 @@ pub fn add_borders(world: &mut World) {
 
 pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bool) -> (World, Camera) {
     let radius = 0.05;
-    let len = 0.8;
+    let len = 2.0;
 
     let mut x_axis = Cylinder::new();
     x_axis.set_minimum(0.0);
@@ -89,6 +89,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     let m_trans = Matrix::translation(0.0, 0.0, 0.0);
     let m_scale = Matrix::scale(radius, len, radius);
     let m = &m_trans * &(m_rot * m_scale);
+
     y_axis.set_transformation(m);
     let mut y_axis = Shape::new(ShapeEnum::Cylinder(y_axis));
     y_axis.set_casts_shadow(false);
