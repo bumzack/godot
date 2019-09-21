@@ -5,8 +5,8 @@ use raytracer::prelude::*;
 fn main() {
     let (backend, mut world, mut camera) = setup_world();
 
-    let p1 = Tuple4D::new_point(-2.0, 0.0, 0.0);
-    let p2 = Tuple4D::new_point(2.0, 0.0, 0.0);
+    let p1 = Tuple4D::new_point(-2.0, -1.0, -2.0);
+    let p2 = Tuple4D::new_point(2.0, 1.0, 2.0);
 
     add_spheres(&mut world, p1, p2);
 
@@ -14,15 +14,17 @@ fn main() {
     let mut c = Shape::new(ShapeEnum::Cylinder(c));
     c.set_casts_shadow(false);
     world.add_shape(c);
-
     render_and_save_world(&backend, &mut world, &camera, "geom_pos1.png");
 
+    // render_multiple_scene(&backend, &mut world, &mut camera);
+}
+
+fn render_multiple_scene(backend: &BackendCpu, mut world: &mut World, camera: &mut Camera) {
     let mut camera_from = Tuple4D::new_point(2.5, 3.0, -3.0);
     let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
     let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
     render_and_save_world(&backend, &mut world, &camera, "geom_pos2.png");
-
     let mut camera_from = Tuple4D::new_point(2.5, 3.0, 3.0);
     let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
     let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
@@ -66,14 +68,14 @@ fn render_and_save_world(backend: &BackendCpu, mut world: &mut World, camera: &C
 }
 
 fn setup_world() -> (BackendCpu, World, Camera) {
-    let width = 320;
-    let height = 240;
+    let width = 640;
+    let height = 480;
     let backend = BackendCpu::new();
 
     let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
     // add_floor(&mut world);
 
-    let mut camera_from = Tuple4D::new_point(0.5, 3.0, -6.0);
+    let mut camera_from = Tuple4D::new_point(1.9, 3.0, -6.0);
     let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
     let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
@@ -204,7 +206,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
         w.add_shape(sphere_z);
     }
 
-    let mut c = Camera::new(width, height, 1.8);
+    let mut c = Camera::new(width, height, 1.0);
     c.set_antialiasing(false);
     c.set_calc_reflection(false);
     c.set_calc_refraction(false);

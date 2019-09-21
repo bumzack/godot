@@ -1,10 +1,13 @@
 // TODO: thats stupid - everything is a 4x4 matrix
 
-use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
-use core::ops::{Index, IndexMut, Mul};
-
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
+
+use core::ops::{Index, IndexMut, Mul};
+use std::ops::Add;
+
+use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
+
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -433,6 +436,70 @@ impl<'a, 'b> Mul<&'b Tuple4D> for &'a Matrix {
         t.w = self[3][0] * rhs.x + self[3][1] * rhs.y + self[3][2] * rhs.z + self[3][3] * rhs.w;
 
         t
+    }
+}
+
+impl Add for Matrix {
+    type Output = Matrix;
+
+    fn add(self, rhs: Matrix) -> Matrix {
+        assert_eq!(self.rows, rhs.rows);
+        assert_eq!(self.cols, rhs.cols);
+        let mut m = Matrix::new(self.rows, self.cols);
+
+        for c in 0..self.cols {
+            for r in 0..self.rows {
+                m[r][c] = self[r][c] + rhs[r][c];
+            }
+        }
+        m
+    }
+}
+
+impl<'a, 'b> Add<&'b Matrix> for &'a Matrix {
+    type Output = Matrix;
+
+    fn add(self, rhs: &'b Matrix) -> Matrix {
+        assert_eq!(self.rows, rhs.rows);
+        assert_eq!(self.cols, rhs.cols);
+        let mut m = Matrix::new(self.rows, self.cols);
+
+        for c in 0..self.cols {
+            for r in 0..self.rows {
+                m[r][c] = self[r][c] + rhs[r][c];
+            }
+        }
+        m
+    }
+}
+
+impl Mul<f32> for Matrix {
+    type Output = Matrix;
+
+    fn mul(self, rhs: f32) -> Matrix {
+        let mut m = Matrix::new(self.rows, self.cols);
+
+        for c in 0..self.cols {
+            for r in 0..self.rows {
+                m[r][c] = self[r][c] * rhs;
+            }
+        }
+        m
+    }
+}
+
+impl<'a> Mul<f32> for &'a Matrix {
+    type Output = Matrix;
+
+    fn mul(self, rhs: f32) -> Matrix {
+        let mut m = Matrix::new(self.rows, self.cols);
+
+        for c in 0..self.cols {
+            for r in 0..self.rows {
+                m[r][c] = self[r][c] * rhs;
+            }
+        }
+        m
     }
 }
 

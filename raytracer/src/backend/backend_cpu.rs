@@ -111,16 +111,13 @@ impl Backend for BackendCpu {
             }
         }
         let stopped = Instant::now();
-        println!(
-            "\n\ncpu single core     duration: {:?} \n\n",
-            stopped.duration_since(start)
-        );
+        println!("cpu single core     duration: {:?} ", stopped.duration_since(start));
         Ok(canvas)
     }
 
     fn render_world_multi_core(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
-        println!("\n\ncpu multi core   started at : {:?} \n\n", start);
+        // println!("cpu multi core   started at : {:?}    ", start);
 
         let n_samples = c.get_antialiasing_size();
         let mut jitter_matrix = Vec::new();
@@ -216,10 +213,7 @@ impl Backend for BackendCpu {
         });
 
         let stopped = Instant::now();
-        println!(
-            "\n\ncpu multicore       duration  {:?}      \n\n",
-            stopped.duration_since(start)
-        );
+        println!("cpu multicore       duration  {:?}  ", stopped.duration_since(start));
         Ok(canvas)
     }
 }

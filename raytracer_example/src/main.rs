@@ -1,8 +1,8 @@
 use std::error::Error;
 
+use raytracer::{Backend, BackendCpu};
 #[cfg(feature = "cuda")]
 use raytracer::BackendCuda;
-use raytracer::{Backend, BackendCpu};
 use raytracer_lib_std::canvas::canvas::CanvasOps;
 
 pub mod chapter14_with_aa;
@@ -55,14 +55,14 @@ fn run_cpu_chapter14_with_aa(b: &dyn Backend, is_cuda: bool, w: usize, h: usize)
         let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
         println!(
             "{}",
-            format!("\n\n---------- CUDA    chapter14_with_aa_  --------------------")
+            format!("---------- CUDA    chapter14_with_aa_  --------------------")
         );
         let canvas = b.render_world(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_single).unwrap();
     } else {
         let filename_cpu_multi = format!("{}_chapter14_with_aa_cpu_multi_core_{}x{}.png", backend_name, w, h);
         let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
-        println!("\n\n---------- multi core  CPU    --------------------");
+        println!("---------- multi core  CPU    --------------------");
         let canvas = b.render_world_multi_core(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
     }
