@@ -36,11 +36,7 @@ impl Tuple3 for Tuple3D {
     }
     #[inline]
     fn new_vector(x: f32, y: f32, z: f32) -> Tuple3D {
-        Tuple3D {
-            x,
-            y,
-            z,
-        }
+        Tuple3D { x, y, z }
     }
 
     #[inline]
@@ -50,11 +46,7 @@ impl Tuple3 for Tuple3D {
 
     #[inline]
     fn empty() -> Tuple3D {
-        Tuple3D {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }
+        Tuple3D { x: 0.0, y: 0.0, z: 0.0 }
     }
 }
 

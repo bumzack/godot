@@ -52,7 +52,6 @@ impl Matrix3Ops for Matrix3 {
         m
     }
 
-
     fn new_identity_3x3() -> Matrix3 {
         let mut m = Matrix3 {
             rows: 3,
@@ -67,7 +66,6 @@ impl Matrix3Ops for Matrix3 {
         m
     }
 }
-
 
 impl Mul for Matrix3 {
     type Output = Matrix3;
@@ -123,9 +121,9 @@ impl Mul<Tuple3D> for Matrix3 {
         let mut t = Tuple3D::empty();
 
         // TODO: not a generic code for general Matrix3 dimensions
-        t.x = self[0][0] * rhs.x + self[0][1] * rhs.y + self[0][2] * rhs.z ;
-        t.y = self[1][0] * rhs.x + self[1][1] * rhs.y + self[1][2] * rhs.z ;
-        t.z = self[2][0] * rhs.x + self[2][1] * rhs.y + self[2][2] * rhs.z ;
+        t.x = self[0][0] * rhs.x + self[0][1] * rhs.y + self[0][2] * rhs.z;
+        t.y = self[1][0] * rhs.x + self[1][1] * rhs.y + self[1][2] * rhs.z;
+        t.z = self[2][0] * rhs.x + self[2][1] * rhs.y + self[2][2] * rhs.z;
 
         t
     }
@@ -139,9 +137,9 @@ impl<'a, 'b> Mul<&'b Tuple3D> for &'a Matrix3 {
         let mut t = Tuple3D::empty();
 
         // TODO: not a generic code for general Matrix3 dimensions
-        t.x = self[0][0] * rhs.x + self[0][1] * rhs.y + self[0][2] * rhs.z  ;
-        t.y = self[1][0] * rhs.x + self[1][1] * rhs.y + self[1][2] * rhs.z  ;
-        t.z = self[2][0] * rhs.x + self[2][1] * rhs.y + self[2][2] * rhs.z  ;
+        t.x = self[0][0] * rhs.x + self[0][1] * rhs.y + self[0][2] * rhs.z;
+        t.y = self[1][0] * rhs.x + self[1][1] * rhs.y + self[1][2] * rhs.z;
+        t.z = self[2][0] * rhs.x + self[2][1] * rhs.y + self[2][2] * rhs.z;
 
         t
     }
@@ -153,7 +151,7 @@ impl Add for Matrix3 {
     fn add(self, rhs: Matrix3) -> Matrix3 {
         assert_eq!(self.rows, rhs.rows);
         assert_eq!(self.cols, rhs.cols);
-        let mut m = Matrix3::new( );
+        let mut m = Matrix3::new();
 
         for c in 0..self.cols {
             for r in 0..self.rows {
@@ -170,7 +168,7 @@ impl<'a, 'b> Add<&'b Matrix3> for &'a Matrix3 {
     fn add(self, rhs: &'b Matrix3) -> Matrix3 {
         assert_eq!(self.rows, rhs.rows);
         assert_eq!(self.cols, rhs.cols);
-        let mut m = Matrix3::new( );
+        let mut m = Matrix3::new();
 
         for c in 0..self.cols {
             for r in 0..self.rows {
@@ -200,7 +198,7 @@ impl<'a> Mul<f32> for &'a Matrix3 {
     type Output = Matrix3;
 
     fn mul(self, rhs: f32) -> Matrix3 {
-        let mut m = Matrix3::new( );
+        let mut m = Matrix3::new();
 
         for c in 0..self.cols {
             for r in 0..self.rows {

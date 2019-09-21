@@ -5,60 +5,74 @@ use raytracer::prelude::*;
 fn main() {
     let (backend, mut world, mut camera) = setup_world();
 
-    let p1 = Tuple4D::new_point(-2.0, -1.0, -2.0);
-    let p2 = Tuple4D::new_point(2.0, 1.0, 2.0);
+    let p1 = Tuple4D::new_point(-2.0, 0.0, -2.0);
+    let p2 = Tuple4D::new_point(2.0, 0.0, -2.0);
+    let p3 = Tuple4D::new_point(2.0, 0.0, 2.0);
+    let p4 = Tuple4D::new_point(-2.0, 0.0, 2.0);
+    let p5 = Tuple4D::new_point(-2.0, 0.0, -2.0);
 
-    add_spheres(&mut world, p1, p2);
+    let points = vec![&p1, &p2, &p3, &p4, &p5];
 
-    let c = cylinder_between_two_points(&p1, &p2, 0.1);
-    let mut c = Shape::new(ShapeEnum::Cylinder(c));
-    c.set_casts_shadow(false);
-    world.add_shape(c);
+    add_spheres(&mut world, &points);
+
+    add_cylinder(&mut world, &points);
+
     render_and_save_world(&backend, &mut world, &camera, "geom_pos1.png");
 
-    // render_multiple_scene(&backend, &mut world, &mut camera);
+    render_multiple_scene(&backend, &mut world, &mut camera);
+}
+
+fn add_cylinder(world: &mut World, points: &Vec<&Tuple4D>) {
+    let radius = 0.1;
+
+    for i in 0..points.len() - 1 {
+        let c = cylinder_between_two_points(points[i], points[i + 1], radius);
+        let mut c = Shape::new(ShapeEnum::Cylinder(c));
+        c.set_casts_shadow(false);
+        world.add_shape(c);
+    }
 }
 
 fn render_multiple_scene(backend: &BackendCpu, mut world: &mut World, camera: &mut Camera) {
-    let mut camera_from = Tuple4D::new_point(2.5, 3.0, -3.0);
-    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    let camera_from = Tuple4D::new_point(2.5, 3.0, -3.0);
+    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
     render_and_save_world(&backend, &mut world, &camera, "geom_pos2.png");
-    let mut camera_from = Tuple4D::new_point(2.5, 3.0, 3.0);
-    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+    let camera_from = Tuple4D::new_point(2.5, 3.0, 3.0);
+    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let camera_up = Tuple4D::new_vector(0.0, 0.5, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
     render_and_save_world(&backend, &mut world, &camera, "geom_pos3.png");
 }
 
-fn add_spheres(world: &mut World, p1: Tuple4D, p2: Tuple4D) {
-    let (mut s1, mut s2) = create_spheres(p1, p2);
-    s1.set_casts_shadow(false);
-    s2.set_casts_shadow(false);
-    world.add_shape(s1);
-    world.add_shape(s2);
+fn add_spheres(world: &mut World, points: &Vec<&Tuple4D>) {
+    let mut spheres = create_spheres(points);
+
+    for s in spheres.drain(..) {
+        world.add_shape(s);
+    }
 }
 
-fn create_spheres(p1: Tuple4D, p2: Tuple4D) -> (Shape, Shape) {
-    let scale_factor = 0.4;
+fn create_spheres(points: &Vec<&Tuple4D>) -> Vec<Shape> {
+    let scale_factor = 0.1;
     let m_scale = Matrix::scale(scale_factor, scale_factor, scale_factor);
 
-    let mut s1 = Sphere::new();
-    s1.set_transformation(&Matrix::translation(p1.x, p1.y, p1.z) * &m_scale);
-    s1.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+    let spheres = points
+        .iter()
+        .map(|p| {
+            let mut s = Sphere::new();
+            s.set_transformation(&Matrix::translation(p.x, p.y, p.z) * &m_scale);
+            s.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
+            Shape::new(ShapeEnum::Sphere(s))
+        })
+        .collect();
 
-    let mut s2 = Sphere::new();
-    s2.set_transformation(&Matrix::translation(p2.x, p2.y, p2.z) * &m_scale);
-    s2.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
-
-    let s1 = Shape::new(ShapeEnum::Sphere(s1));
-    let s2 = Shape::new(ShapeEnum::Sphere(s2));
-
-    (s1, s2)
+    spheres
 }
 
-fn render_and_save_world(backend: &BackendCpu, mut world: &mut World, camera: &Camera, filename: &str) {
+fn render_and_save_world(backend: &BackendCpu, world: &mut World, camera: &Camera, filename: &str) {
     let canvas = backend.render_world_multi_core(world, &camera);
     let filename = format!(
         "/Users/bumzack/stoff/rust/raytracer-challenge/raytracer/examples/{}",
@@ -75,12 +89,12 @@ fn setup_world() -> (BackendCpu, World, Camera) {
     let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
     // add_floor(&mut world);
 
-    let mut camera_from = Tuple4D::new_point(1.9, 3.0, -6.0);
-    let mut camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let mut camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    let camera_from = Tuple4D::new_point(1.9, 3.0, -6.0);
+    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
 
-    let mut light_pos = Tuple4D::new_point(2.0, 5.0, -2.0);
+    let light_pos = Tuple4D::new_point(2.0, 5.0, -2.0);
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
     world.set_light(l);
@@ -206,11 +220,10 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
         w.add_shape(sphere_z);
     }
 
-    let mut c = Camera::new(width, height, 1.0);
+    let mut c = Camera::new(width, height, 1.2);
     c.set_antialiasing(false);
     c.set_calc_reflection(false);
     c.set_calc_refraction(false);
-
     c.calc_pixel_size();
     (w, c)
 }
