@@ -13,7 +13,7 @@ fn main() {
 
     let points = vec![&p1, &p2, &p3, &p4, &p5];
 
-    create_spheres(&mut world, &points);
+    //  create_spheres(&mut world, &points);
 
     add_cylinder(&mut world, &points);
 
@@ -48,12 +48,16 @@ fn render_multiple_scene(backend: &BackendCpu, mut world: &mut World, camera: &m
 }
 
 fn create_spheres(world: &mut World, points: &Vec<&Tuple4D>) {
-    let scale_factor = 0.1;
-    // let m_scale = Matrix::scale(scale_factor, scale_factor, scale_factor);
+    let scale_factor = 0.25;
+    let m_scale = Matrix::scale(scale_factor, scale_factor, scale_factor);
 
     points.iter().for_each(|p| {
+        let m_trans = Matrix::translation(p.x, p.y, p.z);
+        let m = &m_trans * &m_scale;
+
         let mut s = Sphere::new();
-        s.set_transformation(Matrix::translation(p.x, p.y, p.z));
+
+        s.set_transformation(m);
         s.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
         let s = Shape::new(ShapeEnum::Sphere(s));
         world.add_shape(s);
@@ -109,8 +113,8 @@ pub fn add_floor(world: &mut World) {
 }
 
 pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bool) -> (World, Camera) {
-    let radius = 1.0;
-    let len = 2.0;
+    let radius = 0.1;
+    let len = 0.5;
 
     let mut x_axis = Cylinder::new();
     x_axis.set_minimum(0.0);

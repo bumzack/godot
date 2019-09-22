@@ -4,7 +4,7 @@
 extern crate rustacuda_core;
 
 use core::ops::{Index, IndexMut, Mul};
-use std::ops::Add;
+use core::ops::Add;
 
 use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
 
