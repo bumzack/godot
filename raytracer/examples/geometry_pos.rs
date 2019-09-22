@@ -23,7 +23,7 @@ fn main() {
 }
 
 fn add_cylinder(world: &mut World, points: &Vec<&Tuple4D>) {
-    let radius = 0.1;
+    let radius = 0.05;
 
     for i in 0..points.len() - 1 {
         let c = cylinder_between_two_points(points[i], points[i + 1], radius);
@@ -35,20 +35,20 @@ fn add_cylinder(world: &mut World, points: &Vec<&Tuple4D>) {
 
 fn render_multiple_scene(backend: &BackendCpu, mut world: &mut World, camera: &mut Camera) {
     let camera_from = Tuple4D::new_point(2.5, 3.0, -3.0);
-    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let camera_to = Tuple4D::new_point(1.0, 0.0, -1.0);
     let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
     render_and_save_world(&backend, &mut world, &camera, "geom_pos2.png");
 
     let camera_from = Tuple4D::new_point(2.5, 3.0, 3.0);
-    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    let camera_to = Tuple4D::new_point(1.0, 0.0, 1.0);
     let camera_up = Tuple4D::new_vector(0.0, 0.5, 0.0);
     camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
     render_and_save_world(&backend, &mut world, &camera, "geom_pos3.png");
 }
 
 fn create_spheres(world: &mut World, points: &Vec<&Tuple4D>) {
-    let scale_factor = 0.25;
+    let scale_factor = 0.05;
     let m_scale = Matrix::scale(scale_factor, scale_factor, scale_factor);
 
     points.iter().for_each(|p| {
@@ -74,8 +74,8 @@ fn render_and_save_world(backend: &BackendCpu, world: &mut World, camera: &Camer
 }
 
 fn setup_world() -> (BackendCpu, World, Camera) {
-    let width = 640;
-    let height = 480;
+    let width = 1280;
+    let height = 720;
     let backend = BackendCpu::new();
 
     let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
@@ -113,7 +113,7 @@ pub fn add_floor(world: &mut World) {
 }
 
 pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bool) -> (World, Camera) {
-    let radius = 0.1;
+    let radius = 0.05;
     let len = 0.5;
 
     let mut x_axis = Cylinder::new();
@@ -212,7 +212,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
         w.add_shape(sphere_z);
     }
 
-    let mut c = Camera::new(width, height, 1.2);
+    let mut c = Camera::new(width, height, 1.0);
     c.set_antialiasing(false);
     c.set_calc_reflection(false);
     c.set_calc_refraction(false);
