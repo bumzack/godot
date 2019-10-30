@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::{Error, Write};
 
 use image::{ImageBuffer, RgbImage};
+use serde::Deserialize;
+use serde::Serialize;
 
 use raytracer_lib_no_std::Color;
 
@@ -10,7 +12,7 @@ use crate::Pixel;
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Canvas {
     width: usize,
     height: usize,
@@ -139,8 +141,9 @@ impl<'a> CanvasOps<'a> for Canvas {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use raytracer_lib_no_std::ColorOps;
+
+    use super::*;
 
     #[test]
     fn test_new_canvas() {

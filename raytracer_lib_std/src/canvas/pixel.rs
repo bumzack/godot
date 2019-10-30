@@ -1,8 +1,11 @@
-use raytracer_lib_no_std::{Color, BLACK};
+use serde::Deserialize;
+use serde::Serialize;
+
+use raytracer_lib_no_std::{BLACK, Color};
 
 pub type PixelVec = Vec<Pixel>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Pixel {
     pub color: Color,
     pub x: usize,

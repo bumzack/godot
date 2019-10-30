@@ -1,7 +1,11 @@
-use crate::{Ray, RayOps};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug)]
+use crate::{Ray, RayOps};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Camera {
     hsize: usize,
@@ -214,8 +218,8 @@ impl CameraOps for Camera {
 mod tests {
     use core::f32::consts::{PI, SQRT_2};
 
-    use crate::basics::color::{Color, ColorOps};
     use crate::{assert_float, assert_matrix, assert_tuple, MatrixOps, Tuple4D};
+    use crate::basics::color::{Color, ColorOps};
 
     use super::*;
 
