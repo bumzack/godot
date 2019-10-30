@@ -10,5 +10,5 @@ pub use self::scene::*;
 pub use self::world::*;
 
 pub mod canvas;
+pub mod scene;
 pub mod world;
-pub mod scene   ;
