@@ -18,3 +18,7 @@ rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 math = { path = "../math/" }
 
 # rand = { version = "0.7", default-features = false, features = ["small_rng"]}
+
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+serde_derive = "*"

@@ -4,13 +4,15 @@
 #[cfg(feature = "cuda")]
 #[macro_use]
 extern crate rustacuda_derive;
-
+#[macro_use]
+extern crate serde_derive;
 #[cfg(test)]
 #[macro_use]
 extern crate std;
 
-pub mod matrix_math;
 pub use self::matrix_math::*;
+
+pub mod matrix_math;
 
 pub mod prelude {
     pub use super::matrix_math::*;

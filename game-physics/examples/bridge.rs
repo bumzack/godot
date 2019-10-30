@@ -237,8 +237,8 @@ fn main() {
 
     bridge_demo.get_particle_world_mut().start_frame(&mut registry);
 
-    let cnt_frames = 20;
-    let duration = 0.1;
+    let cnt_frames = 5;
+    let duration = 0.5;
     for i in 0..cnt_frames {
         bridge_demo.get_particle_world().render_world(i, &registry);
 

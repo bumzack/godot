@@ -1,7 +1,11 @@
-use crate::{Color, ColorOps, Shape, ShapeOps, BLACK, WHITE};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{BLACK, Color, ColorOps, Shape, ShapeOps, WHITE};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct RingPattern {
     color_a: Color,
@@ -67,10 +71,10 @@ impl RingPattern {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_color;
     use crate::math::tuple4d::Tuple;
 
     use super::*;
-    use crate::assert_color;
 
     // page 128
     #[test]

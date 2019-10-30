@@ -1,7 +1,11 @@
-use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Plane {
     transformation_matrix: Matrix,
@@ -82,8 +86,8 @@ mod tests {
     use crate::cpu_kernel_raytracer::cpu::Intersection;
     use crate::cpu_kernel_raytracer::cpu::IntersectionList;
     use crate::cpu_kernel_raytracer::cpu::IntersectionListOps;
-    use crate::math::common::assert_matrix;
     use crate::math::common::{assert_float, assert_tuple};
+    use crate::math::common::assert_matrix;
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::Sphere;
 

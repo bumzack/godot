@@ -11,10 +11,17 @@ fn main() {
     let p4 = Tuple4D::new_point(-2.0, 0.0, 2.0);
     let p5 = Tuple4D::new_point(-2.0, 0.0, -2.0);
 
-    let points = vec![&p1, &p2, &p3, &p4, &p5];
+    let p6 = Tuple4D::new_point(-2.0, 2.0, -2.0);
+    let p7 = Tuple4D::new_point(2.0, 2.0, -2.0);
+    let p8 = Tuple4D::new_point(2.0, 2.0, 2.0);
+    let p9 = Tuple4D::new_point(-2.0, 2.0, 2.0);
+    let p10 = Tuple4D::new_point(-2.0, 2.0, -2.0);
+
+    let points = vec![&p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10];
 
     //  create_spheres(&mut world, &points);
 
+    add_floor(&mut world);
     add_cylinder(&mut world, &points);
 
     render_and_save_world(&backend, &mut world, &camera, "geom_pos1.png");
@@ -97,14 +104,14 @@ fn setup_world() -> (BackendCpu, World, Camera) {
 pub fn add_floor(world: &mut World) {
     // floor
     let mut floor = Cube::new();
-    floor.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
+    floor.get_material_mut().set_color(Color::new(0.0, 0.3, 0.0));
     floor.get_material_mut().set_ambient(0.3);
     floor.get_material_mut().set_diffuse(0.6);
     floor.get_material_mut().set_specular(0.0);
     floor.get_material_mut().set_reflective(0.1);
 
     let m_scale = Matrix::scale(3.0, 0.01, 10.0);
-    let m_trans = Matrix::translation(0.0, -2.0, 0.0);
+    let m_trans = Matrix::translation(0.0, 0.0, 0.0);
     floor.set_transformation(m_trans * m_scale);
     let mut floor = Shape::new(ShapeEnum::Cube(floor));
     floor.set_casts_shadow(false);

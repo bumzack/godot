@@ -6,15 +6,16 @@
 
 #[cfg(test)]
 extern crate cpu_kernel_raytracer;
+extern crate math;
 #[cfg(feature = "cuda")]
 #[macro_use]
 extern crate rustacuda_derive;
+#[macro_use]
+extern crate serde_derive;
 // enable std for tests :-)
 #[cfg(test)]
 #[macro_use]
 extern crate std;
-
-extern crate math;
 
 pub use self::basics::*;
 pub use self::light::*;

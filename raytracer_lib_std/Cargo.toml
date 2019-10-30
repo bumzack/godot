@@ -8,3 +8,7 @@ edition = "2018"
 raytracer_lib_no_std = {path =  "../raytracer_lib_no_std"}
 image = "*"
 math = { path = "../math/" }
+
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+serde_derive = "*"

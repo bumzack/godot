@@ -1,7 +1,11 @@
-use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Triangle {
     transformation_matrix: Matrix,

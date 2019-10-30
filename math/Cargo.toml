@@ -11,3 +11,7 @@ cuda = [ "rustacuda_core", "rustacuda_derive" ]
 [dependencies]
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
+
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+serde_derive = "*"

@@ -1,7 +1,11 @@
-use crate::{Color, LightOps};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug)]
+use crate::{Color, LightOps};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct PointLight {
     pub position: Tuple4D,

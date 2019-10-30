@@ -1,7 +1,11 @@
-use crate::{Color, Shape, ShapeOps, BLACK, WHITE};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{BLACK, Color, Shape, ShapeOps, WHITE};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct GradientPattern {
     color_a: Color,
@@ -65,11 +69,11 @@ impl GradientPattern {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_color;
     use crate::basics::color::ColorOps;
     use crate::math::tuple4d::Tuple;
 
     use super::*;
-    use crate::assert_color;
 
     // page 128
     #[test]

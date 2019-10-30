@@ -1,8 +1,11 @@
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
+use serde::Deserialize;
+use serde::Serialize;
+
 use crate::intri_sqrt;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Tuple4D {
     pub x: f32,

@@ -1,7 +1,11 @@
-use crate::{Color, ColorOps, Shape, ShapeOps, BLACK, WHITE};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{BLACK, Color, ColorOps, Shape, ShapeOps, WHITE};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct TestPattern {
     color_a: Color,
@@ -68,13 +72,13 @@ impl TestPattern {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_color;
     use crate::math::tuple4d::Tuple;
     use crate::patterns::patterns::Pattern;
     use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;
 
     use super::*;
-    use crate::assert_color;
 
     // page 133
     #[test]

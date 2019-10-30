@@ -1,7 +1,11 @@
-use crate::{Color, ColorOps, Shape, ShapeOps, BLACK, WHITE};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{BLACK, Color, ColorOps, Shape, ShapeOps, WHITE};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct StripePattern {
     color_a: Color,

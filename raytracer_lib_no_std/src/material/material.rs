@@ -1,3 +1,6 @@
+use serde::Deserialize;
+use serde::Serialize;
+
 use crate::{Color, ColorOps, Pattern};
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
@@ -6,7 +9,7 @@ pub const REFRACTION_WATER: f32 = 1.333;
 pub const REFRACTION_GLASS: f32 = 1.52;
 pub const REFRACTION_DIAMOND: f32 = 2.417;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Material {
     color: Color,

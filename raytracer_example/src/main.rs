@@ -12,9 +12,9 @@ pub mod shadow_glamour_shot;
 pub mod test_soft_shadow_aka_area_light;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let w = 3840;
-    let h = 2160;
-    let size_factor = 5.0;
+    let w = 1280;
+    let h = 720;
+    let size_factor = 1.0;
     let anitaliasing = true;
     let antialiasing_size = 3;
 

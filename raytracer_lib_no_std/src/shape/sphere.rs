@@ -1,7 +1,11 @@
-use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Sphere {
     transformation_matrix: Matrix,
@@ -88,13 +92,13 @@ impl Sphere {
 mod tests {
     use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
-    use super::*;
-
-    use crate::basics::ray::RayOps;
     use cpu_kernel_raytracer::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
+    use math::MatrixOps;
 
     use crate::{assert_color, assert_float, assert_matrix, assert_tuple, Shape, ShapeEnum};
-    use math::MatrixOps;
+    use crate::basics::ray::RayOps;
+
+    use super::*;
 
     fn glass_sphere() -> Sphere {
         let mut s = Sphere::new();

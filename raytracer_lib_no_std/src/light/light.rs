@@ -1,7 +1,11 @@
-use crate::{AreaLight, Color, PointLight};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug)]
+use crate::{AreaLight, Color, PointLight};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum Light {
     PointLight(PointLight),

@@ -1,7 +1,11 @@
-use crate::{Checker3DPattern, Color, GradientPattern, RingPattern, Shape, StripePattern, TestPattern};
+use serde::Deserialize;
+use serde::Serialize;
+
 use math::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+use crate::{Checker3DPattern, Color, GradientPattern, RingPattern, Shape, StripePattern, TestPattern};
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum Pattern {
     StripePattern(StripePattern),
