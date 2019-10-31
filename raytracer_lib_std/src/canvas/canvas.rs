@@ -1,9 +1,9 @@
-#[cfg(feature = "use_serde")]
-use serde::{Deserialize, Serialize};
-
 use std::fs::File;
 use std::io::{Error, Write};
+
 use image::{ImageBuffer, RgbImage};
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use raytracer_lib_no_std::Color;
 
@@ -31,6 +31,10 @@ pub trait CanvasOps<'a> {
     fn calc_idx(&self, x: usize, y: usize) -> usize;
 
     fn get_pixels_mut(&mut self) -> &mut PixelVec;
+    fn get_pixels(&self) -> &PixelVec;
+
+    fn get_width(&self) -> usize;
+    fn get_height(&self) -> usize;
 }
 
 impl<'a> CanvasOps<'a> for Canvas {
@@ -130,6 +134,18 @@ impl<'a> CanvasOps<'a> for Canvas {
 
     fn get_pixels_mut(&mut self) -> &mut Vec<Pixel> {
         &mut self.pixel
+    }
+
+    fn get_pixels(&self) -> &PixelVec {
+        &self.pixel
+    }
+
+    fn get_width(&self) -> usize {
+        self.width
+    }
+
+    fn get_height(&self) -> usize {
+        self.height
     }
 }
 
