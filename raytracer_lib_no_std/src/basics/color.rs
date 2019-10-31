@@ -1,16 +1,17 @@
 use core::f32::MAX;
 use core::ops::{Add, Div, Mul, Sub};
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use math::assert_two_float;
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Color {
     pub r: f32,
     pub g: f32,

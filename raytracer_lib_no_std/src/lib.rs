@@ -10,9 +10,11 @@ extern crate math;
 #[cfg(feature = "cuda")]
 #[macro_use]
 extern crate rustacuda_derive;
+
+#[cfg(feature = "use_serde")]
 #[macro_use]
 extern crate serde_derive;
-// enable std for tests :-)
+
 #[cfg(test)]
 #[macro_use]
 extern crate std;

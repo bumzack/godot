@@ -1,7 +1,7 @@
 use core::fmt;
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
 
@@ -10,7 +10,8 @@ use crate::{Cube, Cylinder, Material, Plane, Ray, Sphere, Triangle};
 pub type ShapeIdx = usize;
 pub type ShapeIntersectionResult = ([f32; 4], usize);
 
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub enum ShapeEnum {
     Sphere(Sphere),
@@ -21,7 +22,8 @@ pub enum ShapeEnum {
     //  Group(Group),
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Shape {
     shape: ShapeEnum,

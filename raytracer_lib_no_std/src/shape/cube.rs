@@ -1,13 +1,14 @@
 use core::f32::{INFINITY, NAN};
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
 
 use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
 
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Cube {
     transformation_matrix: Matrix,

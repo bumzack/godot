@@ -10,7 +10,8 @@ cpu_kernel_raytracer = { path ="../cpu_kernel_raytracer" }
 raytracer_lib_no_std = {path = "../raytracer_lib_no_std" }
 
 [features]
-cuda = ["rustacuda_derive", "rustacuda_core", "math/cuda"]
+cuda = ["rustacuda_derive", "rustacuda_core", "math/cuda" ]
+use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde" ]
 
 [dependencies]
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
@@ -19,6 +20,7 @@ math = { path = "../math/" }
 
 # rand = { version = "0.7", default-features = false, features = ["small_rng"]}
 
-serde = { version = "*", features = ["derive"] }
-serde_json = "*"
-serde_derive = "*"
+serde = { version = "*", features = ["derive"], optional = true }
+serde_json ={  version = "*", optional = true }
+serde_derive ={  version = "*", optional = true }
+

@@ -4,9 +4,11 @@
 #[cfg(feature = "cuda")]
 #[macro_use]
 extern crate rustacuda_derive;
-#[cfg(feature = "serde")]
+
+#[cfg(feature = "use_serde")]
 #[macro_use]
 extern crate serde_derive;
+
 #[cfg(test)]
 #[macro_use]
 extern crate std;

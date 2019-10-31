@@ -1,7 +1,9 @@
-extern crate image;
-extern crate math;
+#[cfg(feature = "use_serde")]
 #[macro_use]
 extern crate serde_derive;
+
+extern crate image;
+extern crate math;
 
 pub use raytracer_lib_no_std;
 

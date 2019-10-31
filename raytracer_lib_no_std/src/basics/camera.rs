@@ -1,11 +1,12 @@
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
 
 use crate::{Ray, RayOps};
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Camera {
     hsize: usize,

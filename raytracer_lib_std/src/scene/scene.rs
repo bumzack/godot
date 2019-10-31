@@ -1,27 +1,30 @@
 use std::time::Duration;
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use raytracer_lib_no_std::Camera;
 
 use crate::{Canvas, World};
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub enum BackendEnum {
     CpuSingleCore,
     CpuMultiCore,
     Cuda,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Scene {
     world: World,
     camera: Camera,
     backend: BackendEnum,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct RenderedScene {
     canvas: Canvas,
     duration: Duration,

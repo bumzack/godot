@@ -2,14 +2,15 @@
 // use rand::{Rng};
 // use rand::rngs::SmallRng;
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::basics::color::Color;
 use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct AreaLight {
     position: Tuple4D,

@@ -1,12 +1,13 @@
 // TODO: use Vec<Light> if multiple light sources should be supported
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
 use raytracer_lib_no_std::{Color, ColorOps, Light, PointLight, Shape};
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct World {
     shapes: Vec<Shape>,
     light: Light,

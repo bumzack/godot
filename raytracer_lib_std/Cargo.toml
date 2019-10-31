@@ -4,11 +4,18 @@ version = "0.1.0"
 authors = ["bumzack"]
 edition = "2018"
 
+[features]
+use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde", "math/use_serde", "raytracer_lib_no_std/use_serde" ]
+
 [dependencies]
 raytracer_lib_no_std = {path =  "../raytracer_lib_no_std"}
 image = "*"
 math = { path = "../math/" }
 
-serde = { version = "*", features = ["derive"] }
-serde_json = "*"
-serde_derive = "*"
+serde = { version = "*", features = ["derive"], optional = true }
+serde_json ={  version = "*", optional = true }
+serde_derive ={  version = "*", optional = true }
+
+
+
+
