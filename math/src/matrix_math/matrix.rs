@@ -6,13 +6,14 @@ extern crate rustacuda_core;
 use core::ops::{Index, IndexMut, Mul};
 use core::ops::Add;
 
-use serde::Deserialize;
-use serde::Serialize;
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize, Serialize};
 
 use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
