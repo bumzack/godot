@@ -1,3 +1,0 @@
-fix math crate: depending on cuda feature, use std::powf etc or use intrinsinics
-
-fix rand import or make own simple generator  - its uncritical
