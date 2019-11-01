@@ -4,6 +4,9 @@ use core::fmt;
 use raytracer_lib_no_std::Camera;
 use raytracer_lib_std::{Canvas, World};
 
+#[cfg(feature = "use_serde")]
+use serde::{Deserialize,Serialize};
+
 #[cfg(feature = "cpu_single_core")]
 use crate::BackendCpuSingleCore;
 

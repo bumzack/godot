@@ -6,7 +6,7 @@ edition = "2018"
 
 [features]
 cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda"]
-use_serde = [ "raytracer_lib_std/use_serde", "raytracer_lib_no_std/use_serde" ]
+use_serde = [ "raytracer_lib_std/use_serde", "raytracer_lib_no_std/use_serde" , "serde", "serde_json" , "serde_derive"]
 wasm = ["cpu_kernel_raytracer/wasm"]
 cpu_single_core = []
 cpu_multi_core = []
@@ -23,4 +23,9 @@ rustacuda = { path = "../../RustaCUDA" , optional = true}
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 
+serde = { version = "*", features = ["derive"], optional = true }
+serde_json ={  version = "*", optional = true }
+serde_derive ={  version = "*", optional = true }
+
 rayon = "*"
+
