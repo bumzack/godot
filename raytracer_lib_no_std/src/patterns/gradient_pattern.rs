@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
 
-use crate::{BLACK, Color, Shape, ShapeOps, WHITE};
+use crate::{Color, Shape, ShapeOps, BLACK, WHITE};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]

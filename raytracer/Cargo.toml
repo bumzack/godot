@@ -8,6 +8,10 @@ edition = "2018"
 cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda"]
 use_serde = [ "raytracer_lib_std/use_serde", "raytracer_lib_no_std/use_serde" ]
 wasm = ["cpu_kernel_raytracer/wasm"]
+cpu_single_core = []
+cpu_multi_core = []
+
+default = ["cpu_single_core", "cpu_multi_core"]
 
 [dependencies]
 raytracer_lib_std = {path =  "../raytracer_lib_std" }

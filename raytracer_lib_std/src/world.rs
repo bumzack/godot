@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
-use raytracer_lib_no_std::{Shape, Light, PointLight, Color, ColorOps};
+use raytracer_lib_no_std::{Color, ColorOps, Light, PointLight, Shape};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]

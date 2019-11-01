@@ -14,7 +14,6 @@ extern crate rustacuda_derive;
 //#[cfg(feature = "wasm")]
 //pub use self::BackendWasm;
 
-
 extern crate cpu_kernel_raytracer;
 extern crate raytracer_lib_std;
 
@@ -35,7 +34,14 @@ pub mod prelude {
     #[cfg(feature = "wasm")]
     pub use super::BackendWasm;
 
-    pub use super::backend::*;
+    #[cfg(feature = "cpu_single_core")]
+    pub use super::BackendCpuSingleCore;
+
+    #[cfg(feature = "cpu_multi_core")]
+    pub use super::BackendCpuMultiCore;
+
+    pub use super::backend::Backend;
+    pub use super::backend::BackendOps;
     pub use super::cpu_kernel_raytracer::*;
     pub use super::raytracer_lib_no_std::*;
     pub use super::raytracer_lib_std::*;

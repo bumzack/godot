@@ -1,7 +1,6 @@
+use crate::{Color, BLACK};
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
-use crate::{Color, BLACK};
-
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]

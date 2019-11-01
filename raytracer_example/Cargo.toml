@@ -6,6 +6,9 @@ edition = "2018"
 
 [features]
 cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda", "raytracer/cuda"]
+cpu_single_core = [ "raytracer/cpu_single_core" ]
+cpu_multi_core = [ "raytracer/cpu_multi_core" ]
+wasm = [ "raytracer/wasm" ]
 
 [dependencies]
 image = "*"

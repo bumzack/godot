@@ -3,13 +3,13 @@
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
 
-use core::ops::{Index, IndexMut, Mul};
 use core::ops::Add;
+use core::ops::{Index, IndexMut, Mul};
 
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple4D};
+use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

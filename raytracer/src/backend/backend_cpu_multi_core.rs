@@ -10,12 +10,12 @@ use raytracer_lib_no_std::color::BLACK;
 use raytracer_lib_no_std::ColorOps;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
-use crate::backend::backend::Backend;
 use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
+use crate::BackendOps;
 
 pub struct BackendCpuMultiCore {}
 
-impl Backend for BackendCpuMultiCore {
+impl BackendOps for BackendCpuMultiCore {
     fn render_world(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
         println!("cpu multi core   started at : {:?}    ", start);

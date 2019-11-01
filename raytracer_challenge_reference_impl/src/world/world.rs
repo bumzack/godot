@@ -1,8 +1,8 @@
-use crate::DEBUG;
-use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
+use crate::prelude::*;
+use crate::DEBUG;
 
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 

@@ -96,8 +96,8 @@ mod tests {
     use cpu_kernel_raytracer::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
     use math::MatrixOps;
 
-    use crate::{assert_color, assert_float, assert_matrix, assert_tuple, Shape, ShapeEnum};
     use crate::basics::ray::RayOps;
+    use crate::{assert_color, assert_float, assert_matrix, assert_tuple, Shape, ShapeEnum};
 
     use super::*;
 

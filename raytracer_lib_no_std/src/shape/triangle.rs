@@ -112,10 +112,12 @@ impl Triangle {
         &self.p1
     }
 
+    #[allow(dead_code)]
     fn get_p2(&self) -> &Tuple4D {
         &self.p2
     }
 
+    #[allow(dead_code)]
     fn get_p3(&self) -> &Tuple4D {
         &self.p3
     }
@@ -128,6 +130,7 @@ impl Triangle {
         &self.e2
     }
 
+    #[allow(dead_code)]
     fn get_normal(&self) -> &Tuple4D {
         &self.normal
     }

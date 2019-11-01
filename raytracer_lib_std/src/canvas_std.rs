@@ -1,9 +1,8 @@
+use crate::{Canvas, CanvasOps};
+use image::ImageBuffer;
+use image::RgbImage;
 use std::fs::File;
 use std::io::{Error, Write};
-use crate::{Canvas, CanvasOps};
-use image::RgbImage;
-use image::ImageBuffer;
-
 
 pub trait CanvasOpsStd<'a> {
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;

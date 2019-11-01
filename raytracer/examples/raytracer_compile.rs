@@ -1,5 +1,11 @@
-use raytracer::BackendCpuSingleCore;
+use raytracer::Backend;
 
 fn main() {
-    let _backend = BackendCpuSingleCore::new();
+    let backend = Backend::new();
+
+    println!("available Backends:   {}", backend.get_available_backends().len());
+    backend
+        .get_available_backends()
+        .iter()
+        .for_each(|b| println!("backend: {}", b));
 }

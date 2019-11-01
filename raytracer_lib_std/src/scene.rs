@@ -1,25 +1,15 @@
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-
 use crate::{Canvas, World};
 use raytracer_lib_no_std::Camera;
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
-pub enum BackendEnum {
-    CpuSingleCore,
-    CpuMultiCore,
-    Cuda,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Scene {
     world: World,
     camera: Camera,
-    backend: BackendEnum,
 }
 
 #[derive(Clone, Debug)]
@@ -30,21 +20,16 @@ pub struct RenderedScene {
 }
 
 pub trait SceneOps {
-    fn new(world: World, camera: Camera, backend: BackendEnum) -> Scene;
+    fn new(world: World, camera: Camera) -> Scene;
 
-    fn get_backend(&self) -> &BackendEnum;
     fn get_world(&self) -> &World;
     fn get_world_mut(&mut self) -> &mut World;
     fn get_camera(&self) -> &Camera;
 }
 
 impl SceneOps for Scene {
-    fn new(world: World, camera: Camera, backend: BackendEnum) -> Scene {
-        Scene { world, camera, backend }
-    }
-
-    fn get_backend(&self) -> &BackendEnum {
-        &self.backend
+    fn new(world: World, camera: Camera) -> Scene {
+        Scene { world, camera }
     }
 
     fn get_world(&self) -> &World {

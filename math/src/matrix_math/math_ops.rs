@@ -1,8 +1,7 @@
-#![feature(core_intrinsics)]
+// #![feature(core_intrinsics)]
 
 use core::intrinsics;
 
-use crate::matrix_math;
 use crate::matrix_math::libm_striped_to_pow::fmod::fmod_no_std;
 use crate::matrix_math::libm_striped_to_pow::powf::powf;
 

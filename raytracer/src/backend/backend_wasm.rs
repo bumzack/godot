@@ -1,13 +1,13 @@
-use crate::backend::backend::Backend;
+use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
+use crate::BackendOps;
+use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::{Camera, CameraOps, ColorOps, BLACK};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
-use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
-use cpu_kernel_raytracer::CpuKernel;
 use std::error::Error;
 
 pub struct BackendWasm {}
 
-impl Backend for BackendWasm {
+impl BackendOps for BackendWasm {
     fn render_world(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         // let start = Instant::now();
         let n_samples = c.get_antialiasing_size();
@@ -102,7 +102,6 @@ impl Backend for BackendWasm {
         }
         // let stopped = Instant::now();
         Ok(canvas)
-
     }
 }
 

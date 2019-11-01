@@ -59,7 +59,6 @@ impl CanvasOps for Canvas {
         &self.pixel[self.calc_idx(x, y)]
     }
 
-
     fn calc_idx(&self, x: usize, y: usize) -> usize {
         y * self.width + x
     }

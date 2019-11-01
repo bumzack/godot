@@ -1,21 +1,18 @@
 use std::error::Error;
 use std::time::Instant;
 
-use rayon::iter::ParallelIterator;
-use rayon::prelude::IntoParallelIterator;
-
 use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::camera::{Camera, CameraOps};
 use raytracer_lib_no_std::color::BLACK;
 use raytracer_lib_no_std::ColorOps;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
-use crate::backend::backend::Backend;
 use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
+use crate::BackendOps;
 
 pub struct BackendCpuSingleCore {}
 
-impl Backend for BackendCpuSingleCore {
+impl BackendOps for BackendCpuSingleCore {
     fn render_world(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
         let n_samples = c.get_antialiasing_size();

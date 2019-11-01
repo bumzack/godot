@@ -3,10 +3,10 @@
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
 
-use core::ops::{Index, IndexMut, Mul};
 use core::ops::Add;
+use core::ops::{Index, IndexMut, Mul};
 
-use crate::{EPSILON, intri_abs, intri_cos, intri_sin, Tuple, Tuple3, Tuple3D, Tuple4D};
+use crate::{Tuple3, Tuple3D};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

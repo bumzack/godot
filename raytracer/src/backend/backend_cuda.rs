@@ -9,13 +9,13 @@ use rustacuda::prelude::{
     Context, ContextFlags, CopyDestination, CudaFlags, Device, DeviceBuffer, Module, Stream, StreamFlags,
 };
 
-use crate::backend::backend::Backend;
+use crate::BackendOps;
 use raytracer_lib_no_std::{Camera, CameraOps, ColorOps, BLACK};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 pub struct BackendCuda {}
 
-impl Backend for BackendCuda {
+impl BackendOps for BackendCuda {
     fn render_world(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
 

@@ -87,8 +87,8 @@ mod tests {
     use crate::cpu_kernel_raytracer::cpu::Intersection;
     use crate::cpu_kernel_raytracer::cpu::IntersectionList;
     use crate::cpu_kernel_raytracer::cpu::IntersectionListOps;
-    use crate::math::common::{assert_float, assert_tuple};
     use crate::math::common::assert_matrix;
+    use crate::math::common::{assert_float, assert_tuple};
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::Sphere;
 
