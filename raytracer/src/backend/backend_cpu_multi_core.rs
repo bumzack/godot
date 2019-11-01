@@ -13,9 +13,9 @@ use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 use crate::backend::backend::Backend;
 use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
 
-pub struct BackendCpuMultiCoreBackendCpu {}
+pub struct BackendCpuMultiCore {}
 
-impl Backend for BackendCpuMultiCoreBackendCpu {
+impl Backend for BackendCpuMultiCore {
     fn render_world(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
         println!("cpu multi core   started at : {:?}    ", start);
@@ -117,9 +117,9 @@ impl Backend for BackendCpuMultiCoreBackendCpu {
     }
 }
 
-impl BackendCpuMultiCoreBackendCpu {
-    pub fn new() -> BackendCpuMultiCoreBackendCpu {
-        BackendCpuMultiCoreBackendCpu {}
+impl BackendCpuMultiCore {
+    pub fn new() -> BackendCpuMultiCore {
+        BackendCpuMultiCore {}
     }
 
     pub fn render_world_debug(

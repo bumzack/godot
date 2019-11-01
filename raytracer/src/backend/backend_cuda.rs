@@ -31,7 +31,7 @@ impl Backend for BackendCuda {
         // println!("ptx = {}", ptx);
         // let ptx_content = include_str!(ptx);
         //    let module_data = CString::new(ptx_content)?;
-        let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/dbaccfb949de4deb/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to create sources");
+        let module_data = CString::new(include_str!("/tmp/ptx-builder-0.5/cuda_kernel_raytracer/dbaccfb949de4deb/nvptx64-nvidia-cuda/release/cuda_kernel_raytracer.ptx")).expect("Unable to load ptx file ");
         let module = Module::load_from_string(&module_data).expect("Unable to create kernel name string");
 
         //  Create a stream to submit work to

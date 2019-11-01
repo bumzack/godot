@@ -1,9 +1,9 @@
 use std::error::Error;
 
-use raytracer::{Backend, BackendCpuSingleCore};
+use raytracer::{Backend, BackendCpuSingleCore, BackendCpuMultiCore};
 #[cfg(feature = "cuda")]
 use raytracer::BackendCuda;
-use raytracer_lib_std::canvas_std::canvas_std::CanvasOps;
+use raytracer_lib_std::CanvasOpsStd;
 
 pub mod chapter14_with_aa;
 pub mod compare_to_cuda;
@@ -37,7 +37,7 @@ fn run_cuda_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, anti
 }
 
 fn run_cpu_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, antialiasing_size: usize) {
-    let backend_cpu = BackendCpuSingleCore::new();
+    let backend_cpu = BackendCpuMultiCore::new();
     run_cpu_chapter14_with_aa(&backend_cpu, false, w, h);
     run_cpu_compare_to_cuda(&backend_cpu, false, w, h);
     run_cpu_shadow_glamour_shot(&backend_cpu, false, size_factor, anitaliasing, antialiasing_size);
@@ -63,7 +63,7 @@ fn run_cpu_chapter14_with_aa(b: &dyn Backend, is_cuda: bool, w: usize, h: usize)
         let filename_cpu_multi = format!("{}_chapter14_with_aa_cpu_multi_core_{}x{}.png", backend_name, w, h);
         let (mut world, c) = chapter14_with_aa::setup_world_chapter14_with_aa(w, h);
         println!("---------- multi core  CPU    --------------------");
-        let canvas = b.render_world_multi_core(&mut world, &c);
+        let canvas = b.render_world(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
     }
 }
@@ -86,7 +86,7 @@ fn run_cpu_compare_to_cuda(b: &dyn Backend, is_cuda: bool, w: usize, h: usize) {
         let filename_cpu_multi = format!("{}_compare_to_cuda_cpu_multi_core_{}x{}.png", backend_name, w, h);
         let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
         println!("\n\n---------- multi core  CPU    --------------------");
-        let canvas = b.render_world_multi_core(&mut world, &c);
+        let canvas = b.render_world(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
     }
 }
@@ -124,7 +124,7 @@ fn run_cpu_shadow_glamour_shot(
         let (mut world, c) =
             shadow_glamour_shot::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
         println!("\n\n---------- multi core  CPU    --------------------");
-        let canvas = b.render_world_multi_core(&mut world, &c);
+        let canvas = b.render_world(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
     }
 }
@@ -156,7 +156,7 @@ fn run_cpu_soft_shadow(b: &dyn Backend, is_cuda: bool, size_factor: f32, antiali
         let (mut world, c) =
             test_soft_shadow_aka_area_light::setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
         println!("\n\n---------- multi core  CPU    --------------------");
-        let canvas = b.render_world_multi_core(&mut world, &c);
+        let canvas = b.render_world(&mut world, &c);
         canvas.unwrap().write_png(&filename_cpu_multi).unwrap();
     }
 }
