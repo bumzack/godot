@@ -1,9 +1,9 @@
 use math::prelude::*;
 
+use crate::force::particle_force_types::ParticleIdx;
 use crate::{
     ParticleContact, ParticleContactGeneratorOps, ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps,
 };
-use crate::force::particle_force_types::ParticleIdx;
 
 #[derive(Debug)]
 pub struct ParticleRod {

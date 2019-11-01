@@ -1,7 +1,7 @@
 use math::prelude::*;
 
-use crate::{ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps};
 use crate::force::particle_force_types::ParticleIdx;
+use crate::{ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps};
 
 #[derive(Debug, Clone)]
 pub struct ParticleContact {

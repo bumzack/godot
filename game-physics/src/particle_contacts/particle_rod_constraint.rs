@@ -1,7 +1,7 @@
 use math::prelude::*;
 
-use crate::{ParticleConstraintOps, ParticleContact, ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps};
 use crate::force::particle_force_types::ParticleIdx;
+use crate::{ParticleConstraintOps, ParticleContact, ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps};
 
 pub struct ParticleRodConstraint {
     length: f32,

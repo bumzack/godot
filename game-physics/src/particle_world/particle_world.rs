@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 
+use crate::raytracer::prelude::*;
 use crate::{
     ParticleContact, ParticleContactGenerator, ParticleContactGeneratorOps, ParticleContactResolver,
     ParticleContactResolverOps, ParticleForceRegistry, ParticleForceRegistryOps, ParticleOps,
 };
-use crate::raytracer::prelude::*;
 
 pub struct ParticleWorld {
     contact_generators: Vec<ParticleContactGenerator>,

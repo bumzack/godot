@@ -21,33 +21,40 @@ pub mod shadow_glamour_shot;
 pub mod test_soft_shadow_aka_area_light;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let backend = Backend::new();
+    //    #[cfg(not(all(
+    //        feature = "cpu_single_core",
+    //        feature = "cpu_multi_core",
+    //        feature = "cpu_cuda",
+    //        feature = "cpu_wasm"
+    //    )))]
+    //    panic!("at least one backend has to be configured!!!");
 
-    println!("available Backends:   {}", backend.get_available_backends().len());
-    backend
-        .get_available_backends()
+    let b = Backend::new();
+
+    println!("available Backends:   {}", b.get_available_backends().len());
+    b.get_available_backends()
         .iter()
         .for_each(|b| println!("backend: {}", b));
 
-    let w = 1280;
-    let h = 720;
-    let size_factor = 1.0;
-    let anitaliasing = true;
+    let w = 320;
+    let h = 200;
+    let size_factor = 0.3;
+    let anitaliasing = false;
     let antialiasing_size = 3;
 
     let mut backend_name: String = "".to_string();
 
     #[cfg(feature = "cpu_single_core")]
-    let (backend, backend_name) = get_single_core(&backend);
+    let (backend, backend_name) = get_single_core(&b);
 
     #[cfg(feature = "cpu_multi_core")]
-    let (backend, backend_name) = get_multi_core(&backend);
+    let (backend, backend_name) = get_multi_core(&b);
 
     #[cfg(feature = "cuda")]
-    let (backend, backend_name) = get_cuda(&backend);
+    let (backend, backend_name) = get_cuda(&b);
 
     #[cfg(feature = "wasm")]
-    let (backend, backend_name) = get_wasm(&backend);
+    let (backend, backend_name) = get_wasm(&b);
 
     run_stuff(
         backend,
@@ -84,7 +91,7 @@ fn get_cuda(b: &Backend) -> (Box<dyn BackendOps>, String) {
 }
 
 #[cfg(feature = "wasm")]
-fn get_wasm() -> (Box<dyn BackendOps>, String) {
+fn get_wasm(b: &Backend) -> (Box<dyn BackendOps>, String) {
     let backend = backend.get_backend(BackendEnum::Wasm).unwrap();
     let backend_name = "WASM".to_string();
     (backend, backend_name)
@@ -99,10 +106,15 @@ fn run_stuff(
     anitaliasing: bool,
     antialiasing_size: usize,
 ) {
+    println!("\n\n\n   chapter 14  ");
     run_chapter14_with_aa(&backend, &backend_name, w, h);
+    println!("\n\n\n   run_compare_to_cuda  ");
     run_compare_to_cuda(&backend, &backend_name, w, h);
+    println!("\n\n\n   run_shadow_glamour_shot  ");
     run_shadow_glamour_shot(&backend, &backend_name, size_factor, anitaliasing, antialiasing_size);
+    println!("\n\n\n   run_soft_shadow  ");
     run_soft_shadow(&backend, &backend_name, size_factor, anitaliasing, antialiasing_size);
+    println!("\n\n\n   DONE  ");
 }
 
 fn run_chapter14_with_aa(b: &Box<dyn BackendOps>, backend_name: &String, w: usize, h: usize) {
@@ -120,7 +132,7 @@ fn run_chapter14_with_aa(b: &Box<dyn BackendOps>, backend_name: &String, w: usiz
 }
 
 fn run_compare_to_cuda(b: &Box<dyn BackendOps>, backend_name: &String, w: usize, h: usize) {
-    let filename_cpu_single = format!("{}_compare_to_cuda_cpu_{}x{}.png", backend_name, w, h);
+    let filename_cpu_single = format!("{}_compare_to_cuda_{}x{}.png", backend_name, w, h);
     let (mut world, c) = compare_to_cuda::setup_world_compare_to_cuda(w, h);
     println!(
         "{}",

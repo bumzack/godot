@@ -1,7 +1,7 @@
 use math::prelude::*;
 
-use crate::{ParticleContact, ParticleForceRegistry, ParticleForceRegistryOps, ParticleLinkOps, ParticleOps};
 use crate::force::particle_force_types::ParticleIdx;
+use crate::{ParticleContact, ParticleForceRegistry, ParticleForceRegistryOps, ParticleLinkOps, ParticleOps};
 
 #[derive(Debug)]
 pub struct ParticleCable {
