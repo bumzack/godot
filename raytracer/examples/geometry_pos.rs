@@ -40,7 +40,7 @@ fn add_cylinder(world: &mut World, points: &Vec<&Tuple4D>) {
     }
 }
 
-fn render_multiple_scene(backend: &BackendCpu, mut world: &mut World, camera: &mut Camera) {
+fn render_multiple_scene(backend: &BackendCpuSingleCore, mut world: &mut World, camera: &mut Camera) {
     let camera_from = Tuple4D::new_point(2.5, 3.0, -3.0);
     let camera_to = Tuple4D::new_point(1.0, 0.0, -1.0);
     let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
@@ -71,7 +71,7 @@ fn create_spheres(world: &mut World, points: &Vec<&Tuple4D>) {
     });
 }
 
-fn render_and_save_world(backend: &BackendCpu, world: &mut World, camera: &Camera, filename: &str) {
+fn render_and_save_world(backend: &BackendCpuSingleCore, world: &mut World, camera: &Camera, filename: &str) {
     let canvas = backend.render_world_multi_core(world, &camera);
     let filename = format!(
         "/Users/bumzack/stoff/rust/raytracer-challenge/raytracer/examples/{}",
@@ -80,10 +80,10 @@ fn render_and_save_world(backend: &BackendCpu, world: &mut World, camera: &Camer
     canvas.unwrap().write_png(&filename).unwrap();
 }
 
-fn setup_world() -> (BackendCpu, World, Camera) {
+fn setup_world() -> (BackendCpuSingleCore, World, Camera) {
     let width = 1280;
     let height = 720;
-    let backend = BackendCpu::new();
+    let backend = BackendCpuSingleCore::new();
 
     let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
     // add_floor(&mut world);

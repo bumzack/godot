@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // single core
     let start = Instant::now();
-    // let canvas = Camera::render_debug(&c, &w, 226, 241);
+    // let canvas_std = Camera::render_debug(&c, &w, 226, 241);
     let canvas = Camera::render(&c, &w);
     canvas.write_ppm("chapter12.ppm")?;
     let dur = Instant::now() - start;
@@ -17,8 +17,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // multi core
     //    let start = Instant::now();
-    //    let canvas = Camera::render_multi_core(&c, &w, 4);
-    //    canvas.write_ppm("chapter12_multi_core.ppm")?;
+    //    let canvas_std = Camera::render_multi_core(&c, &w, 4);
+    //    canvas_std.write_ppm("chapter12_multi_core.ppm")?;
     //    let dur = Instant::now() - start;
     //    println!("multi core duration: {:?}", dur);
 

@@ -1,9 +1,9 @@
 use std::error::Error;
 
-use raytracer::{Backend, BackendCpu};
+use raytracer::{Backend, BackendCpuSingleCore};
 #[cfg(feature = "cuda")]
 use raytracer::BackendCuda;
-use raytracer_lib_std::canvas::canvas::CanvasOps;
+use raytracer_lib_std::canvas_std::canvas_std::CanvasOps;
 
 pub mod chapter14_with_aa;
 pub mod compare_to_cuda;
@@ -37,7 +37,7 @@ fn run_cuda_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, anti
 }
 
 fn run_cpu_stuff(w: usize, h: usize, size_factor: f32, anitaliasing: bool, antialiasing_size: usize) {
-    let backend_cpu = BackendCpu::new();
+    let backend_cpu = BackendCpuSingleCore::new();
     run_cpu_chapter14_with_aa(&backend_cpu, false, w, h);
     run_cpu_compare_to_cuda(&backend_cpu, false, w, h);
     run_cpu_shadow_glamour_shot(&backend_cpu, false, size_factor, anitaliasing, antialiasing_size);

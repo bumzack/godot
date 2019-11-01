@@ -1,5 +1,5 @@
-use raytracer::BackendCpu;
+use raytracer::BackendCpuSingleCore;
 
 fn main() {
-    let _backend = BackendCpu::new();
+    let _backend = BackendCpuSingleCore::new();
 }

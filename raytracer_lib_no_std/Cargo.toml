@@ -12,6 +12,7 @@ raytracer_lib_no_std = {path = "../raytracer_lib_no_std" }
 [features]
 cuda = ["rustacuda_derive", "rustacuda_core", "math/cuda" ]
 use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde" ]
+wasm = [  "math/wasm"]
 
 [dependencies]
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}

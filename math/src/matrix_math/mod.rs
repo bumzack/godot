@@ -1,5 +1,11 @@
-pub use self::common::*;
+#[cfg(feature = "cuda")]
 pub use self::libm_striped_to_pow::*;
+
+#[cfg(feature = "wasm")]
+use libm;
+
+
+pub use self::common::*;
 pub use self::math_ops::*;
 pub use self::matrix::*;
 pub use self::matrix3::*;

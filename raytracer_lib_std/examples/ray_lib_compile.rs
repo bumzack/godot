@@ -1,4 +1,4 @@
-use raytracer_lib_std::world::world::{World, WorldOps};
+use raytracer_lib_std::{World, WorldOps};
 
 fn main() {
     let _w = World::new();

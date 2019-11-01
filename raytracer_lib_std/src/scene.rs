@@ -1,11 +1,10 @@
-use std::time::Duration;
-
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use raytracer_lib_no_std::Camera;
 
 use crate::{Canvas, World};
+use raytracer_lib_no_std::Camera;
+use std::time::Duration;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]

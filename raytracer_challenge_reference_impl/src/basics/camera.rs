@@ -243,9 +243,9 @@ impl CameraOps for Camera {
     }
 
     fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas {
-        //        let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+        //        let mut canvas_std = Canvas::new(c.get_hsize(), c.get_vsize());
         //
-        //        let data = Arc::new(Mutex::new(canvas));
+        //        let data = Arc::new(Mutex::new(canvas_std));
         //        let mut children = vec![];
         //        let act_y: usize = 0;
         //        let act_y_mutex = Arc::new(Mutex::new(act_y));
@@ -273,8 +273,8 @@ impl CameraOps for Camera {
         //                        let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
         //                        // TODO: wtf ?!
         //                        if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
-        //                        let mut canvas = cloned_data.lock().unwrap();
-        //                        canvas.write_pixel(x, y, color);
+        //                        let mut canvas_std = cloned_data.lock().unwrap();
+        //                        canvas_std.write_pixel(x, y, color);
         //                    }
         //                }
         //            }));

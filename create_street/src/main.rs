@@ -36,7 +36,7 @@ fn main_coord_axes() {
     //    let l = Light::PointLight(pl);
     //    world.set_light(l);
     //    camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
-    //    let canvas = backend.render_world_debug(&mut world, &camera, x, y);
+    //    let canvas_std = backend.render_world_debug(&mut world, &camera, x, y);
     //    let filename = format!("./create_street/img/debug_point_{}_{}.png", x, y);
 
     // real deal

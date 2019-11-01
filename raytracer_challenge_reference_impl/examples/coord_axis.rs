@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if !multi_core {
         // single core
         let start = Instant::now();
-        // let canvas = Camera::render_debug(&c, &w, 226, 241);
+        // let canvas_std = Camera::render_debug(&c, &w, 226, 241);
         let canvas = Camera::render(&camera, &world);
         let dur = Instant::now() - start;
         println!("single core duration: {:?}", dur);

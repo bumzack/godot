@@ -106,7 +106,7 @@ impl ParticleWorldOps for ParticleWorld {
 
         let width = 120;
         let height = 100;
-        let b = BackendCpu::new();
+        let b = BackendCpuSingleCore::new();
 
         let mut world = World::new();
 

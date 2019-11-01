@@ -1,6 +1,3 @@
-// #![cfg_attr(target_os = "cuda", feature(abi_ptx, proc_macro_hygiene))]
-//  #![cfg_attr(target_os = "cuda", no_std)]
-
 #![feature(core_intrinsics)]
 #![no_std]
 
