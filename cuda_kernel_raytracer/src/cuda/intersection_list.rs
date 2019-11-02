@@ -7,7 +7,6 @@ use core::fmt;
 
 use crate::cuda::intersection::Intersection;
 use crate::cuda::intersection::IntersectionOps;
-use raytracer_lib_no_std::ShapeIdx;
 
 pub const MAX_INTERSECTIONLIST_LEN: usize = 100;
 

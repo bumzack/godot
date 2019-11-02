@@ -26,4 +26,3 @@ mod backend_wasm;
 
 mod backend;
 
-pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;

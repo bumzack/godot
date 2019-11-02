@@ -97,7 +97,7 @@ impl CudaKernel {
         }
         let mut refracted = BLACK;
         if calc_refraction {
-            let refracted = CudaKernel::refracted_color(
+            refracted = CudaKernel::refracted_color(
                 shapes,
                 cnt_shapes,
                 lights,
@@ -150,7 +150,7 @@ impl CudaKernel {
         shapes: *mut Shape,
         cnt_shapes: usize,
         lights: *const Light,
-        cnt_lights: usize,
+        _cnt_lights: usize,
         point: &Tuple4D,
     ) -> f32 {
         let light = unsafe { lights.offset(0).as_ref().unwrap() };
@@ -309,8 +309,8 @@ impl CudaKernel {
 
         for i in 0..cnt_samples {
             let sample = &samples[i];
-            let mut specular = BLACK;
-            let mut diffuse = BLACK;
+            let mut specular;
+            let mut diffuse;
 
             let light_v = Tuple4D::normalize(&(sample - point));
             let light_dot_normal = &light_v ^ &n;

@@ -10,7 +10,8 @@ use raytracer_lib_no_std::color::BLACK;
 use raytracer_lib_no_std::ColorOps;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
-use crate::backend::MAX_REFLECTION_RECURSION_DEPTH;
+use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
+
 use crate::BackendOps;
 
 pub struct BackendCpuMultiCore {}

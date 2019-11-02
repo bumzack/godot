@@ -8,11 +8,8 @@ extern crate rustacuda_core;
 #[cfg(feature = "cuda")]
 extern crate rustacuda_derive;
 
-
 #[cfg(feature = "use_serde")]
 extern crate serde;
-
-
 
 extern crate cpu_kernel_raytracer;
 extern crate raytracer_lib_std;

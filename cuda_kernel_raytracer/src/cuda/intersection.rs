@@ -53,7 +53,7 @@ impl IntersectionOps for Intersection {
         }
     }
 
-    fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, cnt_shapes: usize) -> IntersectionList {
+    fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, _cnt_shapes: usize) -> IntersectionList {
         let shape = unsafe { shapes.offset(shape_idx as isize).as_ref().unwrap() };
         let mut intersection_list = IntersectionList::new();
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
@@ -94,7 +94,7 @@ impl IntersectionOps for Intersection {
         r: &Ray,
         list: &IntersectionList,
         shapes: *mut Shape,
-        cnt_shapes: usize,
+        _cnt_shapes: usize,
     ) -> PrecomputedComponent {
         let point = Ray::position(r, intersection.get_t());
         let shape = unsafe { shapes.offset(intersection.get_shape() as isize).as_ref().unwrap() };

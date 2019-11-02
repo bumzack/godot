@@ -10,11 +10,9 @@ use raytracer_lib_no_std::basics::color::{Color, BLACK};
 use raytracer_lib_no_std::light::light::Light;
 use raytracer_lib_no_std::shape::shape::Shape;
 use raytracer_lib_no_std::ColorOps;
+use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
 
 pub mod cuda;
-
-// TODO: there are multiple definitions of this constant
-pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 
 #[no_mangle]
 #[cfg(target_os = "cuda")]

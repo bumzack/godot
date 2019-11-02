@@ -17,10 +17,11 @@ extern crate serde_derive;
 #[macro_use]
 extern crate std;
 
-pub use self::matrix_math::*;
-
 pub mod matrix_math;
+pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 
+pub use self::matrix_math::*;
 pub mod prelude {
     pub use super::matrix_math::*;
+    pub use super::MAX_REFLECTION_RECURSION_DEPTH;
 }

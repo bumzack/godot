@@ -71,28 +71,28 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 #[cfg(feature = "cpu_single_core")]
 fn get_single_core(b: &Backend) -> (Box<dyn BackendOps>, String) {
-    let backend = b.get_backend(BackendEnum::CpuSingleCore).unwrap();
+    let backend = b.get_backend(&BackendEnum::CpuSingleCore).unwrap();
     let backend_name = "cpu_single_core".to_string();
     (backend, backend_name)
 }
 
 #[cfg(feature = "cpu_multi_core")]
 fn get_multi_core(b: &Backend) -> (Box<dyn BackendOps>, String) {
-    let backend = b.get_backend(BackendEnum::CpuMultiCore).unwrap();
+    let backend = b.get_backend(&BackendEnum::CpuMultiCore).unwrap();
     let backend_name = "cpu_multi_core ".to_string();
     (backend, backend_name)
 }
 
 #[cfg(feature = "cuda")]
 fn get_cuda(b: &Backend) -> (Box<dyn BackendOps>, String) {
-    let backend = b.get_backend(BackendEnum::Cuda).unwrap();
+    let backend = b.get_backend(&BackendEnum::Cuda).unwrap();
     let backend_name = "CUDA".to_string();
     (backend, backend_name)
 }
 
 #[cfg(feature = "wasm")]
 fn get_wasm(b: &Backend) -> (Box<dyn BackendOps>, String) {
-    let backend = backend.get_backend(BackendEnum::Wasm).unwrap();
+    let backend = b.get_backend(&BackendEnum::Wasm).unwrap();
     let backend_name = "WASM".to_string();
     (backend, backend_name)
 }
