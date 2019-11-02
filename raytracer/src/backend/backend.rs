@@ -131,7 +131,7 @@ impl fmt::Display for BackendEnum {
 }
 
 pub fn calc_pixel_single<F>(
-    world: &World,
+    world: &mut World,
     c: &Camera,
     f: &F,
     n_samples: usize,

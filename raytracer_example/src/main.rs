@@ -42,8 +42,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let anitaliasing = false;
     let antialiasing_size = 3;
 
-    let mut backend_name: String = "".to_string();
-
     #[cfg(feature = "cpu_single_core")]
     let (backend, backend_name) = get_single_core(&b);
 
