@@ -5,4 +5,3 @@ pub use self::intersection_list::*;
 mod cpu_kernel;
 mod intersection;
 mod intersection_list;
-

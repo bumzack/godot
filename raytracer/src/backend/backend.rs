@@ -1,8 +1,8 @@
 use std::error::Error;
 
 use core::fmt;
-use raytracer_lib_no_std::{Camera, CameraOps, Color, ColorOps, Light, Ray, Shape, BLACK};
-use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
+use raytracer_lib_no_std::{Camera, CameraOps, Color, ColorOps, Light, Ray, Shape, BLACK, Pixel};
+use raytracer_lib_std::{Canvas, World, WorldOps};
 
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
@@ -53,16 +53,16 @@ impl Backend {
         let mut list = Vec::new();
 
         #[cfg(feature = "cpu_single_core")]
-        list.push(BackendEnum::CpuSingleCore);
+            list.push(BackendEnum::CpuSingleCore);
 
         #[cfg(feature = "cpu_multi_core")]
-        list.push(BackendEnum::CpuMultiCore);
+            list.push(BackendEnum::CpuMultiCore);
 
         #[cfg(feature = "cuda")]
-        list.push(BackendEnum::Cuda);
+            list.push(BackendEnum::Cuda);
 
         #[cfg(feature = "wasm")]
-        list.push(BackendEnum::Wasm);
+            list.push(BackendEnum::Wasm);
 
         Backend {
             available_backends: list,
@@ -130,10 +130,66 @@ impl fmt::Display for BackendEnum {
     }
 }
 
-pub fn render_world_single_core<F>(world: &mut World, c: &Camera, f: F) -> Canvas
-where
-    F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
+pub fn calc_pixel_single<F>(
+    world: &World,
+    c: &Camera,
+    f: &F,
+    n_samples: usize,
+    jitter_matrix: &Vec<f32>,
+    lights: &Vec<Light>,
+    p: &mut Pixel,
+) -> ()
+    where
+        F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool)  -> Color,
 {
+    let x = p.x;
+    let y = p.y;
+    if c.get_antialiasing() {
+        let mut color = BLACK;
+
+        // Accumulate light for N samples.
+        for sample in 0..(n_samples * n_samples) {
+            let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
+            let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
+            let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
+            let c = f(
+                world.get_shapes(),
+                &lights,
+                &r,
+                MAX_REFLECTION_RECURSION_DEPTH,
+                c.get_calc_reflection(),
+                c.get_calc_refraction(),
+                c.get_calc_shadows(),
+                false,
+            );
+            color = c + color;
+        }
+        color = color / (n_samples * n_samples) as f32;
+        color.clamp_color();
+        p.color.r = color.r;
+        p.color.g = color.g;
+        p.color.b = color.b;
+    } else {
+        let r = Camera::ray_for_pixel(c, x, y);
+        let mut color = f(
+            world.get_shapes(),
+            &lights,
+            &r,
+            MAX_REFLECTION_RECURSION_DEPTH,
+            c.get_calc_reflection(),
+            c.get_calc_refraction(),
+            c.get_calc_shadows(),
+            false,
+        );
+        color.clamp_color();
+
+        p.color.r = color.r;
+        p.color.g = color.g;
+        p.color.b = color.b;
+    }
+}
+
+pub fn get_antialiasing_params(c: &Camera) -> (usize, Vec<f32>) {
     let n_samples = c.get_antialiasing_size();
     let mut jitter_matrix = Vec::new();
     if n_samples == 2 {
@@ -171,56 +227,6 @@ where
             -two_over_six,
         ];
     }
-    let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
-    // TODO: remove, when WOrld has lights vector
-    let mut lights = Vec::new();
-    lights.push(world.get_light().clone());
-    if c.get_antialiasing() {
-        for y in 0..c.get_vsize() {
-            for x in 0..c.get_hsize() {
-                let mut color = BLACK;
 
-                // Accumulate light for N samples.
-                for sample in 0..(n_samples * n_samples) {
-                    let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
-                    let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
-
-                    let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
-                    let c = f(
-                        world.get_shapes(),
-                        &lights,
-                        &r,
-                        MAX_REFLECTION_RECURSION_DEPTH,
-                        c.get_calc_reflection(),
-                        c.get_calc_refraction(),
-                        c.get_calc_shadows(),
-                        false,
-                    );
-                    color = c + color;
-                }
-                color = color / (n_samples * n_samples) as f32;
-                color.clamp_color();
-                canvas.write_pixel(x, y, color);
-            }
-        }
-    } else {
-        for y in 0..c.get_vsize() {
-            for x in 0..c.get_hsize() {
-                let r = Camera::ray_for_pixel(c, x, y);
-                let mut color = f(
-                    world.get_shapes(),
-                    &lights,
-                    &r,
-                    MAX_REFLECTION_RECURSION_DEPTH,
-                    c.get_calc_reflection(),
-                    c.get_calc_refraction(),
-                    c.get_calc_shadows(),
-                    false,
-                );
-                color.clamp_color();
-                canvas.write_pixel(x, y, color);
-            }
-        }
-    }
-    canvas
+    (n_samples, jitter_matrix)
 }

@@ -4,7 +4,6 @@ use crate::prelude::test_patterns::TestPattern;
 use crate::prelude::*;
 use crate::DEBUG;
 
-
 #[derive(Clone, Debug)]
 pub struct World {
     shapes: Vec<Shape>,
