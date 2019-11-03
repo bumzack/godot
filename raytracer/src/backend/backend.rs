@@ -1,8 +1,8 @@
 use std::error::Error;
 
 use core::fmt;
-use raytracer_lib_no_std::{Camera, CameraOps, Color, ColorOps, Light, Ray, Shape, BLACK, Pixel};
-use raytracer_lib_std::{Canvas, World, WorldOps};
+use raytracer_lib_no_std::{Camera};
+use raytracer_lib_std::{Canvas, World};
 
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,6 @@ use crate::BackendCuda;
 
 #[cfg(feature = "wasm")]
 use crate::BackendWasm;
-use crate::MAX_REFLECTION_RECURSION_DEPTH;
 
 // TODO: use Vec<Light> if multiple light sources should be supported
 
@@ -53,16 +52,16 @@ impl Backend {
         let mut list = Vec::new();
 
         #[cfg(feature = "cpu_single_core")]
-            list.push(BackendEnum::CpuSingleCore);
+        list.push(BackendEnum::CpuSingleCore);
 
         #[cfg(feature = "cpu_multi_core")]
-            list.push(BackendEnum::CpuMultiCore);
+        list.push(BackendEnum::CpuMultiCore);
 
         #[cfg(feature = "cuda")]
-            list.push(BackendEnum::Cuda);
+        list.push(BackendEnum::Cuda);
 
         #[cfg(feature = "wasm")]
-            list.push(BackendEnum::Wasm);
+        list.push(BackendEnum::Wasm);
 
         Backend {
             available_backends: list,
@@ -99,7 +98,7 @@ enum BackendError {
     BackendNotAvailable,
 }
 
-//TODO: error handling =!=! the display trait ?!
+// TODO: error handling =!=! the display trait ?!
 impl Error for BackendError {
     fn description(&self) -> &str {
         "I'm the superhero of errors"
@@ -128,105 +127,4 @@ impl fmt::Display for BackendEnum {
             BackendEnum::Wasm => write!(f, "WASM"),
         }
     }
-}
-
-pub fn calc_pixel_single<F>(
-    world: &mut World,
-    c: &Camera,
-    f: &F,
-    n_samples: usize,
-    jitter_matrix: &Vec<f32>,
-    lights: &Vec<Light>,
-    p: &mut Pixel,
-) -> ()
-    where
-        F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool)  -> Color,
-{
-    let x = p.x;
-    let y = p.y;
-    if c.get_antialiasing() {
-        let mut color = BLACK;
-
-        // Accumulate light for N samples.
-        for sample in 0..(n_samples * n_samples) {
-            let delta_x = jitter_matrix[2 * sample] * c.get_pixel_size();
-            let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
-            let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
-            let c = f(
-                world.get_shapes(),
-                &lights,
-                &r,
-                MAX_REFLECTION_RECURSION_DEPTH,
-                c.get_calc_reflection(),
-                c.get_calc_refraction(),
-                c.get_calc_shadows(),
-                false,
-            );
-            color = c + color;
-        }
-        color = color / (n_samples * n_samples) as f32;
-        color.clamp_color();
-        p.color.r = color.r;
-        p.color.g = color.g;
-        p.color.b = color.b;
-    } else {
-        let r = Camera::ray_for_pixel(c, x, y);
-        let mut color = f(
-            world.get_shapes(),
-            &lights,
-            &r,
-            MAX_REFLECTION_RECURSION_DEPTH,
-            c.get_calc_reflection(),
-            c.get_calc_refraction(),
-            c.get_calc_shadows(),
-            false,
-        );
-        color.clamp_color();
-
-        p.color.r = color.r;
-        p.color.g = color.g;
-        p.color.b = color.b;
-    }
-}
-
-pub fn get_antialiasing_params(c: &Camera) -> (usize, Vec<f32>) {
-    let n_samples = c.get_antialiasing_size();
-    let mut jitter_matrix = Vec::new();
-    if n_samples == 2 {
-        jitter_matrix = vec![
-            -1.0 / 4.0,
-            1.0 / 4.0,
-            1.0 / 4.0,
-            1.0 / 4.0,
-            -1.0 / 4.0,
-            -1.0 / 4.0,
-            1.0 / 4.0,
-            -3.0 / 4.0,
-        ];
-    }
-    if n_samples == 3 {
-        let two_over_six = 2.0 / 6.0;
-        jitter_matrix = vec![
-            -two_over_six,
-            two_over_six,
-            0.0,
-            two_over_six,
-            two_over_six,
-            two_over_six,
-            -two_over_six,
-            0.0,
-            0.0,
-            0.0,
-            two_over_six,
-            0.0,
-            -two_over_six,
-            -two_over_six,
-            0.0,
-            -two_over_six,
-            two_over_six,
-            -two_over_six,
-        ];
-    }
-
-    (n_samples, jitter_matrix)
 }

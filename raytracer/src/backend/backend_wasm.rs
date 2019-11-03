@@ -1,4 +1,6 @@
-use crate::{render_world_single_core, BackendOps};
+use crate::{BackendOps, render_world_single_core};
+use  backend_cpu_single_core:: render_world_single_core;
+
 use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::Camera;
 use raytracer_lib_std::{Canvas, World};
