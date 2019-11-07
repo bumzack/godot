@@ -1,17 +1,17 @@
 use std::error::Error;
 use std::time::Instant;
 
-use cpu_kernel_raytracer::CpuKernel;
-use raytracer_lib_no_std::camera::{Camera, CameraOps};
-use raytracer_lib_no_std::{Color, ColorOps, Light, Pixel, Ray, Shape, BLACK};
-use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
-
-use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
-
-use crate::{calc_pixel, get_antialiasing_params, BackendOps};
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelIterator;
-use crate::backend_helper::calc_pixel;
+
+use cpu_kernel_raytracer::CpuKernel;
+use raytracer_lib_no_std::{BLACK, Color, ColorOps, Light, Pixel, Ray, Shape};
+use raytracer_lib_no_std::camera::{Camera, CameraOps};
+use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
+use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
+
+use crate::backend::backend_helper::{calc_pixel, get_antialiasing_params};
+use crate::BackendOps;
 
 pub struct BackendCpuMultiCore {}
 

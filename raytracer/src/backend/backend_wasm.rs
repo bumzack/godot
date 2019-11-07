@@ -1,10 +1,11 @@
-use crate::{BackendOps, render_world_single_core};
-use  backend_cpu_single_core:: render_world_single_core;
+use std::error::Error;
 
 use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::Camera;
 use raytracer_lib_std::{Canvas, World};
-use std::error::Error;
+
+use crate::BackendOps;
+use crate::backend::backend_cpu_single_core::render_world_single_core;
 
 pub struct BackendWasm {}
 

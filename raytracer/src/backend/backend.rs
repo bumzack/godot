@@ -1,21 +1,18 @@
-use std::error::Error;
-
 use core::fmt;
-use raytracer_lib_no_std::{Camera};
-use raytracer_lib_std::{Canvas, World};
+use std::error::Error;
 
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "cpu_single_core")]
-use crate::BackendCpuSingleCore;
+use raytracer_lib_no_std::Camera;
+use raytracer_lib_std::{Canvas, World};
 
 #[cfg(feature = "cpu_multi_core")]
 use crate::BackendCpuMultiCore;
-
+#[cfg(any(feature = "cpu_single_core"))]
+use crate::BackendCpuSingleCore;
 #[cfg(feature = "cuda")]
 use crate::BackendCuda;
-
 #[cfg(feature = "wasm")]
 use crate::BackendWasm;
 

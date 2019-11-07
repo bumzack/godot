@@ -2,12 +2,12 @@ use std::error::Error;
 use std::time::Instant;
 
 use cpu_kernel_raytracer::CpuKernel;
+use raytracer_lib_no_std::{CameraOps, Color, Light, Ray, Shape};
 use raytracer_lib_no_std::camera::Camera;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
-use crate::{calc_pixel, get_antialiasing_params, BackendOps};
-use raytracer_lib_no_std::{CameraOps, Color, Light, Ray, Shape};
-use crate::backend_helper::{get_antialiasing_params, calc_pixel};
+use crate::backend::backend_helper::{calc_pixel, get_antialiasing_params};
+use crate::BackendOps;
 
 pub struct BackendCpuSingleCore {}
 
