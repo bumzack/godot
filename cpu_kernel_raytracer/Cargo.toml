@@ -5,7 +5,7 @@ authors = ["bumzack"]
 edition = "2018"
 
 [features]
-cuda = ["raytracer_lib_no_std/cuda", "math/cuda"]
+# cuda = ["raytracer_lib_no_std/cuda", "math/cuda"]
 wasm = ["raytracer_lib_no_std/wasm", "math/wasm"]
 cpu_single_core = ["raytracer_lib_no_std/cpu_single_core", "math/cpu_single_core"]
 cpu_multi_core = ["raytracer_lib_no_std/cpu_multi_core", "math/cpu_multi_core"]

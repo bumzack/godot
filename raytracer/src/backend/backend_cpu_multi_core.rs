@@ -5,7 +5,7 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelIterator;
 
 use cpu_kernel_raytracer::CpuKernel;
-use raytracer_lib_no_std::{BLACK, Color, ColorOps, Light, Pixel, Ray, Shape};
+use raytracer_lib_no_std::{ Color, ColorOps, Light, Ray, Shape};
 use raytracer_lib_no_std::camera::{Camera, CameraOps};
 use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};

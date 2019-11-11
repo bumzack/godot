@@ -5,7 +5,7 @@ authors = ["bumzack <bumzacktrara@gmail.com>"]
 edition = "2018"
 
 [features]
-cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda", "raytracer/cuda"]
+cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "raytracer/cuda"]
 cpu_single_core = [ "raytracer/cpu_single_core" ]
 cpu_multi_core = [ "raytracer/cpu_multi_core" ]
 wasm = [ "raytracer/wasm" ]

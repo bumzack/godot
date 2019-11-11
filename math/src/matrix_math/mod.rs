@@ -1,4 +1,3 @@
-
 pub use self::common::*;
 pub use self::math_ops::*;
 pub use self::matrix::*;
@@ -15,8 +14,3 @@ pub mod tuple4d;
 
 #[cfg(any(feature = "cuda",feature = "cpu_single_core",feature = "cpu_multi_core"))]
 pub mod libm_cuda;
-
-#[cfg(feature = "wasm")]
-use libm;
-
-

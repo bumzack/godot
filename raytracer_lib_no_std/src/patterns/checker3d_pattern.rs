@@ -2,7 +2,6 @@
 use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
-use math::math_ops::math_ops::*;
 
 use crate::{Color, ColorOps, Shape, ShapeOps, BLACK, WHITE};
 

@@ -5,7 +5,7 @@ authors = ["bumzack"]
 edition = "2018"
 
 [features]
-cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "cpu_kernel_raytracer/cuda"]
+cuda = ["rustacuda", "rustacuda_derive", "rustacuda_core", "raytracer_lib_no_std/cuda"]
 use_serde = [ "raytracer_lib_std/use_serde", "raytracer_lib_no_std/use_serde" , "serde", "serde_json" , "serde_derive"]
 wasm = ["cpu_kernel_raytracer/wasm"]
 cpu_single_core = ["cpu_kernel_raytracer/cpu_single_core"]

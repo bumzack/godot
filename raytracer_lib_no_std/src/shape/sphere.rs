@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
-use math::math_ops::math_ops::*;
+
 use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
 
 #[derive(Clone, Debug, PartialEq)]
