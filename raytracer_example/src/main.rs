@@ -1,18 +1,15 @@
-#[cfg(feature = "cpu_single_core")]
-use raytracer::BackendCpuSingleCore;
-
-#[cfg(feature = "cpu_multi_core")]
-use raytracer::BackendCpuMultiCore;
-
-#[cfg(feature = "cuda")]
-use raytracer::BackendCuda;
-
-#[cfg(feature = "wasm")]
-use raytracer::BackendWasm;
+use std::error::Error;
 
 use raytracer::{Backend, BackendEnum, BackendOps};
+#[cfg(feature = "cpu_multi_core")]
+use raytracer::BackendCpuMultiCore;
+#[cfg(feature = "cpu_single_core")]
+use raytracer::BackendCpuSingleCore;
+#[cfg(feature = "cuda")]
+use raytracer::BackendCuda;
+#[cfg(feature = "wasm")]
+use raytracer::BackendWasm;
 use raytracer_lib_std::CanvasOpsStd;
-use std::error::Error;
 
 pub mod chapter14_with_aa;
 pub mod compare_to_cuda;
@@ -53,6 +50,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     #[cfg(feature = "wasm")]
     let (backend, backend_name) = get_wasm(&b);
+
+    println!("available backends: ");
+    b.get_available_backends().iter().for_each(|be| println!("be: {}", be));
+
+    println!("run stuff using  backends: {}", backend_name);
 
     run_stuff(
         backend,

@@ -1,6 +1,6 @@
-use raytracer_lib_no_std::{Camera, CameraOps, Color, ColorOps, Light, Pixel, Ray, Shape, BLACK};
-use raytracer_lib_std::{WorldOps, World};
+use raytracer_lib_no_std::{BLACK, Camera, CameraOps, Color, ColorOps, Light, Pixel, Ray, Shape};
 use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
+use raytracer_lib_std::{World, WorldOps};
 
 pub fn calc_pixel<F>(
     world: &World,
@@ -42,7 +42,7 @@ fn calc_pixel_no_antialiasing<F>(
 ) -> Color
     where F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color {
     let r = Camera::ray_for_pixel(c, x, y);
-    let mut color = f(
+    let color = f(
         world.get_shapes(),
         &lights,
         &r,
