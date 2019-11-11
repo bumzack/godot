@@ -95,7 +95,7 @@ impl CameraOps for Camera {
     }
 
     fn calc_pixel_size(&mut self) {
-        self.half_view = intri_tan(self.field_of_view / 2.0);
+        self.half_view = math_ops::math_ops::intri_tan(self.field_of_view / 2.0);
         let aspect = self.hsize as f32 / (self.vsize as f32);
 
         if aspect >= 1.0 {

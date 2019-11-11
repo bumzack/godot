@@ -10,9 +10,6 @@ cpu_single_core = [ "raytracer/cpu_single_core" ]
 cpu_multi_core = [ "raytracer/cpu_multi_core" ]
 wasm = [ "raytracer/wasm" ]
 
-default = [ "cpu_single_core", "cpu_multi_core" ]
-
-
 [dependencies]
 image = "*"
 raytracer_lib_std = {path =  "../raytracer_lib_std" }

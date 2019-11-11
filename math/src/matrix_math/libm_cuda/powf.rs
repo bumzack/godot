@@ -13,9 +13,9 @@
  * ====================================================
  */
 
-use crate::matrix_math::libm_striped_to_pow::fabsf::fabsf;
-use crate::matrix_math::libm_striped_to_pow::scalbnf::scalbnf;
-use crate::matrix_math::libm_striped_to_pow::sqrtf::sqrtf;
+use crate::matrix_math::libm_cuda::fabsf::fabsf;
+use crate::matrix_math::libm_cuda::scalbnf::scalbnf;
+use crate::matrix_math::libm_cuda::sqrtf::sqrtf;
 
 const BP: [f32; 2] = [1.0, 1.5];
 const DP_H: [f32; 2] = [0.0, 5.84960938e-01]; /* 0x3f15c000 */

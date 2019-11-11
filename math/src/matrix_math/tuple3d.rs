@@ -1,6 +1,7 @@
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
-use crate::intri_sqrt;
+use crate::math_ops::math_ops::{intri_sqrt};
+
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

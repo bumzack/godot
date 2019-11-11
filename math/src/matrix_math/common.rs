@@ -3,6 +3,8 @@ use crate::prelude::*;
 pub const EPSILON: f32 = 0.00001;
 pub const EPSILON_OVER_UNDER: f32 = 0.005;
 
+use crate::math_ops::math_ops::intri_abs;
+
 pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
     assert_eq!(actual.rows, expected.rows);
     assert_eq!(actual.cols, expected.cols);

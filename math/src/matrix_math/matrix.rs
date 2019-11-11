@@ -9,7 +9,9 @@ use core::ops::{Index, IndexMut, Mul};
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
+use crate::math_ops::math_ops::{intri_abs, intri_cos, intri_sin};
+use crate::{Tuple4D, Tuple, EPSILON};
+
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

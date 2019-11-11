@@ -1,9 +1,10 @@
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
+use crate::math_ops::math_ops::{intri_sqrt};
+
+
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
-
-use crate::intri_sqrt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]

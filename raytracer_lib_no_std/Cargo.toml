@@ -13,6 +13,9 @@ raytracer_lib_no_std = {path = "../raytracer_lib_no_std" }
 cuda = ["rustacuda_derive", "rustacuda_core", "math/cuda" ]
 use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde" ]
 wasm = [  "math/wasm"]
+cpu_single_core = [  "math/cpu_single_core" ]
+cpu_multi_core = [ "math/cpu_multi_core" ]
+
 
 [dependencies]
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
