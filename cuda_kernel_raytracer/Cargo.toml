@@ -13,5 +13,4 @@ ptx-support = { git  = "https://github.com/denzp/rust-ptx-support" }
 
 [dependencies.raytracer_lib_no_std]
 path = "../raytracer_lib_no_std"
-
 features = ["cuda"]

@@ -4,21 +4,21 @@
 
 extern crate raytracer_lib_no_std;
 
-use cuda::cuda_kernel::CudaKernel;
 use raytracer_lib_no_std::basics::camera::{Camera, CameraOps};
 use raytracer_lib_no_std::basics::color::{Color, BLACK};
 use raytracer_lib_no_std::light::light::Light;
 use raytracer_lib_no_std::shape::shape::Shape;
 use raytracer_lib_no_std::ColorOps;
 use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
+use raytracer_lib_no_std::prelude::raytracer_kernel::*;
+use raytracer_lib_no_std::prelude::math_ops::math_ops::*;
 
-pub mod cuda;
 
 #[no_mangle]
 #[cfg(target_os = "cuda")]
 pub unsafe extern "ptx-kernel" fn calc_pixel(
     pixels: *mut Color,
-    shapes: *mut Shape,
+    shapes: *const Shape,
     cnt_shapes: usize,
     lights: *const Light,
     cnt_lights: usize,
@@ -90,7 +90,7 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
                 let r = Camera::ray_for_pixel_anti_aliasing(c, x_idx as usize, y_idx as usize, delta_x, delta_y);
 
                 color = color
-                    + CudaKernel::color_at(
+                    + RaytracerKernel::color_at(
                         shapes,
                         cnt_shapes,
                         lights,
@@ -109,7 +109,7 @@ pub unsafe extern "ptx-kernel" fn calc_pixel(
             *pixels.offset(idx) = color;
         } else {
             let r = Camera::ray_for_pixel(c, x_idx as usize, y_idx as usize);
-            let mut color = CudaKernel::color_at(
+            let mut color = RaytracerKernel::color_at(
                 shapes,
                 cnt_shapes,
                 lights,

@@ -1,16 +1,9 @@
-use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
-use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::prelude::{Tuple, Tuple4D};
-use raytracer_lib_no_std::shape::shape::{Shape, ShapeEnum};
-
-use crate::cuda::intersection_list::IntersectionList;
-use crate::cuda::intersection_list::IntersectionListOps;
-use crate::cuda::shape_idx_list::{ShapeIdxList, ShapeIdxListOps};
-use raytracer_lib_no_std::{MaterialOps, ShapeIdx, ShapeOps};
-
-use raytracer_lib_no_std::prelude::intri_powi;
-use raytracer_lib_no_std::prelude::intri_sqrt;
-use raytracer_lib_no_std::prelude::EPSILON_OVER_UNDER;
+use crate::{ShapeIdx, Ray, Shape, PrecomputedComponent, ShapeEnum, ShapeOps, RayOps, MaterialOps};
+use crate::prelude::intersection_list::IntersectionList;
+use crate::kernel::prelude::IntersectionListOps;
+use math::{Tuple4D, EPSILON_OVER_UNDER, Tuple};
+use crate::prelude::shape_idx_list::{ShapeIdxList, ShapeIdxListOps};
+use math::prelude::math_ops::math_ops::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Intersection {
@@ -21,14 +14,14 @@ pub struct Intersection {
 pub trait IntersectionOps {
     fn new(t: f32, shape_idx: ShapeIdx) -> Intersection;
     fn new_empty() -> Intersection;
-    fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, cnt_shapes: usize) -> IntersectionList;
-    fn intersect_world(shapes: *mut Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList;
+    fn intersect(shape_idx: usize, r: &Ray, shapes: *const Shape, cnt_shapes: usize) -> IntersectionList;
+    fn intersect_world(shapes: *const Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList;
 
     fn prepare_computations(
         intersection: &Intersection,
         r: &Ray,
         list: &IntersectionList,
-        shapes: *mut Shape,
+        shapes: *const Shape,
         cnt_shapes: usize,
     ) -> PrecomputedComponent;
 
@@ -53,7 +46,7 @@ impl IntersectionOps for Intersection {
         }
     }
 
-    fn intersect(shape_idx: usize, r: &Ray, shapes: *mut Shape, _cnt_shapes: usize) -> IntersectionList {
+    fn intersect(shape_idx: usize, r: &Ray, shapes: *const Shape, _cnt_shapes: usize) -> IntersectionList {
         let shape = unsafe { shapes.offset(shape_idx as isize).as_ref().unwrap() };
         let mut intersection_list = IntersectionList::new();
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
@@ -75,7 +68,7 @@ impl IntersectionOps for Intersection {
         intersection_list
     }
 
-    fn intersect_world(shapes: *mut Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList {
+    fn intersect_world(shapes: *const Shape, cnt_shapes: usize, r: &Ray) -> IntersectionList {
         let mut res = IntersectionList::new();
         for i in 0..cnt_shapes {
             let tmp = Intersection::intersect(i, r, shapes, cnt_shapes);
@@ -93,7 +86,7 @@ impl IntersectionOps for Intersection {
         intersection: &Intersection,
         r: &Ray,
         list: &IntersectionList,
-        shapes: *mut Shape,
+        shapes: *const Shape,
         _cnt_shapes: usize,
     ) -> PrecomputedComponent {
         let point = Ray::position(r, intersection.get_t());
@@ -201,6 +194,8 @@ mod tests {
 
     use super::*;
     use raytracer_lib_no_std::{assert_float, assert_tuple, ColorOps, MatrixOps, Sphere};
+    use crate::Sphere;
+    use math::{Tuple, assert_tuple, assert_float};
 
     // helper
     // page 151

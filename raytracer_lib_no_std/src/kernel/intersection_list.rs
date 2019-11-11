@@ -1,13 +1,12 @@
 // TODO: intersectionList is identical for CPU and CUDA, but the Intersection it uses is different
 // how can this be merged into 1 file?
 // use #!cfg target = ... or something ?
+//
 
 use core::fmt;
+use crate::prelude::intersection::{Intersection, IntersectionOps};
 
-use crate::cpu::intersection::Intersection;
-use crate::cpu::intersection::IntersectionOps;
-
-pub const MAX_INTERSECTIONLIST_LEN: usize = 1000;
+pub const MAX_INTERSECTIONLIST_LEN: usize = 100;
 
 type IntersectionContainer = [Intersection; MAX_INTERSECTIONLIST_LEN];
 
@@ -22,18 +21,13 @@ pub struct IntersectionList {
 pub trait IntersectionListOps {
     fn new() -> IntersectionList;
     fn push(&mut self, i: Intersection);
-
-    fn hit(&self) -> (&Intersection, bool);
-
     fn get_intersections(&self) -> &IntersectionContainer;
     fn get_intersections_mut(&mut self) -> &mut IntersectionContainer;
-
     fn sort_intersections(&mut self);
-
     fn len(&self) -> usize;
+    fn at(&self, idx: usize) -> &Intersection;
 
-    // TODO this is always a  copy, dont know how to borrow ?!
-    fn at(&self, idx: usize) -> Intersection;
+    fn hit(&self) -> (&Intersection, bool);
 }
 
 impl IntersectionListOps for IntersectionList {
@@ -48,24 +42,11 @@ impl IntersectionListOps for IntersectionList {
 
     fn push(&mut self, i: Intersection) {
         if !(self.len < self.capacity) {
-            panic!("IntersectionListOps::add  array is full. try increasing MAX_INTERSECTIONLIST_LEN");
+            panic!("IntersectionListOps::push  array is full. try increasing MAX_INTERSECTIONLIST_LEN");
         }
         self.list_of_intersections[self.len] = i;
         self.len += 1;
         self.sort_intersections();
-    }
-
-    fn hit(&self) -> (&Intersection, bool) {
-        let mut found = false;
-        let mut idx = 0;
-        for i in 0..self.len {
-            if self.list_of_intersections[i].get_t() >= 0.0 {
-                found = true;
-                idx = i;
-                break;
-            }
-        }
-        (&self.list_of_intersections[idx], found)
     }
 
     fn get_intersections(&self) -> &IntersectionContainer {
@@ -93,11 +74,24 @@ impl IntersectionListOps for IntersectionList {
         self.len
     }
 
-    fn at(&self, idx: usize) -> Intersection {
+    fn at(&self, idx: usize) -> &Intersection {
         if !(idx < self.len) {
             panic!("IntersectionListOps::at  idx is out of range . try increasing MAX_INTERSECTIONLIST_LEN");
         }
-        self.list_of_intersections[idx]
+        &self.list_of_intersections[idx]
+    }
+
+    fn hit(&self) -> (&Intersection, bool) {
+        let mut found = false;
+        let mut idx = 0;
+        for i in 0..self.len {
+            if self.list_of_intersections[i].get_t() >= 0.0 {
+                found = true;
+                idx = i;
+                break;
+            }
+        }
+        (&self.list_of_intersections[idx], found)
     }
 }
 
@@ -115,6 +109,8 @@ mod tests {
 
     use super::*;
     use raytracer_lib_no_std::{Shape, ShapeEnum, Sphere};
+    use crate::{Sphere, Shape, ShapeEnum};
+    use crate::prelude::intersection::{Intersection, IntersectionOps};
 
     #[test]
     fn test_new_intersection() {

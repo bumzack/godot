@@ -1,7 +1,4 @@
-# Things ToDo
-- make a Vec with configured backends in Backend. add a ```get_backends()``` which returns a  list
-of available backends. add a ```get_backend(enumType)  -> Result<Backend, Error>``` to get a backend
+# ToDo
+-  fix rand import or make own simple generator  - its uncritical
 
- 
-- fix math crate: depending on cuda feature, use std::powf etc or use intrinsinics
-- fix rand import or make own simple generator  - its uncritical
+- really ugly is the use of ray pointers - but we use less code. maybe revert the change and use a *Vec* on CPU/WASM and a [] on CUDA?

@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
+use math::prelude::math_ops::math_ops::*;
 
 use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
 
@@ -84,9 +85,6 @@ mod tests {
     use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     use crate::basics::ray::RayOps;
-    use crate::cpu_kernel_raytracer::cpu::Intersection;
-    use crate::cpu_kernel_raytracer::cpu::IntersectionList;
-    use crate::cpu_kernel_raytracer::cpu::IntersectionListOps;
     use crate::math::common::assert_matrix;
     use crate::math::common::{assert_float, assert_tuple};
     use crate::shape::shape::{Shape, ShapeEnum};

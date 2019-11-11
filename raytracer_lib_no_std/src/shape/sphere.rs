@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use math::prelude::*;
+use math::prelude::math_ops::math_ops::*;
 
 use crate::{Material, MaterialOps, Ray, RayOps, ShapeIntersectionResult, ShapeOps};
 
@@ -93,7 +94,6 @@ impl Sphere {
 mod tests {
     use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
-    use cpu_kernel_raytracer::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
     use math::MatrixOps;
 
     use crate::basics::ray::RayOps;

@@ -8,6 +8,8 @@ edition = "2018"
 use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde", "math/use_serde", "raytracer_lib_no_std/use_serde" ]
 wasm = ["math/wasm", "raytracer_lib_no_std/wasm"]
 
+# default = [ "wasm" ]
+
 [dependencies]
 raytracer_lib_no_std = {path =  "../raytracer_lib_no_std"}
 math = { path = "../math/" }

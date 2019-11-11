@@ -6,10 +6,14 @@ extern crate rustacuda_core;
 use core::ops::Add;
 use core::ops::{Index, IndexMut, Mul};
 
+
+use crate::prelude::math_ops::math_ops::{intri_abs};
+
+
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::math_ops::math_ops::{intri_abs, intri_cos, intri_sin};
+use crate::prelude::math_ops::math_ops::{intri_sqrt, intri_cos, intri_sin};
 use crate::{Tuple4D, Tuple, EPSILON};
 
 

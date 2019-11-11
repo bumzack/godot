@@ -105,14 +105,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cpu_kernel_raytracer"
-version = "0.1.0"
-dependencies = [
- "math 0.1.0",
- "raytracer_lib_no_std 0.1.0",
-]
-
-[[package]]
 name = "crc32fast"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -576,7 +568,6 @@ dependencies = [
 name = "raytracer"
 version = "0.1.0"
 dependencies = [
- "cpu_kernel_raytracer 0.1.0",
  "rayon 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "raytracer_lib_no_std 0.1.0",
  "raytracer_lib_std 0.1.0",
@@ -600,7 +591,6 @@ dependencies = [
 name = "raytracer_example"
 version = "0.1.0"
 dependencies = [
- "cpu_kernel_raytracer 0.1.0",
  "image 0.22.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "raytracer 0.1.0",
  "raytracer_lib_std 0.1.0",
@@ -613,7 +603,6 @@ dependencies = [
 name = "raytracer_lib_no_std"
 version = "0.1.0"
 dependencies = [
- "cpu_kernel_raytracer 0.1.0",
  "math 0.1.0",
  "raytracer_lib_no_std 0.1.0",
  "rustacuda_core 0.1.1",

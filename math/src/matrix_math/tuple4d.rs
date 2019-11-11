@@ -1,6 +1,6 @@
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
-use crate::math_ops::math_ops::{intri_sqrt};
+use crate::prelude::math_ops::math_ops::{intri_sqrt, intri_cos, intri_sin};
 
 
 #[cfg(feature = "use_serde")]

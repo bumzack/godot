@@ -11,12 +11,10 @@ extern crate rustacuda_derive;
 #[cfg(feature = "use_serde")]
 extern crate serde;
 
-extern crate cpu_kernel_raytracer;
 extern crate raytracer_lib_std;
 
 pub use self::backend::*;
 
-pub use self::cpu_kernel_raytracer::*;
 pub use self::raytracer_lib_no_std::*;
 pub use self::raytracer_lib_std::*;
 pub use self::utils::*;
@@ -39,7 +37,6 @@ pub mod prelude {
 
     pub use super::backend::Backend;
     pub use super::backend::BackendOps;
-    pub use super::cpu_kernel_raytracer::*;
     pub use super::raytracer_lib_no_std::*;
     pub use super::raytracer_lib_std::*;
     pub use super::utils::*;

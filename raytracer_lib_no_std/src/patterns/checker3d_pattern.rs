@@ -1,6 +1,7 @@
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
+use math::prelude::math_ops::math_ops::*;
 use math::prelude::*;
 
 use crate::{Color, ColorOps, Shape, ShapeOps, BLACK, WHITE};

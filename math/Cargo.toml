@@ -12,6 +12,9 @@ wasm = [ "libm" ]
 cpu_single_core = []
 cpu_multi_core = []
 
+# default = [ "cuda" ]
+
+
 [dependencies]
 rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}

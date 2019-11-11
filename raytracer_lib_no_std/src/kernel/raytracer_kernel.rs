@@ -1,23 +1,17 @@
-use raytracer_lib_no_std::basics::color::{Color, ColorOps, BLACK};
-use raytracer_lib_no_std::basics::precomputed_component::PrecomputedComponent;
-use raytracer_lib_no_std::basics::ray::{Ray, RayOps};
-use raytracer_lib_no_std::light::light::{Light, LightOps};
-use raytracer_lib_no_std::material::material::{Material, MaterialOps};
+use crate::{Shape, Light, Ray, BLACK, Color, PrecomputedComponent, ShapeOps, MaterialOps, RayOps, LightOps, Material, ColorOps, MAX_LIGHT_SAMPLES};
+use crate::prelude::intersection::{Intersection, IntersectionOps};
+use crate::prelude::intersection_list::IntersectionList;
+use math::{Tuple4D, Tuple, EPSILON_OVER_UNDER};
+use crate::kernel::prelude::IntersectionListOps;
+use math::prelude::math_ops::math_ops::*;
 
-use raytracer_lib_no_std::prelude::*;
+pub struct RaytracerKernel {}
 
-use crate::cuda::intersection::Intersection;
-use crate::cuda::intersection::IntersectionOps;
-use crate::cuda::intersection_list::{IntersectionList, IntersectionListOps};
-use crate::cuda::MAX_LIGHT_SAMPLES;
+// TODO: pass Shape instead of ShapeENum ??!?!?? will this work? why does this work when in the World there are Shapes?! and not ENums?
 
-pub struct CudaKernel {}
-
-// TODO: pass Shape insted of ShapeENum ??!?!?? will this work? why does this work when in the World there are Shapes?! and not ENums?
-
-impl CudaKernel {
+impl RaytracerKernel {
     pub fn color_at(
-        shapes: *mut Shape,
+        shapes: *const Shape,
         cnt_shapes: usize,
         lights: *const Light,
         cnt_lights: usize,
@@ -34,7 +28,7 @@ impl CudaKernel {
         if is_hit {
             let comp =
                 Intersection::prepare_computations(intersection, &r, &IntersectionList::new(), shapes, cnt_shapes);
-            color = CudaKernel::shade_hit(
+            color = RaytracerKernel::shade_hit(
                 shapes,
                 cnt_shapes,
                 lights,
@@ -50,7 +44,7 @@ impl CudaKernel {
     }
 
     fn shade_hit(
-        shapes: *mut Shape,
+        shapes: *const Shape,
         cnt_shapes: usize,
         lights: *const Light,
         cnt_lights: usize,
@@ -67,10 +61,10 @@ impl CudaKernel {
         let material = shape.get_material();
 
         //  let in_shadow = CudaKernel::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
-        let intensity = CudaKernel::intensity_at(shapes, cnt_shapes, lights, cnt_lights, comp.get_over_point());
+        let intensity = RaytracerKernel::intensity_at(shapes, cnt_shapes, lights, cnt_lights, comp.get_over_point());
 
-        // TODO: move lightning back to material if mehtod signatures are the same
-        let surface = CudaKernel::lightning(
+        // TODO: move lightning back to material if method signatures are the same
+        let surface = RaytracerKernel::lightning(
             material,
             shape,
             light,
@@ -83,7 +77,7 @@ impl CudaKernel {
         //        assert_valid_color(&surface);
         let mut reflected = BLACK;
         if calc_reflection {
-            reflected = CudaKernel::reflected_color(
+            reflected = RaytracerKernel::reflected_color(
                 shapes,
                 cnt_shapes,
                 lights,
@@ -97,7 +91,7 @@ impl CudaKernel {
         }
         let mut refracted = BLACK;
         if calc_refraction {
-            refracted = CudaKernel::refracted_color(
+            refracted = RaytracerKernel::refracted_color(
                 shapes,
                 cnt_shapes,
                 lights,
@@ -121,7 +115,7 @@ impl CudaKernel {
         &surface + &(&reflected + &refracted)
     }
 
-    fn is_shadowed(shapes: *mut Shape, cnt_shapes: usize, light_position: &Tuple4D, position: &Tuple4D) -> bool {
+    fn is_shadowed(shapes: *const Shape, cnt_shapes: usize, light_position: &Tuple4D, position: &Tuple4D) -> bool {
         let v = light_position - position;
 
         let distance = Tuple4D::magnitude(&v);
@@ -147,7 +141,7 @@ impl CudaKernel {
     }
 
     fn intensity_at(
-        shapes: *mut Shape,
+        shapes: *const Shape,
         cnt_shapes: usize,
         lights: *const Light,
         _cnt_lights: usize,
@@ -155,19 +149,19 @@ impl CudaKernel {
     ) -> f32 {
         let light = unsafe { lights.offset(0).as_ref().unwrap() };
         let res = match light {
-            Light::PointLight(ref _pl) => CudaKernel::intensity_at_point_light(light, point, shapes, cnt_shapes), //  LightEnum::AreaLight(ref pl) => CudaKernel::intensity_at_area_light(light, point, world),
-            Light::AreaLight(ref _al) => CudaKernel::intensity_at_area_light(light, point, shapes, cnt_shapes),
+            Light::PointLight(ref _pl) => RaytracerKernel::intensity_at_point_light(light, point, shapes, cnt_shapes), //  LightEnum::AreaLight(ref pl) => CudaKernel::intensity_at_area_light(light, point, world),
+            Light::AreaLight(ref _al) => RaytracerKernel::intensity_at_area_light(light, point, shapes, cnt_shapes),
         };
         res
     }
 
-    fn intensity_at_area_light(light: &Light, point: &Tuple4D, shapes: *mut Shape, cnt_shapes: usize) -> f32 {
+    fn intensity_at_area_light(light: &Light, point: &Tuple4D, shapes: *const Shape, cnt_shapes: usize) -> f32 {
         let mut total = 0.0;
 
         for v in 0..light.get_vsteps() {
             for u in 0..light.get_usteps() {
                 let light_position = light.point_on_light(u, v);
-                if !CudaKernel::is_shadowed(shapes, cnt_shapes, &light_position, point) {
+                if !RaytracerKernel::is_shadowed(shapes, cnt_shapes, &light_position, point) {
                     total += 1.0;
                 }
             }
@@ -176,15 +170,15 @@ impl CudaKernel {
         total / light.get_samples() as f32
     }
 
-    fn intensity_at_point_light(light: &Light, point: &Tuple4D, shapes: *mut Shape, cnt_shapes: usize) -> f32 {
-        if CudaKernel::is_shadowed(shapes, cnt_shapes, light.get_position(), point) {
+    fn intensity_at_point_light(light: &Light, point: &Tuple4D, shapes: *const Shape, cnt_shapes: usize) -> f32 {
+        if RaytracerKernel::is_shadowed(shapes, cnt_shapes, light.get_position(), point) {
             return 0.0;
         }
         1.0
     }
 
     fn reflected_color(
-        shapes: *mut Shape,
+        shapes: *const Shape,
         cnt_shapes: usize,
         lights: *const Light,
         cnt_lights: usize,
@@ -208,7 +202,7 @@ impl CudaKernel {
             Tuple4D::new_point_from(comp.get_over_point()),
             Tuple4D::new_vector_from(comp.get_reflected_vector()),
         );
-        let color = CudaKernel::color_at(
+        let color = RaytracerKernel::color_at(
             shapes,
             cnt_shapes,
             lights,
@@ -223,7 +217,7 @@ impl CudaKernel {
     }
 
     fn refracted_color(
-        shapes: *mut Shape,
+        shapes: *const Shape,
         cnt_shapes: usize,
         lights: *const Light,
         cnt_lights: usize,
@@ -255,7 +249,7 @@ impl CudaKernel {
         direction.w = 0.0;
         let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
 
-        CudaKernel::color_at(
+        RaytracerKernel::color_at(
             shapes,
             cnt_shapes,
             lights,

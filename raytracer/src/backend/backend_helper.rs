@@ -1,5 +1,5 @@
-use raytracer_lib_no_std::{BLACK, Camera, CameraOps, Color, ColorOps, Light, Pixel, Ray, Shape};
 use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
+use raytracer_lib_no_std::{Camera, CameraOps, Color, ColorOps, Light, Pixel, Ray, Shape, BLACK};
 use raytracer_lib_std::{World, WorldOps};
 
 pub fn calc_pixel<F>(
@@ -11,8 +11,8 @@ pub fn calc_pixel<F>(
     lights: &Vec<Light>,
     p: &mut Pixel,
 ) -> ()
-    where
-        F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
+where
+    F: Fn(*const Shape, usize, *const Light, usize, &Ray, i32, bool, bool, bool) -> Color,
 {
     let x = p.x;
     let y = p.y;
@@ -32,25 +32,21 @@ fn set_pixel_color(p: &mut Pixel, color: &mut Color) {
     p.color.b = color.b;
 }
 
-fn calc_pixel_no_antialiasing<F>(
-    world: &World,
-    c: &Camera,
-    f: &F,
-    lights: &&Vec<Light>,
-    x: usize,
-    y: usize,
-) -> Color
-    where F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color {
+fn calc_pixel_no_antialiasing<F>(world: &World, c: &Camera, f: &F, lights: &&Vec<Light>, x: usize, y: usize) -> Color
+where
+    F: Fn(*const Shape, usize, *const Light, usize, &Ray, i32, bool, bool, bool) -> Color,
+{
     let r = Camera::ray_for_pixel(c, x, y);
     let color = f(
-        world.get_shapes(),
-        &lights,
+        world.get_shapes().as_ptr(),
+        world.get_shapes().len(),
+        lights.as_ptr(),
+        lights.len(),
         &r,
         MAX_REFLECTION_RECURSION_DEPTH,
         c.get_calc_reflection(),
         c.get_calc_refraction(),
         c.get_calc_shadows(),
-        false,
     );
     color
 }
@@ -64,7 +60,10 @@ fn calc_pixel_antialiasing<F>(
     lights: &&Vec<Light>,
     x: usize,
     y: usize,
-) -> Color where F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color  {
+) -> Color
+where
+    F: Fn(*const Shape, usize, *const Light, usize, &Ray, i32, bool, bool, bool) -> Color,
+{
     let mut color = BLACK;
     // Accumulate light for N samples.
     for sample in 0..(n_samples * n_samples) {
@@ -72,14 +71,15 @@ fn calc_pixel_antialiasing<F>(
         let delta_y = jitter_matrix[2 * sample + 1] * c.get_pixel_size();
         let r = Camera::ray_for_pixel_anti_aliasing(c, x, y, delta_x, delta_y);
         let c = f(
-            world.get_shapes(),
-            &lights,
+            world.get_shapes().as_ptr(),
+            world.get_shapes().len(),
+            lights.as_ptr(),
+            lights.len(),
             &r,
             MAX_REFLECTION_RECURSION_DEPTH,
             c.get_calc_reflection(),
             c.get_calc_refraction(),
             c.get_calc_shadows(),
-            false,
         );
         color = c + color;
     }

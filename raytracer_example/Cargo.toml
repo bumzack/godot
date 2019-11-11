@@ -10,10 +10,11 @@ cpu_single_core = [ "raytracer/cpu_single_core" ]
 cpu_multi_core = [ "raytracer/cpu_multi_core" ]
 wasm = [ "raytracer/wasm" ]
 
+# default = [ "cpu_single_core", "cpu_multi_core"   ]
+
 [dependencies]
 image = "*"
 raytracer_lib_std = {path =  "../raytracer_lib_std" }
-cpu_kernel_raytracer = { path = "../cpu_kernel_raytracer" }
 
 rustacuda = { path = "../../RustaCUDA" , optional = true}
 rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}

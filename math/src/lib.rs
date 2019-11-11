@@ -23,6 +23,5 @@ pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 5;
 pub use self::matrix_math::*;
 pub mod prelude {
     pub use super::matrix_math::*;
-    pub use super::matrix_math::math_ops::math_ops::*;
     pub use super::MAX_REFLECTION_RECURSION_DEPTH;
 }

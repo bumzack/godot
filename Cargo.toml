@@ -1,7 +1,6 @@
 [workspace]
 
 members = [
-    "cpu_kernel_raytracer",
     "cuda_kernel_raytracer",
     "math",
     "raytracer",

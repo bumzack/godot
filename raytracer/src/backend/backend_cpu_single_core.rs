@@ -1,20 +1,20 @@
 use std::error::Error;
 use std::time::Instant;
 
-use cpu_kernel_raytracer::CpuKernel;
-use raytracer_lib_no_std::{CameraOps, Color, Light, Ray, Shape};
 use raytracer_lib_no_std::camera::Camera;
+use raytracer_lib_no_std::{CameraOps, Color, Light, Ray, Shape};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 use crate::backend::backend_helper::{calc_pixel, get_antialiasing_params};
 use crate::BackendOps;
+use raytracer_lib_no_std::kernel::raytracer_kernel::RaytracerKernel;
 
 pub struct BackendCpuSingleCore {}
 
 impl BackendOps for BackendCpuSingleCore {
     fn render_world(&self, world: &mut World, c: &Camera) -> Result<Canvas, Box<dyn Error>> {
         let start = Instant::now();
-        let canvas = render_world_single_core(world, c, CpuKernel::color_at);
+        let canvas = render_world_single_core(world, c, RaytracerKernel::color_at);
         let stopped = Instant::now();
         println!("cpu single core     duration: {:?} ", stopped.duration_since(start));
         Ok(canvas)
@@ -29,7 +29,7 @@ impl BackendCpuSingleCore {
 
 pub fn render_world_single_core<F>(world: &mut World, c: &Camera, f: F) -> Canvas
 where
-    F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
+    F: Fn(*const Shape, usize, *const Light, usize, &Ray, i32, bool, bool, bool) -> Color,
 {
     let (n_samples, jitter_matrix) = get_antialiasing_params(c);
 

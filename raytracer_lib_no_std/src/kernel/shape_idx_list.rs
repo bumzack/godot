@@ -1,7 +1,6 @@
 use core::fmt;
-
-use crate::cuda::intersection_list::MAX_INTERSECTIONLIST_LEN;
-use raytracer_lib_no_std::ShapeIdx;
+use crate::kernel::prelude::MAX_INTERSECTIONLIST_LEN;
+use crate::ShapeIdx;
 
 pub const MAX_SHAPE_IDX_LIST_LEN: usize = MAX_INTERSECTIONLIST_LEN;
 
