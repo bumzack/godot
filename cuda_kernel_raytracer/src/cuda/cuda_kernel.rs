@@ -310,7 +310,7 @@ impl CudaKernel {
         for i in 0..cnt_samples {
             let sample = &samples[i];
             let mut specular;
-            let mut diffuse;
+            let diffuse;
 
             let light_v = Tuple4D::normalize(&(sample - point));
             let light_dot_normal = &light_v ^ &n;
