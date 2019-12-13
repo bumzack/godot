@@ -852,6 +852,14 @@ version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "image 0.22.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "math 0.1.0",
+]
+
+[[package]]
 name = "version_check"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

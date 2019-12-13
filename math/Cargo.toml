@@ -18,4 +18,4 @@ serde = { version = "*", features = ["derive"], optional = true }
 serde_json ={  version = "*", optional = true }
 serde_derive ={  version = "*", optional = true }
 
-libm = { version="*", optional = true}
+libm = { version = "*", optional = true }

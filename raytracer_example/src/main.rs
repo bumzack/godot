@@ -106,8 +106,8 @@ fn run_stuff(
     anitaliasing: bool,
     antialiasing_size: usize,
 ) {
-//    println!("\n\n\n   chapter 14  ");
-//    run_chapter14_with_aa(&backend, &backend_name, w, h);
+    //    println!("\n\n\n   chapter 14  ");
+    //    run_chapter14_with_aa(&backend, &backend_name, w, h);
     println!("\n\n\n   run_compare_to_cuda  ");
     run_compare_to_cuda(&backend, &backend_name, w, h);
     println!("\n\n\n   run_shadow_glamour_shot  ");

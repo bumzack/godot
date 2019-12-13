@@ -11,5 +11,6 @@ members = [
     "raytracer_challenge_reference_impl",
     "create_street",
     "game-physics",
-    "software_renderer"
+    "software_renderer",
+    "utils"
 ]

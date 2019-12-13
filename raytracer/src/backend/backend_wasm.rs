@@ -4,8 +4,8 @@ use cpu_kernel_raytracer::CpuKernel;
 use raytracer_lib_no_std::Camera;
 use raytracer_lib_std::{Canvas, World};
 
-use crate::BackendOps;
 use crate::backend::backend_cpu_single_core::render_world_single_core;
+use crate::BackendOps;
 
 pub struct BackendWasm {}
 

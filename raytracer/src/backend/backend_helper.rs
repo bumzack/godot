@@ -11,8 +11,8 @@ pub fn calc_pixel<F>(
     lights: &Vec<Light>,
     p: &mut Pixel,
 ) -> ()
-    where
-        F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
+where
+    F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
 {
     let x = p.x;
     let y = p.y;
@@ -32,15 +32,10 @@ fn set_pixel_color(p: &mut Pixel, color: &mut Color) {
     p.color.b = color.b;
 }
 
-fn calc_pixel_no_antialiasing<F>(
-    world: &World,
-    c: &Camera,
-    f: &F,
-    lights: &&Vec<Light>,
-    x: usize,
-    y: usize,
-) -> Color
-    where F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color {
+fn calc_pixel_no_antialiasing<F>(world: &World, c: &Camera, f: &F, lights: &&Vec<Light>, x: usize, y: usize) -> Color
+where
+    F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
+{
     let r = Camera::ray_for_pixel(c, x, y);
     let color = f(
         world.get_shapes(),
@@ -64,7 +59,10 @@ fn calc_pixel_antialiasing<F>(
     lights: &&Vec<Light>,
     x: usize,
     y: usize,
-) -> Color where F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color  {
+) -> Color
+where
+    F: Fn(&Vec<Shape>, &Vec<Light>, &Ray, i32, bool, bool, bool, bool) -> Color,
+{
     let mut color = BLACK;
     // Accumulate light for N samples.
     for sample in 0..(n_samples * n_samples) {
