@@ -26,5 +26,6 @@ export KERNEL_PTX_PATH_RUST_RENDER=/home/bumzack/stoff/rust/raytracer-challenge/
 ```
 
 
-
+#  gfx crate  & metal problems 
+see here for possible solutions: https://github.com/gfx-rs/gfx/issues/2309
 _

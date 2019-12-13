@@ -11,7 +11,7 @@ wasm = ["cpu_kernel_raytracer/wasm"]
 cpu_single_core = []
 cpu_multi_core = []
 
-default = ["wasm"]
+default = [ "cpu_multi_core", "cpu_single_core" ]
 
 [dependencies]
 raytracer_lib_std = {path =  "../raytracer_lib_std" }
