@@ -1,0 +1,23 @@
+[package]
+name = "software_renderer"
+version = "0.1.0"
+authors = ["bumzack"]
+edition = "2018"
+
+
+[features]
+cuda = [ "rustacuda_core", "rustacuda_derive" ]
+use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde"]
+wasm = [  "math/wasm", ]
+
+[dependencies]
+math = { path = "../math/" }
+
+rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true }
+rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true }
+
+serde = { version = "*", features = ["derive"], optional = true }
+serde_json = {  version = "*", optional = true }
+serde_derive = {  version = "*", optional = true }
+
+libm = { version = "*", optional = true}

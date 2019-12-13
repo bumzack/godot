@@ -5,7 +5,7 @@ authors = ["bumzack"]
 edition = "2018"
 
 [features]
-use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde", "math/use_serde", "raytracer_lib_no_std/use_serde" ]
+use_serde = [ "serde", "serde_json" , "serde_derive", "math/use_serde", "raytracer_lib_no_std/use_serde" ]
 wasm = ["math/wasm", "raytracer_lib_no_std/wasm"]
 
 [dependencies]

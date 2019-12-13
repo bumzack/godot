@@ -33,9 +33,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         .iter()
         .for_each(|b| println!("backend: {}", b));
 
-    let w = 320;
-    let h = 200;
-    let size_factor = 0.3;
+    let w = 120;
+    let h = 80;
+    let size_factor = 0.1;
     let anitaliasing = false;
     let antialiasing_size = 3;
 
@@ -106,8 +106,8 @@ fn run_stuff(
     anitaliasing: bool,
     antialiasing_size: usize,
 ) {
-    println!("\n\n\n   chapter 14  ");
-    run_chapter14_with_aa(&backend, &backend_name, w, h);
+//    println!("\n\n\n   chapter 14  ");
+//    run_chapter14_with_aa(&backend, &backend_name, w, h);
     println!("\n\n\n   run_compare_to_cuda  ");
     run_compare_to_cuda(&backend, &backend_name, w, h);
     println!("\n\n\n   run_shadow_glamour_shot  ");
