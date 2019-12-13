@@ -34,6 +34,7 @@ pub trait Tuple {
     fn get_x(self) -> f32;
     fn get_y(self) -> f32;
     fn get_z(self) -> f32;
+    fn get_w(self) -> f32;
 
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
@@ -124,6 +125,10 @@ impl Tuple for Tuple4D {
 
     fn get_z(self) -> f32 {
         self.z
+    }
+
+    fn get_w(self) -> f32 {
+        self.w
     }
 
     fn set_x(&mut self, x: f32) {
