@@ -1,4 +1,3 @@
-use crate::image::Pixel;
 use crate::{Canvas, CanvasOps};
 use image::ImageBuffer;
 use image::RgbImage;
@@ -80,8 +79,7 @@ impl CanvasOpsStd for Canvas {
         let (width, height) = img.dimensions();
         let mut c = Canvas::new(width as usize, height as usize);
         for (x, y, pixel) in img.enumerate_pixels() {
-            let p = pixel.to_rgb().0;
-            let color = Color::new(p[0] as f32, p[1] as f32, p[2] as f32);
+            let color = Color::new(pixel[0] as f32, pixel[1] as f32, pixel[2] as f32);
             c.write_pixel(x as usize, y as usize, color);
         }
         Ok(c)

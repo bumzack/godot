@@ -22,3 +22,8 @@ serde_json = {  version = "*", optional = true }
 serde_derive = {  version = "*", optional = true }
 
 libm = { version = "*", optional = true}
+
+piston_window = "0.105.0"
+
+image = "0.22"
+
