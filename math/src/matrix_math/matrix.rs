@@ -66,6 +66,8 @@ pub trait MatrixOps {
     fn rotate_z(rad: f32) -> Matrix;
 
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix;
+
+    fn init_screen_space_transform(w: usize, h: usize) -> Matrix;
 }
 
 impl MatrixOps for Matrix {
@@ -364,6 +366,27 @@ impl MatrixOps for Matrix {
             0.0, 0.0, 0.0, 1.0,
         );
         orientation * Matrix::translation(-from.x, -from.y, -from.z)
+    }
+
+    fn init_screen_space_transform(w: usize, h: usize) -> Matrix {
+        Matrix::new_matrix_4x4(
+            w as f32,
+            0.0,
+            0.0,
+            w as f32 - 0.5,
+            0.0,
+            -(h as f32),
+            0.0,
+            h as f32 - 0.5,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        )
     }
 }
 

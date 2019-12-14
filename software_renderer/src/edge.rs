@@ -24,7 +24,7 @@ pub struct Edge {
 }
 
 impl Edge {
-    pub fn new(gradient: Gradient, min_y_vert: Vertex, max_y_vert: Vertex, min_y_vert_index: usize) -> Edge {
+    pub fn new(gradient: &Gradient, min_y_vert: &Vertex, max_y_vert: &Vertex, min_y_vert_index: usize) -> Edge {
         let y_start = min_y_vert.y().ceil() as i32;
         let y_end = max_y_vert.y().ceil() as i32;
 
@@ -85,5 +85,33 @@ impl Edge {
         self.one_over_z += self.one_over_z_step;
         self.depth += self.depth_step;
         self.light_amt += self.light_amt_step;
+    }
+
+    pub fn y_start(&self) -> i32 {
+        self.y_start
+    }
+
+    pub fn y_end(&self) -> i32 {
+        self.y_end
+    }
+
+    pub fn x(&self) -> f32 {
+        self.x
+    }
+
+    pub fn tex_coord_x(&self) -> f32 {
+        self.tex_coord_x
+    }
+    pub fn tex_coord_y(&self) -> f32 {
+        self.tex_coord_y
+    }
+    pub fn one_over_z(&self) -> f32 {
+        self.one_over_z
+    }
+    pub fn depth(&self) -> f32 {
+        self.depth
+    }
+    pub fn light_amt(&self) -> f32 {
+        self.light_amt
     }
 }
