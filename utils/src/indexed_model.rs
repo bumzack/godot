@@ -14,7 +14,7 @@ impl IndexedModelOps for IndexedModel {
         let o = IndexedModel {
             vertex_index: 0,
             tex_coord_index: 0,
-            normal_index: 0
+            normal_index: 0,
         };
         o
     }

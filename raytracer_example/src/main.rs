@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use raytracer::{Backend, BackendEnum, BackendOps};
 #[cfg(feature = "cpu_multi_core")]
 use raytracer::BackendCpuMultiCore;
 #[cfg(feature = "cpu_single_core")]
@@ -9,6 +8,7 @@ use raytracer::BackendCpuSingleCore;
 use raytracer::BackendCuda;
 #[cfg(feature = "wasm")]
 use raytracer::BackendWasm;
+use raytracer::{Backend, BackendEnum, BackendOps};
 use raytracer_lib_std::CanvasOpsStd;
 
 pub mod chapter14_with_aa;

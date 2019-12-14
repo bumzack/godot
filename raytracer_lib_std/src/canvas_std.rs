@@ -1,16 +1,19 @@
 use crate::{Canvas, CanvasOps};
-use image::ImageBuffer;
+use image::{ImageBuffer};
 use image::RgbImage;
 use std::fs::File;
 use std::io::{Error, Write};
+use raytracer_lib_no_std::{Color, ColorOps};
+use crate::image::Pixel;
 
-pub trait CanvasOpsStd<'a> {
-    fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;
-    fn write_png(&self, filename: &'a str) -> Result<(), Error>;
+pub trait CanvasOpsStd {
+    fn write_ppm(&self, filename: &str) -> Result<(), Error>;
+    fn write_png(&self, filename: &str) -> Result<(), Error>;
+    fn read_bitmap(filename: &str) -> Result<Canvas, Box<dyn std::error::Error>>;
 }
 
-impl<'a> CanvasOpsStd<'a> for Canvas {
-    fn write_ppm(&self, filename: &'a str) -> Result<(), Error> {
+impl CanvasOpsStd for Canvas {
+    fn write_ppm(&self, filename: &str) -> Result<(), Error> {
         let mut file = File::create(filename)?;
 
         let new_line = "\n";
@@ -46,7 +49,7 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
         Ok(())
     }
 
-    fn write_png(&self, filename: &'a str) -> Result<(), Error> {
+    fn write_png(&self, filename: &str) -> Result<(), Error> {
         let mut x = 0;
         let mut y = 0;
         let mut idx = 0;
@@ -68,5 +71,19 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
             }
         }
         image.save(filename)
+    }
+
+    fn read_bitmap(filename: &str) -> Result<Canvas, Box<dyn std::error::Error>> {
+        let img = image::open(filename)?;
+        let img = img.as_rgb8().unwrap();
+
+        let (width, height) = img.dimensions();
+        let mut c = Canvas::new(width as usize, height as usize);
+        for (x, y, pixel) in img.enumerate_pixels() {
+            let p = pixel.to_rgb().0;
+            let color = Color::new(p[0] as f32, p[1] as f32, p[2] as f32);
+            c.write_pixel(x as usize, y as usize, color);
+        }
+        Ok(c)
     }
 }

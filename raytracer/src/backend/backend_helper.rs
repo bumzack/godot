@@ -1,5 +1,5 @@
-use raytracer_lib_no_std::{BLACK, Camera, CameraOps, Color, ColorOps, Light, Pixel, Ray, Shape};
 use raytracer_lib_no_std::MAX_REFLECTION_RECURSION_DEPTH;
+use raytracer_lib_no_std::{Camera, CameraOps, Color, ColorOps, Light, Pixel, Ray, Shape, BLACK};
 use raytracer_lib_std::{World, WorldOps};
 
 pub fn calc_pixel<F>(

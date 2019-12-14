@@ -2,8 +2,8 @@ use std::error::Error;
 use std::time::Instant;
 
 use cpu_kernel_raytracer::CpuKernel;
-use raytracer_lib_no_std::{CameraOps, Color, Light, Ray, Shape};
 use raytracer_lib_no_std::camera::Camera;
+use raytracer_lib_no_std::{CameraOps, Color, Light, Ray, Shape};
 use raytracer_lib_std::{Canvas, CanvasOps, World, WorldOps};
 
 use crate::backend::backend_helper::{calc_pixel, get_antialiasing_params};

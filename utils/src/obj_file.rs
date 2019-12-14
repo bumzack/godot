@@ -75,25 +75,31 @@ impl ObjModelOps for ObjModel {
             let l = line?;
 
             let tokens: Vec<&str> = l.split(" ").collect();
-            let tokens: Vec<String> = tokens.iter()
-                .map(|t| t.to_string())
-                .filter(|t| !t.is_empty())
-                .collect();
+            let tokens: Vec<String> = tokens.iter().map(|t| t.to_string()).filter(|t| !t.is_empty()).collect();
 
             if tokens.len() == 0 || tokens[0].eq("#") {
                 continue;
             } else if tokens[0].eq("v") {
-                obj_model.positions.push(Tuple4D::new(tokens[1].parse::<f32>().unwrap(),
-                                                      tokens[2].parse::<f32>().unwrap(),
-                                                      tokens[3].parse::<f32>().unwrap(), 1.0));
+                obj_model.positions.push(Tuple4D::new(
+                    tokens[1].parse::<f32>().unwrap(),
+                    tokens[2].parse::<f32>().unwrap(),
+                    tokens[3].parse::<f32>().unwrap(),
+                    1.0,
+                ));
             } else if tokens[0].eq("vt") {
-                obj_model.tex_coords.push(Tuple4D::new(tokens[1].parse::<f32>().unwrap(),
-                                                       1.0 - tokens[2].parse::<f32>().unwrap(),
-                                                       0.0, 0.0));
+                obj_model.tex_coords.push(Tuple4D::new(
+                    tokens[1].parse::<f32>().unwrap(),
+                    1.0 - tokens[2].parse::<f32>().unwrap(),
+                    0.0,
+                    0.0,
+                ));
             } else if tokens[0].eq("vn") {
-                obj_model.normals.push(Tuple4D::new(tokens[1].parse::<f32>().unwrap(),
-                                                    tokens[2].parse::<f32>().unwrap(),
-                                                    tokens[3].parse::<f32>().unwrap(), 0.0));
+                obj_model.normals.push(Tuple4D::new(
+                    tokens[1].parse::<f32>().unwrap(),
+                    tokens[2].parse::<f32>().unwrap(),
+                    tokens[3].parse::<f32>().unwrap(),
+                    0.0,
+                ));
             } else if tokens[0].eq("f") {
                 for i in 0..tokens.len() - 3 {
                     obj_model.parse_obj_index(&tokens[1]);
@@ -135,4 +141,3 @@ impl ObjModelOps for ObjModel {
         });
     }
 }
-

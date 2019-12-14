@@ -41,6 +41,8 @@ pub trait Tuple {
     fn set_z(&mut self, z: f32);
 
     fn up() -> Tuple4D;
+
+    fn lerp(&self, dest: &Tuple4D, lerp_factor: f32) -> Tuple4D;
 }
 
 impl Tuple for Tuple4D {
@@ -89,10 +91,12 @@ impl Tuple for Tuple4D {
             w: 1.0,
         }
     }
+
     #[inline]
     fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D {
         Tuple4D { x, y, z, w }
     }
+
     #[inline]
     fn empty() -> Tuple4D {
         Tuple4D {
@@ -102,14 +106,17 @@ impl Tuple for Tuple4D {
             w: 0.0,
         }
     }
+
     #[inline]
     fn is_point(a: &Tuple4D) -> bool {
         a.w == 1.0
     }
+
     #[inline]
     fn is_vector(a: &Tuple4D) -> bool {
         a.w == 0.0
     }
+
     #[inline]
     fn reflect(v: &Tuple4D, n: &Tuple4D) -> Tuple4D {
         v - &((n * 2.0) * (v ^ n))
@@ -145,6 +152,10 @@ impl Tuple for Tuple4D {
 
     fn up() -> Tuple4D {
         Tuple4D::new_vector(0.0, 1.0, 0.0)
+    }
+
+    fn lerp(&self, dest: &Tuple4D, lerp_factor: f32) -> Tuple4D {
+        &((dest - self) * lerp_factor) + self
     }
 }
 
