@@ -1,3 +1,5 @@
+pub mod atan;
+pub mod atan2;
 pub mod fabsf;
 pub mod fmod;
 pub mod fmodf;

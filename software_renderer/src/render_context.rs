@@ -1,11 +1,11 @@
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
 
+use crate::edge::Edge;
+use crate::gradient::Gradient;
 use crate::vertex::Vertex;
 use math::{Matrix, MatrixOps};
 use raytracer_lib_std::{Canvas, CanvasOps};
-use crate::edge::Edge;
-use crate::gradient::Gradient;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -39,7 +39,7 @@ impl RenderContext {
             self.fill_triangle(v1, v2, v3, texture);
         }
 
-        let mut vertices = vec![v1, v2, v3];
+        let mut vertices = vec![v1.clone(), v2.clone(), v3.clone()];
         let mut auxillary_list = vec![];
 
         if self.clip_polygon_axis(&mut vertices, &mut auxillary_list, 0)
@@ -61,8 +61,8 @@ impl RenderContext {
 
     fn clip_polygon_axis(
         &mut self,
-        vertices: &mut Vec<&Vertex>,
-        auxillary_list: &mut Vec<&Vertex>,
+        vertices: &mut Vec<Vertex>,
+        auxillary_list: &mut Vec<Vertex>,
         component_index: usize,
     ) -> bool {
         self.clip_polygon_component(vertices, component_index, 1.0, auxillary_list);
@@ -79,10 +79,10 @@ impl RenderContext {
 
     fn clip_polygon_component(
         &self,
-        vertices: &mut Vec<&Vertex>,
+        vertices: &mut Vec<Vertex>,
         component_index: usize,
         component_factor: f32,
-        result: &mut Vec<&Vertex>,
+        result: &mut Vec<Vertex>,
     ) {
         let mut previous_vertex = vertices.get(vertices.len() - 1).unwrap();
         let mut previous_component = previous_vertex.get(component_index) * component_factor;
@@ -95,10 +95,10 @@ impl RenderContext {
             if current_inside ^ previous_inside {
                 let lerp_amt = (previous_vertex.w() - previous_component)
                     / ((previous_vertex.w() - previous_component) - (current_vertex.w() - current_component));
-                result.push(&previous_vertex.lerp(&current_vertex, lerp_amt));
+                result.push(previous_vertex.lerp(&current_vertex, lerp_amt));
             }
             if current_inside {
-                result.push(current_vertex);
+                result.push(current_vertex.clone());
             }
             previous_vertex = current_vertex;
             previous_component = current_component;
@@ -136,10 +136,23 @@ impl RenderContext {
             mid_y_vert = temp;
         }
 
-        self.scan_triangle(&min_y_vert, &mid_y_vert, &max_y_vert, min_y_vert.triangle_area_times_two(&max_y_vert, &mid_y_vert) >= 0.0, texture);
+        self.scan_triangle(
+            &min_y_vert,
+            &mid_y_vert,
+            &max_y_vert,
+            min_y_vert.triangle_area_times_two(&max_y_vert, &mid_y_vert) >= 0.0,
+            texture,
+        );
     }
 
-    fn scan_triangle(&mut self, min_y_vert: &Vertex, mid_y_vert: &Vertex, max_y_vert: &Vertex, handedness: bool, texture: &Canvas) {
+    fn scan_triangle(
+        &mut self,
+        min_y_vert: &Vertex,
+        mid_y_vert: &Vertex,
+        max_y_vert: &Vertex,
+        handedness: bool,
+        texture: &Canvas,
+    ) {
         let gradient = Gradient::new(min_y_vert, mid_y_vert, max_y_vert);
 
         let top_to_bottom = Edge::new(&gradient, min_y_vert, max_y_vert, 0);
@@ -151,8 +164,8 @@ impl RenderContext {
     }
 
     fn scan_edges(&mut self, gradients: &Gradient, a: &Edge, b: &Edge, handedness: bool, texture: &Canvas) {
-        let mut left = a;
-        let mut right = b;
+        let mut left = a.clone();
+        let mut right = b.clone();
 
         if handedness {
             let temp = left;
@@ -164,7 +177,7 @@ impl RenderContext {
         let y_end = b.y_end();
 
         for j in y_start..y_end {
-            self.draw_scan_line(gradients, left, right, j, texture);
+            self.draw_scan_line(gradients, &left, &right, j, texture);
             left.step();
             right.step();
         }
@@ -210,6 +223,10 @@ impl RenderContext {
     }
 
     fn copy_pixel(&mut self, dest_x: i32, dest_y: i32, src_x: i32, src_y: i32, src: &Canvas, light_amt: f32) {
-        self.canvas.write_pixel(dest_x as usize, dest_y as usize, src.pixel_at(src_x as usize, src_y as usize).color * light_amt);
+        self.canvas.write_pixel(
+            dest_x as usize,
+            dest_y as usize,
+            src.pixel_at(src_x as usize, src_y as usize).color * light_amt,
+        );
     }
 }

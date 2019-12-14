@@ -9,7 +9,7 @@ use core::ops::{Index, IndexMut, Mul};
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::{intri_abs, intri_cos, intri_sin, Tuple, Tuple4D, EPSILON};
+use crate::{intri_abs, intri_cos, intri_sin, intri_tan, Tuple, Tuple4D, EPSILON};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -68,6 +68,12 @@ pub trait MatrixOps {
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix;
 
     fn init_screen_space_transform(w: usize, h: usize) -> Matrix;
+
+    fn init_rotation_from_forward_up(forward: Tuple4D, up: Tuple4D) -> Matrix;
+    fn init_rotation(forward: Tuple4D, up: Tuple4D, right: Tuple4D) -> Matrix;
+    fn init_perspective(fov: f32, aspect_ratio: f32, z_near: f32, z_far: f32) -> Matrix;
+    fn init_translation(x: f32, y: f32, z: f32) -> Matrix;
+    fn init_scale(x: f32, y: f32, z: f32) -> Matrix;
 }
 
 impl MatrixOps for Matrix {
@@ -387,6 +393,69 @@ impl MatrixOps for Matrix {
             0.0,
             1.0,
         )
+    }
+
+    fn init_rotation_from_forward_up(forward: Tuple4D, up: Tuple4D) -> Matrix {
+        let f = Tuple4D::normalize(&forward);
+        let r = Tuple4D::normalize(&up);
+
+        let cross = &r * &f;
+        let u = &f * &cross;
+
+        Matrix::init_rotation(f, u, r)
+    }
+
+    fn init_rotation(forward: Tuple4D, up: Tuple4D, right: Tuple4D) -> Matrix {
+        Matrix::new_matrix_4x4(
+            right.get_x(),
+            right.get_y(),
+            right.get_z(),
+            0.0,
+            up.get_x(),
+            up.get_y(),
+            up.get_z(),
+            0.0,
+            forward.get_x(),
+            forward.get_y(),
+            forward.get_z(),
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        )
+    }
+
+    fn init_perspective(fov: f32, aspect_ratio: f32, z_near: f32, z_far: f32) -> Matrix {
+        let tan_half_fov = intri_tan(fov / 2.0);
+        let z_range = z_near - z_far;
+
+        Matrix::new_matrix_4x4(
+            1. / (tan_half_fov * aspect_ratio),
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0 / tan_half_fov,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            (-z_near - z_far) / z_range,
+            2.0 * z_far * z_near / z_range,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+        )
+    }
+
+    fn init_translation(x: f32, y: f32, z: f32) -> Matrix {
+        Matrix::new_matrix_4x4(1.0, 0.0, 0.0, x, 0.0, 1.0, 0.0, y, 0.0, 0.0, 1.0, z, 0.0, 0.0, 0.0, 1.0)
+    }
+
+    fn init_scale(x: f32, y: f32, z: f32) -> Matrix {
+        Matrix::new_matrix_4x4(x, 0.0, 0.0, 0.0, 0.0, y, 0.0, 0.0, 0.0, 0.0, z, 0.0, 0.0, 0.0, 0.0, 1.0)
     }
 }
 

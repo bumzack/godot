@@ -3,27 +3,72 @@ extern crate piston_window;
 
 use crate::piston_window::EventLoop;
 use image::ImageBuffer;
-use math::{Tuple, Tuple4D};
+use math::{Matrix, MatrixOps, Quaternion, Transform, Tuple, Tuple4D};
 use raytracer_lib_std::{Canvas, CanvasOps, CanvasOpsStd};
-use software_renderer::prelude::{Edge, Gradient, Vertex};
+use software_renderer::prelude::{Camera, Mesh, RenderContext};
+use std::f32::consts::PI;
+use std::time::Instant;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let pos1 = Tuple4D::new_point(1.0, 2.0, 3.0);
-    let pos2 = Tuple4D::new_point(2.0, 3.0, 4.0);
-    let pos3 = Tuple4D::new_point(3.0, 4.0, 5.0);
-    let tex_coords = Tuple4D::new_point(2.0, 2.0, 3.0);
-    let normal = Tuple4D::new_vector(3.0, 2.0, 3.0);
-    let v1 = Vertex::new(pos1, tex_coords.clone(), normal.clone());
-    let v2 = Vertex::new(pos2, tex_coords.clone(), normal.clone());
-    let v3 = Vertex::new(pos3, tex_coords.clone(), normal.clone());
+    //    let pos1 = Tuple4D::new_point(1.0, 2.0, 3.0);
+    //    let pos2 = Tuple4D::new_point(2.0, 3.0, 4.0);
+    //    let pos3 = Tuple4D::new_point(3.0, 4.0, 5.0);
+    //    let tex_coords = Tuple4D::new_point(2.0, 2.0, 3.0);
+    //    let normal = Tuple4D::new_vector(3.0, 2.0, 3.0);
+    //    let v1 = Vertex::new(pos1, tex_coords.clone(), normal.clone());
+    //    let v2 = Vertex::new(pos2, tex_coords.clone(), normal.clone());
+    //    let v3 = Vertex::new(pos3, tex_coords.clone(), normal.clone());
+    //
+    //    let gradient = Gradient::new(&v1, &v2, &v3);
+    //    let edge = Edge::new(&gradient, &v1, &v3, 0);
+    //    println!("edge = {:?}", edge);
 
-    let gradient = Gradient::new(&v1, &v2, &v3);
-    let edge = Edge::new(gradient, v1, v3, 0);
-    println!("edge = {:?}", edge);
+    let width = 800;
+    let height = 600;
 
-    let bitmap = Canvas::read_bitmap("./res/bricks.jpg")?;
+    let texture = Canvas::read_bitmap("./res/bricks.jpg")?;
+    let texture2 = Canvas::read_bitmap("./res/bricks2.jpg")?;
 
-    show_bitmap(&bitmap);
+    let monkey_mesh = Mesh::read_obj_file("./res/smoothMonkey0.obj")?;
+    let terrain_mesh = Mesh::read_obj_file("./res/terrain2.obj")?;
+
+    let mut monkey_transform = Transform::new_from_vector(Tuple4D::new_vector(0.0, 0.0, 3.0));
+    let terrain_transform = Transform::new_from_vector(Tuple4D::new_vector(0.0, -1.0, 0.0));
+
+    //   show_bitmap(&bitmap);
+
+    let fov = 70.0 * PI / 180.0;
+    let aspect_ratio = width as f32 / height as f32;
+    let z_near = 0.1;
+    let z_far = 1000.0;
+    let m = Matrix::init_perspective(fov, aspect_ratio, z_near, z_far);
+    let mut camera = Camera::new(m);
+
+    let mut frame = 0;
+    // let rot_counter = 0.0;
+
+    let mut previous_time = Instant::now();
+
+    let mut target = RenderContext::new(width, height);
+
+    while frame < 1 {
+        let current_time = Instant::now();
+        let delta = (current_time - previous_time) / 1_000_000_000;
+        previous_time = current_time;
+
+        camera.update(delta.as_secs_f32());
+        let vp = camera.get_view_projection();
+
+        monkey_transform = monkey_transform.rotate(Quaternion::new_from_tuple_and_angle(
+            Tuple4D::new_vector(0.0, 1.0, 0.0),
+            delta.as_secs_f32(),
+        ));
+
+        monkey_mesh.draw(&mut target, &vp, &monkey_transform.get_transformation(), &texture2);
+        terrain_mesh.draw(&mut target, &vp, &terrain_transform.get_transformation(), &texture);
+
+        frame += 1;
+    }
 
     Ok(())
 }
