@@ -1,10 +1,10 @@
+use crate::image::Pixel;
 use crate::{Canvas, CanvasOps};
-use image::{ImageBuffer};
+use image::ImageBuffer;
 use image::RgbImage;
+use raytracer_lib_no_std::{Color, ColorOps};
 use std::fs::File;
 use std::io::{Error, Write};
-use raytracer_lib_no_std::{Color, ColorOps};
-use crate::image::Pixel;
 
 pub trait CanvasOpsStd {
     fn write_ppm(&self, filename: &str) -> Result<(), Error>;

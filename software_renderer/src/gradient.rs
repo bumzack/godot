@@ -2,7 +2,7 @@
 extern crate rustacuda_core;
 
 use crate::vertex::Vertex;
-use math::{Tuple4D, Tuple};
+use math::{Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -32,11 +32,11 @@ impl Gradient {
 
         let one_over_dy = -one_over_dx;
 
-        let  mut one_over_z = [0.0; 3];
-        let mut  tex_coord_x = [0.0; 3];
-        let mut  tex_coord_y = [0.0; 3];
+        let mut one_over_z = [0.0; 3];
+        let mut tex_coord_x = [0.0; 3];
+        let mut tex_coord_y = [0.0; 3];
         let mut depth = [0.0; 3];
-        let  mut light_amp = [0.0; 3];
+        let mut light_amp = [0.0; 3];
 
         depth[0] = min_y_vert.z();
         depth[1] = mid_y_vert.z();
@@ -57,7 +57,7 @@ impl Gradient {
         tex_coord_x[2] = max_y_vert.tex_coords().get_x() * one_over_z[2];
 
         tex_coord_y[0] = min_y_vert.tex_coords().get_y() * one_over_z[0];
-        tex_coord_y[1] = mid_y_vert.tex_coords().get_y()* one_over_z[1];
+        tex_coord_y[1] = mid_y_vert.tex_coords().get_y() * one_over_z[1];
         tex_coord_y[2] = max_y_vert.tex_coords().get_y() * one_over_z[2];
 
         let tex_coord_x_xstep = calc_x_step(tex_coord_x, min_y_vert, mid_y_vert, max_y_vert, one_over_dx);

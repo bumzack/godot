@@ -24,12 +24,7 @@ pub struct Edge {
 }
 
 impl Edge {
-    pub fn new(
-        gradient: Gradient,
-        min_y_vert: Vertex,
-        max_y_vert: Vertex,
-        min_y_vert_index: usize,
-    ) -> Edge {
+    pub fn new(gradient: Gradient, min_y_vert: Vertex, max_y_vert: Vertex, min_y_vert_index: usize) -> Edge {
         let y_start = min_y_vert.y().ceil() as i32;
         let y_end = max_y_vert.y().ceil() as i32;
 

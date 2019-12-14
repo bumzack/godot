@@ -1,7 +1,6 @@
-
-use math::{Tuple4D, Tuple};
+use math::{Tuple, Tuple4D};
 use raytracer_lib_std::{Canvas, CanvasOpsStd};
-use software_renderer::prelude::{Vertex, Gradient, Edge};
+use software_renderer::prelude::{Edge, Gradient, Vertex};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pos1 = Tuple4D::new_point(1.0, 2.0, 3.0);
