@@ -1,12 +1,11 @@
-extern crate piston_window;
 extern crate math;
+extern crate piston_window;
 
-use raytracer_lib_std::{Canvas, CanvasOpsStd, CanvasOps};
-use software_renderer::prelude::{Vertex, Gradient, Edge};
-use math::{Tuple4D, Tuple};
-use image::ImageBuffer;
 use crate::piston_window::EventLoop;
-
+use image::ImageBuffer;
+use math::{Tuple, Tuple4D};
+use raytracer_lib_std::{Canvas, CanvasOps, CanvasOpsStd};
+use software_renderer::prelude::{Edge, Gradient, Vertex};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pos1 = Tuple4D::new_point(1.0, 2.0, 3.0);
@@ -31,31 +30,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn show_bitmap(c: &Canvas) {
     let opengl = piston_window::OpenGL::V3_2;
-    let mut window:piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [300, 300])
+    let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [300, 300])
         .exit_on_esc(true)
         .graphics_api(opengl)
         .build()
         .unwrap();
 
     let mut buffer: Vec<u8> = vec![];
-    if c.get_width() * c.get_height() >= 1280 * 720 {
-        panic!("buffer too small. increase buffer size. man thats ugly ...");
-    }
 
-    c.get_pixels().iter()
-        .for_each(|p| {
-            buffer.push(p.color.r as u8);
-            buffer.push(p.color.g as u8);
-            buffer.push(p.color.b as u8);
-            buffer.push(255);
-        });
+    c.get_pixels().iter().for_each(|p| {
+        buffer.push(p.color.r as u8);
+        buffer.push(p.color.g as u8);
+        buffer.push(p.color.b as u8);
+        buffer.push(255);
+    });
 
     let img = ImageBuffer::from_raw(c.get_width() as u32, c.get_height() as u32, buffer).unwrap();
 
-    let t: piston_window::G2dTexture = piston_window::Texture::from_image(&mut window.create_texture_context(),
-                                            &img,
-                                            &piston_window::TextureSettings::new(),
-    ).unwrap();
+    let t: piston_window::G2dTexture = piston_window::Texture::from_image(
+        &mut window.create_texture_context(),
+        &img,
+        &piston_window::TextureSettings::new(),
+    )
+    .unwrap();
 
     window.set_lazy(true);
     while let Some(e) = window.next() {
