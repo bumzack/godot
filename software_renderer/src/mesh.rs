@@ -1,11 +1,12 @@
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
 
-use crate::render_context::RenderContext;
-use crate::vertex::Vertex;
 use math::Matrix;
 use raytracer_lib_std::Canvas;
 use utils::prelude::ObjModel;
+
+use crate::render_context::RenderContext;
+use crate::vertex::Vertex;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -23,7 +24,9 @@ impl Mesh {
     }
 
     pub fn read_obj_file(filename: &str) -> Result<Mesh, Box<dyn std::error::Error>> {
-        let model = ObjModel::read_file(filename)?.to_indexed_model();
+        println!("reading file {:?}", filename);
+        let model = ObjModel::read_file(filename)?;
+        let model = model.to_indexed_model();
 
         let mut vertices = vec![];
 
@@ -38,16 +41,22 @@ impl Mesh {
 
         let indices = model.indices();
 
+        println!("success reading file {:?}", filename);
+
         Ok(Mesh { vertices, indices })
     }
 
     pub fn draw(&self, context: &mut RenderContext, view_projection: &Matrix, transform: &Matrix, texture: &Canvas) {
         let mvp = view_projection * transform;
         for i in (0..self.indices.len() - 3).step_by(3) {
+            // println!("draw_traingle:   i = {}, self.vertices.len() = {}", i, self.vertices.len());
+            let idx1 = self.indices.get(i).unwrap();
+            let idx2 = self.indices.get(i+1).unwrap();
+            let idx3 = self.indices.get(i+2).unwrap();
             context.draw_triangle(
-                &self.vertices.get(i).unwrap().transform(&mvp, transform),
-                &self.vertices.get(i + 1).unwrap().transform(&mvp, transform),
-                &self.vertices.get(i + 2).unwrap().transform(&mvp, transform),
+                &self.vertices.get(*idx1).unwrap().transform(&mvp, transform),
+                &self.vertices.get(*idx2).unwrap().transform(&mvp, transform),
+                &self.vertices.get(*idx3).unwrap().transform(&mvp, transform),
                 texture,
             )
         }

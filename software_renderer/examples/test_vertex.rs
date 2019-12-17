@@ -1,13 +1,16 @@
 extern crate math;
 extern crate piston_window;
 
-use crate::piston_window::EventLoop;
+use std::f32::consts::PI;
+use std::time::Instant;
+
 use image::ImageBuffer;
+
 use math::{Matrix, MatrixOps, Quaternion, Transform, Tuple, Tuple4D};
 use raytracer_lib_std::{Canvas, CanvasOps, CanvasOpsStd};
 use software_renderer::prelude::{Camera, Mesh, RenderContext};
-use std::f32::consts::PI;
-use std::time::Instant;
+
+use crate::piston_window::EventLoop;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     //    let pos1 = Tuple4D::new_point(1.0, 2.0, 3.0);
@@ -65,10 +68,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ));
 
         monkey_mesh.draw(&mut target, &vp, &monkey_transform.get_transformation(), &texture2);
-        terrain_mesh.draw(&mut target, &vp, &terrain_transform.get_transformation(), &texture);
+        // terrain_mesh.draw(&mut target, &vp, &terrain_transform.get_transformation(), &texture);
 
         frame += 1;
     }
+
+    target.canvas().get_pixels().iter().for_each(|p| {
+        if p.color.r != 0.0 || p.color.b != 0.0 || p.color.g != 0.0 {
+            println!("x={}, y ={}, color = {:?}", p.x, p.y, p.color);
+        }
+    });
+    //  show_bitmap(&target.canvas());
 
     Ok(())
 }
@@ -97,7 +107,7 @@ fn show_bitmap(c: &Canvas) {
         &img,
         &piston_window::TextureSettings::new(),
     )
-    .unwrap();
+        .unwrap();
 
     window.set_lazy(true);
     while let Some(e) = window.next() {

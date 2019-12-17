@@ -1,9 +1,9 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 use crate::indexed_model::IndexedModel;
 use crate::math::{Tuple, Tuple4D};
-use std::collections::HashMap;
 
 #[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
 pub struct ObjIndex {
@@ -59,6 +59,7 @@ impl ObjModel {
     }
 
     pub fn read_file(filename: &str) -> Result<ObjModel, Box<dyn std::error::Error>> {
+       println!("read_file {}", filename);
         let mut obj_model = ObjModel::new();
 
         let file = File::open(filename)?;
@@ -113,6 +114,11 @@ impl ObjModel {
         let mut normal_index_map: HashMap<usize, usize> = HashMap::new();
         let mut index_map: HashMap<usize, usize> = HashMap::new();
 
+        println!("to_indexed_model      self.indices.len() = {}", self.indices.len());
+        println!("to_indexed_model      self.tex_coords.len() = {}", self.tex_coords.len());
+        println!("to_indexed_model      self.normals.len() = {}", self.normals.len());
+        println!("to_indexed_model      self.positions.len() = {}", self.positions.len());
+
         for i in 0..self.indices.len() {
             let current_index = self.indices.get(i).unwrap().clone();
             let current_position = self.positions.get(current_index.vertex_index).unwrap();
@@ -120,7 +126,7 @@ impl ObjModel {
             let current_normal;
 
             if self.has_tex_coords {
-                current_tex_coord = *self.tex_coords.get(current_index.vertex_index).unwrap();
+                current_tex_coord = *self.tex_coords.get(current_index.tex_coord_index).unwrap();
             } else {
                 current_tex_coord = Tuple4D::new_point(0.0, 0.0, 0.0);
             }
@@ -148,7 +154,7 @@ impl ObjModel {
 
             let normal_model_index;
             if !normal_index_map.contains_key(&current_index.vertex_index) {
-                normal_model_index = result.positions().len();
+                normal_model_index = normal_model.positions().len();
                 normal_index_map.insert(current_index.vertex_index, normal_model_index);
 
                 normal_model.positions_mut().push(*current_position);
@@ -176,7 +182,7 @@ impl ObjModel {
         normal_model.calc_tangents();
         for i in 0..result.positions().len() {
             let t = normal_model.tangents().get(*index_map.get(&i).unwrap()).unwrap();
-            result.normals_mut().push(*t);
+            result.tangents_mut().push(*t);
         }
 
         result

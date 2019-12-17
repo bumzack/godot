@@ -45,8 +45,8 @@ impl IndexedModel {
     }
 
     pub fn calc_tangents(&mut self) {
-        self.indices.iter().for_each(|index| println!("index = {:?}", index));
-        self.positions.iter().for_each(|pos| println!("position = {:?}", pos));
+        // self.indices.iter().for_each(|index| println!("index = {:?}", index));
+        // self.positions.iter().for_each(|pos| println!("position = {:?}", pos));
 
         println!(
             "indices.len() = {}, positions.len() = {} ",

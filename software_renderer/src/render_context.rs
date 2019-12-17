@@ -1,11 +1,12 @@
 #[cfg(feature = "cuda")]
 extern crate rustacuda_core;
 
+use math::{Matrix, MatrixOps};
+use raytracer_lib_std::{Canvas, CanvasOps};
+
 use crate::edge::Edge;
 use crate::gradient::Gradient;
 use crate::vertex::Vertex;
-use math::{Matrix, MatrixOps};
-use raytracer_lib_std::{Canvas, CanvasOps};
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
@@ -17,9 +18,13 @@ pub struct RenderContext {
 impl RenderContext {
     pub fn new(width: usize, height: usize) -> RenderContext {
         RenderContext {
-            z_buffer: vec![],
+            z_buffer: vec![0.0; width * height],
             canvas: Canvas::new(width, height),
         }
+    }
+
+    pub fn canvas(&self) -> &Canvas {
+        &self.canvas
     }
 
     pub fn width(&self) -> usize {
@@ -203,8 +208,11 @@ impl RenderContext {
 
         for i in x_min..x_max {
             let index: usize = (i + j * self.canvas.get_width() as i32) as usize;
+            //println!("i = {}, j = {}, self.canvas.get_width()  = {}", i, j, self.canvas.get_width());
 
             if depth < self.z_buffer[index] {
+                //  println!("index = {}, x:min = {}, x_max = {}, x_prestep = {}, tex_coord_x_xstep = {}, tex_coord_y_xstep? {}", index, x_min, x_max, x_prestep, tex_coord_x_xstep, tex_coord_y_xstep);
+                // println!("depth = {}, one_over_z = {}", depth, one_over_z);
                 self.z_buffer[index] = depth;
                 let z = 1.0 / one_over_z;
 
