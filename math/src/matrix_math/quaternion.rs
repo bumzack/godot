@@ -1,9 +1,10 @@
+use std::ops::{Add, BitXor, Mul, Sub};
+
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
 use crate::matrix_math::libm_striped_to_pow::atan2::atan2;
 use crate::{intri_abs, intri_cos, intri_powi, intri_sin, intri_sqrt, Matrix, MatrixOps, Tuple, Tuple4D};
-use std::ops::{Add, BitXor, Mul, Sub};
 
 const QUATERNION_EPISLON: f32 = 0.0001;
 
@@ -90,37 +91,42 @@ impl Quaternion {
         let l = self.len();
         Quaternion {
             x: self.x / l,
-            y: self.x / l,
-            z: self.x / l,
-            w: self.x / l,
+            y: self.y / l,
+            z: self.z / l,
+            w: self.w / l,
         }
     }
 
     pub fn conjugate(&self) -> Quaternion {
         Quaternion {
             x: -self.x,
-            y: -self.x,
-            z: -self.x,
-            w: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
         }
     }
 
     pub fn to_rotation_matrix(&self) -> Matrix {
-        let forward = Tuple4D::new_vector(
+        let forward = Tuple4D::new_point(
             2.0 * (self.x * self.z - self.w * self.y),
             2.0 * (self.y * self.z + self.w * self.x),
-            1.0 - 2.0 * (self.x * self.x - self.y * self.y),
+            1.0 - 2.0 * (self.x * self.x + self.y * self.y),
         );
-        let up = Tuple4D::new_vector(
+        let up = Tuple4D::new_point(
             2.0 * (self.x * self.y + self.w * self.z),
             1.0 - 2.0 * (self.x * self.x + self.z * self.z),
             2.0 * (self.y * self.z - self.w * self.x),
         );
-        let right = Tuple4D::new_vector(
+        let right = Tuple4D::new_point(
             1.0 - 2.0 * (self.y * self.y + self.z * self.z),
             2.0 * (self.x * self.y - self.w * self.z),
             2.0 * (self.x * self.z + self.w * self.y),
         );
+
+        println!("");
+        println!("forward = {}", forward);
+        println!("up = {}", up);
+        println!("right = {}", right);
 
         Matrix::new_matrix_4x4(
             right.get_x(),
@@ -198,6 +204,16 @@ impl Mul<f32> for Quaternion {
             z: self.z * rhs,
             w: self.w * rhs,
         }
+    }
+}
+
+impl core::fmt::Display for Quaternion {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "Quaternion: x = {}, y = {}, z = {}: w = {}",
+            self.x, self.y, self.z, self.w
+        )
     }
 }
 

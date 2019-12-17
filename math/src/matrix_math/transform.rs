@@ -33,10 +33,11 @@ impl Transform {
     }
 
     pub fn rotate(&self, r: Quaternion) -> Transform {
-        let rot = (r * self.rot).normalized();
+        let rot1 = (r * self.rot);
+        let rot2 = rot1.normalized();
         Transform {
             pos: self.pos,
-            rot,
+            rot: rot2,
             scale: self.scale,
         }
     }
@@ -56,6 +57,11 @@ impl Transform {
         let rotation_matrix = self.rot.to_rotation_matrix();
         let scale_matrix = Matrix::init_scale(self.scale.get_x(), self.scale.get_y(), self.scale.get_z());
 
+        println!("m                     = {}", self);
+        println!("translation_matrix    = {}", translation_matrix);
+        println!("rotation_matrix       = {}", rotation_matrix);
+        println!("scale_matrix          = {}", scale_matrix);
+
         translation_matrix * (rotation_matrix * scale_matrix)
     }
 
@@ -73,5 +79,14 @@ impl Transform {
 
     pub fn scale(&self) -> &Tuple4D {
         &self.scale
+    }
+}
+
+impl core::fmt::Display for Transform {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Quaternion: \n");
+        write!(f, "     pos:    {} \n ", self.pos);
+        write!(f, "     scale:  {} \n ", self.scale);
+        write!(f, "     rot:    {} \n ", self.rot)
     }
 }

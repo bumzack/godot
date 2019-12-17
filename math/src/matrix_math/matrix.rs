@@ -630,6 +630,18 @@ impl IndexMut<usize> for Matrix {
     }
 }
 
+impl core::fmt::Display for Matrix {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        for y in 0..self.rows {
+            for x in 0..self.cols {
+                write!(f, "{}, ", self.m[y * self.cols + x]);
+            }
+            write!(f, "\n");
+        }
+        write!(f, "\n")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use core::f32::consts::{PI, SQRT_2};

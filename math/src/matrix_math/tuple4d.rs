@@ -159,6 +159,16 @@ impl Tuple for Tuple4D {
     }
 }
 
+impl core::fmt::Display for Tuple4D {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "Tuple4D: x = {}, y = {}, z = {}: w = {}",
+            self.x, self.y, self.z, self.w
+        )
+    }
+}
+
 impl Add for Tuple4D {
     type Output = Tuple4D;
 

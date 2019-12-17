@@ -98,3 +98,12 @@ impl Vertex {
         }
     }
 }
+
+impl core::fmt::Display for Vertex {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Vertex\n");
+        write!(f, "     pos             = {}\n", self.pos);
+        write!(f, "     tex_coords      = {}\n", self.tex_coords);
+        write!(f, "     normal          = {}\n", self.normal)
+    }
+}

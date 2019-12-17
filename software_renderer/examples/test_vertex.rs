@@ -32,18 +32,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let texture = Canvas::read_bitmap("./res/bricks.jpg")?;
     let texture2 = Canvas::read_bitmap("./res/bricks2.jpg")?;
 
-    let monkey_mesh = Mesh::read_obj_file("./res/smoothMonkey0.obj")?;
-    let terrain_mesh = Mesh::read_obj_file("./res/terrain2.obj")?;
+    let monkey_mesh = Mesh::read_obj_file("./res/triangle.obj")?;
+    //    let terrain_mesh = Mesh::read_obj_file("./res/terrain2.obj")?;
 
-    let mut monkey_transform = Transform::new_from_vector(Tuple4D::new_vector(0.0, 0.0, 3.0));
-    let terrain_transform = Transform::new_from_vector(Tuple4D::new_vector(0.0, -1.0, 0.0));
+    let mut monkey_transform = Transform::new_from_vector(Tuple4D::new_point(2.0, 0.0, 2.0));
+    //    let terrain_transform = Transform::new_from_vector(Tuple4D::new_vector(0.0, -1.0, 0.0));
+    println!("monkey_transform original = {:?}", monkey_transform);
 
     //   show_bitmap(&bitmap);
 
     let fov = 70.0 * PI / 180.0;
     let aspect_ratio = width as f32 / height as f32;
     let z_near = 0.1;
-    let z_far = 1000.0;
+    let z_far = 10.0;
     let m = Matrix::init_perspective(fov, aspect_ratio, z_near, z_far);
     let mut camera = Camera::new(m);
 
@@ -59,13 +60,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let delta = (current_time - previous_time) / 1_000_000_000;
         previous_time = current_time;
 
-        camera.update(delta.as_secs_f32());
+        let delta = 1;
+
+        // camera.update(delta.as_secs_f32());
+        camera.update(delta as f32);
         let vp = camera.get_view_projection();
 
         monkey_transform = monkey_transform.rotate(Quaternion::new_from_tuple_and_angle(
             Tuple4D::new_vector(0.0, 1.0, 0.0),
-            delta.as_secs_f32(),
+            // delta.as_secs_f32(),
+            delta as f32,
         ));
+
+        println!(
+            "monkey_transform.get_transformation() = {:?}",
+            monkey_transform.get_transformation()
+        );
 
         monkey_mesh.draw(&mut target, &vp, &monkey_transform.get_transformation(), &texture2);
         // terrain_mesh.draw(&mut target, &vp, &terrain_transform.get_transformation(), &texture);
@@ -73,19 +83,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         frame += 1;
     }
 
+    let mut cnt = 0;
     target.canvas().get_pixels().iter().for_each(|p| {
         if p.color.r != 0.0 || p.color.b != 0.0 || p.color.g != 0.0 {
             println!("x={}, y ={}, color = {:?}", p.x, p.y, p.color);
+            cnt += 1;
         }
     });
-    //  show_bitmap(&target.canvas());
+    println!("cnt = {}", cnt);
+    show_bitmap(&target.canvas());
 
     Ok(())
 }
 
 fn show_bitmap(c: &Canvas) {
     let opengl = piston_window::OpenGL::V3_2;
-    let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [300, 300])
+    let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [800, 600])
         .exit_on_esc(true)
         .graphics_api(opengl)
         .build()
@@ -94,9 +107,9 @@ fn show_bitmap(c: &Canvas) {
     let mut buffer: Vec<u8> = vec![];
 
     c.get_pixels().iter().for_each(|p| {
-        buffer.push(p.color.r as u8);
-        buffer.push(p.color.g as u8);
-        buffer.push(p.color.b as u8);
+        buffer.push((p.color.r * 255.0) as u8);
+        buffer.push((p.color.g * 255.0) as u8);
+        buffer.push((p.color.b * 255.0) as u8);
         buffer.push(255);
     });
 
@@ -107,7 +120,7 @@ fn show_bitmap(c: &Canvas) {
         &img,
         &piston_window::TextureSettings::new(),
     )
-        .unwrap();
+    .unwrap();
 
     window.set_lazy(true);
     while let Some(e) = window.next() {

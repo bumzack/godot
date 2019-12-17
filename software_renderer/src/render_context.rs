@@ -2,6 +2,8 @@
 extern crate rustacuda_core;
 
 use math::{Matrix, MatrixOps};
+use raytracer_lib_std::raytracer_lib_no_std::Color;
+use raytracer_lib_std::raytracer_lib_no_std::ColorOps;
 use raytracer_lib_std::{Canvas, CanvasOps};
 
 use crate::edge::Edge;
@@ -18,7 +20,7 @@ pub struct RenderContext {
 impl RenderContext {
     pub fn new(width: usize, height: usize) -> RenderContext {
         RenderContext {
-            z_buffer: vec![0.0; width * height],
+            z_buffer: vec![core::f32::MAX; width * height],
             canvas: Canvas::new(width, height),
         }
     }
@@ -42,6 +44,7 @@ impl RenderContext {
     pub fn draw_triangle(&mut self, v1: &Vertex, v2: &Vertex, v3: &Vertex, texture: &Canvas) {
         if v1.is_inside_view_frustum() && v2.is_inside_view_frustum() && v3.is_inside_view_frustum() {
             self.fill_triangle(v1, v2, v3, texture);
+            return;
         }
 
         let mut vertices = vec![v1.clone(), v2.clone(), v3.clone()];
@@ -123,6 +126,7 @@ impl RenderContext {
         if min_y_vert.triangle_area_times_two(&max_y_vert, &mid_y_vert) >= 0.0 {
             return;
         }
+
         if max_y_vert.y() < mid_y_vert.y() {
             let temp = max_y_vert;
             max_y_vert = mid_y_vert;
@@ -231,10 +235,7 @@ impl RenderContext {
     }
 
     fn copy_pixel(&mut self, dest_x: i32, dest_y: i32, src_x: i32, src_y: i32, src: &Canvas, light_amt: f32) {
-        self.canvas.write_pixel(
-            dest_x as usize,
-            dest_y as usize,
-            src.pixel_at(src_x as usize, src_y as usize).color * light_amt,
-        );
+        self.canvas
+            .write_pixel(dest_x as usize, dest_y as usize, Color::new(0.4, 0.3, 0.8));
     }
 }

@@ -47,18 +47,27 @@ impl Mesh {
     }
 
     pub fn draw(&self, context: &mut RenderContext, view_projection: &Matrix, transform: &Matrix, texture: &Canvas) {
+        println!("view_projection  {}", view_projection);
+        println!("transform  {}", transform);
         let mvp = view_projection * transform;
+        println!("mvp  {}", mvp);
         for i in (0..self.indices.len() - 3).step_by(3) {
             // println!("draw_traingle:   i = {}, self.vertices.len() = {}", i, self.vertices.len());
             let idx1 = self.indices.get(i).unwrap();
-            let idx2 = self.indices.get(i+1).unwrap();
-            let idx3 = self.indices.get(i+2).unwrap();
-            context.draw_triangle(
-                &self.vertices.get(*idx1).unwrap().transform(&mvp, transform),
-                &self.vertices.get(*idx2).unwrap().transform(&mvp, transform),
-                &self.vertices.get(*idx3).unwrap().transform(&mvp, transform),
-                texture,
-            )
+            let idx2 = self.indices.get(i + 1).unwrap();
+            let idx3 = self.indices.get(i + 2).unwrap();
+
+            let v1_orig = &self.vertices.get(*idx1).unwrap();
+            let v1 = v1_orig.transform(&mvp, transform);
+            let v2_orig = &self.vertices.get(*idx2).unwrap();
+            let v2 = v2_orig.transform(&mvp, transform);
+            let v3_orig = &self.vertices.get(*idx3).unwrap();
+            let v3 = v3_orig.transform(&mvp, transform);
+
+            //            println!("v1 original = {},    v1 transformed = {}", v1_orig, v1);
+            //            println!("v2 original = {},    v2 transformed = {}", v2_orig, v2);
+            //            println!("v3 original = {},    v3 transformed = {}", v3_orig, v3);
+            context.draw_triangle(&v1, &v2, &v3, texture)
         }
     }
 }
