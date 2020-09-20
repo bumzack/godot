@@ -1,0 +1,18 @@
+[package]
+name = "cyclone-rs"
+version = "0.1.0"
+authors = ["bumzack <bumzacktrara@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+math  = {path =  "../math" }
+
+
+piston_window = "0.113.0"
+image = "0.23.9"
+rusttype = "0.8.2"
+
+piston = "0.52.0"
+piston2d-graphics = "0.37.0"
+pistoncore-glutin_window = "0.66.0"
+piston2d-opengl_graphics = "0.74.0"
