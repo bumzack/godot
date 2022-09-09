@@ -7,6 +7,12 @@ use raytracer_challenge_reference_impl::prelude::*;
 fn main() -> Result<(), Box<dyn Error>> {
     let (w, c) = setup_world(800, 600);
 
+    // let x = 58;
+    // let y = 81;
+    // let r = Camera::ray_for_pixel(&c, x, y);
+    // // println!("ray {:?}  @ ({}/{})", &r, x, y);
+    // let color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+
     // single core
     let start = Instant::now();
     // let canvas_std = Camera::render_debug(&c, &w, 226, 241);

@@ -232,6 +232,7 @@ impl CameraOps for Camera {
                     canvas.write_pixel(x, y, color);
                 } else {
                     let r = Camera::ray_for_pixel(c, x, y);
+                    // println!("ray {:?}  @ ({}/{})", &r, x, y);
                     let color = World::color_at(w, &r, MAX_REFLECTION_RECURSION_DEPTH);
                     // println!("no AA    color at ({}/{}): {:?}", x, y, color);
                     canvas.write_pixel(x, y, color);

@@ -149,12 +149,19 @@ impl WorldOps for World {
     }
 
     fn is_shadowed(w: &World, light_position: &Tuple4D, point: &Tuple4D) -> bool {
+        // println!("              ");
         let v = light_position - point;
 
         let distance = Tuple4D::magnitude(&v);
         let direction = Tuple4D::normalize(&v);
 
         let start = *point;
+        // println!("light_position            {:?}", light_position);
+        // println!("point                     {:?}", point);
+        // println!("v                         {:?}", v);
+        // println!("start                     {:?}", start);
+        // println!("direction                 {:?}", direction);
+        // println!("distance                  {:?}", distance);
         let r = Ray::new(start, direction);
 
         let intersections = Intersection::intersect_world(w, &r);

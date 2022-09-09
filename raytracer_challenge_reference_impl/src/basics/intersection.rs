@@ -119,14 +119,16 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let mut res = IntersectionList::new();
         for shape in w.get_shapes().iter() {
             let mut tmp = Intersection::intersect(shape, r);
-            for is in tmp.get_intersections_mut().drain(..) {
+            for is in tmp
+                .get_intersections_mut()
+                .drain(..)
+                .filter(|i| !i.get_t().is_infinite())
+            {
                 res.add(is);
             }
         }
         res.get_intersections_mut()
             .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
-
-        // println!("intersect_world   res = {:?}", res);
 
         res
     }
@@ -146,6 +148,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     ) -> PrecomputedComponent<'a> {
         let point = Ray::position(r, intersection.get_t());
         let mut normal_vector = intersection.get_shape().normal_at(&point);
+        normal_vector.w = 0.0;
         let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;
         if (&normal_vector ^ &eye_vector) < 0.0 {
@@ -158,6 +161,13 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
         let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
+        // println!();
+        // println!("intersection.get_t                     {:?}", intersection.get_t());
+        // println!("ray                       {:?}", r);
+        // println!("point                     {:?}", point);
+        // println!("normal_vector             {:?}", normal_vector);
+        // println!("over_point                {:?}", over_point);
+        // println!("under_point               {:?}", under_point);
         let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
             intersection.get_shape(),
@@ -195,7 +205,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                 let index = container.iter().position(|&shape| shape == i.get_shape()).unwrap();
                 // println!("remove index     {:}",index);
                 container.remove(index);
-            // println!("container   AFTER      {:?}",container);
+                // println!("container   AFTER      {:?}",container);
             } else {
                 container.push(i.get_shape());
             }
