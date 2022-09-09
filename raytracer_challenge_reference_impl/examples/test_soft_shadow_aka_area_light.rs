@@ -158,8 +158,8 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let corner = Tuple4D::new_point(-1.0, 2.0, 4.0);
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
     let vvec = Tuple4D::new_vector(0.0, 2.0, 0.0);
-    let usteps = 10;
-    let vsteps = 10;
+    let usteps = 6;
+    let vsteps = 6;
     let intensity = Color::new(1.5, 1.5, 1.5);
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity);
     let area_light = Light::AreaLight(area_light);

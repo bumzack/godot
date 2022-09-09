@@ -104,7 +104,6 @@ impl MaterialOps for Material {
 
         for v in 0..light.get_vsteps() {
             for u in 0..light.get_usteps() {
-                println!("samples.push   {:?}", World::point_on_light(light, u, v));
                 samples.push(World::point_on_light(light, u, v));
             }
         }

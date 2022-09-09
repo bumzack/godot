@@ -3,10 +3,10 @@ extern crate rand;
 use rand::Rng;
 
 use crate::basics::color::Color;
+use crate::DEBUG;
 use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::{World, WorldOps};
-use crate::DEBUG;
 
 #[derive(Clone, Debug, Copy)]
 pub struct AreaLight {
@@ -75,6 +75,7 @@ impl LightOps for AreaLight {
                 }
             }
         }
+       //  println!("self.get_samples()  = {:?}      total {}", self.get_samples(), total);
 
         total / self.get_samples() as f32
     }
@@ -83,13 +84,13 @@ impl LightOps for AreaLight {
         //TODO: can we store the points in the light and return a reference?
         // than we would not have to clone in PointLight
 
-        // TODO: when the light is created, fill a Vec with jitter values and be done with it
-        let mut rng = rand::thread_rng();
-        let u_idx: f32 = u as f32 + rng.gen::<f32>();
-        let v_idx: f32 = v as f32 + rng.gen::<f32>();
-
-        let u_pos = self.get_uvec() * u_idx;
-        let v_pos = self.get_vvec() * v_idx;
+        // // TODO: when the light is created, fill a Vec with jitter values and be done with it
+        // let mut rng = rand::thread_rng();
+        // let u_idx: f32 = u as f32 + rng.gen::<f32>();
+        // let v_idx: f32 = v as f32 + rng.gen::<f32>();
+        //
+        let u_pos = self.get_uvec() * (u as f32 + 0.5);
+        let v_pos = self.get_vvec() * (v as f32 + 0.5);
 
         self.get_corner() + &(u_pos + v_pos)
     }

@@ -36,7 +36,7 @@ impl Tuple for Tuple4D {
             x: a.x / m,
             y: a.y / m,
             z: a.z / m,
-            w: a.w,
+            w: 0.0,
         }
     }
 

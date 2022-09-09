@@ -1,8 +1,8 @@
+use crate::DEBUG;
+use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
-use crate::prelude::*;
-use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct World {
@@ -83,7 +83,6 @@ impl WorldOps for World {
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
-        println!("intensity = {}", intensity);
         if DEBUG {
             println!("intensity = {}", intensity);
         }
@@ -143,8 +142,8 @@ impl WorldOps for World {
             return BLACK;
         }
         let reflect_ray = Ray::new(
-            Tuple4D::new_point_from(comp.get_over_point()),
-            Tuple4D::new_vector_from(comp.get_reflected_vector()),
+            *comp.get_over_point(),
+            *comp.get_reflected_vector(),
         );
         let color = World::color_at(w, &reflect_ray, remaining - 1);
         &color * comp.get_object().get_material().get_reflective()
@@ -154,40 +153,41 @@ impl WorldOps for World {
         let v = light_position - point;
 
         let distance = Tuple4D::magnitude(&v);
-        let mut direction = Tuple4D::normalize(&v);
-        direction.w = 0.0;
+        let direction = Tuple4D::normalize(&v);
 
-        let point = Tuple4D::new_point_from(&point);
-        let r = Ray::new(point, direction);
+        let start = *point;
+        let r = Ray::new(start, direction);
 
         let intersections = Intersection::intersect_world(w, &r);
 
         let h = intersections.hit();
 
-        if h.is_some() {
-            if DEBUG {
-                println!("t = {:?}", h.unwrap().get_t());
+        match h {
+            None => {
+                return false;
             }
-            let s = h.unwrap();
-            if DEBUG {
-                println!("s = {:?}", s);
-                println!("t = {:?}", s.get_t());
-                println!("distance = {:?}", distance);
-                println!(
-                    "t  - distance = {:?}    <  {}",
-                    s.get_t() - distance,
-                    EPSILON_OVER_UNDER
-                );
-            }
-            if s.get_t() - distance < EPSILON_OVER_UNDER && s.get_shape().get_casts_shadow() {
-                return true;
-            }
-        } else {
-            if DEBUG {
-                println!("h is none");
+            Some(_) => {
+                if DEBUG {
+                    println!("t = {:?}", h.unwrap().get_t());
+                }
+                let s = h.unwrap();
+                if DEBUG {
+                    println!("s = {:?}", s);
+                    println!("t = {:?}", s.get_t());
+                    println!("distance = {:?}", distance);
+                    println!(
+                        "t  - distance = {:?}    <  {}",
+                        s.get_t() - distance,
+                        EPSILON_OVER_UNDER
+                    );
+                }
+                let delta = s.get_t() - distance;
+                if delta < EPSILON_OVER_UNDER && s.get_shape().get_casts_shadow() {
+                    return true;
+                }
+                false
             }
         }
-        false
     }
 
     //    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
@@ -308,7 +308,7 @@ impl WorldOps for World {
 pub fn default_world() -> World {
     let mut w = World::new();
 
-    let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
+    let light_pos = Tuple4D::new_point(-10.0, 10.0, -10.0);
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = Light::PointLight(pl);
