@@ -458,15 +458,7 @@ mod tests {
         let s1 = &w.get_shapes()[0];
 
         let mut l = w.get_light().clone();
-        let result = Material::lightning(
-            material,
-            s1,
-            &mut  l,
-            &point,
-            &eye_vector,
-            &normal_vector,
-            intensity,
-        );
+        let result = Material::lightning(material, s1, &mut l, &point, &eye_vector, &normal_vector, intensity);
 
         println!("result            {:?}", result);
         println!("expected_result   {:?}", expected_result);
@@ -511,7 +503,15 @@ mod tests {
         let eye_vec = Tuple4D::normalize(&(&eye - &point));
         let normal_v = Tuple4D::new_vector(point.x, point.y, point.z);
 
-        let result = Material::lightning(sphere.get_material(), &sphere, &mut light, &point, &eye_vec, &normal_v, 1.0);
+        let result = Material::lightning(
+            sphere.get_material(),
+            &sphere,
+            &mut light,
+            &point,
+            &eye_vec,
+            &normal_v,
+            1.0,
+        );
 
         println!("actual                {:?}", &result);
         println!("expected_result       {:?}", &expected_result);

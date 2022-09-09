@@ -19,7 +19,6 @@ impl LightOps for PointLight {
     }
 
     fn get_position(&self) -> &Tuple4D {
-        println!("get_position PointLight    {:?}", &self.position);
         &self.position
     }
 

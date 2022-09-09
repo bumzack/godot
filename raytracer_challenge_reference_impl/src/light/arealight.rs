@@ -1,11 +1,11 @@
 extern crate rand;
 
 use crate::basics::color::Color;
-use crate::DEBUG;
 use crate::light::light::LightOps;
 use crate::light::Sequence;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::{World, WorldOps};
+use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct AreaLight {
@@ -18,7 +18,6 @@ pub struct AreaLight {
     intensity: Color,
     jitter_sequence: Sequence,
 }
-
 
 impl LightOps for AreaLight {
     fn get_intensity(&self) -> &Color {

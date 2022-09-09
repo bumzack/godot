@@ -1317,8 +1317,6 @@ mod tests {
         test_area_lights_find_point_on_jittered_area_light_helper(3, 1, point);
     }
 
-
-
     // bonus helper: Scenario Outline: The area light with jittered samples
     fn test_area_lights_with_jittered_examples_helper(point: Tuple4D, expected_result: f32) {
         let w = default_world();
@@ -1332,7 +1330,15 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.7, 0.3, 0.9,0.1,0.5]));
+        let arealight = AreaLight::new(
+            corner,
+            v1,
+            usteps,
+            v2,
+            vsteps,
+            intensity,
+            Sequence::new(vec![0.7, 0.3, 0.9, 0.1, 0.5]),
+        );
         let mut light = Light::AreaLight(arealight);
 
         let result = World::intensity_at(&mut light, &point, &w);
@@ -1343,23 +1349,22 @@ mod tests {
         assert_eq!(&expected_result, &result);
     }
 
-
     // bonus: Scenario Outline: The area light with jittered samples
     #[test]
     fn test_area_lights_with_jittered_examples() {
         let point = Tuple4D::new_point(0.0, 0.0, 2.0);
-        test_area_lights_with_jittered_examples_helper( point, 0.0);
+        test_area_lights_with_jittered_examples_helper(point, 0.0);
 
         let point = Tuple4D::new_point(1.0, -1.0, 2.0);
-        test_area_lights_with_jittered_examples_helper( point, 0.5);
+        test_area_lights_with_jittered_examples_helper(point, 0.5);
 
         let point = Tuple4D::new_point(1.5, 0.0, 2.0);
-        test_area_lights_with_jittered_examples_helper( point, 0.75);
+        test_area_lights_with_jittered_examples_helper(point, 0.75);
 
         let point = Tuple4D::new_point(1.25, 1.25, 3.0);
-        test_area_lights_with_jittered_examples_helper( point, 0.75);
+        test_area_lights_with_jittered_examples_helper(point, 0.75);
 
         let point = Tuple4D::new_point(0.0, 0.0, -2.0);
-        test_area_lights_with_jittered_examples_helper( point, 1.0);
+        test_area_lights_with_jittered_examples_helper(point, 1.0);
     }
 }
