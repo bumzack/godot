@@ -1,15 +1,17 @@
 #[derive(Clone, Debug)]
 pub struct Sequence {
     data: Vec<f32>,
+    idx: usize,
 }
 
 impl Sequence {
     pub fn new(data: Vec<f32>) -> Sequence {
-        Sequence { data }
+        Sequence { data, idx: 0 }
     }
 
     pub(crate) fn next(&mut self) -> f32 {
-        let elem = self.data[0];
+        let elem = self.data[self.idx % self.data.len()];
+        self.idx += 1;
         elem
     }
 
@@ -20,11 +22,8 @@ impl Sequence {
 
 #[cfg(test)]
 mod tests {
-    use crate::basics::color::ColorOps;
-    use crate::math::common::assert_tuple;
+    use crate::light::Sequence;
     use crate::math::tuple4d::Tuple;
-
-    use super::*;
 
     // bonus chapter:  A number generator returns a cyclic sequence of numbers
     #[test]
