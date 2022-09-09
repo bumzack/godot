@@ -13,9 +13,7 @@ pub trait Tuple {
     fn normalize(a: &Tuple4D) -> Tuple4D;
 
     fn new_vector(x: f32, y: f32, z: f32) -> Tuple4D;
-    fn new_vector_from(v: &Tuple4D) -> Tuple4D;
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D;
-    fn new_point_from(v: &Tuple4D) -> Tuple4D;
     fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D;
     fn empty() -> Tuple4D;
 
@@ -49,26 +47,8 @@ impl Tuple for Tuple4D {
         }
     }
 
-    fn new_vector_from(v: &Tuple4D) -> Tuple4D {
-        Tuple4D {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: 0.0,
-        }
-    }
-
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D {
         Tuple4D { x, y, z, w: 1.0 }
-    }
-
-    fn new_point_from(v: &Tuple4D) -> Tuple4D {
-        Tuple4D {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: 1.0,
-        }
     }
 
     fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D {

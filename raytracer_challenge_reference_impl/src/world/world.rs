@@ -244,7 +244,7 @@ impl WorldOps for World {
         let mut direction = comp.get_normal_vector() * (n_ratio * cos_i - cos_t) - comp.get_eye_vector() * n_ratio;
         // fix direction to be a vector and not something in between
         direction.w = 0.0;
-        let refracted_ray = Ray::new(Tuple4D::new_point_from(comp.get_under_point()), direction);
+        let refracted_ray = Ray::new(*comp.get_under_point(), direction);
 
         World::color_at(w, &refracted_ray, remaining - 1) * comp.get_object().get_material().get_transparency()
     }
