@@ -11,7 +11,7 @@ pub enum ShapeEnum {
     Cube(Cube),
     Cylinder(Cylinder),
     Triangle(Triangle),
-    Group(Group),
+    //    Group(Group),
 }
 
 #[derive(Clone, PartialEq)]
@@ -43,7 +43,7 @@ impl ShapeOps for Shape {
             ShapeEnum::Cube(ref cube) => cube.local_normal_at(&object_point),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.local_normal_at(&object_point),
             ShapeEnum::Triangle(ref triangle) => triangle.local_normal_at(&object_point),
-            ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
+            //      ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
         };
         let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
         world_normal.w = 0.0;
@@ -57,7 +57,7 @@ impl ShapeOps for Shape {
             ShapeEnum::Cube(ref c) => c.get_material(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
             ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
-            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
+            //        ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
         };
         res
     }
@@ -69,7 +69,7 @@ impl ShapeOps for Shape {
             ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
             ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
             ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
-            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
+            //         ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
         };
         res
     }
@@ -81,7 +81,7 @@ impl ShapeOps for Shape {
             ShapeEnum::Cube(ref c) => c.get_transformation(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_transformation(),
             ShapeEnum::Triangle(ref triangle) => triangle.get_transformation(),
-            ShapeEnum::Group(ref group) => group.get_transformation(),
+            //         ShapeEnum::Group(ref group) => group.get_transformation(),
         };
         res
     }
@@ -93,20 +93,20 @@ impl ShapeOps for Shape {
             ShapeEnum::Cube(ref c) => c.get_inverse_transformation(),
             ShapeEnum::Cylinder(ref cylinder) => cylinder.get_inverse_transformation(),
             ShapeEnum::Triangle(ref triangle) => triangle.get_inverse_transformation(),
-            ShapeEnum::Group(ref group) => group.get_inverse_transformation(),
+            //       ShapeEnum::Group(ref group) => group.get_inverse_transformation(),
         };
         res
     }
 
-    fn set_transformation(&mut self, m: Matrix) {
+    fn set_transformation(&mut self, _m: Matrix) {
         unimplemented!()
     }
 
-    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
         unreachable!("should never get here ");
     }
 
-    fn set_material(&mut self, m: Material) {
+    fn set_material(&mut self, _m: Material) {
         unimplemented!()
     }
 }

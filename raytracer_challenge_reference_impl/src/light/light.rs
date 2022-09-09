@@ -4,7 +4,7 @@ use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::World;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub enum Light {
     PointLight(PointLight),
     AreaLight(AreaLight),
@@ -40,7 +40,7 @@ impl LightOps for Light {
     }
 
     fn set_intensity(&mut self, intensity: Color) {
-        let res = match self {
+        match self {
             Light::PointLight(ref mut pl) => pl.set_intensity(intensity),
             Light::AreaLight(ref mut pl) => pl.set_intensity(intensity),
         };
@@ -55,7 +55,7 @@ impl LightOps for Light {
     }
 
     fn set_position(&mut self, pos: Tuple4D) {
-        let res = match self {
+        match self {
             Light::PointLight(ref mut pl) => pl.set_position(pos),
             Light::AreaLight(ref mut pl) => pl.set_position(pos),
         };

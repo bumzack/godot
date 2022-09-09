@@ -84,7 +84,7 @@ mod tests {
 
     // page 137  x
     #[test]
-    fn test_pattern_checker3D_repeat_x() {
+    fn test_pattern_checker3d_repeat_x() {
         let p = Checker3DPattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -102,7 +102,7 @@ mod tests {
 
     // page 137  y
     #[test]
-    fn test_pattern_checker3D_repeat_y() {
+    fn test_pattern_checker3d_repeat_y() {
         let p = Checker3DPattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -120,7 +120,7 @@ mod tests {
 
     // page 137  z
     #[test]
-    fn test_pattern_checker3D_repeat_z() {
+    fn test_pattern_checker3d_repeat_z() {
         let p = Checker3DPattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);

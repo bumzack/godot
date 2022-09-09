@@ -1,8 +1,8 @@
-use crate::DEBUG;
-use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
+use crate::prelude::*;
+use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct World {
@@ -83,8 +83,9 @@ impl WorldOps for World {
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
         let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
+        println!("intensity = {}", intensity);
         if DEBUG {
-            println!("intentsity = {}", intensity);
+            println!("intensity = {}", intensity);
         }
         let surface = Material::lightning(
             comp.get_object().get_material(),
@@ -105,7 +106,7 @@ impl WorldOps for World {
         if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
             let reflectance = Intersection::schlick(comp);
             if DEBUG {
-                println!("WITH  schlcik");
+                println!("WITH  schlick");
                 println!("surface = {:?}", surface);
                 println!("reflected = {:?}", reflected);
                 println!("refracted = {:?}", refracted);
@@ -114,7 +115,7 @@ impl WorldOps for World {
             return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
         }
         if DEBUG {
-            println!("NO schlcik");
+            println!("NO schlick");
             println!("surface = {:?}", surface);
             println!("reflected = {:?}", reflected);
             println!("refracted = {:?}", refracted);
@@ -214,19 +215,17 @@ impl WorldOps for World {
     //    }
 
     fn intensity_at(light: &Light, point: &Tuple4D, world: &World) -> f32 {
-        let res = match light {
+        match light {
             Light::PointLight(ref point_light) => point_light.intensity_at_point(point, world),
             Light::AreaLight(ref area_light) => area_light.intensity_at_point(point, world),
-        };
-        res
+        }
     }
 
     fn point_on_light(light: &Light, u: usize, v: usize) -> Tuple4D {
-        let res = match light {
+        match light {
             Light::PointLight(ref point_light) => point_light.point_on_light(u, v),
             Light::AreaLight(ref area_light) => area_light.point_on_light(u, v),
-        };
-        res
+        }
     }
 
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
@@ -406,17 +405,17 @@ pub fn default_world_refracted_color_page_158() -> World {
 fn default_world_area_light_attenuate_color() -> World {
     let mut w = World::new();
 
-    let light_pos = Tuple4D::new_point(0.0, 0., -10.0);
-    let light_intensity = Color::new(1.0, 1., 1.0);
-    let point_light = PointLight::new(light_pos, light_intensity);
-    let point_light = Light::PointLight(point_light);
-    w.set_light(point_light);
+    let light_pos = Tuple4D::new_point(0.0, 0.0, -10.0);
+    let light_intensity = Color::new(1.0, 1.0, 1.0);
+    let pl = PointLight::new(light_pos, light_intensity);
+    let light = Light::PointLight(pl);
+    w.set_light(light);
 
     let mut m = Material::new();
+    m.set_color(Color::new(1.0, 1.0, 1.0));
     m.set_ambient(0.1);
     m.set_diffuse(0.9);
     m.set_specular(0.0);
-    m.set_color(Color::new(1.0, 1., 1.0));
 
     let mut s1 = Sphere::new();
     s1.set_material(m);
@@ -867,9 +866,9 @@ mod tests {
         let o = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(p, o);
 
-        let color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
-        println!("bla");
-        assert!(true, false);
+        let _color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        println!("FIX ME");
+        // assert!(true, false);
     }
 
     // page 147
@@ -1105,12 +1104,20 @@ mod tests {
         assert_color(&c, &c_expected);
     }
 
-    // bonus:   Scenario Outline: is_shadow tests for occlusion between two points
+    // bonus:  helper Scenario Outline: is_shadow tests for occlusion between two points
     fn test_area_lights_occlusion_between_2_points_helper(point: Tuple4D, expected_result: bool) {
         let w = default_world();
         let light_position = Tuple4D::new_point(-10.0, -10.0, -10.0);
 
         let result = World::is_shadowed(&w, &light_position, &point);
+        assert_eq!(result, expected_result);
+    }
+
+    // bonus: helper Scenario Outline: Point lights evaluate the light intensity at a given point
+    fn test_area_lights_intensity_between_2_points_helper(point: Tuple4D, expected_result: f32) {
+        let w = default_world();
+        let light = w.light;
+        let result = World::intensity_at(&light, &point, &w);
         assert_eq!(result, expected_result);
     }
 
@@ -1131,44 +1138,35 @@ mod tests {
     }
 
     // bonus: Scenario Outline: Point lights evaluate the light intensity at a given point
-    fn test_area_lights_point_lights_evaluate_light_intensity_helper(point: Tuple4D, expected_result: f32) {
-        let w = default_world();
-        let light = w.get_light();
-
-        let result = World::intensity_at(light, &point, &w);
-        assert_float(result, expected_result);
-    }
-
-    // bonus: Scenario Outline: Point lights evaluate the light intensity at a given point
     #[test]
     fn test_area_lights_point_lights_evaluate_light_intensity() {
-        let point = Tuple4D::new_point(0.0, 1.0001, 0.0);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 1.0);
+        let point = Tuple4D::new_point(0.0, 1.00001, 0.0);
+        test_area_lights_intensity_between_2_points_helper(point, 1.0);
 
-        let point = Tuple4D::new_point(-1.0001, 0.0, 0.0);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 1.0);
+        let point = Tuple4D::new_point(-1.00001, 0.0000, 0.0);
+        test_area_lights_intensity_between_2_points_helper(point, 1.0);
 
-        let point = Tuple4D::new_point(0.0, 0.0, -1.0001);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 1.0);
+        let point = Tuple4D::new_point(0.0, 0., -1.00001);
+        test_area_lights_intensity_between_2_points_helper(point, 1.0);
 
-        let point = Tuple4D::new_point(0.0, 0.0, 1.0001);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+        let point = Tuple4D::new_point(0.0, 0., 1.00001);
+        test_area_lights_intensity_between_2_points_helper(point, 0.0);
 
-        let point = Tuple4D::new_point(1.0001, 0.0, 0.0);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+        let point = Tuple4D::new_point(1.00001, 0.0000, 0.0);
+        test_area_lights_intensity_between_2_points_helper(point, 0.0);
 
-        let point = Tuple4D::new_point(0.0, -1.0001, 0.0);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+        let point = Tuple4D::new_point(0.0, -1.00001, 0.0);
+        test_area_lights_intensity_between_2_points_helper(point, 0.0);
 
         let point = Tuple4D::new_point(0.0, 0.0, 0.0);
-        test_area_lights_point_lights_evaluate_light_intensity_helper(point, 0.0);
+        test_area_lights_intensity_between_2_points_helper(point, 0.0);
     }
 
     // bonus: Scenario Outline: lighting() uses light intensity to attenuate color
     fn test_area_lights_use_lightning_intensity_t_attenuate_color_helper(intensity: f32, expected_result: Color) {
         let w = default_world_area_light_attenuate_color();
 
-        let point = Tuple4D::new_point(0., 0., -1.0);
+        let point = Tuple4D::new_point(0.0, 0.0, -1.0);
         let eyev = Tuple4D::new_vector(0.0, 0.0, -1.0);
         let normalv = Tuple4D::new_vector(0.0, 0.0, -1.0);
 
@@ -1178,7 +1176,7 @@ mod tests {
         let result = Material::lightning(material, shape, w.get_light(), &point, &eyev, &normalv, intensity);
 
         println!("expected result   = {:?}", expected_result);
-        println!(" result           = {:?}", result);
+        println!("result           = {:?}", result);
 
         assert_color(&expected_result, &result);
     }
@@ -1189,11 +1187,11 @@ mod tests {
         let expected_color = Color::new(1., 1.0, 1.);
         test_area_lights_use_lightning_intensity_t_attenuate_color_helper(1.0, expected_color);
 
-        let expected_color = Color::new(0.55, 0.55, 0.55);
-        test_area_lights_use_lightning_intensity_t_attenuate_color_helper(0.5, expected_color);
-
         let expected_color = Color::new(0.1, 0.1, 0.1);
         test_area_lights_use_lightning_intensity_t_attenuate_color_helper(0.0, expected_color);
+
+        let expected_color = Color::new(0.55, 0.55, 0.55);
+        test_area_lights_use_lightning_intensity_t_attenuate_color_helper(0.5, expected_color);
     }
 
     // bonus: Scenario Outline: Finding a single point on an area light
@@ -1280,7 +1278,7 @@ mod tests {
 
     // bonus: Scenario Outline: Finding a single point on a jittered area light
     fn test_area_lights_find_point_on_jittered_area_light_helper(u: usize, v: usize, expected_result: Tuple4D) {
-        let w = default_world();
+        let _w = default_world();
 
         let corner = Tuple4D::new_point(0., 0., 0.0);
         let v1 = Tuple4D::new_vector(2.0, 0.0, 0.0);
@@ -1291,8 +1289,8 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let sequence = vec![0.3, 0.7];
-        let mut arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+        let _sequence = vec![0.3, 0.7];
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
         // arealight.set_test_sequence(sequence);
         let light = Light::AreaLight(arealight);
 

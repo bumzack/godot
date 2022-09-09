@@ -6,7 +6,7 @@ pub mod patterns;
 pub mod shape;
 pub mod world;
 
-pub const DEBUG: bool = false;
+pub const DEBUG: bool = true;
 
 pub mod prelude {
     pub use super::basics::*;

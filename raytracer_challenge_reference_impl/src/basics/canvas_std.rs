@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
-use image::{ImageBuffer, ImageError};
 use image::RgbImage;
+use image::{ImageBuffer, ImageError};
 
 use crate::basics::{Canvas, CanvasOps};
 

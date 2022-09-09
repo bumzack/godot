@@ -31,7 +31,7 @@ impl ShapeOps for Plane {
         Tuple4D::normalize(&world_normal)
     }
 
-    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
         Tuple4D::new_vector(0.0, 1.0, 0.0)
     }
 
@@ -89,7 +89,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let p = Plane::new();
+        //   let p = Plane::new();
 
         let intersections = Plane::intersect(&r);
 
@@ -125,7 +125,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
+        //   let s = Sphere::new();
 
         let intersections = Sphere::intersect(&r);
 
@@ -138,7 +138,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
+        //  let s = Sphere::new();
 
         let intersections = Sphere::intersect(&r).unwrap();
 
@@ -154,7 +154,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let s = Sphere::new();
+        //  let s = Sphere::new();
 
         let intersections = Sphere::intersect(&r).unwrap();
 

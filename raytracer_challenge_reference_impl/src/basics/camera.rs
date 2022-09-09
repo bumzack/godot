@@ -140,13 +140,13 @@ impl CameraOps for Camera {
         let x_offset = (x as f32 + 0.5) * c.get_pixel_size();
         let y_offset = (y as f32 + 0.5) * c.get_pixel_size();
 
-        let world_x_old = c.get_half_width() - x_offset;
-        let world_y_old = c.get_half_height() - y_offset;
+        let _world_x_old = c.get_half_width() - x_offset;
+        let _world_y_old = c.get_half_height() - y_offset;
 
         let world_x = c.get_half_width() - x_offset + delta_x;
         let world_y = c.get_half_height() - y_offset + delta_y;
 
-        //  println!("with AA    (x/y) = ({}/{})   world_point_old ({}/{})  world_point = ({}/{})     delta: ({}/{}) ", x, y, world_x_old, world_y_old, world_x, world_y, delta_x, delta_y);
+        // println!("with AA    (x/y) = ({}/{})   world_point_old ({}/{})  world_point = ({}/{})     delta: ({}/{}) ", x, y, world_x_old, world_y_old, world_x, world_y, delta_x, delta_y);
 
         let p = Tuple4D::new_point(world_x, world_y, -1.0);
 
@@ -242,7 +242,7 @@ impl CameraOps for Camera {
         canvas
     }
 
-    fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas {
+    fn render_multi_core(c: &Camera, _w: &World, _num_cores: i32) -> Canvas {
         //        let mut canvas_std = Canvas::new(c.get_hsize(), c.get_vsize());
         //
         //        let data = Arc::new(Mutex::new(canvas_std));
@@ -426,12 +426,12 @@ mod tests {
         c.set_transformation(Matrix::view_transform(&from, &to, &up));
 
         let image = Camera::render(&c, &w);
-        let color = image.pixel_at(5, 5);
+        let pixel = image.pixel_at(5, 5);
         let c_expected = Color::new(0.38065884, 0.47582352, 0.28549412);
 
-        println!("color          = {:?}", color);
+        println!("color          = {:?}", &pixel.color);
         println!("c_expected     = {:?}", c_expected);
-        assert_color(color, &c_expected);
+        assert_color(&pixel.color, &c_expected);
     }
 
     //

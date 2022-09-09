@@ -1,6 +1,5 @@
-use crate::prelude::*;
-
 use crate::prelude::patterns::Pattern;
+use crate::prelude::*;
 use crate::DEBUG;
 
 pub const REFRACTION_VACUUM: f32 = 1.0;
@@ -87,11 +86,11 @@ impl MaterialOps for Material {
         intensity: f32,
     ) -> Color {
         let c: Color;
+
         // TODO: a lot of color copying here ...
-        if material.get_pattern().is_some() {
-            c = material.get_pattern().as_ref().unwrap().color_at_object(object, point);
-        } else {
-            c = Color::from_color(&material.color);
+        match material.get_pattern() {
+            None => c = &material.color * light.get_intensity(),
+            Some(pattern) => c = pattern.color_at_object(object, point),
         }
 
         // ambient
@@ -105,13 +104,14 @@ impl MaterialOps for Material {
 
         for v in 0..light.get_vsteps() {
             for u in 0..light.get_usteps() {
+                println!("samples.push   {:?}", World::point_on_light(light, u, v));
                 samples.push(World::point_on_light(light, u, v));
             }
         }
 
         for sample in samples.iter() {
-            let mut specular = BLACK;
-            let mut diffuse = BLACK;
+            let mut specular;
+            let mut diffuse;
 
             let light_v = Tuple4D::normalize(&(sample - point));
             let light_dot_normal = &light_v ^ &n;
@@ -122,7 +122,7 @@ impl MaterialOps for Material {
             } else {
                 diffuse = &effective_color * material.diffuse * light_dot_normal;
                 diffuse.fix_nan();
-                let reflect_v = Tuple4D::reflect(&(light_v * (-1.0)), &n);
+                let reflect_v = Tuple4D::reflect(&light_v, &n) * (-1.0);
                 let reflect_dot_eye = &reflect_v ^ eye;
 
                 specular = BLACK;
@@ -143,7 +143,7 @@ impl MaterialOps for Material {
                         );
                     }
 
-                    let mut factor = reflect_dot_eye.powf(material.shininess);
+                    let factor = reflect_dot_eye.powf(material.shininess);
                     //                    if factor > MAX/2.0 {
                     //                        factor = MAX / 2.0;
                     //                    }
@@ -175,11 +175,7 @@ impl MaterialOps for Material {
         sum.replace_inf_with_max();
         assert_valid_color(&sum);
 
-        if intensity == 1.0 {
-            ambient + sum / light.get_samples() as f32 * intensity
-        } else {
-            ambient
-        }
+        ambient + sum / light.get_samples() as f32 * intensity
     }
 
     fn set_color(&mut self, c: Color) {
@@ -259,8 +255,9 @@ impl MaterialOps for Material {
 mod tests {
     use std::f32::consts::SQRT_2;
 
-    use super::*;
     use crate::prelude::stripe_patterns::StripePattern;
+
+    use super::*;
 
     fn setup() -> (Material, Tuple4D) {
         let m = Material::new();
@@ -476,7 +473,7 @@ mod tests {
         assert_color(&result, &expected_result);
     }
 
-    // lighning uses light insenty
+    // lightning uses light insenty
     #[test]
     fn test_area_lights_lighning_uses_light_insenty() {
         let result = Color::new(1.0, 1.0, 1.0);

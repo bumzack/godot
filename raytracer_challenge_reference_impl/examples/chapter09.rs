@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
 
-    let mut c = Camera::new(800,600, PI / 3.0);
+    let mut c = Camera::new(800, 600, PI / 3.0);
     c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(

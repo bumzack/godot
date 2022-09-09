@@ -3,7 +3,7 @@ use crate::light::light::LightOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::{World, WorldOps};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct PointLight {
     position: Tuple4D,
     intensity: Color,
@@ -19,6 +19,7 @@ impl LightOps for PointLight {
     }
 
     fn get_position(&self) -> &Tuple4D {
+        println!("get_position PointLight    {:?}", &self.position);
         &self.position
     }
 
@@ -58,7 +59,7 @@ impl LightOps for PointLight {
     }
 
     // TODO: clone :-(
-    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+    fn point_on_light(&self, _u: usize, _v: usize) -> Tuple4D {
         self.position.clone()
     }
 }

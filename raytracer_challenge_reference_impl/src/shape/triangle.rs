@@ -37,7 +37,7 @@ impl ShapeOps for Triangle {
         Tuple4D::normalize(&world_normal)
     }
 
-    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
         self.normal.clone()
     }
 

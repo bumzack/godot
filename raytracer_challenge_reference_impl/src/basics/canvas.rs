@@ -1,5 +1,3 @@
-
-
 use crate::basics::{Color, Pixel};
 
 pub type ColorVec = Vec<Color>;

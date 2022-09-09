@@ -127,7 +127,7 @@ mod tests {
     fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f32, t2: f32) {
         let r = Ray::new(origin, direction);
 
-        let c = Cube::new();
+        // let c = Cube::new();
 
         let xs = Cube::intersect(&r).unwrap();
 
@@ -185,7 +185,7 @@ mod tests {
     fn test_ray_cube_miss_helper(origin: Tuple4D, direction: Tuple4D) {
         let r = Ray::new(origin, direction);
 
-        let c = Cube::new();
+        //    let c = Cube::new();
 
         let xs = Cube::intersect(&r);
 

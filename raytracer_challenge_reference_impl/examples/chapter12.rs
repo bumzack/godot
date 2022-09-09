@@ -5,7 +5,7 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let (w, c) = setup_world(800,600);
+    let (w, c) = setup_world(800, 600);
 
     // single core
     let start = Instant::now();

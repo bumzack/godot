@@ -108,10 +108,9 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
                     }
                     None => {}
                 }
-            }
-            ShapeEnum::Group(ref group) => {
-                // let res = Cylinder::intersect(cylinder, &r2);
-            }
+            } // ShapeEnum::Group(ref group) => {
+              //     // let res = Cylinder::intersect(cylinder, &r2);
+              // }
         };
         intersection_list
     }

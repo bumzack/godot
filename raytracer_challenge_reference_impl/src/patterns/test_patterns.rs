@@ -109,7 +109,7 @@ mod tests {
         shape.set_transformation(matrix_scale);
         let shape = Shape::new(ShapeEnum::Sphere(shape));
 
-        let mut p = TestPattern::new();
+        let p = TestPattern::new();
 
         let p = Pattern::TestPattern(p);
         let point = Tuple4D::new_point(2.0, 3.0, 4.0);
@@ -123,7 +123,7 @@ mod tests {
     // page 134 / 2
     #[test]
     fn test_pattern_pattern_transformation() {
-        let mut shape = Sphere::new();
+        let shape = Sphere::new();
         let shape = Shape::new(ShapeEnum::Sphere(shape));
 
         let mut p = TestPattern::new();

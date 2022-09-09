@@ -8,7 +8,7 @@ use crate::math::tuple4d::Tuple4D;
 use crate::world::world::{World, WorldOps};
 use crate::DEBUG;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct AreaLight {
     position: Tuple4D,
     corner: Tuple4D,
@@ -189,7 +189,7 @@ mod tests {
 
         let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
 
-        let corner_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let _corner_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
         let uvec_expected = Tuple4D::new_vector(0.5, 0.0, 0.0);
         let vvec_expected = Tuple4D::new_vector(0.0, 0.0, 0.5);
 

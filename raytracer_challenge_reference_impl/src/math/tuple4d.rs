@@ -1,6 +1,6 @@
 use std::ops::{Add, BitXor, Div, Mul, Sub};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Tuple4D {
     pub x: f32,
     pub y: f32,

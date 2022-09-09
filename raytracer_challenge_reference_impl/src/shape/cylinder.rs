@@ -294,7 +294,7 @@ mod tests {
         let r = Ray::new(point.clone(), direction.clone());
 
         let xs = Cylinder::intersect(&cyl, &r);
-        let xs_clone = xs.clone();
+        // let xs_clone = xs.clone();
 
         //        println!("point        = {:?} ", point);
         //        println!("direction     = {:?} ", direction);

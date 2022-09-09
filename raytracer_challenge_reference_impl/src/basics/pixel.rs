@@ -1,4 +1,4 @@
-use crate::basics::{BLACK, Color};
+use crate::basics::{Color, BLACK};
 
 #[derive(Clone, Debug)]
 pub struct Pixel {
