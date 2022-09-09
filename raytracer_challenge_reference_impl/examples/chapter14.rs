@@ -8,8 +8,8 @@ use std::thread;
 use std::time::Instant;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 640;
-    let height = 480;
+    let width = 1280;
+    let height = 800;
 
     let (w, c) = setup_world(width, height);
 
