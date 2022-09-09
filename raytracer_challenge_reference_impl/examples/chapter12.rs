@@ -5,20 +5,20 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let (w, c) = setup_world(320, 200);
+    let (w, c) = setup_world(800,600);
 
     // single core
     let start = Instant::now();
     // let canvas_std = Camera::render_debug(&c, &w, 226, 241);
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("chapter12.ppm")?;
+    canvas.write_png("img/chapter12.png")?;
     let dur = Instant::now() - start;
     println!("single core duration: {:?}", dur);
 
     // multi core
     //    let start = Instant::now();
     //    let canvas_std = Camera::render_multi_core(&c, &w, 4);
-    //    canvas_std.write_ppm("chapter12_multi_core.ppm")?;
+    //    canvas_std.write_png("img/chapter12_multi_core.png")?;
     //    let dur = Instant::now() - start;
     //    println!("multi core duration: {:?}", dur);
 
@@ -100,7 +100,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -5.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }

@@ -68,18 +68,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
 
-    let mut c = Camera::new(120, 100, PI / 3.0);
+    let mut c = Camera::new(800, 600, PI / 3.0);
     c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -5.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
 
     let start = Instant::now();
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("chapter10.ppm")?;
+    canvas.write_png("img/chapter10.png")?;
     let dur = Instant::now() - start;
 
     println!("DONE in {:?}", dur);

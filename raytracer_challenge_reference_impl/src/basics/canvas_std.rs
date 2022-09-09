@@ -1,12 +1,14 @@
-use crate::{Canvas, CanvasOps};
-use image::ImageBuffer;
-use image::RgbImage;
 use std::fs::File;
 use std::io::{Error, Write};
 
+use image::{ImageBuffer, ImageError};
+use image::RgbImage;
+
+use crate::basics::{Canvas, CanvasOps};
+
 pub trait CanvasOpsStd<'a> {
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;
-    fn write_png(&self, filename: &'a str) -> Result<(), Error>;
+    fn write_png(&self, filename: &'a str) -> Result<(), ImageError>;
 }
 
 impl<'a> CanvasOpsStd<'a> for Canvas {
@@ -46,7 +48,7 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
         Ok(())
     }
 
-    fn write_png(&self, filename: &'a str) -> Result<(), Error> {
+    fn write_png(&self, filename: &'a str) -> Result<(), ImageError> {
         let mut x = 0;
         let mut y = 0;
         let mut idx = 0;

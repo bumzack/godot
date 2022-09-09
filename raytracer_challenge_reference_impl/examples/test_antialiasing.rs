@@ -22,11 +22,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let filename;
     if antialiasing {
         filename = format!(
-            "test_with_anti_aliasing_size_{}_wxh_{}x{}_multi_core.ppm",
+            "test_with_anti_aliasing_size_{}_wxh_{}x{}_multi_core.png",
             antialiasing_size, width, height
         );
     } else {
-        filename = format!("test_no_anti_noaliasing_wxh_{}x{}_multi_core.ppm", width, height);
+        filename = format!("test_no_anti_noaliasing_wxh_{}x{}_multi_core.png", width, height);
     }
 
     let (world, camera) = setup_world(width, height, antialiasing, antialiasing_size);
@@ -172,7 +172,7 @@ fn setup_world(width: usize, height: usize, antialiasing: bool, antialiasing_siz
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -6.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }

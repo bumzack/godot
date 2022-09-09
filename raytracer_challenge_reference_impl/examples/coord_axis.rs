@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let canvas = Camera::render(&camera, &world);
         let dur = Instant::now() - start;
         println!("single core duration: {:?}", dur);
-        canvas.write_ppm("coord_axis_single.ppm")?;
+        canvas.write_png("img/coord_axis_single.png")?;
     }
 
     if multi_core {
@@ -90,7 +90,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let dur = Instant::now() - start;
         println!("multi core duration: {:?}", dur);
         let c = data.lock().unwrap();
-        c.write_ppm("coord_axis_multi.ppm")?;
+        c.write_png("img/coord_axis_multi.png")?;
     }
 
     Ok(())

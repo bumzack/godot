@@ -1,14 +1,16 @@
+use crate::DEBUG;
+use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
-use crate::prelude::*;
-use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct World {
     shapes: Vec<Shape>,
     light: Light,
 }
+
+pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 3;
 
 pub trait WorldOps {
     fn new() -> World;

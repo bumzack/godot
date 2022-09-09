@@ -119,7 +119,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
     let c = data.lock().unwrap();
-    c.write_ppm("chapter14_multi_core_witj_AA.ppm")?;
+    c.write_png("img/chapter14_multi_core_witj_AA.png")?;
 
     Ok(())
 }
@@ -221,7 +221,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -6.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }

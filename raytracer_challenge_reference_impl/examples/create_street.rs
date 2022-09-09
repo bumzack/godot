@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 640;
     let height = 480;
     let filename;
-    filename = "create_street_multi_core.ppm";
+    filename = "create_street_multi_core.png";
 
     let (world, camera) = setup_world(width, height);
 
@@ -114,7 +114,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let z = -2.0;
     let camera_from = Tuple4D::new_point(3.0, 4., z - 6.0);
     let camera_to = Tuple4D::new_point(0.0, 0.0, z);
-    let camera_up = Tuple4D::new_point(0.0, 1.0, 0.0);
+    let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
 
     let mut camera = Camera::new(width, height, 0.50);
     camera.set_antialiasing(false);

@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
     let c = data.lock().unwrap();
-    c.write_ppm("chapter14_multi_core_no_AA.ppm")?;
+    c.write_png("img/chapter14_multi_core_no_AA.png")?;
 
     Ok(())
 }

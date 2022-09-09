@@ -16,9 +16,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 3;
     let filename;
     if antialiasing {
-        filename = format!("soft_shadow_aa_size_{}_multi_core.ppm", antialiasing_size);
+        filename = format!("soft_shadow_aa_size_{}_multi_core.png", antialiasing_size);
     } else {
-        filename = format!("soft_shadow_multi_core_no_aa.ppm",);
+        filename = format!("soft_shadow_multi_core_no_aa.png",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -233,7 +233,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(-3.0, 1., 2.5),
         &Tuple4D::new_point(0.0, 0.5, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
     (w, c)
 }

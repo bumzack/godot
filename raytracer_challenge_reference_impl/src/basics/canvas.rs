@@ -1,13 +1,11 @@
-#[cfg(feature = "use_serde")]
-use serde::{Deserialize, Serialize};
 
-use raytracer_lib_no_std::{Color, Pixel};
+
+use crate::basics::{Color, Pixel};
 
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Canvas {
     width: usize,
     height: usize,

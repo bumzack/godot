@@ -104,12 +104,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(0.0, 1.5, -5.0),
         &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
 
     let start = Instant::now();
     let canvas = Camera::render(&c, &w);
-    canvas.write_ppm("chapter12.ppm")?;
+    canvas.write_png("img/chapter12.png")?;
     let dur = Instant::now() - start;
 
     println!("DONE in {:?}", dur);
