@@ -1,3 +1,5 @@
+extern crate core;
+
 pub mod basics;
 pub mod light;
 pub mod material;

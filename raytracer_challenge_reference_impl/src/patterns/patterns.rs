@@ -19,7 +19,7 @@ pub enum Pattern {
 
 impl Pattern {
     pub fn color_at_object(&self, shape: &Shape, world_point: &Tuple4D) -> Color {
-        let res = match self {
+        match self {
             Pattern::StripePattern(ref stripe_pattern) => {
                 StripePattern::color_at_object(stripe_pattern, shape, world_point)
             }
@@ -31,8 +31,7 @@ impl Pattern {
                 Checker3DPattern::color_at_object(checker3d_pattern, shape, world_point)
             }
             Pattern::TestPattern(ref test_pattern) => TestPattern::color_at_object(test_pattern, shape, world_point),
-        };
-        res
+        }
     }
 
     pub fn set_transformation(&mut self, m: Matrix) {
@@ -46,24 +45,22 @@ impl Pattern {
     }
 
     pub fn get_transformation(&self) -> &Matrix {
-        let res = match self {
+        match self {
             Pattern::StripePattern(ref stripe_pattern) => stripe_pattern.get_transformation(),
             Pattern::GradientPattern(ref gradient_pattern) => gradient_pattern.get_transformation(),
             Pattern::RingPattern(ref ring_pattern) => ring_pattern.get_transformation(),
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_transformation(),
             Pattern::TestPattern(ref test_pattern) => test_pattern.get_transformation(),
-        };
-        res
+        }
     }
 
     pub fn get_inverse_transformation(&self) -> &Matrix {
-        let res = match self {
+        match self {
             Pattern::StripePattern(ref stripe_pattern) => stripe_pattern.get_inverse_transformation(),
             Pattern::GradientPattern(ref gradient_pattern) => gradient_pattern.get_inverse_transformation(),
             Pattern::RingPattern(ref ring_pattern) => ring_pattern.get_inverse_transformation(),
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_inverse_transformation(),
             Pattern::TestPattern(ref test_pattern) => test_pattern.get_inverse_transformation(),
-        };
-        res
+        }
     }
 }
