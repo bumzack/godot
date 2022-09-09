@@ -1,3 +1,5 @@
+use rand::{Rng, thread_rng};
+
 #[derive(Clone, Debug)]
 pub struct Sequence {
     data: Vec<f32>,
@@ -10,20 +12,20 @@ impl Sequence {
     }
 
     pub(crate) fn next(&mut self) -> f32 {
-        let elem = self.data[self.idx % self.data.len()];
-        self.idx += 1;
-        elem
-    }
-
-    fn clear(&mut self) {
-        self.data.clear();
+        if self.data.len() > 0 {
+            let elem = self.data[self.idx % self.data.len()];
+            self.idx += 1;
+            elem
+        } else {
+            let mut rng = thread_rng();
+            rng.gen::<f32>()
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::light::Sequence;
-    use crate::math::tuple4d::Tuple;
 
     // bonus chapter:  A number generator returns a cyclic sequence of numbers
     #[test]

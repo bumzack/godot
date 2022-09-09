@@ -30,10 +30,10 @@ pub trait WorldOps {
 
     fn is_shadowed(w: &World, light_position: &Tuple4D, position: &Tuple4D) -> bool;
 
-    fn intensity_at(light: &Light, point: &Tuple4D, world: &World) -> f32;
+    fn intensity_at(light: &mut Light, point: &Tuple4D, world: &World) -> f32;
     fn refracted_color(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color;
 
-    fn point_on_light(light: &Light, u: usize, v: usize) -> Tuple4D;
+    fn point_on_light(light: &mut Light, u: usize, v: usize) -> Tuple4D;
 
     fn add_floor(&mut self);
 
@@ -82,14 +82,16 @@ impl WorldOps for World {
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
         // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
-        let intensity = World::intensity_at(w.get_light(), comp.get_over_point(), w);
+        let mut l = w.get_light().clone();
+        let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
         if DEBUG {
             println!("intensity = {}", intensity);
         }
+        let mut l = w.get_light().clone();
         let surface = Material::lightning(
             comp.get_object().get_material(),
             comp.get_object(),
-            &w.get_light(),
+            &mut l,
             comp.get_over_point(),
             comp.get_eye_vector(),
             comp.get_normal_vector(),
@@ -211,17 +213,17 @@ impl WorldOps for World {
     //        total / light.get_samples() as f32
     //    }
 
-    fn intensity_at(light: &Light, point: &Tuple4D, world: &World) -> f32 {
+    fn intensity_at(light: &mut Light, point: &Tuple4D, world: &World) -> f32 {
         match light {
-            Light::PointLight(ref point_light) => point_light.intensity_at_point(point, world),
-            Light::AreaLight(ref area_light) => area_light.intensity_at_point(point, world),
+            Light::PointLight(ref mut point_light) => point_light.intensity_at_point(point, world),
+            Light::AreaLight(ref mut area_light) => area_light.intensity_at_point(point, world),
         }
     }
 
-    fn point_on_light(light: &Light, u: usize, v: usize) -> Tuple4D {
+    fn point_on_light(light: &mut Light, u: usize, v: usize) -> Tuple4D {
         match light {
-            Light::PointLight(ref point_light) => point_light.point_on_light(u, v),
-            Light::AreaLight(ref area_light) => area_light.point_on_light(u, v),
+            Light::PointLight(ref mut point_light) => point_light.point_on_light(u, v),
+            Light::AreaLight(ref mut area_light) => area_light.point_on_light(u, v),
         }
     }
 
@@ -1113,8 +1115,8 @@ mod tests {
     // bonus: helper Scenario Outline: Point lights evaluate the light intensity at a given point
     fn test_area_lights_intensity_between_2_points_helper(point: Tuple4D, expected_result: f32) {
         let w = default_world();
-        let light = w.light.clone();
-        let result = World::intensity_at(&light, &point, &w);
+        let mut light = w.light.clone();
+        let result = World::intensity_at(&mut light, &point, &w);
         assert_eq!(result, expected_result);
     }
 
@@ -1170,7 +1172,8 @@ mod tests {
         let material = w.get_shapes()[0].get_material();
         let shape = &w.get_shapes()[0];
 
-        let result = Material::lightning(material, shape, w.get_light(), &point, &eyev, &normalv, intensity);
+        let mut l = w.get_light().clone();
+        let result = Material::lightning(material, shape, &mut l, &point, &eyev, &normalv, intensity);
 
         println!("expected result   = {:?}", expected_result);
         println!("result           = {:?}", result);
@@ -1181,17 +1184,17 @@ mod tests {
     // bonus: Scenario Outline: lighting() uses light intensity to attenuate color
     #[test]
     fn test_area_lights_use_lightning_intensity_t_attenuate_color() {
-        let expected_color = Color::new(1., 1.0, 1.);
+        let expected_color = Color::new(1.0, 1.0, 1.0);
         test_area_lights_use_lightning_intensity_t_attenuate_color_helper(1.0, expected_color);
-
-        let expected_color = Color::new(0.1, 0.1, 0.1);
-        test_area_lights_use_lightning_intensity_t_attenuate_color_helper(0.0, expected_color);
 
         let expected_color = Color::new(0.55, 0.55, 0.55);
         test_area_lights_use_lightning_intensity_t_attenuate_color_helper(0.5, expected_color);
+
+        let expected_color = Color::new(0.1, 0.1, 0.1);
+        test_area_lights_use_lightning_intensity_t_attenuate_color_helper(0.0, expected_color);
     }
 
-    // bonus: Scenario Outline: Finding a single point on an area light
+    // bonus: helper Scenario Outline: Finding a single point on an area light
     fn test_area_lights_single_point_on_area_light_helper(u: f32, v: f32, expected_result: Tuple4D) {
         let corner = Tuple4D::new_point(0.0, 0.0, 0.0);
         let v1 = Tuple4D::new_vector(2.0, 0.0, 0.0);
@@ -1202,8 +1205,8 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![]));
-        let light = Light::AreaLight(arealight);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.5]));
+        let mut light = Light::AreaLight(arealight);
 
         let result = light.point_on_light(u as usize, v as usize);
 
@@ -1244,10 +1247,10 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![]));
-        let light = Light::AreaLight(arealight);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.5]));
+        let mut light = Light::AreaLight(arealight);
 
-        let result = World::intensity_at(&light, &point, &w);
+        let result = World::intensity_at(&mut light, &point, &w);
 
         println!("expected result = {},    result = {}", expected_result, result);
 
@@ -1273,7 +1276,7 @@ mod tests {
         test_area_lights_intensity_at_helper(point, 1.0);
     }
 
-    // bonus: Scenario Outline: Finding a single point on a jittered area light
+    // bonus: helper Scenario Outline: Finding a single point on a jittered area light
     fn test_area_lights_find_point_on_jittered_area_light_helper(u: usize, v: usize, expected_result: Tuple4D) {
         let corner = Tuple4D::new_point(0., 0., 0.0);
         let v1 = Tuple4D::new_vector(2.0, 0.0, 0.0);
@@ -1285,7 +1288,7 @@ mod tests {
         let intensity = Color::new(1.0, 1.0, 1.0);
 
         let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.3, 0.7]));
-        let light = Light::AreaLight(arealight);
+        let mut light = Light::AreaLight(arealight);
 
         let result = light.point_on_light(u, v);
 
@@ -1295,12 +1298,7 @@ mod tests {
         assert_tuple(&expected_result, &result);
     }
 
-    // bonus: Scenario Outline: The area light intensity function
-    // TODO: thats not sooo easy. if we have a random nr sequence on an
-    // area light, that means that the lights has to be mutable and then
-    // we have to change that everywhere and borrowing becomes a PITA
-    // so no test
-    //    #[ignore]
+    // bonus: Scenario Outline: Finding a single point on a jittered area light
     #[test]
     fn test_area_lights_find_point_on_jittered_area_light() {
         let point = Tuple4D::new_point(0.15, 0.0, 0.35);
@@ -1319,6 +1317,49 @@ mod tests {
         test_area_lights_find_point_on_jittered_area_light_helper(3, 1, point);
     }
 
-    // TODO: implement mussing test  from http://www.raytracerchallenge.com/bonus/area-light.html
-    // Scenario Outline: The area light with jittered samples
+
+
+    // bonus helper: Scenario Outline: The area light with jittered samples
+    fn test_area_lights_with_jittered_examples_helper(point: Tuple4D, expected_result: f32) {
+        let w = default_world();
+
+        let corner = Tuple4D::new_point(-0.5, -0.5, -5.0);
+        let v1 = Tuple4D::new_vector(1.0, 0.0, 0.0);
+        let v2 = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+        let usteps = 2;
+        let vsteps = 2;
+
+        let intensity = Color::new(1.0, 1.0, 1.0);
+
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.7, 0.3, 0.9,0.1,0.5]));
+        let mut light = Light::AreaLight(arealight);
+
+        let result = World::intensity_at(&mut light, &point, &w);
+
+        println!("expected result   = {:?} ", expected_result);
+        println!("result            = {:?} ", result);
+
+        assert_eq!(&expected_result, &result);
+    }
+
+
+    // bonus: Scenario Outline: The area light with jittered samples
+    #[test]
+    fn test_area_lights_with_jittered_examples() {
+        let point = Tuple4D::new_point(0.0, 0.0, 2.0);
+        test_area_lights_with_jittered_examples_helper( point, 0.0);
+
+        let point = Tuple4D::new_point(1.0, -1.0, 2.0);
+        test_area_lights_with_jittered_examples_helper( point, 0.5);
+
+        let point = Tuple4D::new_point(1.5, 0.0, 2.0);
+        test_area_lights_with_jittered_examples_helper( point, 0.75);
+
+        let point = Tuple4D::new_point(1.25, 1.25, 3.0);
+        test_area_lights_with_jittered_examples_helper( point, 0.75);
+
+        let point = Tuple4D::new_point(0.0, 0.0, -2.0);
+        test_area_lights_with_jittered_examples_helper( point, 1.0);
+    }
 }

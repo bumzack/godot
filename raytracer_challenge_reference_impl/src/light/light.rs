@@ -25,9 +25,9 @@ pub trait LightOps {
     fn get_usteps(&self) -> usize;
     fn get_vsteps(&self) -> usize;
 
-    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32;
+    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f32;
 
-    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D;
+    fn point_on_light(&mut self, u: usize, v: usize) -> Tuple4D;
 }
 
 impl LightOps for Light {
@@ -109,18 +109,18 @@ impl LightOps for Light {
         res
     }
 
-    fn intensity_at_point(&self, point: &Tuple4D, world: &World) -> f32 {
+    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f32 {
         let res = match self {
-            Light::PointLight(ref point_light) => point_light.intensity_at_point(point, world),
-            Light::AreaLight(ref pl) => pl.intensity_at_point(point, world),
+            Light::PointLight(ref mut point_light) => point_light.intensity_at_point(point, world),
+            Light::AreaLight(ref mut pl) => pl.intensity_at_point(point, world),
         };
         res
     }
 
-    fn point_on_light(&self, u: usize, v: usize) -> Tuple4D {
+    fn point_on_light(&mut self, u: usize, v: usize) -> Tuple4D {
         let res = match self {
-            Light::PointLight(ref point_light) => point_light.point_on_light(u, v),
-            Light::AreaLight(ref area_light) => area_light.point_on_light(u, v),
+            Light::PointLight(ref mut point_light) => point_light.point_on_light(u, v),
+            Light::AreaLight(ref mut area_light) => area_light.point_on_light(u, v),
         };
         res
     }

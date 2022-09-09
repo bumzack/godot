@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if antialiasing {
         filename = format!("soft_shadow_aa_size_{}_multi_core.png", antialiasing_size);
     } else {
-        filename = format!("soft_shadow_multi_core_no_aa.png",);
+        filename = format!("soft_shadow_multi_core_no_aa.png", );
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -112,7 +112,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
                         color = color / n_samples as f32;
-                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                        // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);
                         color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
