@@ -8,7 +8,7 @@ pub const REFRACTION_WATER: f32 = 1.333;
 pub const REFRACTION_GLASS: f32 = 1.52;
 pub const REFRACTION_DIAMOND: f32 = 2.417;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Material {
     color: Color,
     ambient: f32,

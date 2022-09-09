@@ -1,46 +1,38 @@
 use std::f32::consts::PI;
 
-use crate::basics::color::{BLACK, Color, ColorOps, WHITE};
+use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::Tuple;
 use crate::math::tuple4d::Tuple4D;
+use crate::math::Tuple;
 use crate::prelude::ShapeOps;
 use crate::shape::shape::Shape;
 
-#[derive(Clone, Debug)]
-pub struct TexturePattern {
+#[derive(PartialEq, Debug, Clone)]
+pub struct SphereTexturePattern {
     checker: Checker,
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
 }
 
-impl TexturePattern {
-    pub fn new(checker: Checker) -> TexturePattern {
-        TexturePattern {
+impl SphereTexturePattern {
+    pub fn new(checker: Checker) -> SphereTexturePattern {
+        SphereTexturePattern {
             checker,
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
         }
     }
 
-    pub fn pattern_at<F>(pattern: &TextureMap<F>, point: &Tuple4D) -> Color
-        where F: Fn(&Tuple4D) -> (f32, f32)
-    {
-        BLACK
+    pub fn pattern_at(pattern: &SphereTexturePattern, p: &Tuple4D) -> Color {
+        let (u, v) = spherical_map(p);
+        uv_pattern_at(&pattern.checker, u, v)
     }
 
-
-    pub fn color_at<F>(pattern: &TextureMap<F>, point: &Tuple4D) -> Color
-        where F: Fn(&Tuple4D) -> (f32, f32) {
-        BLACK
-    }
-
-    pub fn color_at_object(pattern: &TexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {
+    pub fn color_at_object(pattern: &SphereTexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {
         let object_point = shape.get_inverse_transformation() * world_point;
         let pattern_point = pattern.get_inverse_transformation() * &object_point;
-        //Self::color_at(pattern, &pattern_point)
-        BLACK
+        SphereTexturePattern::pattern_at(pattern, &pattern_point)
     }
 
     pub fn set_transformation(&mut self, m: Matrix) {
@@ -57,8 +49,7 @@ impl TexturePattern {
     }
 }
 
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Checker {
     width: usize,
     height: usize,
@@ -66,7 +57,7 @@ pub struct Checker {
     color_b: Color,
 }
 
-fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color) -> Checker {
+pub  fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color) -> Checker {
     Checker {
         width,
         height,
@@ -85,7 +76,6 @@ fn uv_pattern_at(checker: &Checker, u: f32, v: f32) -> Color {
     }
 }
 
-
 fn spherical_map(p: &Tuple4D) -> (f32, f32) {
     let theta = p.x.atan2(p.z);
     let vector = Tuple4D::new_vector(p.x, p.y, p.z);
@@ -96,29 +86,6 @@ fn spherical_map(p: &Tuple4D) -> (f32, f32) {
     let v = 1.0 - phi / PI;
     (u, v)
 }
-
-pub struct TextureMap<F>
-    where F: Fn(&Tuple4D) -> (f32, f32) {
-    checker: Checker,
-    map: F,
-}
-
-impl<F> TextureMap<F>
-    where F: Fn(&Tuple4D) -> (f32, f32) {
-    pub fn new(f: F, checker: Checker) -> Self {
-        TextureMap {
-            checker,
-            map: f,
-        }
-    }
-}
-
-fn pattern_at<F>(pattern: &TextureMap<F>, p: &Tuple4D) -> Color
-    where F: Fn(&Tuple4D) -> (f32, f32) {
-    let (u, v) = (pattern.map)(p);
-    uv_pattern_at(&pattern.checker, u, v)
-}
-
 
 #[cfg(test)]
 mod tests {
@@ -176,55 +143,53 @@ mod tests {
         assert_color(actual, expected);
     }
 
-
     // bonus: Scenario outline: Using a texture map pattern with a spherical map
     #[test]
     fn test_texture_mapping_using_spherical_map() {
         let checker = uv_checkers(16, 8, BLACK, WHITE);
 
-        let pattern = TextureMap::new(spherical_map, checker);
+        let pattern = SphereTexturePattern::new(checker);
 
         let p = Tuple4D::new_point(0.4315, 0.467, 0.7719);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &WHITE);
 
         let p = Tuple4D::new_point(-0.9654, 0.2552, -0.0534);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
 
         let p = Tuple4D::new_point(0.1039, 0.7090, 0.6975);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &WHITE);
 
         let p = Tuple4D::new_point(-0.4986, -0.7856, -0.3663);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
 
         let p = Tuple4D::new_point(-0.0317, -0.9395, 0.3411);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
 
         let p = Tuple4D::new_point(0.4809, -0.7721, 0.4154);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
 
         let p = Tuple4D::new_point(0.0285, -0.9612, -0.2745);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
 
         let p = Tuple4D::new_point(-0.5734, -0.2162, -0.7903);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &WHITE);
 
         let p = Tuple4D::new_point(0.07688, -0.147, 0.6223);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
 
         let p = Tuple4D::new_point(-0.7652, 0.2175, 0.6060);
-        let actual = pattern_at(&pattern, &p);
+        let actual = SphereTexturePattern::pattern_at(&pattern, &p);
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
     }
-
 
     fn assert_tuple(actual: (f32, f32), expected: (f32, f32)) {
         assert_two_float(actual.0, expected.0);

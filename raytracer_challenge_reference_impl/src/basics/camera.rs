@@ -324,7 +324,7 @@ mod tests {
 
     use crate::basics::color::{Color, ColorOps};
     use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
-    use crate::world::world::default_world;
+    use crate::prelude::default_world;
 
     use super::*;
 
