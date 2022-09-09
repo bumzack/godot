@@ -1,14 +1,13 @@
 extern crate rand;
 
-use rand::Rng;
-
 use crate::basics::color::Color;
-use crate::DEBUG;
 use crate::light::light::LightOps;
+use crate::light::Sequence;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::{World, WorldOps};
+use crate::DEBUG;
 
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug)]
 pub struct AreaLight {
     position: Tuple4D,
     corner: Tuple4D,
@@ -17,7 +16,7 @@ pub struct AreaLight {
     usteps: usize,
     vsteps: usize,
     intensity: Color,
-    //    jitter_sequence: Sequence,
+    jitter_sequence: Sequence,
 }
 
 impl LightOps for AreaLight {
@@ -75,7 +74,6 @@ impl LightOps for AreaLight {
                 }
             }
         }
-       //  println!("self.get_samples()  = {:?}      total {}", self.get_samples(), total);
 
         total / self.get_samples() as f32
     }
@@ -89,6 +87,9 @@ impl LightOps for AreaLight {
         // let u_idx: f32 = u as f32 + rng.gen::<f32>();
         // let v_idx: f32 = v as f32 + rng.gen::<f32>();
         //
+        // let u_pos = self.get_uvec() * (u as f32 + &self.jitter_sequence.next());
+        // let v_pos = self.get_vvec() * (v as f32 +& self.jitter_sequence.next());
+
         let u_pos = self.get_uvec() * (u as f32 + 0.5);
         let v_pos = self.get_vvec() * (v as f32 + 0.5);
 
@@ -97,7 +98,15 @@ impl LightOps for AreaLight {
 }
 
 impl AreaLight {
-    pub fn new(corner: Tuple4D, v1: Tuple4D, usteps: usize, v2: Tuple4D, vsteps: usize, intensity: Color) -> AreaLight {
+    pub fn new(
+        corner: Tuple4D,
+        v1: Tuple4D,
+        usteps: usize,
+        v2: Tuple4D,
+        vsteps: usize,
+        intensity: Color,
+        jitter_sequence: Sequence,
+    ) -> AreaLight {
         let uvec = &v1 / usteps;
         let vvec = &v2 / vsteps;
         let position = &corner + &(&v1 / 2.0) + (&v2 / 2.0);
@@ -110,7 +119,7 @@ impl AreaLight {
             usteps,
             vsteps,
             intensity,
-            //            jitter_sequence: Sequence::new(usteps * vsteps),
+            jitter_sequence,
         }
     }
 
@@ -188,7 +197,7 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![]));
 
         let _corner_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
         let uvec_expected = Tuple4D::new_vector(0.5, 0.0, 0.0);

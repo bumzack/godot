@@ -495,7 +495,7 @@ mod tests {
         let vsteps = 2;
 
         let intensity = Color::new(1.0, 1.0, 1.0);
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![]));
         let light = Light::AreaLight(arealight);
 
         let mut sphere = Sphere::new();

@@ -1,5 +1,3 @@
-#![feature(stmt_expr_attributes)]
-
 extern crate num_cpus;
 
 use std::error::Error;
@@ -161,7 +159,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let usteps = 6;
     let vsteps = 6;
     let intensity = Color::new(1.5, 1.5, 1.5);
-    let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity);
+    let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
     let area_light = Light::AreaLight(area_light);
 
     // ---- CUBE -------

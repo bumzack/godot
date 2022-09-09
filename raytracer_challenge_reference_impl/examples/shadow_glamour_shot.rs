@@ -1,5 +1,3 @@
-#![feature(stmt_expr_attributes)]
-
 extern crate num_cpus;
 
 use std::error::Error;

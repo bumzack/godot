@@ -4,7 +4,7 @@ use crate::light::pointlight::PointLight;
 use crate::math::tuple4d::Tuple4D;
 use crate::world::world::World;
 
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug)]
 pub enum Light {
     PointLight(PointLight),
     AreaLight(AreaLight),

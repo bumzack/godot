@@ -1,8 +1,8 @@
-use crate::DEBUG;
-use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
+use crate::prelude::*;
+use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct World {
@@ -141,10 +141,7 @@ impl WorldOps for World {
         if comp.get_object().get_material().get_reflective() == 0.0 {
             return BLACK;
         }
-        let reflect_ray = Ray::new(
-            *comp.get_over_point(),
-            *comp.get_reflected_vector(),
-        );
+        let reflect_ray = Ray::new(*comp.get_over_point(), *comp.get_reflected_vector());
         let color = World::color_at(w, &reflect_ray, remaining - 1);
         &color * comp.get_object().get_material().get_reflective()
     }
@@ -1116,7 +1113,7 @@ mod tests {
     // bonus: helper Scenario Outline: Point lights evaluate the light intensity at a given point
     fn test_area_lights_intensity_between_2_points_helper(point: Tuple4D, expected_result: f32) {
         let w = default_world();
-        let light = w.light;
+        let light = w.light.clone();
         let result = World::intensity_at(&light, &point, &w);
         assert_eq!(result, expected_result);
     }
@@ -1205,7 +1202,7 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![]));
         let light = Light::AreaLight(arealight);
 
         let result = light.point_on_light(u as usize, v as usize);
@@ -1247,7 +1244,7 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![]));
         let light = Light::AreaLight(arealight);
 
         let result = World::intensity_at(&light, &point, &w);
@@ -1278,8 +1275,6 @@ mod tests {
 
     // bonus: Scenario Outline: Finding a single point on a jittered area light
     fn test_area_lights_find_point_on_jittered_area_light_helper(u: usize, v: usize, expected_result: Tuple4D) {
-        let _w = default_world();
-
         let corner = Tuple4D::new_point(0., 0., 0.0);
         let v1 = Tuple4D::new_vector(2.0, 0.0, 0.0);
         let v2 = Tuple4D::new_vector(0.0, 0.0, 1.0);
@@ -1289,9 +1284,7 @@ mod tests {
 
         let intensity = Color::new(1.0, 1.0, 1.0);
 
-        let _sequence = vec![0.3, 0.7];
-        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity);
-        // arealight.set_test_sequence(sequence);
+        let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.3, 0.7]));
         let light = Light::AreaLight(arealight);
 
         let result = light.point_on_light(u, v);
