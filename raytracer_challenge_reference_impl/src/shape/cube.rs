@@ -9,6 +9,16 @@ pub struct Cube {
     material: Material,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum CubeFace {
+    LEFT,
+    RIGHT,
+    FRONT,
+    BACK,
+    UP,
+    DOWN,
+}
+
 impl ShapeOps for Cube {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
@@ -113,15 +123,40 @@ impl Cube {
         }
         (tmin, tmax)
     }
+
+    pub fn face_from_point(p: &Tuple4D) -> CubeFace {
+        let abs_x = p.x.abs();
+        let abs_y = p.y.abs();
+        let abs_z = p.z.abs();
+
+        let coord = max_float(abs_x, abs_y, abs_z);
+
+        if coord-p.x<EPSILON {
+            return CubeFace::RIGHT;
+        }
+        if coord +p.x <EPSILON{
+            return CubeFace::LEFT;
+        }
+        if coord - p.y <EPSILON{
+            return CubeFace::UP;
+        }
+        if coord +p.y <EPSILON{
+            return CubeFace::DOWN;
+        }
+        if coord -p.z <EPSILON{
+            return CubeFace::FRONT;
+        }
+        CubeFace::BACK
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::basics::ray::RayOps;
     use crate::math::common::{assert_float, assert_tuple};
+    use crate::prelude::ShapeOps;
 
     use super::*;
-    use crate::prelude::ShapeOps;
 
     // page 168 helper
     fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f32, t2: f32) {
@@ -229,11 +264,6 @@ mod tests {
     fn test_cube_normal_helper(point: Tuple4D, n_expected: Tuple4D) {
         let c = Cube::new();
         let n = c.normal_at(&point);
-
-        println!("point        = {:?} ", point);
-        println!("expected n   = {:?} ", n_expected);
-        println!("actual   n   = {:?} ", n);
-
         assert_tuple(&n, &n_expected);
     }
 
@@ -279,5 +309,33 @@ mod tests {
         let point = Tuple4D::new_point(-1., -1., -1.);
         let n_expected = Tuple4D::new_vector(-1.0, 0.0, 0.0);
         test_cube_normal_helper(point, n_expected);
+    }
+
+    // bonus cube mapping Scenario Outline: Identifying the face of a cube from a point
+    #[test]
+    fn test_cube_mapping_face_from_point() {
+        let p = Tuple4D::new_point(-1.0, 0.5, -0.25);
+        let face = Cube::face_from_point(&p);
+        assert_eq!(face, CubeFace::LEFT);
+
+        let p = Tuple4D::new_point(1.1, -0.75, 0.8);
+        let face = Cube::face_from_point(&p);
+        assert_eq!(face, CubeFace::RIGHT);
+
+        let p = Tuple4D::new_point(0.1, 0.6, 0.9);
+        let face = Cube::face_from_point(&p);
+        assert_eq!(face, CubeFace::FRONT);
+
+        let p = Tuple4D::new_point(-0.7, 0., -2.);
+        let face = Cube::face_from_point(&p);
+        assert_eq!(face, CubeFace::BACK);
+
+        let p = Tuple4D::new_point(0.5, 1., 0.9);
+        let face = Cube::face_from_point(&p);
+        assert_eq!(face, CubeFace::UP);
+
+        let p = Tuple4D::new_point(-0.2, -1.3, 1.1);
+        let face = Cube::face_from_point(&p);
+        assert_eq!(face, CubeFace::DOWN);
     }
 }

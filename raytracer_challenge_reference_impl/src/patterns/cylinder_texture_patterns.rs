@@ -3,9 +3,9 @@ use std::f32::consts::PI;
 use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
-use crate::math::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::patterns::{Checker, uv_pattern_at};
+use crate::math::Tuple;
+use crate::patterns::{uv_pattern_at, Checker};
 use crate::prelude::ShapeOps;
 use crate::shape::shape::Shape;
 
@@ -54,7 +54,7 @@ fn cylindrical_map(p: &Tuple4D) -> (f32, f32) {
     let theta = p.x.atan2(p.z);
     let raw_u = theta / (2.0 * PI);
     let u = 1.0 - (raw_u + 0.5);
-    let v = p.y % 1.0;
+    let v = p.y .rem_euclid(1.0);
     (u, v)
 }
 
@@ -93,16 +93,13 @@ mod tests {
         let actual = cylindrical_map(&p);
         assert_tuple(actual, (0.375, 0.5));
 
-
         let p = Tuple4D::new_point(0., -0.25, 1.0);
         let actual = cylindrical_map(&p);
         assert_tuple(actual, (0.5, 0.75));
 
-
         let p = Tuple4D::new_point(-FRAC_1_SQRT_2, 0.5, FRAC_1_SQRT_2);
         let actual = cylindrical_map(&p);
         assert_tuple(actual, (0.625, 0.5));
-
 
         let p = Tuple4D::new_point(-1., 1.25, 0.0);
         let actual = cylindrical_map(&p);
@@ -114,7 +111,7 @@ mod tests {
     }
 
     fn assert_tuple(actual: (f32, f32), expected: (f32, f32)) {
-        assert_two_float(actual.0.0, expected.0);
-        assert_two_float(actual.0.0, expected.0);
+        assert_two_float(actual.0, expected.0);
+        assert_two_float(actual.0, expected.0);
     }
 }

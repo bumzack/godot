@@ -48,8 +48,8 @@ impl PlaneTexturePattern {
     }
 }
 
-fn planar_map(p: &Tuple4D) -> (f32, f32) {
-    (p.x % 1.0, p.z % 1.0)
+pub fn planar_map(p: &Tuple4D) -> (f32, f32) {
+    (p.x .rem_euclid(1.0), p.z .rem_euclid(1.0))
 }
 
 #[cfg(test)]

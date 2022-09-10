@@ -59,41 +59,39 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
     let c = data.lock().unwrap();
-    c.write_png("./checker_cylinder_bonus.png")?;
+    c.write_png("./align_checker_plane_bonus.png")?;
     println!("file exported");
     Ok(())
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let checker = uv_checkers(16, 8, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
-    let checker_3d = CylinderTexturePattern::new(checker);
-    let p = Pattern::CylinderTexturePattern(checker_3d);
+    let main = Color::new(1.0, 1.0, 1.0);
+    let ul = Color::new(1.0, 0.0, 0.0);
+    let ur = Color::new(1.0, 1.0, 0.0);
+    let bl = Color::new(0.0, 1.0, 0.0);
+    let br = Color::new(0.0, 1.0, 1.0);
 
-    let trans = Matrix::translation(0.0, -0.5, 0.0);
-    let scale = Matrix::scale(1.0, PI, 1.0);
-    let p_transformed = &scale * &trans;
+    let cube_checker = CubeChecker::new(main, ul, ur, bl, br);
+    let texture = AlignCheckTexturePattern::new(cube_checker);
 
-    let mut cylinder = Cylinder::new();
-    cylinder.set_transformation(p_transformed);
-    cylinder.set_minimum(0.0);
-    cylinder.set_maximum(1.0);
-    cylinder.get_material_mut().set_pattern(p);
-    cylinder.get_material_mut().set_ambient(0.1);
-    cylinder.get_material_mut().set_specular(0.4);
-    cylinder.get_material_mut().set_diffuse(0.8);
-    cylinder.get_material_mut().set_shininess(15.0);
+    let p = Pattern::AlignCheckTexturePattern(texture);
+
+    let mut plane = Plane::new();
+    plane.get_material_mut().set_pattern(p);
+    plane.get_material_mut().set_ambient(0.1);
+    plane.get_material_mut().set_diffuse(0.8);
 
     let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
     w.set_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
+    w.add_shape(Shape::new(ShapeEnum::Plane(plane)));
 
-    let mut c = Camera::new(width, height, 0.5);
+    let mut c = Camera::new(width, height, 0.9);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 0.0, -10.0),
+        &Tuple4D::new_point(1.0, 2.0, -5.0),
         &Tuple4D::new_point(0.0, 0.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
