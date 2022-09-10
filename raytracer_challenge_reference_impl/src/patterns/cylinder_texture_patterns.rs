@@ -54,7 +54,7 @@ fn cylindrical_map(p: &Tuple4D) -> (f32, f32) {
     let theta = p.x.atan2(p.z);
     let raw_u = theta / (2.0 * PI);
     let u = 1.0 - (raw_u + 0.5);
-    let v = p.y .rem_euclid(1.0);
+    let v = p.y.rem_euclid(1.0);
     (u, v)
 }
 

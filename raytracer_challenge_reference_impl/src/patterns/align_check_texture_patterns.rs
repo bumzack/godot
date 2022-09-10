@@ -22,7 +22,7 @@ impl AlignCheckTexturePattern {
     }
 
     pub fn pattern_at(pattern: &AlignCheckTexturePattern, p: &Tuple4D) -> Color {
-        let (u, v) = (p.x .rem_euclid(1.0), p.z .rem_euclid(1.0));
+        let (u, v) = (p.x.rem_euclid(1.0), p.z.rem_euclid(1.0));
         uv_align_check_pattern_at(&pattern.checker, u, v).clone()
     }
 

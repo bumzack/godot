@@ -131,19 +131,19 @@ impl Cube {
 
         let coord = max_float(abs_x, abs_y, abs_z);
 
-        if coord-p.x<EPSILON {
+        if coord - p.x < EPSILON {
             return CubeFace::RIGHT;
         }
-        if coord +p.x <EPSILON{
+        if coord + p.x < EPSILON {
             return CubeFace::LEFT;
         }
-        if coord - p.y <EPSILON{
+        if coord - p.y < EPSILON {
             return CubeFace::UP;
         }
-        if coord +p.y <EPSILON{
+        if coord + p.y < EPSILON {
             return CubeFace::DOWN;
         }
-        if coord -p.z <EPSILON{
+        if coord - p.z < EPSILON {
             return CubeFace::FRONT;
         }
         CubeFace::BACK

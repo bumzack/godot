@@ -5,10 +5,10 @@ use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
-use crate::patterns::{CubeChecker, uv_align_check_pattern_at};
+use crate::patterns::{uv_align_check_pattern_at, CubeChecker};
 use crate::prelude::{CubeFace, ShapeOps};
-use crate::shape::Cube;
 use crate::shape::shape::Shape;
+use crate::shape::Cube;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct CubeTexturePattern {
@@ -74,7 +74,7 @@ pub fn cube_uv_back(p: &Tuple4D) -> (f32, f32) {
 pub fn cube_uv_left(p: &Tuple4D) -> (f32, f32) {
     println!("cube_uv_left  p {:?}", p);
     let (u, v) = (((p.z - 1.0).rem_euclid(2.0)) / 2.0, ((p.y + 1.0).rem_euclid(2.0)) / 2.0);
-    println!(" u, v =   {:?}, {}    ", u, v   );
+    println!(" u, v =   {:?}, {}    ", u, v);
     (u, v)
 }
 
