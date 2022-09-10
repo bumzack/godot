@@ -1,7 +1,6 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -18,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let num_cores = num_cpus::get() + 1;
     println!("using {} cores", num_cores);
-    let mut canvas = Canvas::new(c.get_hsize(), c.get_vsize());
+    let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
 
     let data = Arc::new(Mutex::new(canvas));
     let mut children = vec![];
@@ -59,37 +58,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
     let c = data.lock().unwrap();
-    c.write_png("img/checker_sphere_bonus.png")?;
+    c.write_png("./checker_sphere_bonus.png")?;
     println!("file exported");
     Ok(())
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(20, 10, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
-    let mut checker_3d = SphereTexturePattern::new(checker);
+    let checker_3d = SphereTexturePattern::new(checker);
     let p = Pattern::SphereTexturePattern(checker_3d);
 
-
-    let mut cube = Cube::new();
-    cube.get_material_mut().set_pattern(p);
-    cube.get_material_mut().set_ambient(0.1);
-    cube.get_material_mut().set_specular(0.4);
-    cube.get_material_mut().set_diffuse(0.6);
-    cube.get_material_mut().set_shininess(10.0);
-
+    let mut sphere = Sphere::new();
+    sphere.get_material_mut().set_pattern(p);
+    sphere.get_material_mut().set_ambient(0.1);
+    sphere.get_material_mut().set_specular(0.4);
+    sphere.get_material_mut().set_diffuse(0.6);
+    sphere.get_material_mut().set_shininess(10.0);
 
     let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
     w.set_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube)));
+    w.add_shape(Shape::new(ShapeEnum::Sphere(sphere)));
 
-
-    let mut c = Camera::new(width, height, 0.20);
+    let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(10.0, -10.0, -2.0),
+        &Tuple4D::new_point(0.0, 0.0, -5.0),
         &Tuple4D::new_point(0.0, 0.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));

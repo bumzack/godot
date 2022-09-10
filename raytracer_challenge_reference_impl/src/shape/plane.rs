@@ -22,13 +22,14 @@ impl ShapeOps for Plane {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        // TODO: its for the tests -remove and fix tests and add unreachable
-        let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
+    fn normal_at(&self, _world_point: &Tuple4D) -> Tuple4D {
+        // // TODO: its for the tests -remove and fix tests and add unreachable
+        // let object_point = self.get_inverse_transformation() * world_point;
+        // let local_normal = self.local_normal_at(&object_point);
+        // let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        // world_normal.w = 0.0;
+        // Tuple4D::normalize(&world_normal)
+        unimplemented!()
     }
 
     fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
@@ -89,8 +90,6 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        //   let p = Plane::new();
-
         let intersections = Plane::intersect(&r);
 
         assert_eq!(intersections.is_none(), true);
@@ -125,8 +124,6 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        //   let s = Sphere::new();
-
         let intersections = Sphere::intersect(&r);
 
         assert_eq!(intersections, None);
@@ -137,8 +134,6 @@ mod tests {
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
-
-        //  let s = Sphere::new();
 
         let intersections = Sphere::intersect(&r).unwrap();
 
@@ -153,8 +148,6 @@ mod tests {
         let o = Tuple4D::new_point(0.0, 0.0, 5.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
-
-        //  let s = Sphere::new();
 
         let intersections = Sphere::intersect(&r).unwrap();
 

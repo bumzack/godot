@@ -7,6 +7,7 @@ use crate::patterns::ring_patterns::RingPattern;
 use crate::patterns::sphere_texture_patterns::SphereTexturePattern;
 use crate::patterns::stripe_patterns::StripePattern;
 use crate::patterns::test_patterns::TestPattern;
+use crate::patterns::PlaneTexturePattern;
 use crate::shape::shape::Shape;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -17,6 +18,7 @@ pub enum Pattern {
     Checker3DPattern(Checker3DPattern),
     TestPattern(TestPattern),
     SphereTexturePattern(SphereTexturePattern),
+    PLaneTexturePattern(PlaneTexturePattern),
 }
 
 impl Pattern {
@@ -36,6 +38,9 @@ impl Pattern {
             Pattern::SphereTexturePattern(ref sphere_texture_pattern) => {
                 SphereTexturePattern::color_at_object(sphere_texture_pattern, shape, world_point)
             }
+            Pattern::PLaneTexturePattern(ref plane_texture_pattern) => {
+                PlaneTexturePattern::color_at_object(plane_texture_pattern, shape, world_point)
+            }
         }
     }
 
@@ -46,7 +51,8 @@ impl Pattern {
             Pattern::RingPattern(ref mut ring_pattern) => ring_pattern.set_transformation(m),
             Pattern::Checker3DPattern(ref mut checker3d_pattern) => checker3d_pattern.set_transformation(m),
             Pattern::TestPattern(ref mut test_pattern) => test_pattern.set_transformation(m),
-            Pattern::SphereTexturePattern(ref mut test_pattern) => test_pattern.set_transformation(m),
+            Pattern::SphereTexturePattern(ref mut sphere_pattern) => sphere_pattern.set_transformation(m),
+            Pattern::PLaneTexturePattern(ref mut plane_pattern) => plane_pattern.set_transformation(m),
         }
     }
 
@@ -58,6 +64,7 @@ impl Pattern {
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_transformation(),
             Pattern::TestPattern(ref test_pattern) => test_pattern.get_transformation(),
             Pattern::SphereTexturePattern(ref test_pattern) => test_pattern.get_transformation(),
+            Pattern::PLaneTexturePattern(ref plane_pattern) => plane_pattern.get_transformation(),
         }
     }
 
@@ -69,6 +76,7 @@ impl Pattern {
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_inverse_transformation(),
             Pattern::TestPattern(ref test_pattern) => test_pattern.get_inverse_transformation(),
             Pattern::SphereTexturePattern(ref test_pattern) => test_pattern.get_inverse_transformation(),
+            Pattern::PLaneTexturePattern(ref plane_pattern) => plane_pattern.get_inverse_transformation(),
         }
     }
 }

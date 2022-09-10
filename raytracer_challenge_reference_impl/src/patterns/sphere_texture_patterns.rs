@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
+use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
@@ -57,7 +57,7 @@ pub struct Checker {
     color_b: Color,
 }
 
-pub  fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color) -> Checker {
+pub fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color) -> Checker {
     Checker {
         width,
         height,
@@ -66,14 +66,14 @@ pub  fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color)
     }
 }
 
-fn uv_pattern_at(checker: &Checker, u: f32, v: f32) -> Color {
+pub fn uv_pattern_at(checker: &Checker, u: f32, v: f32) -> Color {
     let u2 = (u * checker.width as f32).floor() as i32;
     let v2 = (v * checker.height as f32).floor() as i32;
-    if (u2 + v2) % 2 == 0 {
-        return checker.color_a;
+    return if (u2 + v2) % 2 == 0 {
+        checker.color_a
     } else {
-        return checker.color_b;
-    }
+        checker.color_b
+    };
 }
 
 fn spherical_map(p: &Tuple4D) -> (f32, f32) {
@@ -89,6 +89,7 @@ fn spherical_map(p: &Tuple4D) -> (f32, f32) {
 
 #[cfg(test)]
 mod tests {
+    use crate::basics::{BLACK, WHITE};
     use std::f32::consts::SQRT_2;
 
     use crate::math::assert_two_float;

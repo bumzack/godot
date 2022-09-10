@@ -196,30 +196,6 @@ impl WorldOps for World {
         }
     }
 
-    //    fn intensity_at_point_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
-    //        if Self::is_shadowed(world, light.get_position(), point) {
-    //            return 0.0;
-    //        }
-    //        1.0
-    //    }
-
-    //    fn intensity_at_area_light(light: &LightEnum, point: &Tuple4D, world: &World) -> f32 {
-    //        let mut total = 0.0;
-    //
-    //        println!("light.get_usteps()  = {:?}", light.get_usteps());
-    //        println!("light.get_vsteps()  = {:?}", light.get_vsteps());
-    //        for v in 0..light.get_vsteps() {
-    //            for u in 0..light.get_usteps() {
-    //                let light_position = World::point_on_light(light, u, v);
-    //                if !World::is_shadowed(world, &light_position, point) {
-    //                    total += 1.0;
-    //                }
-    //            }
-    //        }
-    //
-    //        total / light.get_samples() as f32
-    //    }
-
     fn intensity_at(light: &mut Light, point: &Tuple4D, world: &World) -> f32 {
         match light {
             Light::PointLight(ref mut point_light) => point_light.intensity_at_point(point, world),
@@ -343,9 +319,6 @@ pub fn default_world() -> World {
 pub fn default_world_soft_shadows() -> World {
     let mut w = World::new();
 
-    // w.get_light_mut().set_position(Tuple4D::new_point(0.0, 0.0, -10.0));
-    //w.get_light_mut().set_intensity(Color::new(1.0, 1.0, 1.0));
-
     let light_pos = Tuple4D::new_point(0.0, 00., -10.0);
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
@@ -400,36 +373,6 @@ pub fn default_world_refracted_color_page_158() -> World {
     s2.set_transformation(m);
     s2.get_material_mut().set_transparency(1.0);
     s2.get_material_mut().set_refractive_index(1.5);
-    let shape2 = Shape::new(ShapeEnum::Sphere(s2));
-
-    w.add_shape(shape1);
-    w.add_shape(shape2);
-
-    w
-}
-
-fn default_world_area_light_attenuate_color() -> World {
-    let mut w = World::new();
-
-    let light_pos = Tuple4D::new_point(0.0, 0.0, -10.0);
-    let light_intensity = Color::new(1.0, 1.0, 1.0);
-    let pl = PointLight::new(light_pos, light_intensity);
-    let light = Light::PointLight(pl);
-    w.set_light(light);
-
-    let mut m = Material::new();
-    m.set_color(Color::new(1.0, 1.0, 1.0));
-    m.set_ambient(0.1);
-    m.set_diffuse(0.9);
-    m.set_specular(0.0);
-
-    let mut s1 = Sphere::new();
-    s1.set_material(m);
-    let shape1 = Shape::new(ShapeEnum::Sphere(s1));
-
-    let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut s2 = Sphere::new();
-    s2.set_transformation(m);
     let shape2 = Shape::new(ShapeEnum::Sphere(s2));
 
     w.add_shape(shape1);
@@ -1373,5 +1316,29 @@ mod tests {
 
         let point = Tuple4D::new_point(0.0, 0.0, -2.0);
         test_area_lights_with_jittered_examples_helper(point, 1.0);
+    }
+
+    fn default_world_area_light_attenuate_color() -> World {
+        let mut w = World::new();
+        let light_pos = Tuple4D::new_point(0.0, 0.0, -10.0);
+        let light_intensity = Color::new(1.0, 1.0, 1.0);
+        let pl = PointLight::new(light_pos, light_intensity);
+        let light = Light::PointLight(pl);
+        w.set_light(light);
+        let mut m = Material::new();
+        m.set_color(Color::new(1.0, 1.0, 1.0));
+        m.set_ambient(0.1);
+        m.set_diffuse(0.9);
+        m.set_specular(0.0);
+        let mut s1 = Sphere::new();
+        s1.set_material(m);
+        let shape1 = Shape::new(ShapeEnum::Sphere(s1));
+        let m = Matrix::scale(0.5, 0.5, 0.5);
+        let mut s2 = Sphere::new();
+        s2.set_transformation(m);
+        let shape2 = Shape::new(ShapeEnum::Sphere(s2));
+        w.add_shape(shape1);
+        w.add_shape(shape2);
+        w
     }
 }
