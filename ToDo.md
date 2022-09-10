@@ -4,6 +4,7 @@
 - make the uv mapping functions exchangable (currently they are hardcoded in the traits, but one shoould be able to use the ImageTexture functionality with a plane or a sphere or a ...)
 - this was omitted, due the generics madness that happened -> find a better/easier way
 - image texture mapping not working as expected
+- chapter07.rs ¯\_(ツ)_/¯
 
 ## future ToDos
 

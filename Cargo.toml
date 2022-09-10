@@ -1,5 +1,7 @@
 [workspace]
 
 members = [
-    "raytracer_challenge_reference_impl"
+    "raytracer_challenge_reference_impl",
+    "birectional_tree"
+
 ]
