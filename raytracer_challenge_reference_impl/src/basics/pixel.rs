@@ -1,6 +1,6 @@
 use crate::basics::{Color, BLACK};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Pixel {
     pub color: Color,
     pub x: usize,

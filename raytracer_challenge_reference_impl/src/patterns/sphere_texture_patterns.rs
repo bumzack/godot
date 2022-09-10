@@ -76,7 +76,7 @@ pub fn uv_pattern_at(checker: &Checker, u: f32, v: f32) -> Color {
     };
 }
 
-fn spherical_map(p: &Tuple4D) -> (f32, f32) {
+pub fn spherical_map(p: &Tuple4D) -> (f32, f32) {
     let theta = p.x.atan2(p.z);
     let vector = Tuple4D::new_vector(p.x, p.y, p.z);
     let radius = Tuple4D::magnitude(&vector);

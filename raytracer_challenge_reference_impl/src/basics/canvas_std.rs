@@ -1,14 +1,15 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
+use crate::basics::{Canvas, CanvasOps, Color, ColorOps, Pixel};
+use image::io::Reader as ImageReader;
 use image::RgbImage;
-use image::{ImageBuffer, ImageError};
-
-use crate::basics::{Canvas, CanvasOps};
+use image::{GenericImageView, ImageBuffer, ImageError};
 
 pub trait CanvasOpsStd<'a> {
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;
     fn write_png(&self, filename: &'a str) -> Result<(), ImageError>;
+    fn read_png(filename: &'a str) -> Result<Canvas, ImageError>;
 }
 
 impl<'a> CanvasOpsStd<'a> for Canvas {
@@ -22,11 +23,11 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
         let s = w + " " + &h + new_line;
 
         let header = String::from("P3") + new_line;
-        let max_pxiel_value = String::from("255") + new_line;
+        let max_pixel_value = String::from("255") + new_line;
 
         file.write_all(header.as_bytes())?;
         file.write_all(s.as_bytes())?;
-        file.write_all(max_pxiel_value.as_bytes())?;
+        file.write_all(max_pixel_value.as_bytes())?;
 
         // for (x, y, p) in self
 
@@ -70,5 +71,28 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
             }
         }
         image.save(filename)
+    }
+
+    fn read_png(filename: &'a str) -> Result<Canvas, ImageError> {
+        let img = ImageReader::open(filename)?.decode()?;
+        let w = img.width() as usize;
+        let h = img.height() as usize;
+
+        let mut c = Canvas::new(w, h);
+
+        c.set_width(w);
+        c.set_height(h);
+        println!("w {}, h {}", w, h);
+
+        for (x, y, pixel) in img.pixels() {
+            let p = pixel.0;
+            println!("pixel r: {:?} g: {:?} b: {:?} a: {:?}", p[0], p[1], p[2], p[3]);
+            c.write_pixel(
+                x as usize,
+                y as usize,
+                Color::new(p[0] as f32, p[1] as f32, p[2] as f32),
+            );
+        }
+        Ok(c)
     }
 }

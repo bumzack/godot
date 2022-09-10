@@ -3,7 +3,7 @@ use crate::basics::{Color, Pixel};
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Canvas {
     width: usize,
     height: usize,
@@ -12,6 +12,7 @@ pub struct Canvas {
 
 pub trait CanvasOps {
     fn new(width: usize, height: usize) -> Canvas;
+    fn empty() -> Canvas;
     fn write_pixel(&mut self, x: usize, y: usize, c: Color);
     fn pixel_at(&self, x: usize, y: usize) -> &Pixel;
 
@@ -22,6 +23,9 @@ pub trait CanvasOps {
 
     fn get_width(&self) -> usize;
     fn get_height(&self) -> usize;
+
+    fn set_width(&mut self, w: usize);
+    fn set_height(&mut self, h: usize);
 }
 
 impl CanvasOps for Canvas {
@@ -39,6 +43,14 @@ impl CanvasOps for Canvas {
         }
 
         c
+    }
+
+    fn empty() -> Canvas {
+        Canvas {
+            width: 0,
+            height: 0,
+            pixel: vec![],
+        }
     }
 
     fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
@@ -73,5 +85,13 @@ impl CanvasOps for Canvas {
 
     fn get_height(&self) -> usize {
         self.height
+    }
+
+    fn set_width(&mut self, w: usize) {
+        self.width = w;
+    }
+
+    fn set_height(&mut self, h: usize) {
+        self.height = h;
     }
 }

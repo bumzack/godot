@@ -7,8 +7,8 @@ use crate::patterns::ring_patterns::RingPattern;
 use crate::patterns::sphere_texture_patterns::SphereTexturePattern;
 use crate::patterns::stripe_patterns::StripePattern;
 use crate::patterns::test_patterns::TestPattern;
-use crate::patterns::PlaneTexturePattern;
 use crate::patterns::{AlignCheckTexturePattern, CubeTexturePattern, CylinderTexturePattern};
+use crate::patterns::{ImageTexturePattern, PlaneTexturePattern};
 use crate::shape::shape::Shape;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -23,6 +23,7 @@ pub enum Pattern {
     CylinderTexturePattern(CylinderTexturePattern),
     AlignCheckTexturePattern(AlignCheckTexturePattern),
     CubeTextPattern(CubeTexturePattern),
+    ImageTexturePattern(ImageTexturePattern),
 }
 
 impl Pattern {
@@ -54,6 +55,9 @@ impl Pattern {
             Pattern::CubeTextPattern(ref cube_pattern) => {
                 CubeTexturePattern::color_at_object(cube_pattern, shape, world_point)
             }
+            Pattern::ImageTexturePattern(ref cube_pattern) => {
+                ImageTexturePattern::color_at_object(cube_pattern, shape, world_point)
+            }
         }
     }
 
@@ -69,6 +73,7 @@ impl Pattern {
             Pattern::CylinderTexturePattern(ref mut cylinder_pattern) => cylinder_pattern.set_transformation(m),
             Pattern::AlignCheckTexturePattern(ref mut cube_pattern) => cube_pattern.set_transformation(m),
             Pattern::CubeTextPattern(ref mut cube_pattern) => cube_pattern.set_transformation(m),
+            Pattern::ImageTexturePattern(ref mut cube_pattern) => cube_pattern.set_transformation(m),
         }
     }
 
@@ -84,6 +89,7 @@ impl Pattern {
             Pattern::CylinderTexturePattern(ref cylinder_pattern) => cylinder_pattern.get_transformation(),
             Pattern::AlignCheckTexturePattern(ref cube_pattern) => cube_pattern.get_transformation(),
             Pattern::CubeTextPattern(ref cube_pattern) => cube_pattern.get_transformation(),
+            Pattern::ImageTexturePattern(ref cube_pattern) => cube_pattern.get_transformation(),
         }
     }
 
@@ -99,6 +105,7 @@ impl Pattern {
             Pattern::CylinderTexturePattern(ref cylinder_pattern) => cylinder_pattern.get_inverse_transformation(),
             Pattern::AlignCheckTexturePattern(ref cube_pattern) => cube_pattern.get_inverse_transformation(),
             Pattern::CubeTextPattern(ref cube_pattern) => cube_pattern.get_inverse_transformation(),
+            Pattern::ImageTexturePattern(ref cube_pattern) => cube_pattern.get_inverse_transformation(),
         }
     }
 }
