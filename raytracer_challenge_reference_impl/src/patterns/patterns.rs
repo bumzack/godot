@@ -3,11 +3,12 @@ use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::checker3d_patterns::Checker3DPattern;
 use crate::patterns::gradient_patterns::GradientPattern;
+use crate::patterns::PlaneTexturePattern;
 use crate::patterns::ring_patterns::RingPattern;
 use crate::patterns::sphere_texture_patterns::SphereTexturePattern;
 use crate::patterns::stripe_patterns::StripePattern;
 use crate::patterns::test_patterns::TestPattern;
-use crate::patterns::PlaneTexturePattern;
+use crate::prelude::CylinderTexturePattern;
 use crate::shape::shape::Shape;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -18,7 +19,8 @@ pub enum Pattern {
     Checker3DPattern(Checker3DPattern),
     TestPattern(TestPattern),
     SphereTexturePattern(SphereTexturePattern),
-    PLaneTexturePattern(PlaneTexturePattern),
+    PlaneTexturePattern(PlaneTexturePattern),
+    CylinderTexturePattern(CylinderTexturePattern),
 }
 
 impl Pattern {
@@ -38,8 +40,11 @@ impl Pattern {
             Pattern::SphereTexturePattern(ref sphere_texture_pattern) => {
                 SphereTexturePattern::color_at_object(sphere_texture_pattern, shape, world_point)
             }
-            Pattern::PLaneTexturePattern(ref plane_texture_pattern) => {
+            Pattern::PlaneTexturePattern(ref plane_texture_pattern) => {
                 PlaneTexturePattern::color_at_object(plane_texture_pattern, shape, world_point)
+            }
+            Pattern::CylinderTexturePattern(ref cylinder_pattern) => {
+                CylinderTexturePattern::color_at_object(cylinder_pattern, shape, world_point)
             }
         }
     }
@@ -52,7 +57,8 @@ impl Pattern {
             Pattern::Checker3DPattern(ref mut checker3d_pattern) => checker3d_pattern.set_transformation(m),
             Pattern::TestPattern(ref mut test_pattern) => test_pattern.set_transformation(m),
             Pattern::SphereTexturePattern(ref mut sphere_pattern) => sphere_pattern.set_transformation(m),
-            Pattern::PLaneTexturePattern(ref mut plane_pattern) => plane_pattern.set_transformation(m),
+            Pattern::PlaneTexturePattern(ref mut plane_pattern) => plane_pattern.set_transformation(m),
+            Pattern::CylinderTexturePattern(ref mut cylinder_pattern) => cylinder_pattern.set_transformation(m),
         }
     }
 
@@ -64,7 +70,8 @@ impl Pattern {
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_transformation(),
             Pattern::TestPattern(ref test_pattern) => test_pattern.get_transformation(),
             Pattern::SphereTexturePattern(ref test_pattern) => test_pattern.get_transformation(),
-            Pattern::PLaneTexturePattern(ref plane_pattern) => plane_pattern.get_transformation(),
+            Pattern::PlaneTexturePattern(ref plane_pattern) => plane_pattern.get_transformation(),
+            Pattern::CylinderTexturePattern(ref cylinder_pattern) => cylinder_pattern.get_transformation(),
         }
     }
 
@@ -76,7 +83,8 @@ impl Pattern {
             Pattern::Checker3DPattern(ref checker3d_pattern) => checker3d_pattern.get_inverse_transformation(),
             Pattern::TestPattern(ref test_pattern) => test_pattern.get_inverse_transformation(),
             Pattern::SphereTexturePattern(ref test_pattern) => test_pattern.get_inverse_transformation(),
-            Pattern::PLaneTexturePattern(ref plane_pattern) => plane_pattern.get_inverse_transformation(),
+            Pattern::PlaneTexturePattern(ref plane_pattern) => plane_pattern.get_inverse_transformation(),
+            Pattern::CylinderTexturePattern(ref cylinder_pattern) => cylinder_pattern.get_inverse_transformation(),
         }
     }
 }
