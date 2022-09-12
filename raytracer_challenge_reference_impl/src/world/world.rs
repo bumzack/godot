@@ -79,37 +79,40 @@ impl WorldOps for World {
     }
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
-        // for light_tmp in &w.lights {
-        //     let mut l = light_tmp.clone();
-        //     let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
-        //     if DEBUG {
-        //         println!("intensity = {}", intensity);
-        //     }
-        //     surface = surface
-        //         + Material::lightning(
-        //             comp.get_object().get_material(),
-        //             comp.get_object(),
-        //             &mut l,
-        //             comp.get_over_point(),
-        //             comp.get_eye_vector(),
-        //             comp.get_normal_vector(),
-        //             intensity,
-        //         );
-        // }
-        let mut l = w.lights[0].clone();
-        let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
-        if DEBUG {
-            println!("intensity = {}", intensity);
+        let mut surface = BLACK;
+        for light_tmp in &w.lights {
+            let mut l = light_tmp.clone();
+            let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
+            if DEBUG {
+                println!("intensity = {}", intensity);
+            }
+            surface = surface
+                + Material::lightning(
+                    comp.get_object().get_material(),
+                    comp.get_object(),
+                    &mut l,
+                    comp.get_over_point(),
+                    comp.get_eye_vector(),
+                    comp.get_normal_vector(),
+                    intensity,
+                );
         }
-        let surface = Material::lightning(
-            comp.get_object().get_material(),
-            comp.get_object(),
-            &mut l,
-            comp.get_over_point(),
-            comp.get_eye_vector(),
-            comp.get_normal_vector(),
-            intensity,
-        );
+
+        // let mut l = w.lights[0].clone();
+        // let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
+        //
+        // if DEBUG {
+        //     println!("intensity = {}", intensity);
+        // }
+        // let surface = Material::lightning(
+        //     comp.get_object().get_material(),
+        //     comp.get_object(),
+        //     &mut l,
+        //     comp.get_over_point(),
+        //     comp.get_eye_vector(),
+        //     comp.get_normal_vector(),
+        //     intensity,
+        // );
 
 
         assert_valid_color(&surface);
