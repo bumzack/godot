@@ -86,8 +86,7 @@ impl WorldOps for World {
             if DEBUG {
                 println!("intensity = {}", intensity);
             }
-            surface = surface
-                + Material::lightning(
+            surface = surface + Material::lightning(
                     comp.get_object().get_material(),
                     comp.get_object(),
                     &mut l,
@@ -97,22 +96,6 @@ impl WorldOps for World {
                     intensity,
                 );
         }
-
-        // let mut l = w.lights[0].clone();
-        // let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
-        //
-        // if DEBUG {
-        //     println!("intensity = {}", intensity);
-        // }
-        // let surface = Material::lightning(
-        //     comp.get_object().get_material(),
-        //     comp.get_object(),
-        //     &mut l,
-        //     comp.get_over_point(),
-        //     comp.get_eye_vector(),
-        //     comp.get_normal_vector(),
-        //     intensity,
-        // );
 
         assert_valid_color(&surface);
         let reflected = World::reflected_color(w, comp, remaining);

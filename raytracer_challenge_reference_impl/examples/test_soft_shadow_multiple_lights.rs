@@ -1,12 +1,10 @@
 use std::error::Error;
-use std::sync::{Arc, Mutex};
-use std::thread;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 1.0;
+    let size_factor = 3.0;
     let antialiasing = true;
     let antialiasing_size = 3;
 
@@ -17,15 +15,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             antialiasing_size
         );
     } else {
-        filename = format!("./soft_shadow_multi_core_multi_lights_no_aa.png",);
+        filename = format!("./soft_shadow_multi_core_multi_lights_no_aa.png", );
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-
     let start = Instant::now();
-
     let canvas = Camera::render_multi_core(&camera, &world);
-
     let dur = Instant::now() - start;
     if camera.get_antialiasing() {
         println!(
@@ -54,10 +49,30 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
     let area_light = Light::AreaLight(area_light);
 
-    let corner2 = Tuple4D::new_point(-1.5, 2.5, 4.5);
-    let intensity = Color::new(0.0, 0.2, 0.0);
+    let corner2 = Tuple4D::new_point(-1.0, 2.2, 4.2);
+    let intensity = Color::new(1.1, 1.2, 1.2);
     let area_light2 = AreaLight::new(corner2, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
     let area_light2 = Light::AreaLight(area_light2);
+
+    // let corner3 = Tuple4D::new_point(-1.5, 5.0, 4.5);
+    // let intensity = Color::new(0.1, 0.2, 0.1);
+    // let point_light = PointLight::new(corner3, intensity);
+    // let pl = Light::PointLight(point_light);
+    //
+    // let corner4 = Tuple4D::new_point(-1.5, 5.0, -4.5);
+    // let intensity4 = Color::new(0.1, 0.2, 0.1);
+    // let point_light4 = PointLight::new(corner4, intensity4);
+    // let pl4 = Light::PointLight(point_light4);
+    //
+    // let corner5 = Tuple4D::new_point(-1.0, 2.5, 4.5);
+    // let intensity5 = Color::new(0.1, 0.2, 0.1);
+    // let point_light5 = PointLight::new(corner5, intensity5);
+    // let pl5 = Light::PointLight(point_light5);
+    //
+    // let corner6 = Tuple4D::new_point(-1.0, 4.5, 4.5);
+    // let intensity6 = Color::new(0.1, 0.2, 0.1);
+    // let point_light6 = PointLight::new(corner6, intensity6);
+    // let pl6 = Light::PointLight(point_light6);
 
     // ---- CUBE -------
     let mut c = Cube::new();
@@ -116,6 +131,11 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let mut w = World::new();
     w.add_light(area_light);
     w.add_light(area_light2);
+    // w.add_light(pl);
+    // w.add_light(pl4);
+    // w.add_light(pl5);
+    // w.add_light(pl6);
+
     w.add_shape(cube);
     w.add_shape(plane);
     w.add_shape(sphere1);
