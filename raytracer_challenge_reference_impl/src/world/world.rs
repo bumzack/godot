@@ -460,6 +460,7 @@ mod tests {
     #[test]
     fn test_shade_hit_inside() {
         let mut w = default_world();
+        w.get_light_mut().clear();
 
         let p = Tuple4D::new_point(0.0, 0.25, 0.0);
         let c = Color::new(1.0, 1.0, 1.0);
