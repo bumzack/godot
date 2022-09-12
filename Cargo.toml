@@ -2,6 +2,5 @@
 
 members = [
     "raytracer_challenge_reference_impl",
-    "birectional_tree"
-
+    "playground/threadpool_fractal"
 ]

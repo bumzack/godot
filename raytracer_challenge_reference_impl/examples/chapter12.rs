@@ -5,28 +5,12 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let (w, c) = setup_world(800, 600);
-
-    // let x = 58;
-    // let y = 81;
-    // let r = Camera::ray_for_pixel(&c, x, y);
-    // // println!("ray {:?}  @ ({}/{})", &r, x, y);
-    // let color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
-
-    // single core
+    let (world, camera) = setup_world(800, 600);
     let start = Instant::now();
-    // let canvas_std = Camera::render_debug(&c, &w, 226, 241);
-    let canvas = Camera::render(&c, &w);
-    canvas.write_png("img/chapter12.png")?;
+    let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
-    println!("single core duration: {:?}", dur);
-
-    // multi core
-    //    let start = Instant::now();
-    //    let canvas_std = Camera::render_multi_core(&c, &w, 4);
-    //    canvas_std.write_png("img/chapter12_multi_core.png")?;
-    //    let dur = Instant::now() - start;
-    //    println!("multi core duration: {:?}", dur);
+    println!("multi core duration: {:?}", dur);
+    canvas.write_png("chapter12.png")?;
 
     Ok(())
 }

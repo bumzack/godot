@@ -78,11 +78,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     ));
 
     let start = Instant::now();
-    let canvas = Camera::render(&c, &w);
-    canvas.write_png("img/chapter10.png")?;
+    let canvas = Camera::render_multi_core(&c, &w);
     let dur = Instant::now() - start;
-
-    println!("DONE in {:?}", dur);
+    println!("multi core duration: {:?}", dur);
+    canvas.write_png("chapter12.png")?;
+    let dur = Instant::now() - start;
 
     Ok(())
 }

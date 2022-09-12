@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::f32::consts::PI;
+use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -65,8 +66,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
 
-    let canvas = Camera::render(&c, &w);
-    canvas.write_png("img/chapter07.png")?;
+     let start = Instant::now();
+    let canvas = Camera::render_multi_core(&c, &w);
+    let dur = Instant::now() - start;
+    println!("multi core duration: {:?}", dur);
+    canvas.write_png("chapter09.png")?;
 
     println!("DONE");
 

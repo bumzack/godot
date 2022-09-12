@@ -109,7 +109,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let start = Instant::now();
     let canvas = Camera::render(&c, &w);
-    canvas.write_png("img/chapter12.png")?;
+    canvas.write_png("chapter12.png")?;
     let dur = Instant::now() - start;
 
     println!("DONE in {:?}", dur);

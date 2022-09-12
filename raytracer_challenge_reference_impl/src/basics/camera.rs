@@ -1,7 +1,15 @@
+use std::error::Error;
+use std::sync::mpsc::channel;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Instant;
+
+
 use crate::basics::canvas::{Canvas, CanvasOps};
 use crate::basics::color::BLACK;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
+use crate::basics::CanvasOpsStd;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -48,7 +56,7 @@ pub trait CameraOps {
     fn ray_for_pixel_anti_aliasing(c: &Camera, x: usize, y: usize, x_offset: f32, y_offset: f32) -> Ray;
 
     fn render(c: &Camera, w: &World) -> Canvas;
-    fn render_multi_core(c: &Camera, w: &World, num_cores: i32) -> Canvas;
+    fn render_multi_core(c: &Camera, w: &World) -> Canvas;
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas;
 }
 
@@ -243,51 +251,181 @@ impl CameraOps for Camera {
         canvas
     }
 
-    fn render_multi_core(c: &Camera, _w: &World, _num_cores: i32) -> Canvas {
-        //        let mut canvas_std = Canvas::new(c.get_hsize(), c.get_vsize());
-        //
-        //        let data = Arc::new(Mutex::new(canvas_std));
-        //        let mut children = vec![];
-        //        let act_y: usize = 0;
-        //        let act_y_mutex = Arc::new(Mutex::new(act_y));
-        //
-        //        for _i in 0..num_cores {
-        //            let cloned_data = Arc::clone(&data);
-        //            let cloned_act_y = Arc::clone(&act_y_mutex);
-        //            let height = c.get_hsize();
-        //            let width = c.get_vsize();
-        //
-        //            let c_clone = c.clone();
-        //            let w_clone = w.clone();
-        //
-        //            children.push(thread::spawn(move || {
-        //                let mut y: usize = 0;
-        //                while *cloned_act_y.lock().unwrap() < height {
-        //                    if y < height {
-        //                        let mut acty = cloned_act_y.lock().unwrap();
-        //                        y = *acty;
-        //                        *acty = *acty + 1;
-        //                    }
-        //                    for x in 0..width {
-        //                        let r = Camera::ray_for_pixel(&c_clone, x, y);
-        //                        println!("render point  {}/{}", x, y);
-        //                        let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-        //                        // TODO: wtf ?!
-        //                        if color.r != 0.0 || color.g != 0.0 || color.b != 0.0 {}
-        //                        let mut canvas_std = cloned_data.lock().unwrap();
-        //                        canvas_std.write_pixel(x, y, color);
-        //                    }
-        //                }
-        //            }));
-        //        }
-        //
-        //        for child in children {
-        //            let _ = child.join();
-        //        }
-        //
-        //        let c = data.lock().unwrap();
-        //        *c
-        Canvas::new(c.get_hsize(), c.get_vsize())
+    fn render_multi_core(ca: &Camera, wo: &World) -> Canvas {
+        let camera = ca.clone();
+        let world = wo.clone();
+        let n_samples = camera.get_antialiasing_size();
+        let mut jitter_matrix = Vec::new();
+        if n_samples == 2 {
+            jitter_matrix = vec![
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                1.0 / 4.0,
+                -1.0 / 4.0,
+                -1.0 / 4.0,
+                1.0 / 4.0,
+                -3.0 / 4.0,
+            ];
+        }
+
+        if n_samples == 3 {
+            let two_over_six = 2.0 / 6.0;
+            jitter_matrix = vec![
+                -two_over_six,
+                two_over_six,
+                0.0,
+                two_over_six,
+                two_over_six,
+                two_over_six,
+                -two_over_six,
+                0.0,
+                0.0,
+                0.0,
+                two_over_six,
+                0.0,
+                -two_over_six,
+                -two_over_six,
+                0.0,
+                -two_over_six,
+                two_over_six,
+                -two_over_six,
+            ];
+        }
+
+        let start = Instant::now();
+        let num_cores = num_cpus::get() + 1;
+
+        println!("using {} cores", num_cores);
+
+        let canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
+        let data = Arc::new(Mutex::new(canvas));
+
+        let act_y: usize = 0;
+        let act_y_mutex = Arc::new(Mutex::new(act_y));
+
+        let c = crossbeam::scope(|s| {
+            let mut children = vec![];
+
+            for _i in 0..num_cores {
+                let n_samples = camera.get_antialiasing_size();
+                let mut jitter_matrix = Vec::new();
+                if n_samples == 2 {
+                    jitter_matrix = vec![
+                        -1.0 / 4.0,
+                        1.0 / 4.0,
+                        1.0 / 4.0,
+                        1.0 / 4.0,
+                        -1.0 / 4.0,
+                        -1.0 / 4.0,
+                        1.0 / 4.0,
+                        -3.0 / 4.0,
+                    ];
+                }
+
+                if n_samples == 3 {
+                    let two_over_six = 2.0 / 6.0;
+                    jitter_matrix = vec![
+                        -two_over_six,
+                        two_over_six,
+                        0.0,
+                        two_over_six,
+                        two_over_six,
+                        two_over_six,
+                        -two_over_six,
+                        0.0,
+                        0.0,
+                        0.0,
+                        two_over_six,
+                        0.0,
+                        -two_over_six,
+                        -two_over_six,
+                        0.0,
+                        -two_over_six,
+                        two_over_six,
+                        -two_over_six,
+                    ];
+                }
+
+                let cloned_data = Arc::clone(&data);
+                let cloned_act_y = Arc::clone(&act_y_mutex);
+                let height = camera.get_vsize();
+                let width = camera.get_hsize();
+
+                let c_clone = camera.clone();
+                let w_clone = world.clone();
+
+                children.push(s.spawn(move |_| {
+                    let mut y: usize = 0;
+                    let mut cnt_lines = 0;
+
+                    println!(
+                        "camera height / width  {}/{}     thread_id {:?}",
+                        height,
+                        width,
+                        thread::current().id()
+                    );
+
+                    while *cloned_act_y.lock().unwrap() < height {
+                        cnt_lines += 1;
+                        if y < height {
+                            let mut acty = cloned_act_y.lock().unwrap();
+                            y = *acty;
+                            *acty = *acty + 1;
+                            println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
+                        }
+
+                        for x in 0..width {
+                            let mut color = BLACK;
+                            if c_clone.get_antialiasing() {
+                                // Accumulate light for N samples.
+                                for sample in 0..n_samples {
+                                    let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
+                                    let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
+
+                                    let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
+
+                                    color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                                }
+                                color = color / n_samples as f32;
+                                // println!("with AA    color at ({}/{}): {:?}", x, y, color);
+                            } else {
+                                let r = Camera::ray_for_pixel(&c_clone, x, y);
+                                color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                                // println!("no AA    color at ({}/{}): {:?}", x, y, color);
+                            }
+
+                            let mut canvas = cloned_data.lock().unwrap();
+                            canvas.write_pixel(x, y, color);
+                        }
+                    }
+                    (thread::current().id(), cnt_lines)
+                }));
+            }
+
+            for child in children {
+                let dur = Instant::now() - start;
+                let (thread_id, cnt_lines) = child.join().unwrap();
+                println!(
+                    "child thread {:?} finished. run for {:?} , processed {:?} lines",
+                    thread_id, dur, cnt_lines
+                );
+            }
+            let dur = Instant::now() - start;
+            if camera.get_antialiasing() {
+                println!(
+                    "multi core duration: {:?} with AA size = {}",
+                    dur,
+                    camera.get_antialiasing_size()
+                );
+            } else {
+                println!("multi core duration: {:?}, no AA", dur);
+            }
+            data.lock().unwrap()
+        })
+        .unwrap();
+
+        c.clone()
     }
 
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas {
@@ -434,39 +572,4 @@ mod tests {
         println!("c_expected     = {:?}", c_expected);
         assert_color(&pixel.color, &c_expected);
     }
-
-    //
-    // copy of sphere::test_ray_sphere_intersection()  but uses the render method
-    //    #[test]
-    //    fn test_ray_sphere_intersection_render() {
-    //        let mut w = World::new();
-    //
-    //        let light_pos = Tuple4D::new_point(-10.0, 10., -10.0);
-    //        let light_intensity = Color::new(1.0, 1.0, 1.0);
-    //        let pl = PointLight::new(light_pos, light_intensity);
-    //        let light = Light::PointLight(pl);
-    //        w.set_light(light);
-    //
-    //        let mut s1 = Sphere::new();
-    //        let shape1 = Shape::Sphere(s1);
-    //
-    //        w.add_shape(shape1);
-    //
-    //        let from = Tuple4D::new_point(0.0, 0.0, -5.0);
-    //        let to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    //        let up = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    //
-    //        let mut c = Camera::new(11, 11, PI / 2.0);
-    //        c.set_transformation(Matrix::view_transform(&from, &to, &up));
-    //
-    //        let image = Camera::render(&c, &w);
-    //        // println!("image = {:#?}", image);
-    //
-    //        let c = image.pixel_at(5, 5);
-    //        let c_expected = Color::new(0.38066, 0.47583, 0.2855);
-    //
-    //        println!("c = {:#?}", c);
-    //        println!("c_expected = {:#?}", c_expected);
-    //        assert_color(c, &c_expected);
-    //    }
 }

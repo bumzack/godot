@@ -12,112 +12,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
     let height = 800;
 
-    let (w, c) = setup_world(width, height);
-
+    let (world, camera) = setup_world(width, height);
     let start = Instant::now();
-
-    let num_cores = num_cpus::get() + 1;
-    println!("using {} cores", num_cores);
-    let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
-
-    let data = Arc::new(Mutex::new(canvas));
-    let mut children = vec![];
-    let act_y: usize = 0;
-    let act_y_mutex = Arc::new(Mutex::new(act_y));
-
-    for _i in 0..num_cores {
-        let n_samples = c.get_antialiasing_size();
-        let mut jitter_matrix = Vec::new();
-        if n_samples == 2 {
-            jitter_matrix = vec![
-                -1.0 / 4.0,
-                1.0 / 4.0,
-                1.0 / 4.0,
-                1.0 / 4.0,
-                -1.0 / 4.0,
-                -1.0 / 4.0,
-                1.0 / 4.0,
-                -3.0 / 4.0,
-            ];
-        }
-
-        if n_samples == 3 {
-            let two_over_six = 2.0 / 6.0;
-            jitter_matrix = vec![
-                -two_over_six,
-                two_over_six,
-                0.0,
-                two_over_six,
-                two_over_six,
-                two_over_six,
-                -two_over_six,
-                0.0,
-                0.0,
-                0.0,
-                two_over_six,
-                0.0,
-                -two_over_six,
-                -two_over_six,
-                0.0,
-                -two_over_six,
-                two_over_six,
-                -two_over_six,
-            ];
-        }
-
-        let cloned_data = Arc::clone(&data);
-        let cloned_act_y = Arc::clone(&act_y_mutex);
-        let height = c.get_vsize();
-        let width = c.get_hsize();
-        println!("camera height / width  {}/{}", height, width);
-
-        let c_clone = c.clone();
-        let w_clone = w.clone();
-
-        children.push(thread::spawn(move || {
-            let mut y: usize = 0;
-            while *cloned_act_y.lock().unwrap() < height {
-                if y < height {
-                    let mut acty = cloned_act_y.lock().unwrap();
-                    y = *acty;
-                    *acty = *acty + 1;
-                }
-                for x in 0..width {
-                    let mut color = BLACK;
-                    if c_clone.get_antialiasing() {
-                        // Accumulate light for N samples.
-                        for sample in 0..n_samples {
-                            let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
-                            let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
-
-                            let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
-
-                            color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                        }
-                        color = color / n_samples as f32;
-                    // println!("with AA    color at ({}/{}): {:?}", x, y, color);
-                    } else {
-                        let r = Camera::ray_for_pixel(&c_clone, x, y);
-                        color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                    }
-                    let mut canvas = cloned_data.lock().unwrap();
-                    canvas.write_pixel(x, y, color);
-                }
-                if y % 20 == 0 {
-                    println!("thread {:?}   y =  {:?}", thread::current().id(), y);
-                }
-            }
-        }));
-    }
-
-    for child in children {
-        let dur = Instant::now() - start;
-        println!("child finished {:?}   run for {:?}", child.join().unwrap(), dur);
-    }
+    let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
+
     println!("multi core duration: {:?}", dur);
-    let c = data.lock().unwrap();
-    c.write_png("img/chapter14_multi_core_witj_AA.png")?;
+    canvas.write_png("chapter14_multi_core_with_AA.png")?;
 
     Ok(())
 }

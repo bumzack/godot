@@ -1,11 +1,8 @@
-use std::f32::consts::PI;
-
 use crate::basics::color::Color;
 use crate::basics::{Canvas, CanvasOps};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::Tuple;
 use crate::patterns::spherical_map;
 use crate::prelude::ShapeOps;
 use crate::shape::shape::Shape;

@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
-use crate::basics::{Canvas, CanvasOps, Color, ColorOps, Pixel};
+use crate::basics::{Canvas, CanvasOps, Color, ColorOps};
 use image::io::Reader as ImageReader;
 use image::RgbImage;
 use image::{GenericImageView, ImageBuffer, ImageError};
