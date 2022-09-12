@@ -1,8 +1,8 @@
-use crate::DEBUG;
-use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
+use crate::prelude::*;
+use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct World {
@@ -113,7 +113,6 @@ impl WorldOps for World {
         //     comp.get_normal_vector(),
         //     intensity,
         // );
-
 
         assert_valid_color(&surface);
         let reflected = World::reflected_color(w, comp, remaining);

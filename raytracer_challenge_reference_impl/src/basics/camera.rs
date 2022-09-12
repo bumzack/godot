@@ -253,7 +253,7 @@ impl CameraOps for Camera {
         let world = wo.clone();
 
         let start = Instant::now();
-        let num_cores = num_cpus::get() + 1;
+        let num_cores = num_cpus::get();
 
         println!("using {} cores", num_cores);
 

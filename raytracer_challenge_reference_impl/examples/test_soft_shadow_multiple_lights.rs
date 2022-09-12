@@ -50,13 +50,13 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let vvec = Tuple4D::new_vector(0.0, 2.0, 0.0);
     let usteps = 16;
     let vsteps = 16;
-    let intensity = Color::new(1.5, 1.5, 1.5);
+    let intensity = Color::new(1.0, 1.0, 1.0);
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
     let area_light = Light::AreaLight(area_light);
 
     let corner2 = Tuple4D::new_point(-1.5, 2.5, 4.5);
-
-    let area_light2 = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
+    let intensity = Color::new(0.0, 0.2, 0.0);
+    let area_light2 = AreaLight::new(corner2, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
     let area_light2 = Light::AreaLight(area_light2);
 
     // ---- CUBE -------
