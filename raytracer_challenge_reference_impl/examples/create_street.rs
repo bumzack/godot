@@ -127,7 +127,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     light_pos.y += light_camera_distance_y;
     let pl = PointLight::new(light_pos, Color::new(1.5, 1.5, 1.5));
     let l = Light::PointLight(pl);
-    world.set_light(l);
+    world.add_light(l);
 
     (world, camera)
 }

@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world );
+    let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
     if camera.get_antialiasing() {
         println!(
@@ -102,7 +102,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let sphere2 = Shape::new(ShapeEnum::Sphere(sphere2));
 
     let mut w = World::new();
-    w.set_light(l);
+    w.add_light(l);
     w.add_shape(cube);
     w.add_shape(plane);
     w.add_shape(sphere1);

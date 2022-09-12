@@ -2,7 +2,6 @@ use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::Tuple;
 use crate::patterns::{uv_pattern_at, Checker};
 use crate::prelude::ShapeOps;
 use crate::shape::shape::Shape;
@@ -54,7 +53,7 @@ pub fn planar_map(p: &Tuple4D) -> (f32, f32) {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::assert_two_float;
+    use crate::math::{assert_two_float, Tuple};
 
     use super::*;
 

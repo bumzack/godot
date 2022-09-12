@@ -158,7 +158,7 @@ fn setup_world(width: usize, height: usize, antialiasing: bool, antialiasing_siz
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
-    w.set_light(l);
+    w.add_light(l);
     w.add_floor();
     w.add_x_axis();
 

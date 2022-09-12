@@ -15,51 +15,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (w, c) = setup_world(width, height);
 
     let start = Instant::now();
-
-    let num_cores = num_cpus::get() + 1;
-    println!("using {} cores", num_cores);
-    let canvas = Canvas::new(c.get_hsize(), c.get_vsize());
-
-    let data = Arc::new(Mutex::new(canvas));
-    let mut children = vec![];
-    let act_y: usize = 0;
-    let act_y_mutex = Arc::new(Mutex::new(act_y));
-
-    for _i in 0..num_cores {
-        let cloned_data = Arc::clone(&data);
-        let cloned_act_y = Arc::clone(&act_y_mutex);
-        let height = c.get_vsize();
-        let width = c.get_hsize();
-        println!("camera height / width  {}/{}", height, width);
-
-        let c_clone = c.clone();
-        let w_clone = w.clone();
-
-        children.push(thread::spawn(move || {
-            let mut y: usize = 0;
-            while *cloned_act_y.lock().unwrap() < height {
-                if y < height {
-                    let mut acty = cloned_act_y.lock().unwrap();
-                    y = *acty;
-                    *acty = *acty + 1;
-                }
-                for x in 0..width {
-                    let r = Camera::ray_for_pixel(&c_clone, x, y);
-                    let color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
-                    let mut canvas = cloned_data.lock().unwrap();
-                    canvas.write_pixel(x, y, color);
-                }
-            }
-        }));
-    }
-
-    for child in children {
-        let _ = child.join();
-    }
+    let canvas = Camera::render_multi_core(&c, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    let c = data.lock().unwrap();
-    c.write_png("./checker_cylinder_bonus.png")?;
+    canvas.write_png("./checker_cylinder_bonus.png")?;
     println!("file exported");
     Ok(())
 }
@@ -87,7 +46,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
-    w.set_light(l);
+    w.add_light(l);
     w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
 
     let mut c = Camera::new(width, height, 0.5);

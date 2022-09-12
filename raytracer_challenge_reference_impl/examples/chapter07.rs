@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
-    w.set_light(l);
+    w.add_light(l);
 
     w.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
     w.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
@@ -66,11 +66,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
 
-     let start = Instant::now();
+    let start = Instant::now();
     let canvas = Camera::render_multi_core(&c, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter09.png")?;
+    canvas.write_png("chapter07.png")?;
 
     println!("DONE");
 

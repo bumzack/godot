@@ -1,22 +1,22 @@
+use crate::DEBUG;
+use crate::prelude::*;
 use crate::prelude::patterns::Pattern;
 use crate::prelude::stripe_patterns::StripePattern;
 use crate::prelude::test_patterns::TestPattern;
-use crate::prelude::*;
-use crate::DEBUG;
 
 #[derive(Clone, Debug)]
 pub struct World {
     shapes: Vec<Shape>,
-    light: Light,
+    lights: Vec<Light>,
 }
 
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 3;
 
 pub trait WorldOps {
     fn new() -> World;
-    fn set_light(&mut self, light: Light);
-    fn get_light(&self) -> &Light;
-    fn get_light_mut(&mut self) -> &mut Light;
+    fn add_light(&mut self, light: Light);
+    fn get_light(&self) -> &Vec<Light>;
+    fn get_light_mut(&mut self) -> &mut Vec<Light>;
 
     fn add_shape(&mut self, shape: Shape);
     fn get_shapes(&self) -> &Vec<Shape>;
@@ -48,24 +48,22 @@ pub trait WorldOps {
 
 impl WorldOps for World {
     fn new() -> World {
-        // TODO: default light ?!?!?! hmm - where, color why not different solution
-        let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
         World {
             shapes: Vec::new(),
-            light: Light::PointLight(pl),
+            lights: Vec::new(),
         }
     }
 
-    fn set_light(&mut self, light: Light) {
-        self.light = light;
+    fn add_light(&mut self, light: Light) {
+        self.lights.push(light);
     }
 
-    fn get_light(&self) -> &Light {
-        &self.light
+    fn get_light(&self) -> &Vec<Light> {
+        &self.lights
     }
 
-    fn get_light_mut(&mut self) -> &mut Light {
-        &mut self.light
+    fn get_light_mut(&mut self) -> &mut Vec<Light> {
+        &mut self.lights
     }
 
     fn add_shape(&mut self, shape: Shape) {
@@ -81,13 +79,28 @@ impl WorldOps for World {
     }
 
     fn shade_hit(w: &World, comp: &PrecomputedComponent, remaining: i32) -> Color {
-        // let in_shadow = World::is_shadowed(w, w.get_light().get_position(), comp.get_over_point());
-        let mut l = w.get_light().clone();
+        // for light_tmp in &w.lights {
+        //     let mut l = light_tmp.clone();
+        //     let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
+        //     if DEBUG {
+        //         println!("intensity = {}", intensity);
+        //     }
+        //     surface = surface
+        //         + Material::lightning(
+        //             comp.get_object().get_material(),
+        //             comp.get_object(),
+        //             &mut l,
+        //             comp.get_over_point(),
+        //             comp.get_eye_vector(),
+        //             comp.get_normal_vector(),
+        //             intensity,
+        //         );
+        // }
+        let mut l = w.lights[0].clone();
         let intensity = World::intensity_at(&mut l, comp.get_over_point(), w);
         if DEBUG {
             println!("intensity = {}", intensity);
         }
-        let mut l = w.get_light().clone();
         let surface = Material::lightning(
             comp.get_object().get_material(),
             comp.get_object(),
@@ -97,6 +110,8 @@ impl WorldOps for World {
             comp.get_normal_vector(),
             intensity,
         );
+
+
         assert_valid_color(&surface);
         let reflected = World::reflected_color(w, comp, remaining);
         let refracted = World::refracted_color(w, comp, remaining);
@@ -294,7 +309,7 @@ pub fn default_world() -> World {
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = Light::PointLight(pl);
-    w.set_light(light);
+    w.add_light(light);
 
     let mut m = Material::new();
     m.set_color(Color::new(0.8, 1.0, 0.6));
@@ -323,7 +338,7 @@ pub fn default_world_soft_shadows() -> World {
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = Light::PointLight(pl);
-    w.set_light(light);
+    w.add_light(light);
 
     let mut m = Material::new();
     m.set_ambient(0.1);
@@ -353,7 +368,7 @@ pub fn default_world_refracted_color_page_158() -> World {
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = Light::PointLight(pl);
-    w.set_light(light);
+    w.add_light(light);
 
     let test_pattern: TestPattern = TestPattern::new();
     let test_pattern = Pattern::TestPattern(test_pattern);
@@ -388,7 +403,7 @@ pub fn default_world_empty() -> World {
     let light_intensity = Color::new(1.0, 1.0, 1.0);
     let pl = PointLight::new(light_pos, light_intensity);
     let light = Light::PointLight(pl);
-    w.set_light(light);
+    w.add_light(light);
 
     w
 }
@@ -447,7 +462,7 @@ mod tests {
         let p = Tuple4D::new_point(0.0, 0.25, 0.0);
         let c = Color::new(1.0, 1.0, 1.0);
         let pl = PointLight::new(p, c);
-        w.set_light(Light::PointLight(pl));
+        w.add_light(Light::PointLight(pl));
 
         let origin = Tuple4D::new_point(0.0, 0.0, 0.0);
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
@@ -541,7 +556,7 @@ mod tests {
         let point = Tuple4D::new_point(0.0, 0.0, -10.0);
         let color = Color::new(1.0, 1.0, 1.0);
         let pl = PointLight::new(point, color);
-        w.set_light(Light::PointLight(pl));
+        w.add_light(Light::PointLight(pl));
 
         let s1 = Sphere::new();
         let shape1 = Shape::new(ShapeEnum::Sphere(s1));
@@ -656,7 +671,7 @@ mod tests {
     fn test_point_in_shadow_collinear() {
         let w = default_world();
         let p = Tuple4D::new_point(0.0, 10.0, 0.0);
-        let is_shadowed = World::is_shadowed(&w, w.get_light().get_position(), &p);
+        let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -665,7 +680,7 @@ mod tests {
     fn test_point_in_shadow_object_between_point_and_light() {
         let w = default_world();
         let p = Tuple4D::new_point(10.0, -10.0, 10.0);
-        let is_shadowed = World::is_shadowed(&w, w.get_light().get_position(), &p);
+        let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
         assert_eq!(is_shadowed, true);
     }
 
@@ -674,7 +689,7 @@ mod tests {
     fn test_point_in_shadow_object_behind_light() {
         let w = default_world();
         let p = Tuple4D::new_point(-20.0, 20.0, -20.0);
-        let is_shadowed = World::is_shadowed(&w, w.get_light().get_position(), &p);
+        let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -683,7 +698,7 @@ mod tests {
     fn test_point_in_shadow_object_behind_point() {
         let w = default_world();
         let p = Tuple4D::new_point(-2.0, 2.0, -2.0);
-        let is_shadowed = World::is_shadowed(&w, w.get_light().get_position(), &p);
+        let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
         assert_eq!(is_shadowed, false);
     }
 
@@ -1065,7 +1080,7 @@ mod tests {
     // bonus: helper Scenario Outline: Point lights evaluate the light intensity at a given point
     fn test_area_lights_intensity_between_2_points_helper(point: Tuple4D, expected_result: f32) {
         let w = default_world();
-        let mut light = w.light.clone();
+        let mut light = w.get_light()[0].clone();
         let result = World::intensity_at(&mut light, &point, &w);
         assert_eq!(result, expected_result);
     }
@@ -1122,7 +1137,7 @@ mod tests {
         let material = w.get_shapes()[0].get_material();
         let shape = &w.get_shapes()[0];
 
-        let mut l = w.get_light().clone();
+        let mut l = w.get_light()[0].clone();
         let result = Material::lightning(material, shape, &mut l, &point, &eyev, &normalv, intensity);
 
         println!("expected result   = {:?}", expected_result);
@@ -1324,7 +1339,7 @@ mod tests {
         let light_intensity = Color::new(1.0, 1.0, 1.0);
         let pl = PointLight::new(light_pos, light_intensity);
         let light = Light::PointLight(pl);
-        w.set_light(light);
+        w.add_light(light);
         let mut m = Material::new();
         m.set_color(Color::new(1.0, 1.0, 1.0));
         m.set_ambient(0.1);

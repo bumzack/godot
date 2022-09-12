@@ -457,7 +457,7 @@ mod tests {
         let material = w.get_shapes()[0].get_material();
         let s1 = &w.get_shapes()[0];
 
-        let mut l = w.get_light().clone();
+        let mut l = w.get_light()[0].clone();
         let result = Material::lightning(material, s1, &mut l, &point, &eye_vector, &normal_vector, intensity);
 
         println!("result            {:?}", result);

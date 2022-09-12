@@ -31,7 +31,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
-    world.set_light(l);
+    world.add_light(l);
 
     let filename = format!("test_coord_axes_{}_{}.png", width, height);
 

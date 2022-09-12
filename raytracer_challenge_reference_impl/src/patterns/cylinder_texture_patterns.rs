@@ -4,7 +4,6 @@ use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
-use crate::math::Tuple;
 use crate::patterns::{uv_pattern_at, Checker};
 use crate::prelude::ShapeOps;
 use crate::shape::shape::Shape;
@@ -62,7 +61,7 @@ fn cylindrical_map(p: &Tuple4D) -> (f32, f32) {
 mod tests {
     use std::f32::consts::FRAC_1_SQRT_2;
 
-    use crate::math::assert_two_float;
+    use crate::math::{assert_two_float, Tuple};
 
     use super::*;
 

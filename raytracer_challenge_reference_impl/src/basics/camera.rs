@@ -1,15 +1,12 @@
-use std::error::Error;
-use std::sync::mpsc::channel;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
-
-use crate::basics::canvas::{Canvas, CanvasOps};
+use crate::basics::canvas::Canvas;
 use crate::basics::color::BLACK;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::basics::CanvasOpsStd;
+use crate::basics::CanvasOps;
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
@@ -254,44 +251,6 @@ impl CameraOps for Camera {
     fn render_multi_core(ca: &Camera, wo: &World) -> Canvas {
         let camera = ca.clone();
         let world = wo.clone();
-        let n_samples = camera.get_antialiasing_size();
-        let mut jitter_matrix = Vec::new();
-        if n_samples == 2 {
-            jitter_matrix = vec![
-                -1.0 / 4.0,
-                1.0 / 4.0,
-                1.0 / 4.0,
-                1.0 / 4.0,
-                -1.0 / 4.0,
-                -1.0 / 4.0,
-                1.0 / 4.0,
-                -3.0 / 4.0,
-            ];
-        }
-
-        if n_samples == 3 {
-            let two_over_six = 2.0 / 6.0;
-            jitter_matrix = vec![
-                -two_over_six,
-                two_over_six,
-                0.0,
-                two_over_six,
-                two_over_six,
-                two_over_six,
-                -two_over_six,
-                0.0,
-                0.0,
-                0.0,
-                two_over_six,
-                0.0,
-                -two_over_six,
-                -two_over_six,
-                0.0,
-                -two_over_six,
-                two_over_six,
-                -two_over_six,
-            ];
-        }
 
         let start = Instant::now();
         let num_cores = num_cpus::get() + 1;
@@ -359,12 +318,12 @@ impl CameraOps for Camera {
                     let mut y: usize = 0;
                     let mut cnt_lines = 0;
 
-                    println!(
-                        "camera height / width  {}/{}     thread_id {:?}",
-                        height,
-                        width,
-                        thread::current().id()
-                    );
+                    // println!(
+                    //     "camera height / width  {}/{}     thread_id {:?}",
+                    //     height,
+                    //     width,
+                    //     thread::current().id()
+                    // );
 
                     while *cloned_act_y.lock().unwrap() < height {
                         cnt_lines += 1;
@@ -372,7 +331,7 @@ impl CameraOps for Camera {
                             let mut acty = cloned_act_y.lock().unwrap();
                             y = *acty;
                             *acty = *acty + 1;
-                            println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
+                            // println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
                         }
 
                         for x in 0..width {

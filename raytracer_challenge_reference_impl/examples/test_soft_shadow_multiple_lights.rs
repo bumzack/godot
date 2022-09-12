@@ -1,5 +1,3 @@
-extern crate num_cpus;
-
 use std::error::Error;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -8,15 +6,18 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 3.0;
+    let size_factor = 1.0;
     let antialiasing = true;
     let antialiasing_size = 3;
 
     let filename;
     if antialiasing {
-        filename = format!("./soft_shadow_aa_size_{}_multi_core.png", antialiasing_size);
+        filename = format!(
+            "./soft_shadow_aa_size_{}_multi_core_multi_lights.png",
+            antialiasing_size
+        );
     } else {
-        filename = format!("./soft_shadow_multi_core_no_aa.png",);
+        filename = format!("./soft_shadow_multi_core_multi_lights_no_aa.png",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
@@ -52,6 +53,11 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let intensity = Color::new(1.5, 1.5, 1.5);
     let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
     let area_light = Light::AreaLight(area_light);
+
+    let corner2 = Tuple4D::new_point(-1.5, 2.5, 4.5);
+
+    let area_light2 = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
+    let area_light2 = Light::AreaLight(area_light2);
 
     // ---- CUBE -------
     let mut c = Cube::new();
@@ -109,6 +115,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
 
     let mut w = World::new();
     w.add_light(area_light);
+    w.add_light(area_light2);
     w.add_shape(cube);
     w.add_shape(plane);
     w.add_shape(sphere1);

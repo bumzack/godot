@@ -27,7 +27,6 @@ impl CubeTexturePattern {
 
     pub fn pattern_at(cube_map: &HashMap<CubeFace, CubeChecker>, p: &Tuple4D) -> Color {
         let face = Cube::face_from_point(p);
-        println!("face {:?}", &face);
         let (u, v) = match face {
             CubeFace::LEFT => cube_uv_left(p),
             CubeFace::RIGHT => cube_uv_right(p),
@@ -36,9 +35,6 @@ impl CubeTexturePattern {
             CubeFace::FRONT => cube_uv_front(p),
             CubeFace::BACK => cube_uv_back(p),
         };
-        println!("u,v = {} {}", u, v);
-        let checker = cube_map.get(&face).unwrap();
-        println!("checker {:?}", checker);
         uv_align_check_pattern_at(&cube_map.get(&face).unwrap(), u, v).clone()
     }
 
@@ -71,9 +67,7 @@ pub fn cube_uv_back(p: &Tuple4D) -> (f32, f32) {
 }
 
 pub fn cube_uv_left(p: &Tuple4D) -> (f32, f32) {
-    println!("cube_uv_left  p {:?}", p);
     let (u, v) = (((p.z - 1.0).rem_euclid(2.0)) / 2.0, ((p.y + 1.0).rem_euclid(2.0)) / 2.0);
-    println!(" u, v =   {:?}, {}    ", u, v);
     (u, v)
 }
 

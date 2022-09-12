@@ -89,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
-    w.set_light(l);
+    w.add_light(l);
     w.add_shape(Shape::Plane(floor));
     w.add_shape(Shape::Plane(left_wall));
     w.add_shape(Shape::Plane(right_wall));

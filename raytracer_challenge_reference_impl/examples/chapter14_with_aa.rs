@@ -103,7 +103,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
-    w.set_light(l);
+    w.add_light(l);
     w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
     w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
     w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
