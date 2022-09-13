@@ -14,8 +14,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     add_floor(&mut world);
     //  add_borders(&mut world);
 
-    let multi_core = true;
-
     // from the top -> 2D View in -y direction
     let camera_from = Tuple4D::new_point(2.0, 5.0, -2.0);
     let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -52,7 +50,7 @@ pub fn add_floor(world: &mut World) {
     floor.get_material_mut().set_reflective(0.1);
 
     let m_scale = Matrix::scale(3.0, 0.01, 10.0);
-    let m_scam_transle = Matrix::translation(0.0, -1.5, 0.0);
+   //  let m_scam_transle = Matrix::translation(0.0, -1.5, 0.0);
     floor.set_transformation(m_scale);
     let mut floor = Shape::new(ShapeEnum::Cube(floor));
     floor.set_casts_shadow(false);

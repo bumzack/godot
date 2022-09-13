@@ -82,7 +82,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
     canvas.write_png("chapter10.png")?;
-    let dur = Instant::now() - start;
 
     Ok(())
 }

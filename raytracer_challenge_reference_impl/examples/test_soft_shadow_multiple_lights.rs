@@ -50,9 +50,14 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let area_light = Light::AreaLight(area_light);
 
     let corner2 = Tuple4D::new_point(-1.0, 2.2, 4.2);
-    let intensity = Color::new(1.1, 1.2, 1.2);
-    let area_light2 = AreaLight::new(corner2, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
+    let intensity2 = Color::new(1.1, 1.2, 1.2);
+    let area_light2 = AreaLight::new(corner2, uvec, usteps, vvec, vsteps, intensity2, Sequence::new(vec![]));
     let area_light2 = Light::AreaLight(area_light2);
+
+    let corner3 = Tuple4D::new_point(1.0, 1.8, 3.0);
+    let intensity3 = Color::new(1.0, 1.3, 1.3);
+    let area_light3 = AreaLight::new(corner3, uvec, usteps, vvec, vsteps, intensity3, Sequence::new(vec![]));
+    let area_light3 = Light::AreaLight(area_light3);
 
     // let corner3 = Tuple4D::new_point(-1.5, 5.0, 4.5);
     // let intensity = Color::new(0.1, 0.2, 0.1);
@@ -131,6 +136,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialia
     let mut w = World::new();
     w.add_light(area_light);
     w.add_light(area_light2);
+    w.add_light(area_light3);
     // w.add_light(pl);
     // w.add_light(pl4);
     // w.add_light(pl5);

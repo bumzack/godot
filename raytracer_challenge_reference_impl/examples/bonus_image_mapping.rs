@@ -1,7 +1,6 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f32::consts::PI;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
