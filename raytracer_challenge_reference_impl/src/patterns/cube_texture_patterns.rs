@@ -5,9 +5,8 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::{uv_align_check_pattern_at, CubeChecker};
-use crate::prelude::{CubeFace, ShapeOps};
+use crate::prelude::{Cube, CubeFace, ShapeOps};
 use crate::shape::shape::Shape;
-use crate::shape::Cube;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct CubeTexturePattern {
@@ -89,12 +88,10 @@ mod tests {
 
     use crate::basics::{Color, ColorOps};
     use crate::math::{assert_color, assert_two_float, Tuple, Tuple4D};
-    use crate::patterns::cube_texture_patterns::{
-        cube_uv_back, cube_uv_down, cube_uv_front, cube_uv_left, cube_uv_right, cube_uv_up,
+    use crate::patterns::{
+        cube_uv_back, cube_uv_down, cube_uv_front, cube_uv_left, cube_uv_right, cube_uv_up, CubeTexturePattern,
     };
-    use crate::patterns::CubeTexturePattern;
-    use crate::prelude::CubeChecker;
-    use crate::shape::CubeFace;
+    use crate::prelude::{CubeChecker, CubeFace};
 
     // bonus cube mapping Scenario Outline: UV mapping the front face of a cube
     #[test]

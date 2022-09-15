@@ -15,7 +15,7 @@ pub struct Cylinder {
 impl ShapeOps for Cylinder {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
+            Matrix::invert(&m).expect("Cube::set_transformation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 
@@ -27,7 +27,7 @@ impl ShapeOps for Cylinder {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
         let local_normal = self.local_normal_at(&object_point);
@@ -65,22 +65,31 @@ impl ShapeOps for Cylinder {
     fn get_material_mut(&mut self) -> &mut Material {
         &mut self.material
     }
-}
 
-impl Cylinder {
-    pub fn new() -> Cylinder {
-        Cylinder {
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            material: Material::new(),
-            minimum: -INFINITY,
-            maximum: INFINITY,
-            closed: false,
-        }
+    fn get_parent(&self) -> &Option<ShapeIdx> {
+        unreachable!("this should never be called");
     }
 
-    pub fn intersect(cylinder: &Cylinder, r: &Ray) -> Option<Vec<f32>> {
-        let mut res = Vec::new();
+    fn get_children(&self) -> &Vec<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+
+    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+}
+
+impl<'a> ShapeIntersectOps<'a> for Cylinder {
+    fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
+        let cylinder = match shape.get_shape() {
+            ShapeEnum::Cylinder(cylinder) => Some(cylinder),
+            _ => None,
+        };
+        if cylinder.is_none() {
+            return IntersectionList::new();
+        }
+        let cylinder = cylinder.unwrap();
+        let mut ts = Vec::new();
 
         let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
         if !(a.abs() < EPSILON_OVER_UNDER) {
@@ -89,7 +98,7 @@ impl Cylinder {
 
             let disc = b * b - 4.0 * a * c;
             if disc < 0.0 {
-                return Some(res);
+                return IntersectionList::new();
             }
             let mut t0 = (-b - disc.sqrt()) / (2.0 * a);
             let mut t1 = (-b + disc.sqrt()) / (2.0 * a);
@@ -101,16 +110,32 @@ impl Cylinder {
             }
             let y0 = r.get_origin().y + t0 * r.get_direction().y;
             if cylinder.get_minimum() < y0 && y0 < cylinder.get_maximum() {
-                res.push(t0);
+                ts.push(t0);
             }
 
             let y1 = r.get_origin().y + t1 * r.get_direction().y;
             if cylinder.get_minimum() < y1 && y1 < cylinder.get_maximum() {
-                res.push(t1);
+                ts.push(t1);
             }
         }
-        Self::intersect_caps(cylinder, r, &mut res);
-        Some(res)
+        Self::intersect_caps(&cylinder, &r, &mut ts);
+        let mut intersection_list = IntersectionList::new();
+        ts.into_iter()
+            .for_each(|t| intersection_list.add(Intersection::new(t, shape)));
+        intersection_list
+    }
+}
+
+impl Cylinder {
+    pub fn new() -> Cylinder {
+        Cylinder {
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            material: Material::new(),
+            minimum: -f32::INFINITY,
+            maximum: f32::INFINITY,
+            closed: false,
+        }
     }
 
     pub fn get_minimum(&self) -> f32 {
@@ -167,14 +192,14 @@ mod tests {
 
     // page 178
     fn test_ray_cylinder_intersection_miss_helper(origin: Tuple4D, mut direction: Tuple4D) {
-        let cyl = Cylinder::new();
-
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin, direction);
 
-        let xs = Cylinder::intersect(&cyl, &r);
+        let shape = Shape::new(ShapeEnum::Cylinder(Cylinder::new()));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
 
-        assert_eq!(xs.unwrap().len(), 0);
+        assert_eq!(is.get_intersections().len(), 0);
     }
 
     // page 178
@@ -198,23 +223,30 @@ mod tests {
 
     // page 180
     fn test_ray_cylinder_intersection_intersection_helper(origin: Tuple4D, mut direction: Tuple4D, t1: f32, t2: f32) {
-        let cyl = Cylinder::new();
-
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin.clone(), direction.clone());
-        let xs = Cylinder::intersect(&cyl, &r);
 
-        assert_eq!(xs.is_some(), true);
-        let xs = xs.unwrap();
-        assert_eq!(xs.len(), 2);
+        let shape = Shape::new(ShapeEnum::Cylinder(Cylinder::new()));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
+
+        assert_eq!(is.get_intersections().len(), 2);
 
         println!("origin        = {:?} ", origin);
         println!("direction n   = {:?} ", direction);
-        println!("expected  t1   = {:?}       actual t1 = {}", t1, xs[0]);
-        println!("expected  t2   = {:?}       actual t1 = {}", t2, xs[1]);
+        println!(
+            "expected  t1   = {:?}       actual t1 = {:?}",
+            t1,
+            is.get_intersections()
+        );
+        println!(
+            "expected  t2   = {:?}       actual t1 = {:?}",
+            t2,
+            is.get_intersections()
+        );
 
-        assert_float(t1, xs[0]);
-        assert_float(t2, xs[1]);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), t1);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), t2);
     }
 
     // page 180
@@ -238,9 +270,10 @@ mod tests {
 
     // page 181
     fn test_ray_cylinder_normal_at_helper(point: Tuple4D, n_expected: Tuple4D) {
+        let shapes = vec![];
         let cyl = Cylinder::new();
 
-        let n = Cylinder::normal_at(&cyl, &point);
+        let n = Cylinder::normal_at(&cyl, &point, &shapes);
 
         println!("point        = {:?} ", point);
         println!("expected  n  = {:?} ", n_expected);
@@ -280,8 +313,8 @@ mod tests {
 
         println!("c.getminimum() = {},    -INFINITY = {}", c.get_minimum(), -INFINITY);
         println!("c.get_maximum() = {},    INFINITY = {}", c.get_maximum(), INFINITY);
-        assert_eq!(c.get_minimum(), -INFINITY);
-        assert_eq!(c.get_maximum(), INFINITY);
+        assert_eq!(c.get_minimum(), -f32::INFINITY);
+        assert_eq!(c.get_maximum(), f32::INFINITY);
     }
 
     // page 182
@@ -293,28 +326,11 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let xs = Cylinder::intersect(&cyl, &r);
-        // let xs_clone = xs.clone();
+        let shape = Shape::new(ShapeEnum::Cylinder(cyl));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
 
-        //        println!("point        = {:?} ", point);
-        //        println!("direction     = {:?} ", direction);
-        //        println!("expected  count  = {:?} ", count);
-        //        if xs_clone.is_some() {
-        //            println!("xs is some        = {:?} ", &xs_clone.unwrap());
-        //        } else {
-        //            println!("xs is none  ");
-        //        }
-
-        if count == 0 {
-            if xs.is_some() {
-                assert_eq!(&xs.unwrap().len(), &count);
-            } else {
-                // hmmmm redundant test ?
-                assert_eq!(&xs.is_none(), &true);
-            }
-        } else {
-            assert_eq!(&xs.unwrap().len(), &count);
-        }
+        assert_eq!(is.get_intersections().len(), count);
     }
 
     // page 182
@@ -369,28 +385,15 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let xs = Cylinder::intersect(&cyl, &r);
-        let xs_clone = xs.clone();
+        let shape = Shape::new(ShapeEnum::Cylinder(cyl));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
 
         println!("point        = {:?} ", point);
         println!("direction     = {:?} ", direction);
         println!("expected  count  = {:?} ", count);
-        if xs_clone.is_some() {
-            println!("xs is some        = {:?} ", &xs_clone.unwrap());
-        } else {
-            println!("xs is none  ");
-        }
 
-        if count == 0 {
-            if xs.is_some() {
-                assert_eq!(&xs.unwrap().len(), &count);
-            } else {
-                // hmmmm redundant test ?
-                assert_eq!(&xs.is_none(), &true);
-            }
-        } else {
-            assert_eq!(&xs.unwrap().len(), &count);
-        }
+        assert_eq!(is.get_intersections().len(), count);
     }
 
     // page 185
@@ -424,11 +427,12 @@ mod tests {
 
     // page 186
     fn test_ray_cylinder_capped_normal_at_helper(point: Tuple4D, normal: Tuple4D) {
+        let shapes = vec![];
         let mut cyl = Cylinder::new();
         cyl.set_minimum(1.0);
         cyl.set_maximum(2.0);
         cyl.set_closed(true);
-        let n = Cylinder::normal_at(&cyl, &point);
+        let n = Cylinder::normal_at(&cyl, &point, &shapes);
 
         println!("point        = {:?} ", point);
         println!("direction     = {:?} ", normal);

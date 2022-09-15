@@ -55,7 +55,7 @@ impl RingPattern {
 
     pub fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("RingPattern::set_transofrmation: cant unwrap inverse matrix");
+            Matrix::invert(&m).expect("RingPattern::set_transformation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 

@@ -432,6 +432,7 @@ mod tests {
     // page 143
     #[test]
     fn test_material_precomputing_reflection_vector() {
+        let shapes = vec![];
         let p = Plane::new();
         let shape = Shape::new(ShapeEnum::Plane(p));
 
@@ -440,7 +441,7 @@ mod tests {
         let r = Ray::new(p, o);
         let i = Intersection::new(SQRT_2, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
 
         let reflection_vector_expected = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0);
         assert_tuple(comps.get_reflected_vector(), &reflection_vector_expected);

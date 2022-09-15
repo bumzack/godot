@@ -1,5 +1,3 @@
-use core::f32::{INFINITY, NAN};
-
 use crate::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -22,7 +20,7 @@ pub enum CubeFace {
 impl ShapeOps for Cube {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Cube::set_transofrmation: cant unwrap inverse matrix");
+            Matrix::invert(&m).expect("Cube::set_transformation: cant unwrap inverse matrix");
         self.transformation_matrix = m;
     }
 
@@ -34,7 +32,7 @@ impl ShapeOps for Cube {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
         let local_normal = self.local_normal_at(&object_point);
@@ -64,6 +62,51 @@ impl ShapeOps for Cube {
     fn get_material_mut(&mut self) -> &mut Material {
         &mut self.material
     }
+
+    fn get_parent(&self) -> &Option<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+
+    fn get_children(&self) -> &Vec<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+}
+
+impl<'a> ShapeIntersectOps<'a> for Cube {
+    fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
+        let mut intersection_list = IntersectionList::new();
+
+        let (xt_min, xt_max) = Self::check_axis(r.get_origin().x, r.get_direction().x);
+        let (yt_min, yt_max) = Self::check_axis(r.get_origin().y, r.get_direction().y);
+        let (zt_min, zt_max) = Self::check_axis(r.get_origin().z, r.get_direction().z);
+
+        let tmin = max_float(xt_min, yt_min, zt_min);
+        let tmax = min_float(xt_max, yt_max, zt_max);
+
+        if tmin > tmax {
+            return intersection_list;
+        }
+        let mut res = vec![0.0; 2];
+
+        if tmin == f32::NAN {
+            println!("CUBE: here we have a NAN tmin is {}", tmin);
+        }
+
+        if tmax == f32::NAN {
+            println!("CUBE:  here we have a NAN tmax is {}", tmax);
+        }
+
+        res[0] = tmin;
+        res[1] = tmax;
+
+        intersection_list.add(Intersection::new(res[0], shape));
+        intersection_list.add(Intersection::new(res[1], shape));
+
+        intersection_list
+    }
 }
 
 impl Cube {
@@ -73,33 +116,6 @@ impl Cube {
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
             material: Material::new(),
         }
-    }
-
-    pub fn intersect(r: &Ray) -> Option<Vec<f32>> {
-        let (xt_min, xt_max) = Self::check_axis(r.get_origin().x, r.get_direction().x);
-        let (yt_min, yt_max) = Self::check_axis(r.get_origin().y, r.get_direction().y);
-        let (zt_min, zt_max) = Self::check_axis(r.get_origin().z, r.get_direction().z);
-
-        let tmin = max_float(xt_min, yt_min, zt_min);
-        let tmax = min_float(xt_max, yt_max, zt_max);
-
-        if tmin > tmax {
-            return None;
-        }
-        let mut res = vec![0.0; 2];
-
-        if tmin == NAN {
-            println!("CUBE: here we have a NAN tmin is {}", tmin);
-        }
-
-        if tmax == NAN {
-            println!("CUBE:  here we have a NAN tmax is {}", tmax);
-        }
-
-        res[0] = tmin;
-        res[1] = tmax;
-
-        Some(res)
     }
 
     fn check_axis(origin: f32, direction: f32) -> (f32, f32) {
@@ -113,8 +129,8 @@ impl Cube {
             tmin = tmin_numerator / direction;
             tmax = tmax_numerator / direction;
         } else {
-            tmin = tmin_numerator * INFINITY;
-            tmax = tmax_numerator * INFINITY;
+            tmin = tmin_numerator * f32::INFINITY;
+            tmax = tmax_numerator * f32::INFINITY;
         }
         if tmin > tmax {
             let tmp = tmin;
@@ -162,19 +178,19 @@ mod tests {
     fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f32, t2: f32) {
         let r = Ray::new(origin, direction);
 
-        // let c = Cube::new();
+        let shape = Shape::new(ShapeEnum::Cube(Cube::new()));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
 
-        let xs = Cube::intersect(&r).unwrap();
-
-        assert_eq!(xs.len(), 2);
+        assert_eq!(is.get_intersections().len(), 2);
 
         println!("expected t1   = {} ", t1);
-        println!("actual  t1    = {} ", xs[0]);
+        println!("actual  t1    = {} ", is.get_intersections().get(0).unwrap().get_t());
         println!("expected t2   = {} ", t2);
-        println!("actual  t2    = {} ", xs[1]);
+        println!("actual  t2    = {} ", is.get_intersections().get(1).unwrap().get_t());
 
-        assert_float(xs[0], t1);
-        assert_float(xs[1], t2);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), t1);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), t2);
     }
 
     // page 168
@@ -220,11 +236,11 @@ mod tests {
     fn test_ray_cube_miss_helper(origin: Tuple4D, direction: Tuple4D) {
         let r = Ray::new(origin, direction);
 
-        //    let c = Cube::new();
+        let shape = Shape::new(ShapeEnum::Cube(Cube::new()));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
 
-        let xs = Cube::intersect(&r);
-
-        assert_eq!(xs.is_none(), true);
+        assert_eq!(is.get_intersections().len(), 0);
     }
 
     // page 172
@@ -262,8 +278,10 @@ mod tests {
 
     // page 173 helper
     fn test_cube_normal_helper(point: Tuple4D, n_expected: Tuple4D) {
+        let shapes = vec![];
+
         let c = Cube::new();
-        let n = c.normal_at(&point);
+        let n = c.normal_at(&point, &shapes);
         assert_tuple(&n, &n_expected);
     }
 

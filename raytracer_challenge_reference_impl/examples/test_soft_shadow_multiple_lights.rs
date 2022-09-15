@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             antialiasing_size
         );
     } else {
-        filename = format!("./soft_shadow_multi_core_multi_lights_no_aa.png", );
+        filename = format!("./soft_shadow_multi_core_multi_lights_no_aa.png",);
     }
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);

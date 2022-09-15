@@ -12,7 +12,7 @@ pub struct Sphere {
 impl ShapeOps for Sphere {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Sphere::set_transofrmation:  cant unwrap inverted matrix ");
+            Matrix::invert(&m).expect("Sphere::set_transformation:  cant unwrap inverted matrix ");
         self.transformation_matrix = m;
     }
 
@@ -23,9 +23,7 @@ impl ShapeOps for Sphere {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D) -> Tuple4D {
-        // TODO: its for the tests -remove and fix tests and add unreachable
-
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
         let object_point = self.get_inverse_transformation() * world_point;
         let local_normal = self.local_normal_at(&object_point);
         let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
@@ -49,6 +47,44 @@ impl ShapeOps for Sphere {
     fn get_material_mut(&mut self) -> &mut Material {
         &mut self.material
     }
+
+    fn get_parent(&self) -> &Option<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+
+    fn get_children(&self) -> &Vec<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+
+    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
+        unreachable!("this should never be called");
+    }
+}
+
+impl<'a> ShapeIntersectOps<'a> for Sphere {
+    fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
+        let mut intersection_list = IntersectionList::new();
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let sphere_to_ray = &r.origin - &o;
+        let a = &r.direction ^ &r.direction;
+        let b = 2.0 * (&r.direction ^ &sphere_to_ray);
+        let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
+        let disc = b * b - 4.0 * a * c;
+
+        if disc < 0.0 {
+            return intersection_list;
+        }
+        let mut res = vec![0.0; 2];
+        res[0] = (-b - disc.sqrt()) / (2.0 * a);
+        res[1] = (-b + disc.sqrt()) / (2.0 * a);
+
+        let i1 = Intersection::new(res[0], shape);
+        let i2 = Intersection::new(res[1], shape);
+        intersection_list.add(i1);
+        intersection_list.add(i2);
+
+        intersection_list
+    }
 }
 
 impl Sphere {
@@ -59,28 +95,9 @@ impl Sphere {
             material: Material::new(),
         }
     }
-
-    pub fn intersect(r: &Ray) -> Option<Vec<f32>> {
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let sphere_to_ray = &r.origin - &o;
-        let a = &r.direction ^ &r.direction;
-        let b = 2.0 * (&r.direction ^ &sphere_to_ray);
-        let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
-        let disc = b * b - 4.0 * a * c;
-
-        if disc < 0.0 {
-            return None;
-        }
-        let mut res = vec![0.0; 2];
-        res[0] = (-b - disc.sqrt()) / (2.0 * a);
-        res[1] = (-b + disc.sqrt()) / (2.0 * a);
-
-        res.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-        Some(res)
-    }
 }
 
-impl<'a> fmt::Debug for Sphere {
+impl fmt::Debug for Sphere {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "i am a sphere  ")
     }
@@ -97,15 +114,11 @@ pub fn glass_sphere() -> Sphere {
 
 #[cfg(test)]
 mod tests {
+    use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
+    use crate::material::{Material, MaterialOps};
+    use crate::math::{assert_color, assert_float, assert_matrix, assert_tuple, Matrix, MatrixOps, Tuple, Tuple4D};
+    use crate::prelude::{glass_sphere, Shape, ShapeEnum, ShapeIntersectOps, ShapeOps, Sphere};
     use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
-
-    use crate::basics::intersection::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps};
-    use crate::basics::ray::RayOps;
-    use crate::math::common::{assert_color, assert_float, assert_matrix, assert_tuple};
-    use crate::shape::shape::{Shape, ShapeEnum};
-
-    use super::*;
-    use crate::prelude::ShapeOps;
 
     #[test]
     fn test_ray_sphere_intersection() {
@@ -113,23 +126,25 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let intersections = Sphere::intersect(&r).unwrap();
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shapes = vec![];
+        let is = Shape::intersect_local(&shape, r, &shapes);
 
-        assert_eq!(intersections.len(), 2);
+        assert_eq!(is.get_intersections().len(), 2);
 
-        assert_float(intersections[0], 4.0);
-        assert_float(intersections[1], 6.0);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), 4.0);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), 6.0);
 
         let o = Tuple4D::new_point(0.0, 1.0, -5.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let intersections = Sphere::intersect(&r).unwrap();
+        let is = Shape::intersects(&shape, r, &shapes);
 
-        assert_eq!(intersections.len(), 2);
+        assert_eq!(is.get_intersections().len(), 2);
 
-        assert_float(intersections[0], 5.0);
-        assert_float(intersections[1], 5.0);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), 5.0);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), 5.0);
     }
 
     // page 60
@@ -139,9 +154,11 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let intersections = Sphere::intersect(&r);
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shapes = vec![];
+        let is = Shape::intersects(&shape, r, &shapes);
 
-        assert_eq!(intersections, None);
+        assert_eq!(is.get_intersections().len(), 0);
     }
 
     // page 61
@@ -151,12 +168,13 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let intersections = Sphere::intersect(&r).unwrap();
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shapes = vec![];
+        let is = Shape::intersects(&shape, r, &shapes);
 
-        assert_eq!(intersections.len(), 2);
-
-        assert_float(intersections[0], -1.0);
-        assert_float(intersections[1], 1.0);
+        assert_eq!(is.get_intersections().len(), 2);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), -1.0);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), 1.0);
     }
 
     // page 62
@@ -166,12 +184,13 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let intersections = Sphere::intersect(&r).unwrap();
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shapes = vec![];
+        let is = Shape::intersects(&shape, r, &shapes);
 
-        assert_eq!(intersections.len(), 2);
-
-        assert_float(intersections[0], -6.0);
-        assert_float(intersections[1], -4.0);
+        assert_eq!(is.get_intersections().len(), 2);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), -6.0);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), -4.0);
     }
 
     // page 69
@@ -209,18 +228,13 @@ mod tests {
         let m = Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
+        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shapes = vec![];
+        let is = Shape::intersects(&shape, r, &shapes);
 
-        let is = Intersection::intersect(&sphere_shape, &r);
-
-        let intersections = is.get_intersections();
-
-        assert_eq!(intersections.len(), 2);
-
-        // println!("intersections[0].get_t() {}", intersections[0].get_t());
-        // println!("intersections[1].get_t() {}", intersections[1].get_t());
-        assert_float(intersections[0].get_t(), 3.0);
-        assert_float(intersections[1].get_t(), 7.0);
+        assert_eq!(is.get_intersections().len(), 2);
+        assert_float(is.get_intersections().get(0).unwrap().get_t(), 3.0);
+        assert_float(is.get_intersections().get(1).unwrap().get_t(), 7.0);
     }
 
     // page 70
@@ -234,8 +248,9 @@ mod tests {
         let m = Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
-        let is = Intersection::intersect(&sphere_shape, &r);
+        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shapes = vec![];
+        let is = Shape::intersects(&shape, r, &shapes);
 
         let intersections = is.get_intersections();
         assert_eq!(intersections.len(), 0);
@@ -244,32 +259,33 @@ mod tests {
     // page 78
     #[test]
     fn test_sphere_normal_at() {
+        let shapes = vec![];
         let s = Sphere::new();
 
         let p = Tuple4D::new_point(1.0, 0.0, 0.0);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(&p, &shapes);
         let n_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
         assert_tuple(&n, &n_expected);
 
         let p = Tuple4D::new_point(0.0, 1.0, 0.0);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(&p, &shapes);
         let n_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
         assert_tuple(&n, &n_expected);
 
         let p = Tuple4D::new_point(0.0, 0.0, 1.0);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(&p, &shapes);
         let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
         assert_tuple(&n, &n_expected);
 
         let a = 3_f32.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(&p, &shapes);
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
 
         let a = 3_f32.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
-        let n = Tuple4D::normalize(&s.normal_at(&p));
+        let n = Tuple4D::normalize(&s.normal_at(&p, &shapes));
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
     }
@@ -277,11 +293,12 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_transformed() {
+        let shapes = vec![];
         let mut s = Sphere::new();
         s.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
 
         let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(&p, &shapes);
         let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
 
         println!("n             = {:?}   ", n);
@@ -293,11 +310,12 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
+        let shapes = vec![];
         let mut s = Sphere::new();
         s.set_transformation(Matrix::scale(1.0, 0.5, 1.0) * Matrix::rotate_z(PI / 5.0));
 
         let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(&p, &shapes);
 
         let n_expected = Tuple4D::new_vector(0.0, 0.97014254, -0.24253564);
 
@@ -341,7 +359,8 @@ mod tests {
         xs.add(Intersection::new(5.25, &c));
         xs.add(Intersection::new(6.0, &a));
 
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[index], &r, &xs);
+        let shapes = vec![];
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[index], &r, &xs, &shapes);
 
         println!("n1 = {}   n1_expected = {}", comps.get_n1(), n1_expected);
         println!("n2 = {}   n2_expected = {}", comps.get_n2(), n2_expected);

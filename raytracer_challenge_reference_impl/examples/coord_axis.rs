@@ -50,7 +50,7 @@ pub fn add_floor(world: &mut World) {
     floor.get_material_mut().set_reflective(0.1);
 
     let m_scale = Matrix::scale(3.0, 0.01, 10.0);
-   //  let m_scam_transle = Matrix::translation(0.0, -1.5, 0.0);
+    //  let m_scam_transle = Matrix::translation(0.0, -1.5, 0.0);
     floor.set_transformation(m_scale);
     let mut floor = Shape::new(ShapeEnum::Cube(floor));
     floor.set_casts_shadow(false);

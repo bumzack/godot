@@ -318,12 +318,12 @@ impl CameraOps for Camera {
                     let mut y: usize = 0;
                     let mut cnt_lines = 0;
 
-                    // println!(
-                    //     "camera height / width  {}/{}     thread_id {:?}",
-                    //     height,
-                    //     width,
-                    //     thread::current().id()
-                    // );
+                    println!(
+                        "camera height / width  {}/{}     thread_id {:?}",
+                        height,
+                        width,
+                        thread::current().id()
+                    );
 
                     while *cloned_act_y.lock().unwrap() < height {
                         cnt_lines += 1;
@@ -331,7 +331,7 @@ impl CameraOps for Camera {
                             let mut acty = cloned_act_y.lock().unwrap();
                             y = *acty;
                             *acty = *acty + 1;
-                            // println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
+                             println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
                         }
 
                         for x in 0..width {
