@@ -448,7 +448,7 @@ mod tests {
     }
 
     // bonus: soft shadows // area light
-    fn test_area_lights_lighning_uses_light_intensity_helper(intensity: f64, expected_result: Color) {
+    fn test_area_lights_lightning_uses_light_intensity_helper(intensity: f64, expected_result: Color) {
         let w = default_world_soft_shadows();
 
         let point = Tuple4D::new_point(0.0, 0.0, -1.0);
