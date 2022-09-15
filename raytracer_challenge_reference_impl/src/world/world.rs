@@ -301,10 +301,10 @@ pub fn world_to_object(shape: &Shape, point: &Tuple4D, shapes: &ShapeArr) -> Tup
         // println!("new point  {:?}", p);
     }
 
-   //  println!("point {:?},   matrix {:?}", &p, shape.get_inverse_transformation());
+    //  println!("point {:?},   matrix {:?}", &p, shape.get_inverse_transformation());
 
     let res = shape.get_inverse_transformation() * &p;
-   //  println!("res {:?}", &res);
+    //  println!("res {:?}", &res);
     res
 }
 

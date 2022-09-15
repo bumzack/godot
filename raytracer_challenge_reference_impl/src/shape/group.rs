@@ -122,7 +122,7 @@ impl<'a> Group {
         idx
     }
 
-    pub  fn add_child(shapes: &mut ShapeArr, parent_idx: ShapeIdx, mut shape: Shape) -> ShapeIdx {
+    pub fn add_child(shapes: &mut ShapeArr, parent_idx: ShapeIdx, mut shape: Shape) -> ShapeIdx {
         shape.set_parent(parent_idx);
         shapes.push(shape);
         let shape_idx = shapes.len() - 1;
@@ -131,7 +131,7 @@ impl<'a> Group {
         shape_idx
     }
 
-    pub   fn add_child_idx(shapes: &mut ShapeArr, parent_idx: ShapeIdx, shape_idx: ShapeIdx) {
+    pub fn add_child_idx(shapes: &mut ShapeArr, parent_idx: ShapeIdx, shape_idx: ShapeIdx) {
         let parent = shapes.get_mut(parent_idx).unwrap();
         parent.get_children_mut().push(shape_idx);
 

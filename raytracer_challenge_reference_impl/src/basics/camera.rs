@@ -331,7 +331,7 @@ impl CameraOps for Camera {
                             let mut acty = cloned_act_y.lock().unwrap();
                             y = *acty;
                             *acty = *acty + 1;
-                             println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
+                            println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
                         }
 
                         for x in 0..width {

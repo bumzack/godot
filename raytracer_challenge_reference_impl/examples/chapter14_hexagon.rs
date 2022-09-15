@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn hexagon_corner(idx:usize) -> Shape {
+fn hexagon_corner(idx: usize) -> Shape {
     let mut corner = Sphere::new();
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::scale(0.25, 0.25, 0.25);
     corner.set_transformation(trans);
@@ -32,20 +32,20 @@ fn hexagon_corner(idx:usize) -> Shape {
     Shape::new(ShapeEnum::Sphere(corner))
 }
 
-fn hexagon_edge(idx:usize) -> Shape {
+fn hexagon_edge(idx: usize) -> Shape {
     let mut edge = Cylinder::new();
     edge.set_minimum(0.0);
     edge.set_maximum(1.0);
-    let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::rotate_y(-PI / 6.0) ;
-    let trans = &trans * &Matrix::rotate_z(-PI / 2.0) ;
-    let trans  = &trans * &Matrix::scale(0.25, 1.0, 0.25);
+    let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::rotate_y(-PI / 6.0);
+    let trans = &trans * &Matrix::rotate_z(-PI / 2.0);
+    let trans = &trans * &Matrix::scale(0.25, 1.0, 0.25);
 
     edge.set_transformation(trans);
     edge.get_material_mut().set_color(get_color(idx));
     Shape::new(ShapeEnum::Cylinder(edge))
 }
 
-fn hexagon_side(shapes: &mut ShapeArr,idx:usize) -> ShapeIdx {
+fn hexagon_side(shapes: &mut ShapeArr, idx: usize) -> ShapeIdx {
     let side_idx = Group::new(shapes);
     Group::add_child(shapes, side_idx, hexagon_corner(idx));
     Group::add_child(shapes, side_idx, hexagon_edge(idx));
@@ -53,8 +53,7 @@ fn hexagon_side(shapes: &mut ShapeArr,idx:usize) -> ShapeIdx {
     side_idx
 }
 
-
-fn get_color(idx:usize) -> Color {
+fn get_color(idx: usize) -> Color {
     let red = Color::new(1.0, 0.0, 0.0);
     let yellow = Color::new(1.0, 1.0, 0.0);
     let brown = Color::new(1.0, 0.5, 0.0);
@@ -81,7 +80,7 @@ fn hexagon(shapes: &mut ShapeArr) -> ShapeIdx {
     for i in 0..6 {
         let side = hexagon_side(shapes, i as usize);
         let mut side = shapes.get_mut(side).unwrap();
-        let trans = Matrix::rotate_y(i as f32  * PI / 3.0);
+        let trans = Matrix::rotate_y(i as f32 * PI / 3.0);
         side.set_transformation(trans);
         println!("i = {}", i)
     }
