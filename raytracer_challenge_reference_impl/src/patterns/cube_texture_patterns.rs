@@ -57,28 +57,28 @@ impl CubeTexturePattern {
     }
 }
 
-pub fn cube_uv_front(p: &Tuple4D) -> (f32, f32) {
+pub fn cube_uv_front(p: &Tuple4D) -> (f64, f64) {
     (((p.x + 1.0).rem_euclid(2.0)) / 2.0, ((p.y + 1.0).rem_euclid(2.0)) / 2.0)
 }
 
-pub fn cube_uv_back(p: &Tuple4D) -> (f32, f32) {
+pub fn cube_uv_back(p: &Tuple4D) -> (f64, f64) {
     (((1.0 - p.x).rem_euclid(2.0)) / 2.0, ((p.y + 1.0).rem_euclid(2.0)) / 2.0)
 }
 
-pub fn cube_uv_left(p: &Tuple4D) -> (f32, f32) {
+pub fn cube_uv_left(p: &Tuple4D) -> (f64, f64) {
     let (u, v) = (((p.z - 1.0).rem_euclid(2.0)) / 2.0, ((p.y + 1.0).rem_euclid(2.0)) / 2.0);
     (u, v)
 }
 
-pub fn cube_uv_right(p: &Tuple4D) -> (f32, f32) {
+pub fn cube_uv_right(p: &Tuple4D) -> (f64, f64) {
     (((1.0 - p.z).rem_euclid(2.0)) / 2.0, ((p.y + 1.0).rem_euclid(2.0)) / 2.0)
 }
 
-pub fn cube_uv_up(p: &Tuple4D) -> (f32, f32) {
+pub fn cube_uv_up(p: &Tuple4D) -> (f64, f64) {
     (((p.x + 1.0).rem_euclid(2.0)) / 2.0, ((1.0 - p.z).rem_euclid(2.0)) / 2.0)
 }
 
-pub fn cube_uv_down(p: &Tuple4D) -> (f32, f32) {
+pub fn cube_uv_down(p: &Tuple4D) -> (f64, f64) {
     (((p.x - 1.0).rem_euclid(2.0)) / 2.0, ((p.z + 1.0).rem_euclid(2.0)) / 2.0)
 }
 
@@ -313,7 +313,7 @@ mod tests {
         assert_color(&actual, &white);
     }
 
-    fn assert_tuple(actual: (f32, f32), expected: (f32, f32)) {
+    fn assert_tuple(actual: (f64, f64), expected: (f64, f64)) {
         assert_two_float(actual.0, expected.0);
         assert_two_float(actual.0, expected.0);
     }

@@ -1,7 +1,7 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -118,7 +118,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                             color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
                         }
-                        color = color / n_samples as f32;
+                        color = color / n_samples as f64;
                     // println!("with AA    color at ({}/{}): {:?}", x, y, color);
                     } else {
                         let r = Camera::ray_for_pixel(&c_clone, x, y);

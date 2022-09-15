@@ -2,23 +2,23 @@ use rand::{thread_rng, Rng};
 
 #[derive(Clone, Debug)]
 pub struct Sequence {
-    data: Vec<f32>,
+    data: Vec<f64>,
     idx: usize,
 }
 
 impl Sequence {
-    pub fn new(data: Vec<f32>) -> Sequence {
+    pub fn new(data: Vec<f64>) -> Sequence {
         Sequence { data, idx: 0 }
     }
 
-    pub(crate) fn next(&mut self) -> f32 {
+    pub(crate) fn next(&mut self) -> f64 {
         if self.data.len() > 0 {
             let elem = self.data[self.idx % self.data.len()];
             self.idx += 1;
             elem
         } else {
             let mut rng = thread_rng();
-            rng.gen::<f32>()
+            rng.gen::<f64>()
         }
     }
 }

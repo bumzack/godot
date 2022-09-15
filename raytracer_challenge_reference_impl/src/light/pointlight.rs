@@ -50,7 +50,7 @@ impl LightOps for PointLight {
         1
     }
 
-    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f32 {
+    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f64 {
         if World::is_shadowed(world, self.get_position(), point) {
             return 0.0;
         }

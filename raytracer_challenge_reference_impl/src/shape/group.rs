@@ -184,7 +184,7 @@ impl fmt::Display for Group {
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::PI;
+    use std::f64::consts::PI;
 
     use crate::math::common::assert_matrix;
     use crate::prelude::{assert_tuple, normal_to_world, world_to_object, Sphere};
@@ -428,7 +428,7 @@ mod tests {
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
 
         let sphere = shapes.get(sphere_idx).unwrap();
-        let sqrt3_3 = (3.0 as f32).sqrt() / 3.0;
+        let sqrt3_3 = (3.0 as f64).sqrt() / 3.0;
         let vec = normal_to_world(&sphere, &Tuple4D::new_vector(sqrt3_3, sqrt3_3, sqrt3_3), &shapes);
         let expected = Tuple4D::new_vector(0.28571427, 0.42857146, -0.8571429);
         println!("actual {:?}        expected {:?}", &vec, &expected);

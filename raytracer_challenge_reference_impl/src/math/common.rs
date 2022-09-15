@@ -2,8 +2,8 @@ use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
 
-pub const EPSILON: f32 = 0.00001;
-pub const EPSILON_OVER_UNDER: f32 = 0.05;
+pub const EPSILON: f64 = 0.00001;
+pub const EPSILON_OVER_UNDER: f64 = 0.00001;
 
 pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
     assert_eq!(assert_two_float(actual.m[0][0], expected.m[0][0]), true);
@@ -50,7 +50,7 @@ pub fn assert_valid_color(c: &Color) {
     }
 }
 
-pub fn assert_two_float(a: f32, b: f32) -> bool {
+pub fn assert_two_float(a: f64, b: f64) -> bool {
     // println!("float_equal: a = {}, b = {}", a, b);
     if (a - b).abs() < EPSILON {
         return true;
@@ -58,11 +58,11 @@ pub fn assert_two_float(a: f32, b: f32) -> bool {
     false
 }
 
-pub fn assert_float(actual: f32, expected: f32) {
+pub fn assert_float(actual: f64, expected: f64) {
     assert_eq!(assert_two_float(actual, expected), true);
 }
 
-pub fn max_float(a: f32, b: f32, c: f32) -> f32 {
+pub fn max_float(a: f64, b: f64, c: f64) -> f64 {
     let mut max = a;
     if b > max {
         max = b;
@@ -73,7 +73,7 @@ pub fn max_float(a: f32, b: f32, c: f32) -> f32 {
     max
 }
 
-pub fn min_float(a: f32, b: f32, c: f32) -> f32 {
+pub fn min_float(a: f64, b: f64, c: f64) -> f64 {
     let mut min = a;
     if b < min {
         min = b;

@@ -2,23 +2,23 @@ use crate::prelude::patterns::Pattern;
 use crate::prelude::*;
 use crate::DEBUG;
 
-pub const REFRACTION_VACUUM: f32 = 1.0;
-pub const REFRACTION_AIR: f32 = 1.00029;
-pub const REFRACTION_WATER: f32 = 1.333;
-pub const REFRACTION_GLASS: f32 = 1.52;
-pub const REFRACTION_DIAMOND: f32 = 2.417;
+pub const REFRACTION_VACUUM: f64 = 1.0;
+pub const REFRACTION_AIR: f64 = 1.00029;
+pub const REFRACTION_WATER: f64 = 1.333;
+pub const REFRACTION_GLASS: f64 = 1.52;
+pub const REFRACTION_DIAMOND: f64 = 2.417;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Material {
     color: Color,
-    ambient: f32,
-    diffuse: f32,
-    specular: f32,
-    shininess: f32,
+    ambient: f64,
+    diffuse: f64,
+    specular: f64,
+    shininess: f64,
     pattern: Option<Pattern>,
-    reflective: f32,
-    transparency: f32,
-    refractive_index: f32,
+    reflective: f64,
+    transparency: f64,
+    refractive_index: f64,
 }
 
 pub trait MaterialOps {
@@ -31,34 +31,34 @@ pub trait MaterialOps {
         point: &Tuple4D,
         eye: &Tuple4D,
         n: &Tuple4D,
-        intensity: f32,
+        intensity: f64,
     ) -> Color;
 
     fn set_color(&mut self, c: Color);
-    fn set_diffuse(&mut self, d: f32);
-    fn set_specular(&mut self, s: f32);
-    fn set_shininess(&mut self, s: f32);
-    fn set_ambient(&mut self, a: f32);
+    fn set_diffuse(&mut self, d: f64);
+    fn set_specular(&mut self, s: f64);
+    fn set_shininess(&mut self, s: f64);
+    fn set_ambient(&mut self, a: f64);
 
-    fn get_diffuse(&self) -> f32;
-    fn get_specular(&self) -> f32;
-    fn get_shininess(&self) -> f32;
-    fn get_ambient(&self) -> f32;
+    fn get_diffuse(&self) -> f64;
+    fn get_specular(&self) -> f64;
+    fn get_shininess(&self) -> f64;
+    fn get_ambient(&self) -> f64;
 
     fn get_color(&self) -> &Color;
 
     fn set_pattern(&mut self, p: Pattern);
     fn get_pattern(&self) -> &Option<Pattern>;
 
-    fn get_reflective(&self) -> f32;
-    fn set_reflective(&mut self, a: f32);
+    fn get_reflective(&self) -> f64;
+    fn set_reflective(&mut self, a: f64);
 
-    fn get_transparency(&self) -> f32;
+    fn get_transparency(&self) -> f64;
 
-    fn set_transparency(&mut self, transparency: f32);
-    fn get_refractive_index(&self) -> f32;
+    fn set_transparency(&mut self, transparency: f64);
+    fn get_refractive_index(&self) -> f64;
 
-    fn set_refractive_index(&mut self, refractive_index: f32);
+    fn set_refractive_index(&mut self, refractive_index: f64);
 }
 
 impl MaterialOps for Material {
@@ -83,7 +83,7 @@ impl MaterialOps for Material {
         point: &Tuple4D,
         eye: &Tuple4D,
         n: &Tuple4D,
-        intensity: f32,
+        intensity: f64,
     ) -> Color {
         let c: Color;
 
@@ -175,42 +175,42 @@ impl MaterialOps for Material {
         sum.replace_inf_with_max();
         assert_valid_color(&sum);
 
-        ambient + sum / light.get_samples() as f32 * intensity
+        ambient + sum / light.get_samples() as f64 * intensity
     }
 
     fn set_color(&mut self, c: Color) {
         self.color = c;
     }
 
-    fn set_diffuse(&mut self, d: f32) {
+    fn set_diffuse(&mut self, d: f64) {
         self.diffuse = d;
     }
 
-    fn set_specular(&mut self, s: f32) {
+    fn set_specular(&mut self, s: f64) {
         self.specular = s;
     }
 
-    fn set_shininess(&mut self, s: f32) {
+    fn set_shininess(&mut self, s: f64) {
         self.shininess = s;
     }
 
-    fn set_ambient(&mut self, a: f32) {
+    fn set_ambient(&mut self, a: f64) {
         self.ambient = a;
     }
 
-    fn get_diffuse(&self) -> f32 {
+    fn get_diffuse(&self) -> f64 {
         self.diffuse
     }
 
-    fn get_specular(&self) -> f32 {
+    fn get_specular(&self) -> f64 {
         self.specular
     }
 
-    fn get_shininess(&self) -> f32 {
+    fn get_shininess(&self) -> f64 {
         self.shininess
     }
 
-    fn get_ambient(&self) -> f32 {
+    fn get_ambient(&self) -> f64 {
         self.ambient
     }
 
@@ -226,34 +226,34 @@ impl MaterialOps for Material {
         &self.pattern
     }
 
-    fn get_reflective(&self) -> f32 {
+    fn get_reflective(&self) -> f64 {
         self.reflective
     }
 
-    fn set_reflective(&mut self, a: f32) {
+    fn set_reflective(&mut self, a: f64) {
         self.reflective = a;
     }
 
-    fn get_transparency(&self) -> f32 {
+    fn get_transparency(&self) -> f64 {
         self.transparency
     }
 
-    fn set_transparency(&mut self, transparency: f32) {
+    fn set_transparency(&mut self, transparency: f64) {
         self.transparency = transparency;
     }
 
-    fn get_refractive_index(&self) -> f32 {
+    fn get_refractive_index(&self) -> f64 {
         self.refractive_index
     }
 
-    fn set_refractive_index(&mut self, refractive_index: f32) {
+    fn set_refractive_index(&mut self, refractive_index: f64) {
         self.refractive_index = refractive_index;
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::SQRT_2;
+    use std::f64::consts::SQRT_2;
 
     use crate::prelude::stripe_patterns::StripePattern;
 
@@ -351,7 +351,7 @@ mod tests {
         let l = PointLight::new(Tuple4D::new_point(0.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
 
         let result = Material::lightning(&m, &dummy_obj, &mut Light::PointLight(l), &p, &eye_v, &normal_v, 1.0);
-        let result_expected = Color::new(1.6363853, 1.6363853, 1.6363853);
+        let result_expected = Color::new(1.6363961030678928, 1.6363961030678928, 1.6363961030678928);
 
         println!("result = {:?}", result);
         println!("result_Expected = {:?}", result_expected);
@@ -448,7 +448,7 @@ mod tests {
     }
 
     // bonus: soft shadows // area light
-    fn test_area_lights_lighning_uses_light_intensity_helper(intensity: f32, expected_result: Color) {
+    fn test_area_lights_lighning_uses_light_intensity_helper(intensity: f64, expected_result: Color) {
         let w = default_world_soft_shadows();
 
         let point = Tuple4D::new_point(0.0, 0.0, -1.0);

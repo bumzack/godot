@@ -1,4 +1,4 @@
-use core::f32::INFINITY;
+use core::f64::INFINITY;
 
 use crate::prelude::*;
 
@@ -7,8 +7,8 @@ pub struct Cylinder {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
     material: Material,
-    minimum: f32,
-    maximum: f32,
+    minimum: f64,
+    maximum: f64,
     closed: bool,
 }
 
@@ -132,25 +132,25 @@ impl Cylinder {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
             material: Material::new(),
-            minimum: -f32::INFINITY,
-            maximum: f32::INFINITY,
+            minimum: -f64::INFINITY,
+            maximum: f64::INFINITY,
             closed: false,
         }
     }
 
-    pub fn get_minimum(&self) -> f32 {
+    pub fn get_minimum(&self) -> f64 {
         self.minimum
     }
 
-    pub fn get_maximum(&self) -> f32 {
+    pub fn get_maximum(&self) -> f64 {
         self.maximum
     }
 
-    pub fn set_minimum(&mut self, min: f32) {
+    pub fn set_minimum(&mut self, min: f64) {
         self.minimum = min;
     }
 
-    pub fn set_maximum(&mut self, max: f32) {
+    pub fn set_maximum(&mut self, max: f64) {
         self.maximum = max;
     }
 
@@ -162,13 +162,13 @@ impl Cylinder {
         self.closed = closed;
     }
 
-    fn check_cap(r: &Ray, t: f32) -> bool {
+    fn check_cap(r: &Ray, t: f64) -> bool {
         let x = r.get_origin().x + t * r.get_direction().x;
         let z = r.get_origin().z + t * r.get_direction().z;
         (x.powi(2) + z.powi(2)) - 1.0 < EPSILON_OVER_UNDER
     }
 
-    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f32>) {
+    fn intersect_caps(c: &Cylinder, r: &Ray, xs: &mut Vec<f64>) {
         if !c.get_closed() || r.get_direction().y.abs() < EPSILON {
             return;
         }
@@ -222,7 +222,7 @@ mod tests {
     }
 
     // page 180
-    fn test_ray_cylinder_intersection_intersection_helper(origin: Tuple4D, mut direction: Tuple4D, t1: f32, t2: f32) {
+    fn test_ray_cylinder_intersection_intersection_helper(origin: Tuple4D, mut direction: Tuple4D, t1: f64, t2: f64) {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin.clone(), direction.clone());
 
@@ -265,7 +265,7 @@ mod tests {
         // 3
         let origin = Tuple4D::new_point(0.5, 0.0, -5.0);
         let direction = Tuple4D::new_vector(0.1, 1.0, 1.0);
-        test_ray_cylinder_intersection_intersection_helper(origin, direction, 6.808006, 7.0886984);
+        test_ray_cylinder_intersection_intersection_helper(origin, direction, 6.80798191702732, 7.088723439378861);
     }
 
     // page 181
@@ -313,8 +313,8 @@ mod tests {
 
         println!("c.getminimum() = {},    -INFINITY = {}", c.get_minimum(), -INFINITY);
         println!("c.get_maximum() = {},    INFINITY = {}", c.get_maximum(), INFINITY);
-        assert_eq!(c.get_minimum(), -f32::INFINITY);
-        assert_eq!(c.get_maximum(), f32::INFINITY);
+        assert_eq!(c.get_minimum(), -f64::INFINITY);
+        assert_eq!(c.get_maximum(), f64::INFINITY);
     }
 
     // page 182

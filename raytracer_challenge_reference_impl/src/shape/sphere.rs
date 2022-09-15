@@ -118,7 +118,7 @@ mod tests {
     use crate::material::{Material, MaterialOps};
     use crate::math::{assert_color, assert_float, assert_matrix, assert_tuple, Matrix, MatrixOps, Tuple, Tuple4D};
     use crate::prelude::{glass_sphere, Shape, ShapeEnum, ShapeIntersectOps, ShapeOps, Sphere};
-    use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     #[test]
     fn test_ray_sphere_intersection() {
@@ -277,13 +277,13 @@ mod tests {
         let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
         assert_tuple(&n, &n_expected);
 
-        let a = 3_f32.sqrt() / 3.0;
+        let a = 3_f64.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
         let n = s.normal_at(&p, &shapes);
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
 
-        let a = 3_f32.sqrt() / 3.0;
+        let a = 3_f64.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
         let n = Tuple4D::normalize(&s.normal_at(&p, &shapes));
         let n_expected = Tuple4D::new_vector(a, a, a);
@@ -326,7 +326,7 @@ mod tests {
     }
 
     // page 152
-    fn test_helper_n1_n2_calculations(index: usize, n1_expected: f32, n2_expected: f32) {
+    fn test_helper_n1_n2_calculations(index: usize, n1_expected: f64, n2_expected: f64) {
         let mut a = glass_sphere();
         let m_a = Matrix::scale(2.0, 2.0, 2.0);
         a.set_transformation(m_a);

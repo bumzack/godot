@@ -25,7 +25,7 @@ pub trait LightOps {
     fn get_usteps(&self) -> usize;
     fn get_vsteps(&self) -> usize;
 
-    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f32;
+    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f64;
 
     fn point_on_light(&mut self, u: usize, v: usize) -> Tuple4D;
 }
@@ -109,7 +109,7 @@ impl LightOps for Light {
         res
     }
 
-    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f32 {
+    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f64 {
         let res = match self {
             Light::PointLight(ref mut point_light) => point_light.intensity_at_point(point, world),
             Light::AreaLight(ref mut pl) => pl.intensity_at_point(point, world),

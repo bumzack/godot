@@ -61,7 +61,7 @@ impl CubeChecker {
     }
 }
 
-pub fn uv_align_check_pattern_at(pattern: &CubeChecker, u: f32, v: f32) -> &Color {
+pub fn uv_align_check_pattern_at(pattern: &CubeChecker, u: f64, v: f64) -> &Color {
     if v > 0.8 {
         if u < 0.2 {
             return &pattern.ul;

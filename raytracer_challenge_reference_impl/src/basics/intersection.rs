@@ -16,15 +16,15 @@ use crate::world::world::WorldOps;
 type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 
 pub struct Intersection<'a> {
-    t: f32,
+    t: f64,
     shape: &'a Shape,
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f32, shape: &'a Shape) -> Intersection<'a>;
+    fn new(t: f64, shape: &'a Shape) -> Intersection<'a>;
     fn intersect(shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
-    fn get_t(&self) -> f32;
+    fn get_t(&self) -> f64;
     fn get_shape(&self) -> &'a Shape;
     fn prepare_computations(
         intersection: &Intersection<'a>,
@@ -32,11 +32,11 @@ pub trait IntersectionOps<'a> {
         list: &IntersectionList<'a>,
         shapes: &'a ShapeArr,
     ) -> PrecomputedComponent<'a>;
-    fn schlick(comp: &PrecomputedComponent) -> f32;
+    fn schlick(comp: &PrecomputedComponent) -> f64;
 }
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
-    fn new(t: f32, shape: &'a Shape) -> Intersection<'a> {
+    fn new(t: f64, shape: &'a Shape) -> Intersection<'a> {
         Intersection { t, shape }
     }
 
@@ -80,7 +80,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         res
     }
 
-    fn get_t(&self) -> f32 {
+    fn get_t(&self) -> f64 {
         self.t
     }
 
@@ -171,7 +171,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         comp
     }
 
-    fn schlick(comp: &PrecomputedComponent) -> f32 {
+    fn schlick(comp: &PrecomputedComponent) -> f64 {
         let mut cos = comp.get_eye_vector() ^ comp.get_normal_vector();
         if comp.get_n1() > comp.get_n2() {
             let n = comp.get_n1() / comp.get_n2();
@@ -251,7 +251,7 @@ impl<'a> fmt::Debug for IntersectionList<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::SQRT_2;
+    use std::f64::consts::SQRT_2;
 
     use crate::basics::color::{Color, ColorOps};
     use crate::math::common::{assert_color, assert_float, assert_tuple};
@@ -266,7 +266,7 @@ mod tests {
     #[test]
     fn test_new_intersection() {
         let s = Sphere::new();
-        let t: f32 = 3.5;
+        let t: f64 = 3.5;
         let o = Shape::new(ShapeEnum::Sphere(s));
         let i = Intersection::new(t, &o);
         assert_eq!(i.t, 3.5);
@@ -275,12 +275,12 @@ mod tests {
     #[test]
     fn test_new_intersectionlist() {
         let s1 = Sphere::new();
-        let t1: f32 = 3.5;
+        let t1: f64 = 3.5;
         let o1 = Shape::new(ShapeEnum::Sphere(s1));
         let i1 = Intersection::new(t1, &o1);
 
         let s2 = Sphere::new();
-        let t2: f32 = 4.5;
+        let t2: f64 = 4.5;
         let o2 = Shape::new(ShapeEnum::Sphere(s2));
         let i2 = Intersection::new(t2, &o2);
 
@@ -299,10 +299,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
 
-        let t1: f32 = 1.0;
+        let t1: f64 = 1.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = 2.0;
+        let t2: f64 = 2.0;
         let i2 = Intersection::new(t2, &o);
 
         let mut il = IntersectionList::new();
@@ -320,10 +320,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
 
-        let t1: f32 = -1.0;
+        let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = 1.0;
+        let t2: f64 = 1.0;
         let i2 = Intersection::new(t2, &o);
 
         let mut il = IntersectionList::new();
@@ -341,10 +341,10 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
 
-        let t1: f32 = -1.0;
+        let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = -2.0;
+        let t2: f64 = -2.0;
         let i2 = Intersection::new(t2, &o);
 
         let mut il = IntersectionList::new();
@@ -363,16 +363,16 @@ mod tests {
         let s = Sphere::new();
         let o = Shape::new(ShapeEnum::Sphere(s));
 
-        let t1: f32 = 5.0;
+        let t1: f64 = 5.0;
         let i1 = Intersection::new(t1, &o);
 
-        let t2: f32 = 7.0;
+        let t2: f64 = 7.0;
         let i2 = Intersection::new(t2, &o);
 
-        let t3: f32 = -3.0;
+        let t3: f64 = -3.0;
         let i3 = Intersection::new(t3, &o);
 
-        let t4: f32 = 2.0;
+        let t4: f64 = 2.0;
         let i4 = Intersection::new(t4, &o);
 
         let mut il = IntersectionList::new();

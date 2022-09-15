@@ -96,7 +96,7 @@ mod tests {
     use crate::math::common::assert_matrix;
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::Sphere;
-    use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     use super::*;
 

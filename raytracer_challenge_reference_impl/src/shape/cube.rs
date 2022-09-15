@@ -91,11 +91,11 @@ impl<'a> ShapeIntersectOps<'a> for Cube {
         }
         let mut res = vec![0.0; 2];
 
-        if tmin == f32::NAN {
+        if tmin == f64::NAN {
             println!("CUBE: here we have a NAN tmin is {}", tmin);
         }
 
-        if tmax == f32::NAN {
+        if tmax == f64::NAN {
             println!("CUBE:  here we have a NAN tmax is {}", tmax);
         }
 
@@ -118,7 +118,7 @@ impl Cube {
         }
     }
 
-    fn check_axis(origin: f32, direction: f32) -> (f32, f32) {
+    fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
         let tmin_numerator = -1.0 - origin;
         let tmax_numerator = 1.0 - origin;
 
@@ -129,8 +129,8 @@ impl Cube {
             tmin = tmin_numerator / direction;
             tmax = tmax_numerator / direction;
         } else {
-            tmin = tmin_numerator * f32::INFINITY;
-            tmax = tmax_numerator * f32::INFINITY;
+            tmin = tmin_numerator * f64::INFINITY;
+            tmax = tmax_numerator * f64::INFINITY;
         }
         if tmin > tmax {
             let tmp = tmin;
@@ -175,7 +175,7 @@ mod tests {
     use super::*;
 
     // page 168 helper
-    fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f32, t2: f32) {
+    fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f64, t2: f64) {
         let r = Ray::new(origin, direction);
 
         let shape = Shape::new(ShapeEnum::Cube(Cube::new()));

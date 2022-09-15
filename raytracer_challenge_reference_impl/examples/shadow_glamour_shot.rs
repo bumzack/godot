@@ -38,9 +38,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world_shadow_glamour<'a>(size_factor: f32, antialiasing: bool, antialiasing_size: usize) -> (World, Camera) {
-    let width = (400 as f32 * size_factor) as usize;
-    let height = (160 as f32 * size_factor) as usize;
+fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialiasing_size: usize) -> (World, Camera) {
+    let width = (400 as f64 * size_factor) as usize;
+    let height = (160 as f64 * size_factor) as usize;
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 2.0, 4.0), Color::new(1.5, 1.5, 1.5));
     let l = Light::PointLight(pl);

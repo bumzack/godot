@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 
 use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
@@ -66,9 +66,9 @@ pub fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color) 
     }
 }
 
-pub fn uv_pattern_at(checker: &Checker, u: f32, v: f32) -> Color {
-    let u2 = (u * checker.width as f32).floor() as i32;
-    let v2 = (v * checker.height as f32).floor() as i32;
+pub fn uv_pattern_at(checker: &Checker, u: f64, v: f64) -> Color {
+    let u2 = (u * checker.width as f64).floor() as i32;
+    let v2 = (v * checker.height as f64).floor() as i32;
     return if (u2 + v2) % 2 == 0 {
         checker.color_a
     } else {
@@ -76,7 +76,7 @@ pub fn uv_pattern_at(checker: &Checker, u: f32, v: f32) -> Color {
     };
 }
 
-pub fn spherical_map(p: &Tuple4D) -> (f32, f32) {
+pub fn spherical_map(p: &Tuple4D) -> (f64, f64) {
     let theta = p.x.atan2(p.z);
     let vector = Tuple4D::new_vector(p.x, p.y, p.z);
     let radius = Tuple4D::magnitude(&vector);
@@ -90,7 +90,7 @@ pub fn spherical_map(p: &Tuple4D) -> (f32, f32) {
 #[cfg(test)]
 mod tests {
     use crate::basics::{BLACK, WHITE};
-    use std::f32::consts::SQRT_2;
+    use std::f64::consts::SQRT_2;
 
     use crate::math::assert_two_float;
     use crate::math::common::assert_color;
@@ -192,7 +192,7 @@ mod tests {
         test_texture_mapping_using_spherical_map_helper(&actual, &BLACK);
     }
 
-    fn assert_tuple(actual: (f32, f32), expected: (f32, f32)) {
+    fn assert_tuple(actual: (f64, f64), expected: (f64, f64)) {
         assert_two_float(actual.0, expected.0);
         assert_two_float(actual.0, expected.0);
     }

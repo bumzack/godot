@@ -2,7 +2,7 @@ extern crate num_cpus;
 
 use raytracer_challenge_reference_impl::prelude::*;
 use std::error::Error;
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;

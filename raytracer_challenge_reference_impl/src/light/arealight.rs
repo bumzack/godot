@@ -59,7 +59,7 @@ impl LightOps for AreaLight {
         self.vsteps
     }
 
-    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f32 {
+    fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f64 {
         let mut total = 0.0;
 
         if DEBUG {
@@ -75,15 +75,15 @@ impl LightOps for AreaLight {
             }
         }
 
-        total / self.get_samples() as f32
+        total / self.get_samples() as f64
     }
 
     fn point_on_light(&mut self, u: usize, v: usize) -> Tuple4D {
         let jitter_by_x = self.jitter_sequence.next();
         let jitter_by_y = self.jitter_sequence.next();
 
-        let u_pos = self.get_uvec() * (u as f32 + jitter_by_x);
-        let v_pos = self.get_vvec() * (v as f32 + jitter_by_y);
+        let u_pos = self.get_uvec() * (u as f64 + jitter_by_x);
+        let v_pos = self.get_vvec() * (v as f64 + jitter_by_y);
 
         self.get_corner() + &(u_pos + v_pos)
     }

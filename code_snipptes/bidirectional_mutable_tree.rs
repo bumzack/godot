@@ -67,8 +67,8 @@ pub enum ShapeEnum {
 
 #[derive(Clone, PartialEq)]
 pub struct DummyShape {
-    x: f32,
-    y: f32,
+    x: f64,
+    y: f64,
 }
 
 impl DummyShape {

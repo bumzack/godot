@@ -5,13 +5,13 @@ pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Color {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
+    pub r: f64,
+    pub g: f64,
+    pub b: f64,
 }
 
 pub trait ColorOps {
-    fn new(r: f32, g: f32, b: f32) -> Color;
+    fn new(r: f64, g: f64, b: f64) -> Color;
     fn from_color(c: &Color) -> Color;
     fn fix_nan(&mut self);
     fn clamp_color(&mut self);
@@ -19,7 +19,7 @@ pub trait ColorOps {
 }
 
 impl ColorOps for Color {
-    fn new(r: f32, g: f32, b: f32) -> Color {
+    fn new(r: f64, g: f64, b: f64) -> Color {
         Color { r, g, b }
     }
 
@@ -53,13 +53,13 @@ impl ColorOps for Color {
 
     fn replace_inf_with_max(&mut self) {
         if self.r.is_infinite() {
-            self.r = f32::MAX;
+            self.r = f64::MAX;
         }
         if self.g.is_infinite() {
-            self.g = f32::MAX;
+            self.g = f64::MAX;
         }
         if self.b.is_infinite() {
-            self.b = f32::MAX;
+            self.b = f64::MAX;
         }
     }
 }
@@ -124,10 +124,10 @@ impl Mul for Color {
     }
 }
 
-impl Mul<f32> for Color {
+impl Mul<f64> for Color {
     type Output = Color;
 
-    fn mul(self, rhs: f32) -> Color {
+    fn mul(self, rhs: f64) -> Color {
         Color {
             r: self.r * rhs,
             g: self.g * rhs,
@@ -136,10 +136,10 @@ impl Mul<f32> for Color {
     }
 }
 
-impl<'a> Mul<f32> for &'a Color {
+impl<'a> Mul<f64> for &'a Color {
     type Output = Color;
 
-    fn mul(self, rhs: f32) -> Color {
+    fn mul(self, rhs: f64) -> Color {
         Color {
             r: self.r * rhs,
             g: self.g * rhs,
@@ -160,10 +160,10 @@ impl<'a, 'b> Mul<&'b Color> for &'a Color {
     }
 }
 
-impl Div<f32> for Color {
+impl Div<f64> for Color {
     type Output = Color;
 
-    fn div(self, rhs: f32) -> Color {
+    fn div(self, rhs: f64) -> Color {
         Color {
             r: self.r / rhs,
             g: self.g / rhs,

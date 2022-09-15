@@ -47,7 +47,7 @@ impl PlaneTexturePattern {
     }
 }
 
-pub fn planar_map(p: &Tuple4D) -> (f32, f32) {
+pub fn planar_map(p: &Tuple4D) -> (f64, f64) {
     (p.x.rem_euclid(1.0), p.z.rem_euclid(1.0))
 }
 
@@ -85,7 +85,7 @@ mod tests {
         assert_tuple(actual, (0.0, 0.0));
     }
 
-    fn assert_tuple(actual: (f32, f32), expected: (f32, f32)) {
+    fn assert_tuple(actual: (f64, f64), expected: (f64, f64)) {
         assert_two_float(actual.0, expected.0);
         assert_two_float(actual.0, expected.0);
     }

@@ -47,7 +47,7 @@ fn mainw() -> Result<()> {
 // Function converting intensity values to RGB
 // Based on http://www.efg2.com/Lab/ScienceAndEngineering/Spectra.htm
 fn wavelength_to_rgb(wavelength: u32) -> Rgb<u8> {
-    let wave = wavelength as f32;
+    let wave = wavelength as f64;
 
     let (r, g, b) = match wavelength {
         380..=439 => ((440. - wave) / (440. - 380.), 0.0, 1.0),
@@ -70,14 +70,14 @@ fn wavelength_to_rgb(wavelength: u32) -> Rgb<u8> {
 }
 
 // Maps Julia set distance estimation to intensity values
-fn julia(c: Complex<f32>, x: u32, y: u32, width: u32, height: u32, max_iter: u32) -> u32 {
-    let width = width as f32;
-    let height = height as f32;
+fn julia(c: Complex<f64>, x: u32, y: u32, width: u32, height: u32, max_iter: u32) -> u32 {
+    let width = width as f64;
+    let height = height as f64;
 
     let mut z = Complex {
         // scale and translate the point to image coordinates
-        re: 3.0 * (x as f32 - 0.5 * width) / width,
-        im: 2.0 * (y as f32 - 0.5 * height) / height,
+        re: 3.0 * (x as f64 - 0.5 * width) / width,
+        im: 2.0 * (y as f64 - 0.5 * height) / height,
     };
 
     let mut i = 0;
@@ -92,6 +92,6 @@ fn julia(c: Complex<f32>, x: u32, y: u32, width: u32, height: u32, max_iter: u32
 }
 
 // Normalizes color intensity values within RGB range
-fn normalize(color: f32, factor: f32) -> u8 {
+fn normalize(color: f64, factor: f64) -> u8 {
     ((color * factor).powf(0.8) * 255.) as u8
 }

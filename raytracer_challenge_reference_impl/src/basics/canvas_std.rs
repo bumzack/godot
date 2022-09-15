@@ -90,7 +90,7 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
             c.write_pixel(
                 x as usize,
                 y as usize,
-                Color::new(p[0] as f32, p[1] as f32, p[2] as f32),
+                Color::new(p[0] as f64, p[1] as f64, p[2] as f64),
             );
         }
         Ok(c)

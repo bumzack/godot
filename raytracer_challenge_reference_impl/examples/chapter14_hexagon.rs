@@ -1,7 +1,7 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
@@ -80,7 +80,7 @@ fn hexagon(shapes: &mut ShapeArr) -> ShapeIdx {
     for i in 0..6 {
         let side = hexagon_side(shapes, i as usize);
         let mut side = shapes.get_mut(side).unwrap();
-        let trans = Matrix::rotate_y(i as f32 * PI / 3.0);
+        let trans = Matrix::rotate_y(i as f64 * PI / 3.0);
         side.set_transformation(trans);
         println!("i = {}", i)
     }

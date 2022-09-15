@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 
 use crate::basics::color::Color;
 use crate::math::matrix::Matrix;
@@ -49,7 +49,7 @@ impl CylinderTexturePattern {
     }
 }
 
-fn cylindrical_map(p: &Tuple4D) -> (f32, f32) {
+fn cylindrical_map(p: &Tuple4D) -> (f64, f64) {
     let theta = p.x.atan2(p.z);
     let raw_u = theta / (2.0 * PI);
     let u = 1.0 - (raw_u + 0.5);
@@ -59,7 +59,7 @@ fn cylindrical_map(p: &Tuple4D) -> (f32, f32) {
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::FRAC_1_SQRT_2;
+    use std::f64::consts::FRAC_1_SQRT_2;
 
     use crate::math::{assert_two_float, Tuple};
 
@@ -109,7 +109,7 @@ mod tests {
         assert_tuple(actual, (0.875, 0.5));
     }
 
-    fn assert_tuple(actual: (f32, f32), expected: (f32, f32)) {
+    fn assert_tuple(actual: (f64, f64), expected: (f64, f64)) {
         assert_two_float(actual.0, expected.0);
         assert_two_float(actual.0, expected.0);
     }
