@@ -4,21 +4,18 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 3.0;
+    let size_factor = 5.0;
     let antialiasing = true;
-    let antialiasing_size = 3;
-
-    let filename;
-    if antialiasing {
-        filename = format!(
-            "./soft_shadow_aa_size_{}_multi_core_multi_lights.png",
-            antialiasing_size
-        );
-    } else {
-        filename = format!("./soft_shadow_multi_core_multi_lights_no_aa.png",);
-    }
+    let antialiasing_size = 2;
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!("./test_softshadow_multiple_light_{}_{}_{}.png", camera.get_hsize(), camera.get_vsize(), aa);
+
+
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
@@ -32,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("multi core duration: {:?}, no AA", dur);
     }
     canvas.write_png(filename.as_str())?;
-
+    println!("wrote file {}", filename);
     Ok(())
 }
 
@@ -92,7 +89,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
 
     c.set_transformation(m);
     let mut cube = Shape::new(ShapeEnum::Cube(c));
-    cube.set_casts_shadow(false);
+    cube.set_casts_shadow(true);
 
     // ---- PLANE -------
     let mut plane = Plane::new();

@@ -7,8 +7,8 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 800;
-    let height = 400;
+    let width = 2048;
+    let height = 2048;
 
     // let width = 320;
     // let height = 200;
@@ -19,8 +19,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
 
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter14_hexagon_multi_core_with_AA.png")?;
 
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!("./chapter14_hexagon_{}_{}_{}.png", camera.get_hsize(), camera.get_vsize(), aa);
+
+    canvas.write_png(&filename)?;
     Ok(())
 }
 
