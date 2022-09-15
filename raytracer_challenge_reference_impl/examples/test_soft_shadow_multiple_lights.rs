@@ -6,7 +6,7 @@ use raytracer_challenge_reference_impl::prelude::*;
 fn main() -> Result<(), Box<dyn Error>> {
     let size_factor = 5.0;
     let antialiasing = true;
-    let antialiasing_size = 2;
+    let antialiasing_size = 3;
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
     let aa = match camera.get_antialiasing() {

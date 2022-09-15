@@ -7,35 +7,41 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 320;
-    let height = 200;
+    let width = 2048;
+    let height = 1600;
 
-    let (mut world, mut camera) = setup_world_coord_axes(width, height, false);
+    let width = 400;
+    let height = 300;
+
+    let (mut world, mut camera) = setup_world_coord_axes(width, height, true);
     add_floor(&mut world);
     //  add_borders(&mut world);
 
     // from the top -> 2D View in -y direction
-    let camera_from = Tuple4D::new_point(2.0, 5.0, -2.0);
-    let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
-    let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
+    // let camera_from = Tuple4D::new_point(2.0, 5.0, -2.0);
+    // let camera_to = Tuple4D::new_point(0.0, 0.0, 0.0);
+    // let camera_up = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    // camera.set_transformation(Matrix::view_transform(&camera_from, &camera_to, &camera_up));
 
-    let mut light_pos = Tuple4D::from(camera_from);
-    light_pos.x = 2.0;
-    light_pos.y = 10.0;
-    light_pos.z = -5.0;
+    let   light_pos = Tuple4D::new_point(2.0, 10.0, -5.);
+
 
     let pl = PointLight::new(light_pos, Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
     world.add_light(l);
 
-    let filename = format!("test_coord_axes_{}_{}.png", width, height);
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
 
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
+    let filename = &format!("./coord_axis_{}_{}_{}.png", camera.get_hsize(), camera.get_vsize(), aa);
     canvas.write_png(&filename)?;
+    println!("wrote file : {:?}", filename);
 
     Ok(())
 }
@@ -104,6 +110,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     x_axis.get_material_mut().set_diffuse(0.6);
     x_axis.get_material_mut().set_specular(0.0);
     x_axis.get_material_mut().set_reflective(0.1);
+  //  x_axis.get_material_mut().set_transparency(0.5);
 
     let m_rot = Matrix::rotate_z(-PI / 2.0);
     let m_trans = Matrix::translation(0.0, 0.0, 0.0);
@@ -123,6 +130,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     y_axis.get_material_mut().set_diffuse(0.6);
     y_axis.get_material_mut().set_specular(0.0);
     y_axis.get_material_mut().set_reflective(0.1);
+   // y_axis.get_material_mut().set_transparency(0.5);
 
     let m_rot = Matrix::rotate_y(PI / 2.0);
     let m_trans = Matrix::translation(0.0, 0.0, 0.0);
@@ -142,6 +150,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     z_axis.get_material_mut().set_diffuse(0.6);
     z_axis.get_material_mut().set_specular(0.0);
     z_axis.get_material_mut().set_reflective(0.1);
+   // z_axis.get_material_mut().set_transparency(0.5);
 
     let m_rot = Matrix::rotate_x(PI / 2.0);
     let m_trans = Matrix::translation(0.0, 0.0, 0.0);
@@ -156,7 +165,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     sphere_z.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
     sphere_z.get_material_mut().set_ambient(0.3);
 
-    let m_translate = Matrix::translation(0.0, 0.00, 1.0);
+    let m_translate = &Matrix::translation(0.0, 0.00, 1.0) *&Matrix::scale(0.2, 0.2, 0.2);
     sphere_z.set_transformation(m_translate);
     let mut sphere_z = Shape::new(ShapeEnum::Sphere(sphere_z));
     sphere_z.set_casts_shadow(false);
@@ -165,7 +174,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     let mut sphere_y = Sphere::new();
     sphere_y.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
 
-    let m_translate = Matrix::translation(0.0, 1.00, 0.0);
+    let m_translate = &Matrix::translation(0.0, 1.00, 0.0)*&Matrix::scale(0.2, 0.2, 0.2);
     sphere_y.set_transformation(m_translate);
     let mut sphere_y = Shape::new(ShapeEnum::Sphere(sphere_y));
     sphere_y.set_casts_shadow(false);
@@ -174,7 +183,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     let mut sphere_x = Sphere::new();
     sphere_x.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
-    let m_translate = Matrix::translation(1.0, 0.00, 0.0);
+    let m_translate = &Matrix::translation(1.0, 0.00, 0.0)*&Matrix::scale(0.2, 0.2, 0.2);
     sphere_x.set_transformation(m_translate);
     let mut sphere_x = Shape::new(ShapeEnum::Sphere(sphere_x));
     sphere_x.set_casts_shadow(false);
@@ -192,7 +201,11 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
 
     let mut c = Camera::new(width, height, 0.6);
     c.set_antialiasing(false);
-
     c.calc_pixel_size();
+    c.set_transformation(Matrix::view_transform(
+        &Tuple4D::new_point(3.0, 3.0, 0.),
+        &Tuple4D::new_point(0.0, 0.0, 0.0),
+        &Tuple4D::new_vector(0.0, 1.0, 0.0),
+    ));
     (w, c)
 }
