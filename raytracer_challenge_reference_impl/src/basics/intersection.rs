@@ -65,13 +65,15 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
         let mut res = IntersectionList::new();
         for shape in w.get_shapes().iter() {
-            let mut tmp = Intersection::intersect(shape, r, w.get_shapes());
-            for is in tmp
-                .get_intersections_mut()
-                .drain(..)
-                .filter(|i| !i.get_t().is_infinite())
-            {
-                res.add(is);
+            if !shape.get_part_of_group() {
+                let mut tmp = Intersection::intersect(shape, r, w.get_shapes());
+                for is in tmp
+                    .get_intersections_mut()
+                    .drain(..)
+                    .filter(|i| !i.get_t().is_infinite())
+                {
+                    res.add(is);
+                }
             }
         }
         res.get_intersections_mut()

@@ -32,7 +32,7 @@ impl ShapeOps for Group {
         unreachable!("this should never be called");
     }
 
-    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
         Tuple4D::new_point(0.0, 0.0, 0.0)
     }
 
@@ -89,7 +89,7 @@ impl<'a> ShapeIntersectOps<'a> for Group {
                 ShapeEnum::Group(ref _group) => Shape::intersects(shape, r.clone(), shapes),
             };
 
-            // println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
+            println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
             for is in xs
                 .get_intersections_mut()
                 .drain(..)
@@ -122,6 +122,21 @@ impl<'a> Group {
         idx
     }
 
+    pub fn new_part_of_group(shapes: &mut ShapeArr) -> ShapeIdx {
+        let idx = shapes.len();
+        let g = Group {
+            shape_idx: idx,
+            children: vec![],
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+        };
+        let g = ShapeEnum::Group(g);
+        let shape = Shape::new_part_of_group(g);
+        shapes.push(shape);
+        assert_eq!(idx, shapes.len() - 1);
+        idx
+    }
+
     pub fn add_child(shapes: &mut ShapeArr, parent_idx: ShapeIdx, mut shape: Shape) -> ShapeIdx {
         shape.set_parent(parent_idx);
         shapes.push(shape);
@@ -139,7 +154,7 @@ impl<'a> Group {
         child.set_parent(parent_idx);
     }
 
-    fn print_children(shapes: &ShapeArr, node_idx: ShapeIdx) {
+    pub    fn print_children(shapes: &ShapeArr, node_idx: ShapeIdx) {
         let parent = shapes.get(node_idx).unwrap();
         for c in parent.get_children() {
             let n = shapes.get(*c).unwrap();
@@ -147,7 +162,7 @@ impl<'a> Group {
         }
     }
 
-    fn print_tree(shapes: &ShapeArr, root_idx: ShapeIdx, depth: usize) {
+  pub  fn print_tree(shapes: &ShapeArr, root_idx: ShapeIdx, depth: usize) {
         let node = shapes.get(root_idx).unwrap();
         let spaces = " ".repeat(depth);
         println!("{:?}  {:?}", spaces, &node);

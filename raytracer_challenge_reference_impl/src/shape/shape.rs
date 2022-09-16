@@ -16,6 +16,7 @@ pub enum ShapeEnum {
 pub struct Shape {
     shape: ShapeEnum,
     casts_shadow: bool,
+    part_of_group: bool,
     parent: Option<ShapeIdx>,
 }
 
@@ -49,7 +50,7 @@ impl<'a> ShapeIntersectOps<'a> for Shape {
             ShapeEnum::Cylinder(ref _cylinder) => Cylinder::intersect_local(shape, r, shapes),
             ShapeEnum::Triangle(ref _triangle) => Triangle::intersect_local(shape, r, shapes),
             ShapeEnum::Group(ref _group) => {
-                println!("group intersect_local");
+                // println!("group intersect_local");
                 Group::intersect_local(shape, r, shapes)
             }
         }
@@ -186,8 +187,19 @@ impl<'a> Shape {
             shape,
             casts_shadow: true,
             parent: None,
+            part_of_group: false,
         }
     }
+
+    pub fn new_part_of_group(shape: ShapeEnum) -> Shape {
+        Shape {
+            shape,
+            casts_shadow: true,
+            parent: None,
+            part_of_group: true,
+        }
+    }
+
     pub fn get_shape(&self) -> &ShapeEnum {
         &self.shape
     }
@@ -208,6 +220,11 @@ impl<'a> Shape {
     pub(crate) fn set_parent(&mut self, parent_idx: ShapeIdx) {
         self.parent = Some(parent_idx);
     }
+
+    pub(crate) fn get_part_of_group(& self) ->bool {
+        self.part_of_group
+    }
+
 }
 
 impl fmt::Debug for Shape {
@@ -237,13 +254,13 @@ impl fmt::Display for Shape {
         let mut parent_msg = String::new();
         match &self.shape {
             ShapeEnum::Sphere(sphere) => {
-                parent_msg.push_str(format!("sphere {:?}", &sphere.get_transformation()).as_str())
+                parent_msg.push_str(format!("sphere    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str())
             }
-            ShapeEnum::Plane(plane) => parent_msg.push_str(format!("plane {:?}", &plane.get_transformation()).as_str()),
-            ShapeEnum::Cube(c) => parent_msg.push_str(format!("cube {:?}", &c.get_transformation()).as_str()),
-            ShapeEnum::Cylinder(c) => parent_msg.push_str(format!("cylinder {:?}", &c.get_transformation()).as_str()),
-            ShapeEnum::Triangle(t) => parent_msg.push_str(format!("triangle {:?}", &t.get_transformation()).as_str()),
-            ShapeEnum::Group(g) => parent_msg.push_str(format!("group {:?}", &g.get_transformation()).as_str()),
+            ShapeEnum::Plane(plane) =>  parent_msg.push_str(format!("plane    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
+            ShapeEnum::Cube(c) =>  parent_msg.push_str(format!("cube    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
+            ShapeEnum::Cylinder(c) =>  parent_msg.push_str(format!("cylinder    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
+            ShapeEnum::Triangle(t) =>  parent_msg.push_str(format!("triangle    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
+            ShapeEnum::Group(g) => parent_msg.push_str(format!("group    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
         }
         write!(f, "Shape: {}   ", parent_msg)
     }

@@ -7,15 +7,24 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 2048;
-    let height = 2048;
+    // let width = 2048;
+    // let height = 2048;
 
-    // let width = 320;
-    // let height = 200;
+    let width = 160;
+    let height = 100;
 
     let (world, camera) = setup_world(width, height);
+
+    for s in world.get_shapes() {
+        println!("shape {}", s);
+    }
+    println!("####################");
+    Group::print_tree(world.get_shapes(), 0, 0);
+
+
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
+    // let canvas = Camera::render_debug(&camera, &world, 100, 50 );
+  let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
 
     println!("multi core duration: {:?}", dur);
@@ -27,6 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let filename = &format!("./chapter14_hexagon_{}_{}_{}.png", camera.get_hsize(), camera.get_vsize(), aa);
 
     canvas.write_png(&filename)?;
+    println!("written file {}", filename);
+
     Ok(())
 }
 
@@ -35,7 +46,7 @@ fn hexagon_corner(idx: usize) -> Shape {
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::scale(0.25, 0.25, 0.25);
     corner.set_transformation(trans);
     corner.get_material_mut().set_color(get_color(idx));
-    Shape::new(ShapeEnum::Sphere(corner))
+    Shape::new_part_of_group(ShapeEnum::Sphere(corner))
 }
 
 fn hexagon_edge(idx: usize) -> Shape {
@@ -48,11 +59,11 @@ fn hexagon_edge(idx: usize) -> Shape {
 
     edge.set_transformation(trans);
     edge.get_material_mut().set_color(get_color(idx));
-    Shape::new(ShapeEnum::Cylinder(edge))
+    Shape::new_part_of_group(ShapeEnum::Cylinder(edge))
 }
 
 fn hexagon_side(shapes: &mut ShapeArr, idx: usize) -> ShapeIdx {
-    let side_idx = Group::new(shapes);
+    let side_idx = Group::new_part_of_group(shapes);
     Group::add_child(shapes, side_idx, hexagon_corner(idx));
     Group::add_child(shapes, side_idx, hexagon_edge(idx));
 
@@ -84,11 +95,12 @@ fn hexagon(shapes: &mut ShapeArr) -> ShapeIdx {
     let hexagon = Group::new(shapes);
 
     for i in 0..6 {
-        let side = hexagon_side(shapes, i as usize);
-        let mut side = shapes.get_mut(side).unwrap();
+        let side_idx = hexagon_side(shapes, i as usize);
+        let mut side = shapes.get_mut(side_idx).unwrap();
         let trans = Matrix::rotate_y(i as f64 * PI / 3.0);
         side.set_transformation(trans);
-        println!("i = {}", i)
+        println!("i = {}", i);
+        Group::add_child_idx(shapes, hexagon, side_idx);
     }
 
     hexagon

@@ -471,13 +471,13 @@ mod tests {
     #[test]
     fn test_area_lights_lighning_uses_light_intensity() {
         let result = Color::new(1.0, 1.0, 1.0);
-        test_area_lights_lighning_uses_light_intensity_helper(1.0, result);
+        test_area_lights_lightning_uses_light_intensity_helper(1.0, result);
 
         let result = Color::new(0.55, 0.55, 0.55);
-        test_area_lights_lighning_uses_light_intensity_helper(0.5, result);
+        test_area_lights_lightning_uses_light_intensity_helper(0.5, result);
 
         let result = Color::new(0.1, 0.1, 0.1);
-        test_area_lights_lighning_uses_light_intensity_helper(0.0, result);
+        test_area_lights_lightning_uses_light_intensity_helper(0.0, result);
     }
 
     // bonus:  Scenario Outline: lighting() samples the area light
