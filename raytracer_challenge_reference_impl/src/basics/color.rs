@@ -2,6 +2,13 @@ use std::ops::{Add, Div, Mul, Sub};
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const WHITE: Color = Color { r: 1.0, g: 1.0, b: 1.0 };
+pub const RED: Color = Color { r: 1.0, g: 0.0, b: 0.0 };
+pub const YELLOW: Color = Color { r: 1.0, g: 1.0, b: 0.0 };
+pub const BROWN: Color = Color { r: 1.0, g: 0.5, b: 0.0 };
+pub const GREEN: Color = Color { r: 0.0, g: 1.0, b: 0.0 };
+pub const CYAN: Color = Color { r: 0.0, g: 1.0, b: 1.0 };
+pub const BLUE: Color = Color { r: 0.0, g: 0.0, b: 1.0 };
+pub const PURPLE: Color = Color { r: 1.0, g: 0.0, b: 1.0 };
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Color {

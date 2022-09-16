@@ -16,8 +16,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
     let aa = match c.get_antialiasing() {
-        true => format!("with_AA_{}",c.get_antialiasing_size()),
-        false =>  "no_AA".to_string(),
+        true => format!("with_AA_{}", c.get_antialiasing_size()),
+        false => "no_AA".to_string(),
     };
     let filename = &format!("./checker_plane_bonus_{}_{}_{}.png", width, height, aa);
     canvas.write_png(filename)?;

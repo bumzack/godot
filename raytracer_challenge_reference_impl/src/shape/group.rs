@@ -28,7 +28,7 @@ impl ShapeOps for Group {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
+    fn normal_at(&self, _world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
         unreachable!("this should never be called");
     }
 
@@ -107,7 +107,7 @@ impl<'a> ShapeIntersectOps<'a> for Group {
 }
 
 impl<'a> Group {
-    pub fn new(shapes: &mut ShapeArr) -> ShapeIdx {
+    pub fn new(shapes: &mut ShapeArr, name: String) -> ShapeIdx {
         let idx = shapes.len();
         let g = Group {
             shape_idx: idx,
@@ -116,13 +116,13 @@ impl<'a> Group {
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
         };
         let g = ShapeEnum::Group(g);
-        let shape = Shape::new(g);
+        let shape = Shape::new_with_name(g, name);
         shapes.push(shape);
         assert_eq!(idx, shapes.len() - 1);
         idx
     }
 
-    pub fn new_part_of_group(shapes: &mut ShapeArr) -> ShapeIdx {
+    pub fn new_part_of_group(shapes: &mut ShapeArr, name: String) -> ShapeIdx {
         let idx = shapes.len();
         let g = Group {
             shape_idx: idx,
@@ -131,7 +131,7 @@ impl<'a> Group {
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
         };
         let g = ShapeEnum::Group(g);
-        let shape = Shape::new_part_of_group(g);
+        let shape = Shape::new_part_of_group(g, name);
         shapes.push(shape);
         assert_eq!(idx, shapes.len() - 1);
         idx
@@ -154,7 +154,7 @@ impl<'a> Group {
         child.set_parent(parent_idx);
     }
 
-    pub    fn print_children(shapes: &ShapeArr, node_idx: ShapeIdx) {
+    pub fn print_children(shapes: &ShapeArr, node_idx: ShapeIdx) {
         let parent = shapes.get(node_idx).unwrap();
         for c in parent.get_children() {
             let n = shapes.get(*c).unwrap();
@@ -162,7 +162,7 @@ impl<'a> Group {
         }
     }
 
-  pub  fn print_tree(shapes: &ShapeArr, root_idx: ShapeIdx, depth: usize) {
+    pub fn print_tree(shapes: &ShapeArr, root_idx: ShapeIdx, depth: usize) {
         let node = shapes.get(root_idx).unwrap();
         let spaces = " ".repeat(depth);
         println!("{:?}  {:?}", spaces, &node);
@@ -212,7 +212,7 @@ mod tests {
     #[test]
     fn test_creating_new_group() {
         let mut shapes: ShapeArr = vec![];
-        let group_idx = Group::new(&mut shapes);
+        let group_idx = Group::new(&mut shapes, "group".to_string());
         let group = shapes.get(group_idx).unwrap();
         let m = group.get_transformation();
         assert_matrix(&m, &Matrix::new_identity_4x4());
@@ -231,7 +231,7 @@ mod tests {
     #[test]
     fn test_adding_child_to_group() {
         let mut shapes: ShapeArr = vec![];
-        let group_idx = Group::new(&mut shapes);
+        let group_idx = Group::new(&mut shapes, "group".to_string());
         let group = shapes.get(group_idx).unwrap();
         assert!(group.get_parent().is_none());
 
@@ -249,7 +249,7 @@ mod tests {
     #[test]
     fn test_intersecting_ray_with_empty_group() {
         let mut shapes: ShapeArr = vec![];
-        let group_idx = Group::new(&mut shapes);
+        let group_idx = Group::new(&mut shapes, "group".to_string());
         let shape = shapes.get(group_idx).unwrap();
         let group = match shape.get_shape() {
             ShapeEnum::Group(g) => Some(g),
@@ -332,7 +332,7 @@ mod tests {
         let s3 = Shape::new(ShapeEnum::Sphere(s3));
 
         let mut shapes: ShapeArr = vec![];
-        let group_idx = Group::new(&mut shapes);
+        let group_idx = Group::new(&mut shapes, "group".to_string());
 
         let _s1_idx = Group::add_child(&mut shapes, group_idx, s1);
         let _s2_idx = Group::add_child(&mut shapes, group_idx, s2);
@@ -352,7 +352,7 @@ mod tests {
     #[test]
     fn test_intersecting_ray_with_transformed_group() {
         let mut shapes: ShapeArr = vec![];
-        let group_idx = Group::new(&mut shapes);
+        let group_idx = Group::new(&mut shapes, "group".to_string());
         let group = shapes.get_mut(group_idx).unwrap();
 
         let scale = Matrix::scale(2.0, 2.0, 2.0);
@@ -385,13 +385,13 @@ mod tests {
         let mut shapes: ShapeArr = vec![];
 
         // group 1
-        let group1_idx = Group::new(&mut shapes);
+        let group1_idx = Group::new(&mut shapes, "group".to_string());
         let group1 = shapes.get_mut(group1_idx).unwrap();
         let rot_y = Matrix::rotate_y(PI / 2.0);
         group1.set_transformation(rot_y);
 
         // group 2
-        let group2_idx = Group::new(&mut shapes);
+        let group2_idx = Group::new(&mut shapes, "group".to_string());
         let group2 = shapes.get_mut(group2_idx).unwrap();
         let scale = Matrix::scale(2.0, 2.0, 2.0);
         group2.set_transformation(scale);
@@ -421,13 +421,13 @@ mod tests {
         let mut shapes: ShapeArr = vec![];
 
         // group 1
-        let group1_idx = Group::new(&mut shapes);
+        let group1_idx = Group::new(&mut shapes, "group".to_string());
         let group1 = shapes.get_mut(group1_idx).unwrap();
         let rot_y = Matrix::rotate_y(PI / 2.0);
         group1.set_transformation(rot_y);
 
         // group 2
-        let group2_idx = Group::new(&mut shapes);
+        let group2_idx = Group::new(&mut shapes, "group".to_string());
         let group2 = shapes.get_mut(group2_idx).unwrap();
         let scale = Matrix::scale(1.0, 2.0, 3.0);
         group2.set_transformation(scale);
@@ -458,13 +458,13 @@ mod tests {
         let mut shapes: ShapeArr = vec![];
 
         // group 1
-        let group1_idx = Group::new(&mut shapes);
+        let group1_idx = Group::new(&mut shapes, "group".to_string());
         let group1 = shapes.get_mut(group1_idx).unwrap();
         let rot_y = Matrix::rotate_y(PI / 2.0);
         group1.set_transformation(rot_y);
 
         // group 2
-        let group2_idx = Group::new(&mut shapes);
+        let group2_idx = Group::new(&mut shapes, "group".to_string());
         let group2 = shapes.get_mut(group2_idx).unwrap();
         let scale = Matrix::scale(1.0, 2.0, 3.0);
         group2.set_transformation(scale);

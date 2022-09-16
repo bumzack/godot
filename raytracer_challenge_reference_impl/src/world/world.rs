@@ -17,6 +17,7 @@ pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 3;
 
 pub trait WorldOps {
     fn new() -> World;
+
     fn add_light(&mut self, light: Light);
     fn get_light(&self) -> &LightArr;
     fn get_light_mut(&mut self) -> &mut LightArr;

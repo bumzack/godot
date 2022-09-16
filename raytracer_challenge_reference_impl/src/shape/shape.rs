@@ -18,6 +18,7 @@ pub struct Shape {
     casts_shadow: bool,
     part_of_group: bool,
     parent: Option<ShapeIdx>,
+    name: Option<String>,
 }
 
 pub trait ShapeOps {
@@ -58,44 +59,14 @@ impl<'a> ShapeIntersectOps<'a> for Shape {
 }
 
 impl ShapeOps for Shape {
-    fn normal_at(&self, world_point: &Tuple4D, shapes: &ShapeArr) -> Tuple4D {
-        let local_point = world_to_object(self, world_point, shapes);
-        let local_normal = Self::local_normal_at(self, &local_point);
-        normal_to_world(self, &local_normal, shapes)
-
-        // let object_point = self.get_inverse_transformation() * world_point;
-        // let local_normal = match self.shape {
-        //     ShapeEnum::Sphere(ref sphere) => sphere.local_normal_at(&object_point),
-        //     ShapeEnum::Plane(ref plane) => plane.local_normal_at(&object_point),
-        //     ShapeEnum::Cube(ref cube) => cube.local_normal_at(&object_point),
-        //     ShapeEnum::Cylinder(ref cylinder) => cylinder.local_normal_at(&object_point),
-        //     ShapeEnum::Triangle(ref triangle) => triangle.local_normal_at(&object_point),
-        //     ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
-        // };
-        // let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
-        // world_normal.w = 0.0;
-        // Tuple4D::normalize(&world_normal)
-    }
-
-    fn get_material(&self) -> &Material {
+    fn set_transformation(&mut self, m: Matrix) {
         match self.shape {
-            ShapeEnum::Sphere(ref sphere) => sphere.get_material(),
-            ShapeEnum::Plane(ref plane) => plane.get_material(),
-            ShapeEnum::Cube(ref c) => c.get_material(),
-            ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
-            ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
-            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
-        }
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        match self.shape {
-            ShapeEnum::Sphere(ref mut sphere) => sphere.get_material_mut(),
-            ShapeEnum::Plane(ref mut plane) => plane.get_material_mut(),
-            ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
-            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
-            ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
-            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
+            ShapeEnum::Sphere(ref mut sphere) => sphere.set_transformation(m),
+            ShapeEnum::Plane(ref mut plane) => plane.set_transformation(m),
+            ShapeEnum::Cube(ref mut cube) => cube.set_transformation(m),
+            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.set_transformation(m),
+            ShapeEnum::Triangle(ref mut triangle) => triangle.set_transformation(m),
+            ShapeEnum::Group(ref mut group) => group.set_transformation(m),
         }
     }
 
@@ -121,15 +92,23 @@ impl ShapeOps for Shape {
         }
     }
 
-    fn set_transformation(&mut self, m: Matrix) {
-        match self.shape {
-            ShapeEnum::Sphere(ref mut sphere) => sphere.set_transformation(m),
-            ShapeEnum::Plane(ref mut plane) => plane.set_transformation(m),
-            ShapeEnum::Cube(ref mut cube) => cube.set_transformation(m),
-            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.set_transformation(m),
-            ShapeEnum::Triangle(ref mut triangle) => triangle.set_transformation(m),
-            ShapeEnum::Group(ref mut group) => group.set_transformation(m),
-        }
+    fn normal_at(&self, world_point: &Tuple4D, shapes: &ShapeArr) -> Tuple4D {
+        let local_point = world_to_object(self, world_point, shapes);
+        let local_normal = Self::local_normal_at(self, &local_point);
+        normal_to_world(self, &local_normal, shapes)
+
+        // let object_point = self.get_inverse_transformation() * world_point;
+        // let local_normal = match self.shape {
+        //     ShapeEnum::Sphere(ref sphere) => sphere.local_normal_at(&object_point),
+        //     ShapeEnum::Plane(ref plane) => plane.local_normal_at(&object_point),
+        //     ShapeEnum::Cube(ref cube) => cube.local_normal_at(&object_point),
+        //     ShapeEnum::Cylinder(ref cylinder) => cylinder.local_normal_at(&object_point),
+        //     ShapeEnum::Triangle(ref triangle) => triangle.local_normal_at(&object_point),
+        //     ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
+        // };
+        // let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        // world_normal.w = 0.0;
+        // Tuple4D::normalize(&world_normal)
     }
 
     fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
@@ -151,6 +130,28 @@ impl ShapeOps for Shape {
             ShapeEnum::Cylinder(ref mut cylinder) => cylinder.set_material(m),
             ShapeEnum::Triangle(ref mut triangle) => triangle.set_material(m),
             ShapeEnum::Group(ref mut group) => group.set_material(m),
+        }
+    }
+
+    fn get_material(&self) -> &Material {
+        match self.shape {
+            ShapeEnum::Sphere(ref sphere) => sphere.get_material(),
+            ShapeEnum::Plane(ref plane) => plane.get_material(),
+            ShapeEnum::Cube(ref c) => c.get_material(),
+            ShapeEnum::Cylinder(ref cylinder) => cylinder.get_material(),
+            ShapeEnum::Triangle(ref triangle) => triangle.get_material(),
+            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
+        }
+    }
+
+    fn get_material_mut(&mut self) -> &mut Material {
+        match self.shape {
+            ShapeEnum::Sphere(ref mut sphere) => sphere.get_material_mut(),
+            ShapeEnum::Plane(ref mut plane) => plane.get_material_mut(),
+            ShapeEnum::Cube(ref mut c) => c.get_material_mut(),
+            ShapeEnum::Cylinder(ref mut cylinder) => cylinder.get_material_mut(),
+            ShapeEnum::Triangle(ref mut triangle) => triangle.get_material_mut(),
+            ShapeEnum::Group(_) => panic!("Group::get_material should never be called "),
         }
     }
 
@@ -182,21 +183,33 @@ impl ShapeOps for Shape {
 }
 
 impl<'a> Shape {
+    pub fn new_with_name(shape: ShapeEnum, name: String) -> Shape {
+        Shape {
+            shape,
+            casts_shadow: true,
+            parent: None,
+            part_of_group: false,
+            name: Some(name),
+        }
+    }
+
     pub fn new(shape: ShapeEnum) -> Shape {
         Shape {
             shape,
             casts_shadow: true,
             parent: None,
             part_of_group: false,
+            name: None,
         }
     }
 
-    pub fn new_part_of_group(shape: ShapeEnum) -> Shape {
+    pub fn new_part_of_group(shape: ShapeEnum, name: String) -> Shape {
         Shape {
             shape,
             casts_shadow: true,
             parent: None,
             part_of_group: true,
+            name: Some(name),
         }
     }
 
@@ -221,15 +234,22 @@ impl<'a> Shape {
         self.parent = Some(parent_idx);
     }
 
-    pub(crate) fn get_part_of_group(& self) ->bool {
+    pub(crate) fn get_part_of_group(&self) -> bool {
         self.part_of_group
     }
 
+    fn get_name(&self) -> &Option<String> {
+        &self.name
+    }
 }
 
-impl fmt::Debug for Shape {
+impl<'a> fmt::Debug for Shape {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "shape type = {}", self.shape)
+        let n = match self.get_name() {
+            Some(n) => n,
+            None => "",
+        };
+        write!(f, "shape type = {}, name = '{}'", self.shape, n)
     }
 }
 
@@ -249,18 +269,68 @@ impl fmt::Debug for ShapeEnum {
     }
 }
 
-impl fmt::Display for Shape {
+impl<'a> fmt::Display for Shape {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut parent_msg = String::new();
+        let n = match self.get_name() {
+            Some(n) => n,
+            None => "",
+        };
         match &self.shape {
-            ShapeEnum::Sphere(sphere) => {
-                parent_msg.push_str(format!("sphere    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str())
-            }
-            ShapeEnum::Plane(plane) =>  parent_msg.push_str(format!("plane    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
-            ShapeEnum::Cube(c) =>  parent_msg.push_str(format!("cube    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
-            ShapeEnum::Cylinder(c) =>  parent_msg.push_str(format!("cylinder    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
-            ShapeEnum::Triangle(t) =>  parent_msg.push_str(format!("triangle    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
-            ShapeEnum::Group(g) => parent_msg.push_str(format!("group    parent {:?}, part_of_group  {}   ",self.get_parent() , self.part_of_group ).as_str()),
+            ShapeEnum::Sphere(_sphere) => parent_msg.push_str(
+                format!(
+                    "sphere  name '{}'  parent {:?}, part_of_group  {}   ",
+                    n,
+                    self.get_parent(),
+                    self.part_of_group
+                )
+                .as_str(),
+            ),
+            ShapeEnum::Plane(_plane) => parent_msg.push_str(
+                format!(
+                    "plane    name '{}'  parent {:?}, part_of_group  {}   ",
+                    n,
+                    self.get_parent(),
+                    self.part_of_group
+                )
+                .as_str(),
+            ),
+            ShapeEnum::Cube(_c) => parent_msg.push_str(
+                format!(
+                    "cube   name '{}'      parent {:?}, part_of_group  {}   ",
+                    n,
+                    self.get_parent(),
+                    self.part_of_group
+                )
+                .as_str(),
+            ),
+            ShapeEnum::Cylinder(_c) => parent_msg.push_str(
+                format!(
+                    "cylinder   name '{}'     parent {:?}, part_of_group  {}   ",
+                    n,
+                    self.get_parent(),
+                    self.part_of_group
+                )
+                .as_str(),
+            ),
+            ShapeEnum::Triangle(_t) => parent_msg.push_str(
+                format!(
+                    "triangle   name '{}'      parent {:?}, part_of_group  {}   ",
+                    n,
+                    self.get_parent(),
+                    self.part_of_group
+                )
+                .as_str(),
+            ),
+            ShapeEnum::Group(_g) => parent_msg.push_str(
+                format!(
+                    "group    name '{}'      parent {:?}, part_of_group  {}   ",
+                    n,
+                    self.get_parent(),
+                    self.part_of_group
+                )
+                .as_str(),
+            ),
         }
         write!(f, "Shape: {}   ", parent_msg)
     }

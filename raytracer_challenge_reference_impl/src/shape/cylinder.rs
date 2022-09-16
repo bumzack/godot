@@ -1,5 +1,3 @@
-use core::f64::INFINITY;
-
 use crate::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -311,8 +309,12 @@ mod tests {
     fn test_ray_cylinder_new() {
         let c = Cylinder::new();
 
-        println!("c.getminimum() = {},    -INFINITY = {}", c.get_minimum(), -INFINITY);
-        println!("c.get_maximum() = {},    INFINITY = {}", c.get_maximum(), INFINITY);
+        println!(
+            "c.getminimum() = {},    -INFINITY = {}",
+            c.get_minimum(),
+            -f64::INFINITY
+        );
+        println!("c.get_maximum() = {},    INFINITY = {}", c.get_maximum(), f64::INFINITY);
         assert_eq!(c.get_minimum(), -f64::INFINITY);
         assert_eq!(c.get_maximum(), f64::INFINITY);
     }

@@ -3,8 +3,6 @@ extern crate num_cpus;
 use raytracer_challenge_reference_impl::prelude::*;
 use std::error::Error;
 use std::f64::consts::PI;
-use std::sync::{Arc, Mutex};
-use std::thread;
 use std::time::Instant;
 
 fn main() -> Result<(), Box<dyn Error>> {

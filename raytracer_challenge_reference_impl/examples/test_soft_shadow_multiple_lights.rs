@@ -13,8 +13,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),
         false => "no_AA".to_string(),
     };
-    let filename = &format!("./test_softshadow_multiple_light_{}_{}_{}.png", camera.get_hsize(), camera.get_vsize(), aa);
-
+    let filename = &format!(
+        "./test_softshadow_multiple_light_{}_{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
 
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &world);
