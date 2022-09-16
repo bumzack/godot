@@ -6,6 +6,7 @@ pub mod intersection;
 pub mod pixel;
 pub mod precomputed_component;
 pub mod ray;
+mod obj_file;
 
 pub use self::camera::*;
 pub use self::canvas::*;
