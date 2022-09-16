@@ -1,6 +1,7 @@
 use crate::prelude::*;
+use std::fmt;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Triangle {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
@@ -120,15 +121,15 @@ impl Triangle {
         }
     }
 
-    fn get_p1(&self) -> &Tuple4D {
+    pub(crate) fn get_p1(&self) -> &Tuple4D {
         &self.p1
     }
 
-    fn get_p2(&self) -> &Tuple4D {
+    pub(crate) fn get_p2(&self) -> &Tuple4D {
         &self.p2
     }
 
-    fn get_p3(&self) -> &Tuple4D {
+    pub(crate) fn get_p3(&self) -> &Tuple4D {
         &self.p3
     }
 
@@ -142,6 +143,16 @@ impl Triangle {
 
     fn get_normal(&self) -> &Tuple4D {
         &self.normal
+    }
+}
+
+impl<'a> fmt::Debug for Triangle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "triangle   p1  = {:?}   //  p2 = {:?}  // p3 = {:?} ",
+            &self.p1, &self.p2, &self.p3
+        )
     }
 }
 

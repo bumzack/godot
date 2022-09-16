@@ -3,10 +3,10 @@ pub mod canvas;
 pub mod canvas_std;
 pub mod color;
 pub mod intersection;
+mod obj_file;
 pub mod pixel;
 pub mod precomputed_component;
 pub mod ray;
-mod obj_file;
 
 pub use self::camera::*;
 pub use self::canvas::*;

@@ -1,6 +1,7 @@
+use std::fmt;
 use std::ops::{Add, BitXor, Div, Mul, Sub};
 
-#[derive(Clone, Debug, PartialEq, Copy)]
+#[derive(Clone, PartialEq, Copy)]
 pub struct Tuple4D {
     pub x: f64,
     pub y: f64,
@@ -246,6 +247,16 @@ impl<'a> Div<usize> for &'a Tuple4D {
             z: self.z / rhs as f64,
             w: self.w / rhs as f64,
         }
+    }
+}
+
+impl<'a> fmt::Debug for Tuple4D {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Tuple4D   x = {} // y = {} // z = {}  // w = {}",
+            &self.x, &self.y, &self.z, &self.w
+        )
     }
 }
 

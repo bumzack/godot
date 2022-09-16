@@ -91,7 +91,7 @@ fn hexagon<'a>(shapes: &mut ShapeArr) -> ShapeIdx {
 
     for i in 4..5 {
         let side_idx = hexagon_side(shapes, i as usize);
-        let mut side = shapes.get_mut(side_idx).unwrap();
+        let side = shapes.get_mut(side_idx).unwrap();
         let trans = Matrix::rotate_y(i as f64 * PI / 3.0);
         side.set_transformation(trans);
         println!("i = {}", i);

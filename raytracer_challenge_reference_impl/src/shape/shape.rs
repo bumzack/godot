@@ -238,7 +238,7 @@ impl<'a> Shape {
         self.part_of_group
     }
 
-    fn get_name(&self) -> &Option<String> {
+    pub(crate) fn get_name(&self) -> &Option<String> {
         &self.name
     }
 }
