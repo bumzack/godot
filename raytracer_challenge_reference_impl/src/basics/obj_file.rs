@@ -248,7 +248,7 @@ fn fan_triangulation(
             }
         };
 
-        println!("triangle from 3 indices {:?}", &t);
+      /  println!("triangle from 3 indices {:?}", &t);
         triangles.push(t);
     } else {
         for i in 2..indices.len() {
