@@ -10,17 +10,29 @@ fn main() -> Result<(), Box<dyn Error>> {
     let pov = 0.98;
     let antialiasing = true;
     let antialiasing_size = 3;
-    let (world, camera) = setup_world(width, height, pov, antialiasing, antialiasing_size);
+    let arealight_u = 16;
+    let arealight_v = 16;
+    let (world, camera) = setup_world(
+        width,
+        height,
+        pov,
+        antialiasing,
+        antialiasing_size,
+        arealight_u,
+        arealight_v,
+    );
 
     let aa = match camera.get_antialiasing() {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),
         false => "no_AA".to_string(),
     };
     let filename = &format!(
-        "./chapter15_teapot_unsmoothed_{}_{}_{}.png",
+        "./chapter15_teapot_unsmoothed_{}x{}_{}_arealight_{}x{}.png",
         camera.get_hsize(),
         camera.get_vsize(),
-        aa
+        aa,
+        arealight_u,
+        arealight_v
     );
     println!("filename {}", filename);
 
@@ -37,7 +49,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasing_size: usize) -> (World, Camera) {
+fn setup_world(
+    width: i32,
+    height: i32,
+    pov: f64,
+    anitaliasing: bool,
+    anitaliasing_size: usize,
+    arealight_u: usize,
+    arealight_v: usize,
+) -> (World, Camera) {
     let mut floor = Sphere::new();
     floor.set_transformation(Matrix::scale(20.0, 0.01, 20.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -89,9 +109,16 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     let vvec = Tuple4D::new_vector(0.0, 2.0, -1.5);
 
     let usteps = 16;
-    let vsteps = 16;
     let intensity = Color::new(1.0, 1.0, 1.0);
-    let area_light = AreaLight::new(corner, uvec, usteps, vvec, vsteps, intensity, Sequence::new(vec![]));
+    let area_light = AreaLight::new(
+        corner,
+        uvec,
+        arealight_u,
+        vvec,
+        arealight_v,
+        intensity,
+        Sequence::new(vec![]),
+    );
     let area_light = Light::AreaLight(area_light);
 
     let mut w = World::new();

@@ -224,7 +224,6 @@ impl<'a> Shape {
         }
     }
 
-
     pub fn get_shape(&self) -> &ShapeEnum {
         &self.shape
     }
