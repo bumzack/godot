@@ -7,11 +7,11 @@ use raytracer_challenge_reference_impl::prelude::*;
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 3840;
     let height = 2160;
-    let pov = 0.98;
-    let antialiasing = false;
+    let pov = 0.8;
+    let antialiasing = true;
     let antialiasing_size = 3;
-    let arealight_u = 1;
-    let arealight_v = 1;
+    let arealight_u = 16;
+    let arealight_v = 16;
     let (world, camera) = setup_world(
         width,
         height,
@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         false => "no_AA".to_string(),
     };
     let filename = &format!(
-        "./chapter15_teapot_unsmoothed_{}x{}_{}_arealight_{}x{}.png",
+        "./chapter15_teapot_smoothed_{}x{}_{}_arealight_{}x{}.png",
         camera.get_hsize(),
         camera.get_vsize(),
         aa,
@@ -97,7 +97,7 @@ fn setup_world(
     // left.get_material_mut().set_diffuse(0.7);
     // left.get_material_mut().set_specular(0.3);
 
-    // let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    // let pl = PointLight::new(Tuple4D::new_point(-151.0, 100.0, -100.0), Color::new(1.0, 1.0, 1.0));
     // let l = Light::PointLight(pl);
 
     let corner = Tuple4D::new_point(4.5, 8.0, -9.0);
@@ -123,6 +123,7 @@ fn setup_world(
 
     let mut w = World::new();
     w.add_light(area_light);
+    // w.add_light(    l);
 
     w.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
     w.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
@@ -131,12 +132,20 @@ fn setup_world(
     // w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     // w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
 
-    let filename = "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot.obj";
+    let filename =
+        "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
     println!("filename {}", filename);
 
     let teapot = Parser::parse_obj_file(&filename);
 
     let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
+    let idx = teapot_group.get(0).unwrap();
+    let mut teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
+
+    // let trans = &(&Matrix::rotate_y(-PI/8.0)* &Matrix::rotate_x(-PI/4.0)) * &Matrix::scale(0.4,0.4,0.34) ;
+    let trans = &Matrix::rotate_x(-PI / 4.0) * &Matrix::scale(0.4, 0.4, 0.4);
+    teapot.set_transformation(trans);
+
     println!("teapot_group index {}", teapot_group.get(0).unwrap());
 
     let mut c = Camera::new(width as usize, height as usize, pov);
