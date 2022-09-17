@@ -65,9 +65,9 @@ impl Parser {
             res.push(g);
         }
         if !self.get_named_groups().is_empty() {
-            for (key, val) in self.get_named_groups().iter() {
-                println!("key: {key} val: {:?}", val);
-            }
+            // for (key, val) in self.get_named_groups().iter() {
+            //     println!("key: {key} val: {:?}", val);
+            // }
             for (group_name, triangles) in self.get_named_groups().iter() {
                 let g = Group::new(shapes, group_name.to_string());
                 for t in triangles.iter() {
@@ -95,7 +95,7 @@ impl ObjFileOps for Parser {
         let mut groups = BTreeMap::<String, Vec<Shape>>::new();
         match read_lines(filename) {
             Ok(lines) => {
-                println!("ok");
+                // println!("ok");
                 for line in lines {
                     match line {
                         Ok(ref l) => {
@@ -103,7 +103,7 @@ impl ObjFileOps for Parser {
                                 // println!("skipping empty line    '{}'", &l);
                                 continue;
                             }
-                            println!("line    '{}'", &l);
+                            // println!("line    '{}'", &l);
                             let mut iter = l.as_str().split_whitespace();
                             let command = iter.next().unwrap();
                             match command {
@@ -135,9 +135,9 @@ impl ObjFileOps for Parser {
                                 }
                                 "f" => {
                                     let params: Vec<String> = iter.into_iter().map(|idx| idx.to_string()).collect();
-                                    for i in &params {
-                                        println!("param {}", i);
-                                    }
+                                    // for i in &params {
+                                    //     println!("param {}", i);
+                                    // }
                                     let has_vertex_normals = match params[0].find("/") {
                                         Some(_) => true,
                                         None => false,
@@ -168,9 +168,9 @@ impl ObjFileOps for Parser {
                                         })
                                         .collect();
 
-                                    for i in &indices {
-                                        println!("index {:?}", i);
-                                    }
+                                    // for i in &indices {
+                                    //     println!("index {:?}", i);
+                                    // }
 
                                     if group_name.is_empty() {
                                         fan_triangulation(&indices, &vertices, &normals, &mut triangles);
