@@ -6,28 +6,35 @@ use std::path::Path;
 
 use crate::math::{Tuple, Tuple4D};
 use crate::prelude::{Shape, ShapeEnum, ShapeIdx, Triangle};
-use crate::shape::Group;
+use crate::shape::{Group, SmoothTriangle};
 use crate::world::ShapeArr;
 
 pub struct Parser {
     vertices: Vec<Tuple4D>,
     normals: Vec<Tuple4D>,
-    triangles: Vec<Triangle>,
-    named_groups: BTreeMap<String, Vec<Triangle>>,
+    triangles: Vec<Shape>,
+    named_groups: BTreeMap<String, Vec<Shape>>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct FaceIndices {
+    vertex_index: Option<usize>,
+    texture_index: Option<usize>,
+    normal_index: Option<usize>,
 }
 
 impl Parser {
     fn new(
         vertices: Vec<Tuple4D>,
-        triangles: Vec<Triangle>,
-        named_groups: BTreeMap<String, Vec<Triangle>>,
+        triangles: Vec<Shape>,
+        named_groups: BTreeMap<String, Vec<Shape>>,
         normals: Vec<Tuple4D>,
     ) -> Parser {
         Parser {
             vertices,
+            normals,
             triangles,
             named_groups,
-            normals,
         }
     }
 
@@ -39,24 +46,21 @@ impl Parser {
         &self.normals
     }
 
-    fn get_triangles(&self) -> &Vec<Triangle> {
+    fn get_triangles(&self) -> &Vec<Shape> {
         &self.triangles
     }
 
-    fn get_named_groups(&self) -> &BTreeMap<String, Vec<Triangle>> {
+    fn get_named_groups(&self) -> &BTreeMap<String, Vec<Shape>> {
         &self.named_groups
     }
 
     pub fn get_groups(&self, name: String, shapes: &mut ShapeArr) -> Vec<ShapeIdx> {
         let mut res = vec![];
-        let n = name.clone();
         if !self.get_triangles().is_empty() {
             let g = Group::new(shapes, name);
-            for (idx, t) in self.get_triangles().iter().enumerate() {
-                let t1 = t.clone();
-                let n = format!("group: {}  idx {}", &n, idx);
-                let triangle = Shape::new_part_of_group(ShapeEnum::Triangle(t1), n);
-                Group::add_child(shapes, g, triangle);
+            for t in self.get_triangles().iter() {
+                // let n = format!("group: {}  idx {}", &n, idx);
+                Group::add_child(shapes, g, t.clone());
             }
             res.push(g);
         }
@@ -66,11 +70,9 @@ impl Parser {
             }
             for (group_name, triangles) in self.get_named_groups().iter() {
                 let g = Group::new(shapes, group_name.to_string());
-                for (idx, t) in triangles.iter().enumerate() {
-                    let t1 = t.clone();
-                    let n = format!("group: {}  idx {}", &group_name, idx);
-                    let triangle = Shape::new_part_of_group(ShapeEnum::Triangle(t1), n);
-                    Group::add_child(shapes, g, triangle);
+                for t in triangles.iter() {
+                    // let n = format!("group: {}  idx {}", &group_name, idx);
+                    Group::add_child(shapes, g, t.clone());
                 }
                 res.push(g);
             }
@@ -90,7 +92,7 @@ impl ObjFileOps for Parser {
         let mut normals = Vec::new();
         let mut triangles = Vec::new();
         let mut group_name = String::new();
-        let mut groups = BTreeMap::new();
+        let mut groups = BTreeMap::<String, Vec<Shape>>::new();
         match read_lines(filename) {
             Ok(lines) => {
                 println!("ok");
@@ -132,19 +134,52 @@ impl ObjFileOps for Parser {
                                     normals.push(normal);
                                 }
                                 "f" => {
-                                    let indices =
-                                        iter.into_iter().map(|idx| str::parse::<usize>(idx).unwrap()).collect();
-                                    // for i in &indices {
-                                    //     println!("index {}", i);
-                                    // }
+                                    let params: Vec<String> = iter.into_iter().map(|idx| idx.to_string()).collect();
+                                    for i in &params {
+                                        println!("param {}", i);
+                                    }
+                                    let has_vertex_normals = match params[0].find("/") {
+                                        Some(_) => true,
+                                        None => false,
+                                    };
+
+                                    let indices = params
+                                        .into_iter()
+                                        .map(|p| {
+                                            if has_vertex_normals {
+                                                let mut indices = p.split("/");
+                                                let vert_i =
+                                                    Some(str::parse::<usize>(indices.next().unwrap()).unwrap());
+                                                let _vert_t = indices.next(); // omit, unused
+                                                let norm_t =
+                                                    Some(str::parse::<usize>(indices.next().unwrap()).unwrap());
+                                                FaceIndices {
+                                                    vertex_index: vert_i,
+                                                    texture_index: None,
+                                                    normal_index: norm_t,
+                                                }
+                                            } else {
+                                                FaceIndices {
+                                                    vertex_index: Some(str::parse::<usize>(&p).unwrap()),
+                                                    texture_index: None,
+                                                    normal_index: None,
+                                                }
+                                            }
+                                        })
+                                        .collect();
+
+                                    for i in &indices {
+                                        println!("index {:?}", i);
+                                    }
+
                                     if group_name.is_empty() {
-                                        fan_triangulation(&indices, &vertices, &mut triangles);
+                                        fan_triangulation(&indices, &vertices, &normals, &mut triangles);
                                     } else {
                                         let mut group_triangles = Vec::new();
-                                        fan_triangulation(&indices, &vertices, &mut group_triangles);
+                                        fan_triangulation(&indices, &vertices, &normals, &mut group_triangles);
 
                                         if groups.get(&group_name).is_some() {
-                                            let t: &mut Vec<Triangle> = groups.get_mut(&group_name).unwrap();
+                                            let t: &mut Vec<Shape> = groups.get_mut(&group_name).unwrap();
                                             t.append(&mut group_triangles);
                                         } else {
                                             groups.insert(group_name.to_string(), group_triangles);
@@ -174,23 +209,74 @@ impl ObjFileOps for Parser {
     }
 }
 
-fn fan_triangulation(indices: &Vec<usize>, vertices: &Vec<Tuple4D>, triangles: &mut Vec<Triangle>) {
+fn fan_triangulation(
+    indices: &Vec<FaceIndices>,
+    vertices: &Vec<Tuple4D>,
+    normals: &Vec<Tuple4D>,
+    triangles: &mut Vec<Shape>,
+) {
+    // for v in vertices {
+    //     println!("v = {:?}",v);
+    // }
+
     //  ¯\_(ツ)_/¯
     // FIXME this should be possible without the if
     if indices.len() == 3 {
-        let p1 = vertices.get(indices.get(0).unwrap() - 1).unwrap();
-        let p2 = vertices.get(indices.get(1).unwrap() - 1).unwrap();
-        let p3 = vertices.get(indices.get(2).unwrap() - 1).unwrap();
-        let t = Triangle::new(p1.clone(), p2.clone(), p3.clone());
+        let face_idx1 = indices.get(0).unwrap();
+        let face_idx2 = indices.get(1).unwrap();
+        let face_idx3 = indices.get(2).unwrap();
+
+        let t = match face_idx1.normal_index {
+            Some(_) => {
+                let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
+                let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
+                let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
+
+                let n1 = normals.get(face_idx1.normal_index.unwrap() - 1).unwrap();
+                let n2 = normals.get(face_idx2.normal_index.unwrap() - 1).unwrap();
+                let n3 = normals.get(face_idx3.normal_index.unwrap() - 1).unwrap();
+
+                let t = SmoothTriangle::new(p1.clone(), p2.clone(), p3.clone(), n1.clone(), n2.clone(), n3.clone());
+                Shape::new_part_of_group(ShapeEnum::SmoothTriangle(t), "bla".to_string())
+            }
+            None => {
+                let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
+                let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
+                let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
+                let t = Triangle::new(p1.clone(), p2.clone(), p3.clone());
+                Shape::new_part_of_group(ShapeEnum::Triangle(t), "bla".to_string())
+            }
+        };
+
         println!("triangle from 3 indices {:?}", &t);
         triangles.push(t);
     } else {
         for i in 2..indices.len() {
-            let p1 = vertices.get(0).unwrap();
-            let p2 = vertices.get(i - 1).unwrap();
-            let p3 = vertices.get(i).unwrap();
-            let t = Triangle::new(p1.clone(), p2.clone(), p3.clone());
-            println!("triangle from more indices {:?}", &t);
+            let face_idx1 = indices.get(0).unwrap();
+            let face_idx2 = indices.get(i - 1).unwrap();
+            let face_idx3 = indices.get(i).unwrap();
+
+            let t = match face_idx1.normal_index {
+                Some(_) => {
+                    let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
+                    let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
+                    let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
+
+                    let n1 = normals.get(face_idx1.normal_index.unwrap() - 1).unwrap();
+                    let n2 = normals.get(face_idx2.normal_index.unwrap() - 1).unwrap();
+                    let n3 = normals.get(face_idx3.normal_index.unwrap() - 1).unwrap();
+
+                    let t = SmoothTriangle::new(p1.clone(), p2.clone(), p3.clone(), n1.clone(), n2.clone(), n3.clone());
+                    Shape::new_part_of_group(ShapeEnum::SmoothTriangle(t), "bla".to_string())
+                }
+                None => {
+                    let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
+                    let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
+                    let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
+                    let t = Triangle::new(p1.clone(), p2.clone(), p3.clone());
+                    Shape::new_part_of_group(ShapeEnum::Triangle(t), "bla".to_string())
+                }
+            };
             triangles.push(t);
         }
     }
@@ -264,6 +350,16 @@ mod tests {
 
         let t1 = parser.get_triangles().get(0).unwrap();
         let t2 = parser.get_triangles().get(1).unwrap();
+
+        let t1 = match t1.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+        let t2 = match t2.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+
         assert_tuple(t1.get_p1(), &v1_expected);
         assert_tuple(t1.get_p2(), &v2_expected);
         assert_tuple(t1.get_p3(), &v3_expected);
@@ -327,6 +423,19 @@ mod tests {
         let t1 = parser.get_triangles().get(0).unwrap();
         let t2 = parser.get_triangles().get(1).unwrap();
         let t3 = parser.get_triangles().get(2).unwrap();
+
+        let t1 = match t1.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+        let t2 = match t2.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+        let t3 = match t3.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
 
         assert_tuple(t1.get_p1(), &v1_expected);
         assert_tuple(t1.get_p2(), &v2_expected);
@@ -529,4 +638,169 @@ mod tests {
         assert_tuple(&parser.get_normals()[1], &n2_expected);
         assert_tuple(&parser.get_normals()[2], &n3_expected);
     }
+
+    // page 224
+    // Faces with  normal records
+    #[test]
+    fn test_faces_with_normal_records() {
+        let filename = "./test_files/faces_with_normal_vectors.obj";
+        let parser = Parser::parse_obj_file(&filename);
+
+        let n1_expected = Tuple4D::new_vector(-1.0, 0.0, 0.0);
+        let n2_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
+        let n3_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
+
+        let v1_expected = Tuple4D::new_point(0.0, 1.0, 0.0);
+        let v2_expected = Tuple4D::new_point(-1.0, 0.0, 0.0);
+        let v3_expected = Tuple4D::new_point(1.0, 0.0, 0.0);
+
+        assert_eq!(parser.get_normals().len(), 3);
+        assert_eq!(parser.get_vertices().len(), 3);
+
+        // group
+        let mut shapes = vec![];
+        let vec1 = parser.get_groups("testgroup".to_string(), &mut shapes);
+        println!("count groups {}", vec1.len());
+        println!("######################################################################");
+        Group::print_tree(&shapes, 0, 0);
+        println!("######################################################################");
+
+        let group = vec1.get(0).unwrap();
+        let group = shapes.get(*group as usize).unwrap();
+
+        let triangle1 = group.get_children().get(0).unwrap();
+        let triangle2 = group.get_children().get(0).unwrap();
+
+        let triangle1 = shapes.get(*triangle1 as usize).unwrap();
+        let triangle2 = shapes.get(*triangle2 as usize).unwrap();
+
+        let triangle1 = match triangle1.get_shape() {
+            ShapeEnum::SmoothTriangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+        let triangle2 = match triangle2.get_shape() {
+            ShapeEnum::SmoothTriangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+
+        println!(
+            "triangle1.get_p1()  {:?}    expected_p1  {:?}",
+            triangle1.get_p1(),
+            &v1_expected
+        );
+        println!(
+            "triangle1.get_p2()  {:?}    expected_p2  {:?}",
+            triangle1.get_p2(),
+            &v2_expected
+        );
+        println!(
+            "triangle1.get_p3()  {:?}    expected_p3  {:?}",
+            triangle1.get_p3(),
+            &v3_expected
+        );
+
+        println!(
+            "triangle1.get_n1()  {:?}    expected_n3  {:?}",
+            triangle1.get_n1(),
+            &n3_expected
+        );
+        println!(
+            "triangle1.get_n2()  {:?}    expected_n1  {:?}",
+            triangle1.get_n2(),
+            &n1_expected
+        );
+        println!(
+            "triangle1.get_n3()  {:?}    expected_n2  {:?}",
+            triangle1.get_n3(),
+            &n2_expected
+        );
+
+        assert_tuple(triangle1.get_p1(), &v1_expected);
+        assert_tuple(triangle1.get_p2(), &v2_expected);
+        assert_tuple(triangle1.get_p3(), &v3_expected);
+
+        assert_tuple(triangle1.get_n1(), &n3_expected);
+        assert_tuple(triangle1.get_n2(), &n1_expected);
+        assert_tuple(triangle1.get_n3(), &n2_expected);
+
+        assert_tuple(triangle2.get_p1(), &triangle1.get_p1());
+        assert_tuple(triangle2.get_p2(), &triangle1.get_p2());
+        assert_tuple(triangle2.get_p3(), &triangle1.get_p3());
+
+        assert_tuple(triangle2.get_n1(), &triangle1.get_n1());
+        assert_tuple(triangle2.get_n2(), &triangle1.get_n2());
+        assert_tuple(triangle2.get_n3(), &triangle1.get_n3());
+    }
+
+    // // page 224
+    // // additional test for groups and  faces with  normal records
+    // #[test]
+    // fn test_faces_with_normal_records() {
+    //     // let filename = "./test_files/faces_with_normal_vectors.obj";
+    //     // let parser = Parser::parse_obj_file(&filename);
+    //     //
+    //     // let n1_expected = Tuple4D::new_vector(-1.0, 0.0, 0.0);
+    //     // let n2_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
+    //     // let n3_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
+    //     //
+    //     // let v1_expected = Tuple4D::new_point(0.0, 1.0, 0.0);
+    //     // let v2_expected = Tuple4D::new_point(-1.0, 0.0, 0.0);
+    //     // let v3_expected = Tuple4D::new_point(1.0, 0.0, 0.0);
+    //     //
+    //     // assert_eq!(parser.get_normals().len(), 3);
+    //     // assert_eq!(parser.get_vertices().len(), 3);
+    //     //
+    //     // // group
+    //     // let mut shapes = vec![];
+    //     // let vec1 = parser.get_groups("testgroup".to_string(), &mut shapes);
+    //     // println!("count groups {}", vec1.len());
+    //     // println!("######################################################################");
+    //     // Group::print_tree(&shapes, 0, 0);
+    //     // println!("######################################################################");
+    //     //
+    //     //
+    //     // let group = vec1.get(0).unwrap();
+    //     // let group = shapes.get(*group as usize).unwrap();
+    //     //
+    //     // let triangle1 = group.get_children().get(0).unwrap();
+    //     // let triangle2 = group.get_children().get(0).unwrap();
+    //     //
+    //     // let triangle1 = shapes.get(*triangle1 as usize).unwrap();
+    //     // let triangle2 = shapes.get(*triangle2 as usize).unwrap();
+    //     //
+    //     // let triangle1 = match triangle1.get_shape() {
+    //     //     ShapeEnum::SmoothTriangle(t) => t,
+    //     //     _ => panic!("unexpected shape"),
+    //     // };
+    //     // let triangle2 = match triangle2.get_shape() {
+    //     //     ShapeEnum::SmoothTriangle(t) => t,
+    //     //     _ => panic!("unexpected shape"),
+    //     // };
+    //     //
+    //     // println!("triangle1.get_p1()  {:?}    expected_p1  {:?}", triangle1.get_p1(), &v1_expected);
+    //     // println!("triangle1.get_p2()  {:?}    expected_p2  {:?}", triangle1.get_p2(), &v2_expected);
+    //     // println!("triangle1.get_p3()  {:?}    expected_p3  {:?}", triangle1.get_p3(), &v3_expected);
+    //     //
+    //     // println!("triangle1.get_n1()  {:?}    expected_n3  {:?}", triangle1.get_n1(), &n3_expected);
+    //     // println!("triangle1.get_n2()  {:?}    expected_n1  {:?}", triangle1.get_n2(), &n1_expected);
+    //     // println!("triangle1.get_n3()  {:?}    expected_n2  {:?}", triangle1.get_n3(), &n2_expected);
+    //     //
+    //     //
+    //     // assert_tuple(triangle1.get_p1(), &v1_expected);
+    //     // assert_tuple(triangle1.get_p2(), &v2_expected);
+    //     // assert_tuple(triangle1.get_p3(), &v3_expected);
+    //     //
+    //     // assert_tuple(triangle1.get_n1(), &n3_expected);
+    //     // assert_tuple(triangle1.get_n2(), &n1_expected);
+    //     // assert_tuple(triangle1.get_n3(), &n2_expected);
+    //     //
+    //     //
+    //     // assert_tuple(triangle2.get_p1(), &triangle1.get_p1());
+    //     // assert_tuple(triangle2.get_p2(), &triangle1.get_p2());
+    //     // assert_tuple(triangle2.get_p3(), &triangle1.get_p3());
+    //     //
+    //     // assert_tuple(triangle2.get_n1(), &triangle1.get_n1());
+    //     // assert_tuple(triangle2.get_n2(), &triangle1.get_n2());
+    //     // assert_tuple(triangle2.get_n3(), &triangle1.get_n3());
+    // }
 }

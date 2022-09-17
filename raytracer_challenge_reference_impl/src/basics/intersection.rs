@@ -6,7 +6,7 @@ use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON_OVER_UNDER;
 use crate::math::tuple4d::{Tuple, Tuple4D};
-use crate::prelude::{Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, SmoothTriangle, Triangle};
+use crate::prelude::{Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, Triangle};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::Sphere;
 use crate::shape::Cube;
