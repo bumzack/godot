@@ -2,6 +2,7 @@ use crate::prelude::patterns::Pattern;
 use crate::prelude::test_patterns::TestPattern;
 use crate::prelude::*;
 use crate::DEBUG;
+use std::f64::consts::PI;
 
 pub type ShapeIdx = usize;
 pub type ShapeArr = Vec<Shape>;
@@ -260,35 +261,76 @@ impl WorldOps for World {
     }
 
     fn add_x_axis(&mut self) {
-        // TODO: just show a red cylinder, but no shadows   like Maya does :-)
+        let radius = 0.05;
+        let len = 0.8;
 
         let mut x_axis = Cylinder::new();
         x_axis.set_minimum(0.0);
         x_axis.set_maximum(1.0);
-        let m_scale = Matrix::scale(1.0, 0.5, 0.5);
-        let m_rot = Matrix::new_identity_4x4();
-        let m = m_scale * m_rot;
-        x_axis.set_transformation(m);
-
+        x_axis.set_closed(true);
         x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
-        x_axis.get_material_mut().set_ambient(0.0);
-        x_axis.get_material_mut().set_diffuse(0.0);
+        x_axis.get_material_mut().set_ambient(0.3);
+        x_axis.get_material_mut().set_diffuse(0.6);
         x_axis.get_material_mut().set_specular(0.0);
-        x_axis.get_material_mut().set_shininess(0.0);
-        x_axis.get_material_mut().set_reflective(0.0);
-        x_axis.get_material_mut().set_transparency(0.0);
-        x_axis.get_material_mut().set_refractive_index(0.0);
-        self.add_shape(Shape::new(ShapeEnum::Cylinder(x_axis)));
+        x_axis.get_material_mut().set_reflective(0.1);
+        //  x_axis.get_material_mut().set_transparency(0.5);
+
+        let m_rot = Matrix::rotate_z(-PI / 2.0);
+        let m_trans = Matrix::translation(0.0, 0.0, 0.0);
+        let m_scale = Matrix::scale(radius, len, radius);
+        let m = &m_trans * &(m_rot * m_scale);
+        x_axis.set_transformation(m);
+        let mut x_axis = Shape::new(ShapeEnum::Cylinder(x_axis));
+        x_axis.set_casts_shadow(false);
+        self.add_shape(x_axis);
     }
 
     fn add_y_axis(&mut self) {
-        // TODO: just show a blue cylinder, but no shadows   like Maya does :-)
-        unimplemented!()
+        let radius = 0.05;
+        let len = 0.8;
+        let mut y_axis = Cylinder::new();
+        y_axis.set_minimum(0.0);
+        y_axis.set_maximum(1.0);
+        y_axis.set_closed(true);
+        y_axis.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
+        y_axis.get_material_mut().set_ambient(0.3);
+        y_axis.get_material_mut().set_diffuse(0.6);
+        y_axis.get_material_mut().set_specular(0.0);
+        y_axis.get_material_mut().set_reflective(0.1);
+        // y_axis.get_material_mut().set_transparency(0.5);
+
+        let m_rot = Matrix::rotate_y(PI / 2.0);
+        let m_trans = Matrix::translation(0.0, 0.0, 0.0);
+        let m_scale = Matrix::scale(radius, len, radius);
+        let m = &m_trans * &(m_rot * m_scale);
+        y_axis.set_transformation(m);
+        let mut y_axis = Shape::new(ShapeEnum::Cylinder(y_axis));
+        y_axis.set_casts_shadow(false);
+        self.add_shape(y_axis);
     }
 
     fn add_z_axis(&mut self) {
-        // TODO: just show a green cylinder, but no shadows   like Maya does :-)
-        unimplemented!()
+        let radius = 0.05;
+        let len = 0.8;
+        let mut z_axis = Cylinder::new();
+        z_axis.set_minimum(0.0);
+        z_axis.set_maximum(1.0);
+        z_axis.set_closed(true);
+        z_axis.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
+        z_axis.get_material_mut().set_ambient(0.3);
+        z_axis.get_material_mut().set_diffuse(0.6);
+        z_axis.get_material_mut().set_specular(0.0);
+        z_axis.get_material_mut().set_reflective(0.1);
+        // z_axis.get_material_mut().set_transparency(0.5);
+
+        let m_rot = Matrix::rotate_x(PI / 2.0);
+        let m_trans = Matrix::translation(0.0, 0.0, 0.0);
+        let m_scale = Matrix::scale(radius, len, radius);
+        let m = &m_trans * &(m_rot * m_scale);
+        z_axis.set_transformation(m);
+        let mut z_axis = Shape::new(ShapeEnum::Cylinder(z_axis));
+        z_axis.set_casts_shadow(false);
+        self.add_shape(z_axis);
     }
 }
 
