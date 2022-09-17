@@ -11,8 +11,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let pov = 0.8;
     let antialiasing = true;
     let antialiasing_size = 3;
-    let arealight_u = 4;
-    let arealight_v = 4;
+    let arealight_u = 16;
+    let arealight_v = 16;
     let (world, camera) = setup_world(
         width,
         height,
