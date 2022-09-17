@@ -17,7 +17,7 @@ pub enum CubeFace {
     DOWN,
 }
 
-impl ShapeOps for Cube {
+impl<'a> ShapeOps<'a> for Cube {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("Cube::set_transformation: cant unwrap inverse matrix");
@@ -32,16 +32,16 @@ impl ShapeOps for Cube {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point);
+        let local_normal = self.local_normal_at(&object_point, i);
         let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }
 
-    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
         let maxc = max_float(local_point.x.abs(), local_point.y.abs(), local_point.z.abs());
         if (maxc - local_point.x.abs()) < EPSILON {
             return Tuple4D::new_vector(local_point.x, 0.0, 0.0);
@@ -278,10 +278,13 @@ mod tests {
 
     // page 173 helper
     fn test_cube_normal_helper(point: Tuple4D, n_expected: Tuple4D) {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
+
         let shapes = vec![];
 
         let c = Cube::new();
-        let n = c.normal_at(&point, &shapes);
+        let n = c.normal_at(&point, &shapes, &intersection);
         assert_tuple(&n, &n_expected);
     }
 

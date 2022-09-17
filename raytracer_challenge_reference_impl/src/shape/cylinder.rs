@@ -10,7 +10,7 @@ pub struct Cylinder {
     closed: bool,
 }
 
-impl ShapeOps for Cylinder {
+impl<'a> ShapeOps<'a> for Cylinder {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("Cube::set_transformation: cant unwrap inverse matrix");
@@ -25,16 +25,16 @@ impl ShapeOps for Cylinder {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point);
+        let local_normal = self.local_normal_at(&object_point, i);
         let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }
 
-    fn local_normal_at(&self, local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
         let dist = local_point.x.powi(2) + local_point.z.powi(2);
         if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
             return Tuple4D::new_vector(0.0, 1.0, 0.0);
@@ -268,10 +268,13 @@ mod tests {
 
     // page 181
     fn test_ray_cylinder_normal_at_helper(point: Tuple4D, n_expected: Tuple4D) {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
+
         let shapes = vec![];
         let cyl = Cylinder::new();
 
-        let n = Cylinder::normal_at(&cyl, &point, &shapes);
+        let n = Cylinder::normal_at(&cyl, &point, &shapes, &intersection);
 
         println!("point        = {:?} ", point);
         println!("expected  n  = {:?} ", n_expected);
@@ -429,12 +432,14 @@ mod tests {
 
     // page 186
     fn test_ray_cylinder_capped_normal_at_helper(point: Tuple4D, normal: Tuple4D) {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut cyl = Cylinder::new();
         cyl.set_minimum(1.0);
         cyl.set_maximum(2.0);
         cyl.set_closed(true);
-        let n = Cylinder::normal_at(&cyl, &point, &shapes);
+        let n = Cylinder::normal_at(&cyl, &point, &shapes, &intersection);
 
         println!("point        = {:?} ", point);
         println!("direction     = {:?} ", normal);

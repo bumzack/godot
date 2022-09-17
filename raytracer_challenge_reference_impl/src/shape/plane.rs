@@ -7,7 +7,7 @@ pub struct Plane {
     material: Material,
 }
 
-impl ShapeOps for Plane {
+impl<'a> ShapeOps<'a> for Plane {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("plane::set_transformation: cant unwrap inverse matrix");
@@ -22,16 +22,16 @@ impl ShapeOps for Plane {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point);
+        let local_normal = self.local_normal_at(&object_point, i);
         let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }
 
-    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
         Tuple4D::new_vector(0.0, 1.0, 0.0)
     }
 
@@ -247,32 +247,36 @@ mod tests {
     // page 122
     #[test]
     fn test_sphere_normal_at() {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
 
         let shape = Shape::new(ShapeEnum::Plane(Plane::new()));
         let n_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
 
         let point = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let n = shape.normal_at(&point, &shapes);
+        let n = shape.normal_at(&point, &shapes, &intersection);
         assert_tuple(&n, &n_expected);
 
         let point = Tuple4D::new_point(10.0, 0.0, -10.0);
-        let n = shape.normal_at(&point, &shapes);
+        let n = shape.normal_at(&point, &shapes, &intersection);
         assert_tuple(&n, &n_expected);
 
         let point = Tuple4D::new_point(-5.0, 0.0, 150.0);
-        let n = shape.normal_at(&point, &shapes);
+        let n = shape.normal_at(&point, &shapes, &intersection);
         assert_tuple(&n, &n_expected);
     }
 
     #[test]
     fn test_sphere_normal_at_transformed() {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
         shape.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
 
         let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
-        let n = shape.normal_at(&p, &shapes);
+        let n = shape.normal_at(&p, &shapes, &intersection);
         let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
         println!(
             "test_sphere_normal_at_transformed    n = {:#?}, n_expected = {:#?}",
@@ -283,12 +287,14 @@ mod tests {
 
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut s = Sphere::new();
         s.set_transformation(Matrix::scale(1.0, 0.5, 1.0) * Matrix::rotate_z(PI / 5.0));
 
         let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
-        let n = s.normal_at(&p, &shapes);
+        let n = s.normal_at(&p, &shapes, &intersection);
         let n_expected = Tuple4D::new_vector(0.0, 0.97014, -0.24254);
         println!(
             "test_sphere_normal_at_scaled_rotated    n = {:#?}, n_expected = {:#?}",

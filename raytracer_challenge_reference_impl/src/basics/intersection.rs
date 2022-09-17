@@ -6,7 +6,7 @@ use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON_OVER_UNDER;
 use crate::math::tuple4d::{Tuple, Tuple4D};
-use crate::prelude::{Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, Triangle};
+use crate::prelude::{Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, SmoothTriangle, Triangle};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::Sphere;
 use crate::shape::Cube;
@@ -18,13 +18,19 @@ type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 pub struct Intersection<'a> {
     t: f64,
     shape: &'a Shape,
+    u: f64,
+    v: f64,
 }
 
 pub trait IntersectionOps<'a> {
     fn new(t: f64, shape: &'a Shape) -> Intersection<'a>;
+    fn new_u_v(t: f64, shape: &'a Shape, u: f64, v: f64) -> Intersection<'a>;
     fn intersect(shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr) -> IntersectionList<'a>;
+    // fn intersect_with_u_v(t: f64, shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr, u: f64, v: f64) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f64;
+    fn get_u(&self) -> f64;
+    fn get_v(&self) -> f64;
     fn get_shape(&self) -> &'a Shape;
     fn prepare_computations(
         intersection: &Intersection<'a>,
@@ -37,7 +43,16 @@ pub trait IntersectionOps<'a> {
 
 impl<'a> IntersectionOps<'a> for Intersection<'a> {
     fn new(t: f64, shape: &'a Shape) -> Intersection<'a> {
-        Intersection { t, shape }
+        Intersection {
+            t,
+            shape,
+            u: 0.0,
+            v: 0.0,
+        }
+    }
+
+    fn new_u_v(t: f64, shape: &'a Shape, u: f64, v: f64) -> Intersection<'a> {
+        Intersection { t, shape, u, v }
     }
 
     fn intersect(shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
@@ -49,6 +64,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
             ShapeEnum::Plane(ref _plane) => Plane::intersect_local(shape, r2, shapes),
             ShapeEnum::Cylinder(ref _cylinder) => Cylinder::intersect_local(shape, r2, shapes),
             ShapeEnum::Triangle(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
+            ShapeEnum::SmoothTriangle(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
             ShapeEnum::Cube(ref _cube) => Cube::intersect_local(shape, r2, shapes),
             ShapeEnum::Group(ref _group) => Group::intersect_local(shape, r2, shapes),
         };
@@ -61,6 +77,29 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         }
         intersection_list
     }
+
+    // fn intersect_with_u_v(t: f64, shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr, u: f64, v: f64) -> IntersectionList<'a> {
+    //     let mut intersection_list = IntersectionList::new();
+    //     let r2 = Ray::transform(r, shape.get_inverse_transformation());
+    //
+    //     let mut xs = match shape.get_shape() {
+    //         ShapeEnum::Sphere(ref _sphere) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
+    //         ShapeEnum::Plane(ref _plane) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
+    //         ShapeEnum::Cylinder(ref _cylinder) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
+    //         ShapeEnum::Triangle(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
+    //         ShapeEnum::SmoothTriangle(ref _smooth_triangle) => SmoothTriangle::intersect_local(shape, r2, shapes),
+    //         ShapeEnum::Cube(ref _cube) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
+    //         ShapeEnum::Group(ref _group) => Group::intersect_local(shape, r2, shapes ),
+    //     };
+    //     for is in xs
+    //         .get_intersections_mut()
+    //         .drain(..)
+    //         .filter(|i| !i.get_t().is_infinite())
+    //     {
+    //         intersection_list.add(is);
+    //     }
+    //     intersection_list
+    // }
 
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
         let mut res = IntersectionList::new();
@@ -86,6 +125,14 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         self.t
     }
 
+    fn get_u(&self) -> f64 {
+        self.u
+    }
+
+    fn get_v(&self) -> f64 {
+        self.v
+    }
+
     fn get_shape(&self) -> &'a Shape {
         self.shape
     }
@@ -97,7 +144,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         shapes: &'a ShapeArr,
     ) -> PrecomputedComponent<'a> {
         let point = Ray::position(r, intersection.get_t());
-        let mut normal_vector = intersection.get_shape().normal_at(&point, shapes);
+        let mut normal_vector = intersection.get_shape().normal_at(&point, shapes, intersection);
         normal_vector.w = 0.0;
         let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;

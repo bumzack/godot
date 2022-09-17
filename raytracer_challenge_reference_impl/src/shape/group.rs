@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::basics::{IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
+use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
 use crate::material::Material;
 use crate::math::{Matrix, MatrixOps, Tuple, Tuple4D};
 use crate::prelude::{Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
@@ -13,7 +13,7 @@ pub struct Group {
     inverse_transformation_matrix: Matrix,
 }
 
-impl ShapeOps for Group {
+impl<'a> ShapeOps<'a> for Group {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("Group::set_transformation:  can't unwrap inverted matrix ");
@@ -28,12 +28,12 @@ impl ShapeOps for Group {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, _world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
+    fn normal_at(&self, _world_point: &Tuple4D, _shapes: &ShapeArr, _i: &Intersection<'a>) -> Tuple4D {
         unreachable!("this should never be called");
     }
 
-    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
-        Tuple4D::new_point(0.0, 0.0, 0.0)
+    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
+        unreachable!("this should never be called");
     }
 
     fn set_material(&mut self, _m: Material) {
@@ -86,10 +86,11 @@ impl<'a> ShapeIntersectOps<'a> for Group {
                 ShapeEnum::Cylinder(ref _cylinder) => Shape::intersects(shape, r.clone(), shapes),
                 ShapeEnum::Cube(ref _cube) => Shape::intersects(shape, r.clone(), shapes),
                 ShapeEnum::Triangle(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::SmoothTriangle(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
                 ShapeEnum::Group(ref _group) => Shape::intersects(shape, r.clone(), shapes),
             };
 
-            println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
+            // println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
             for is in xs
                 .get_intersections_mut()
                 .drain(..)
@@ -455,6 +456,8 @@ mod tests {
     // finding a normal on a child object
     #[test]
     fn test_finding_normal_on_child_object() {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
         let mut shapes: ShapeArr = vec![];
 
         // group 1
@@ -480,7 +483,7 @@ mod tests {
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
 
         let sphere = shapes.get(sphere_idx).unwrap();
-        let n = sphere.normal_at(&Tuple4D::new_point(1.7321, 1.1547, -5.5774), &shapes);
+        let n = sphere.normal_at(&Tuple4D::new_point(1.7321, 1.1547, -5.5774), &shapes, &intersection);
         let expected = Tuple4D::new_vector(0.28570366, 0.42854306, -0.8571606);
         println!("actual {:?}        expected {:?}", &n, &expected);
 

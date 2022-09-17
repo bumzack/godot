@@ -11,21 +11,32 @@ use crate::world::ShapeArr;
 
 pub struct Parser {
     vertices: Vec<Tuple4D>,
+    normals: Vec<Tuple4D>,
     triangles: Vec<Triangle>,
     named_groups: BTreeMap<String, Vec<Triangle>>,
 }
 
 impl Parser {
-    fn new(vertices: Vec<Tuple4D>, triangles: Vec<Triangle>, named_groups: BTreeMap<String, Vec<Triangle>>) -> Parser {
+    fn new(
+        vertices: Vec<Tuple4D>,
+        triangles: Vec<Triangle>,
+        named_groups: BTreeMap<String, Vec<Triangle>>,
+        normals: Vec<Tuple4D>,
+    ) -> Parser {
         Parser {
             vertices,
             triangles,
             named_groups,
+            normals,
         }
     }
 
     fn get_vertices(&self) -> &Vec<Tuple4D> {
         &self.vertices
+    }
+
+    fn get_normals(&self) -> &Vec<Tuple4D> {
+        &self.normals
     }
 
     fn get_triangles(&self) -> &Vec<Triangle> {
@@ -36,7 +47,7 @@ impl Parser {
         &self.named_groups
     }
 
-    fn get_groups(&self, name: String, shapes: &mut ShapeArr) -> Vec<ShapeIdx> {
+    pub fn get_groups(&self, name: String, shapes: &mut ShapeArr) -> Vec<ShapeIdx> {
         let mut res = vec![];
         let n = name.clone();
         if !self.get_triangles().is_empty() {
@@ -76,66 +87,90 @@ pub trait ObjFileOps {
 impl ObjFileOps for Parser {
     fn parse_obj_file<'a>(filename: &'a str) -> Parser {
         let mut vertices = Vec::new();
+        let mut normals = Vec::new();
         let mut triangles = Vec::new();
         let mut group_name = String::new();
         let mut groups = BTreeMap::new();
-        if let Ok(lines) = read_lines(filename) {
-            // Consumes the iterator, returns an (Optional) String
-            for line in lines {
-                match line {
-                    Ok(ref l) => {
-                        if l.trim().is_empty() {
-                            println!("skipping empty line    '{}'", &l);
-                            continue;
-                        }
-                        println!("line    '{}'", &l);
-                        let mut iter = l.as_str().split_whitespace();
-                        let command = iter.next().unwrap();
-                        match command {
-                            "v" => {
-                                let x = iter.next().unwrap();
-                                let y = iter.next().unwrap();
-                                let z = iter.next().unwrap();
-
-                                let vertex = Tuple4D::new_point(
-                                    str::parse::<f64>(x).unwrap(),
-                                    str::parse::<f64>(y).unwrap(),
-                                    str::parse::<f64>(z).unwrap(),
-                                );
-                                println!("got a vertex   {:?}", &vertex);
-                                vertices.push(vertex);
+        match read_lines(filename) {
+            Ok(lines) => {
+                println!("ok");
+                for line in lines {
+                    match line {
+                        Ok(ref l) => {
+                            if l.trim().is_empty() {
+                                // println!("skipping empty line    '{}'", &l);
+                                continue;
                             }
-                            "f" => {
-                                let indices = iter.into_iter().map(|idx| str::parse::<usize>(idx).unwrap()).collect();
-                                for i in &indices {
-                                    println!("index {}", i);
-                                }
-                                if group_name.is_empty() {
-                                    fan_triangulation(&indices, &vertices, &mut triangles);
-                                } else {
-                                    let mut group_triangles = Vec::new();
-                                    fan_triangulation(&indices, &vertices, &mut group_triangles);
+                            println!("line    '{}'", &l);
+                            let mut iter = l.as_str().split_whitespace();
+                            let command = iter.next().unwrap();
+                            match command {
+                                "v" => {
+                                    let x = iter.next().unwrap();
+                                    let y = iter.next().unwrap();
+                                    let z = iter.next().unwrap();
 
-                                    if groups.get(&group_name).is_some() {
-                                        let mut ts = groups.remove(&group_name).unwrap();
-                                        group_triangles.append(&mut ts);
+                                    let vertex = Tuple4D::new_point(
+                                        str::parse::<f64>(x).unwrap(),
+                                        str::parse::<f64>(y).unwrap(),
+                                        str::parse::<f64>(z).unwrap(),
+                                    );
+                                    // println!("got a vertex   {:?}", &vertex);
+                                    vertices.push(vertex);
+                                }
+                                "vn" => {
+                                    let x = iter.next().unwrap();
+                                    let y = iter.next().unwrap();
+                                    let z = iter.next().unwrap();
+
+                                    let normal = Tuple4D::new_vector(
+                                        str::parse::<f64>(x).unwrap(),
+                                        str::parse::<f64>(y).unwrap(),
+                                        str::parse::<f64>(z).unwrap(),
+                                    );
+                                    // println!("got a vertex   {:?}", &vertex);
+                                    normals.push(normal);
+                                }
+                                "f" => {
+                                    let indices =
+                                        iter.into_iter().map(|idx| str::parse::<usize>(idx).unwrap()).collect();
+                                    // for i in &indices {
+                                    //     println!("index {}", i);
+                                    // }
+                                    if group_name.is_empty() {
+                                        fan_triangulation(&indices, &vertices, &mut triangles);
                                     } else {
-                                        groups.insert(group_name.to_string(), group_triangles);
+                                        let mut group_triangles = Vec::new();
+                                        fan_triangulation(&indices, &vertices, &mut group_triangles);
+
+                                        if groups.get(&group_name).is_some() {
+                                            let t: &mut Vec<Triangle> = groups.get_mut(&group_name).unwrap();
+                                            t.append(&mut group_triangles);
+                                        } else {
+                                            groups.insert(group_name.to_string(), group_triangles);
+                                        }
                                     }
                                 }
+                                "g" => {
+                                    group_name = iter.next().unwrap().to_string();
+                                    // println!("got a groupname    {:?}", &group_name);
+                                }
+                                _ => {}
                             }
-                            "g" => {
-                                group_name = iter.next().unwrap().to_string();
-                                println!("got a groupname    {:?}", &group_name);
-                            }
-                            _ => {}
+                        }
+                        Err(err) => {
+                            println!("error unpacking line   err {}", err);
+                            panic!("error unpacking line   err {}", err);
                         }
                     }
-                    Err(_) => {}
                 }
             }
+            Err(err) => {
+                println!("can't open file {} erro {}", filename, err);
+                panic!("cant open file {}  error {}", filename, err);
+            }
         }
-        Parser::new(vertices, triangles, groups)
+        Parser::new(vertices, triangles, groups, normals)
     }
 }
 
@@ -364,6 +399,11 @@ mod tests {
         // group
         let mut shapes = vec![];
         let vec1 = parser.get_groups("testgroup".to_string(), &mut shapes);
+        println!("######################################################################");
+        Group::print_tree(&shapes, 0, 0);
+        println!("######################################################################");
+        Group::print_tree(&shapes, 2, 0);
+        println!("######################################################################");
 
         let group1 = vec1.get(0).unwrap();
         let group1 = shapes.get(*group1 as usize).unwrap();
@@ -371,7 +411,6 @@ mod tests {
         assert_eq!(*x1, "FirstGroup".to_string());
 
         println!("group1 {:?}", group1);
-        Group::print_tree(&shapes, 0, 0);
 
         let group2 = vec1.get(1).unwrap();
         let group2 = shapes.get(*group2 as usize).unwrap();
@@ -400,5 +439,94 @@ mod tests {
         assert_tuple(triangle2.get_p1(), &v1_expected);
         assert_tuple(triangle2.get_p2(), &v3_expected);
         assert_tuple(triangle2.get_p3(), &v4_expected);
+    }
+
+    // page 217
+    // Triangles in groups - with a second triangle in the first group
+    #[test]
+    fn test_triangles_in_groups_additional_triangle() {
+        let filename = "./test_files/group_data_multiple_triangles.obj";
+        let parser = Parser::parse_obj_file(&filename);
+
+        let v1_expected = Tuple4D::new_point(-1.0, 1.0, 0.0);
+        let v2_expected = Tuple4D::new_point(-1.0, 0.0, 0.0);
+        let v3_expected = Tuple4D::new_point(1.0, 0.0, 0.0);
+        let v4_expected = Tuple4D::new_point(1.0, 1.0, 0.0);
+
+        assert_eq!(parser.vertices.len(), 4);
+
+        // group
+        let mut shapes = vec![];
+        let vec1 = parser.get_groups("testgroup".to_string(), &mut shapes);
+        println!("######################################################################");
+        Group::print_tree(&shapes, 0, 0);
+        println!("######################################################################");
+        Group::print_tree(&shapes, 3, 0);
+        println!("######################################################################");
+
+        let group1 = vec1.get(0).unwrap();
+        let group1 = shapes.get(*group1 as usize).unwrap();
+        let x1 = group1.get_name().as_ref().unwrap();
+        assert_eq!(*x1, "FirstGroup".to_string());
+
+        println!("group1 {:?}", group1);
+        Group::print_tree(&shapes, 0, 0);
+
+        let group2 = vec1.get(1).unwrap();
+        let group2 = shapes.get(*group2 as usize).unwrap();
+        let x = group2.get_name().as_ref().unwrap();
+        assert_eq!(*x, "SecondGroup".to_string());
+
+        let triangle1 = group1.get_children().get(0).unwrap();
+        let triangle1a = group1.get_children().get(1).unwrap();
+
+        let triangle2 = group2.get_children().get(0).unwrap();
+
+        let triangle1 = shapes.get(*triangle1 as usize).unwrap();
+        let triangle1a = shapes.get(*triangle1a as usize).unwrap();
+        let triangle2 = shapes.get(*triangle2 as usize).unwrap();
+
+        let triangle1 = match triangle1.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+        let triangle1a = match triangle1a.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+        let triangle2 = match triangle2.get_shape() {
+            ShapeEnum::Triangle(t) => t,
+            _ => panic!("unexpected shape"),
+        };
+
+        assert_tuple(triangle1.get_p1(), &v1_expected);
+        assert_tuple(triangle1.get_p2(), &v2_expected);
+        assert_tuple(triangle1.get_p3(), &v3_expected);
+
+        assert_tuple(triangle1a.get_p1(), &v2_expected);
+        assert_tuple(triangle1a.get_p2(), &v3_expected);
+        assert_tuple(triangle1a.get_p3(), &v4_expected);
+
+        assert_tuple(triangle2.get_p1(), &v1_expected);
+        assert_tuple(triangle2.get_p2(), &v3_expected);
+        assert_tuple(triangle2.get_p3(), &v4_expected);
+    }
+
+    // page 223
+    // Vertex normal records
+    #[test]
+    fn test_vertex_normal_records() {
+        let filename = "./test_files/vertex_normal_records.obj";
+        let parser = Parser::parse_obj_file(&filename);
+
+        let n1_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
+        let n2_expected = Tuple4D::new_vector(0.707, 0.0, -0.707);
+        let n3_expected = Tuple4D::new_vector(1.0, 2.0, 3.0);
+
+        assert_eq!(parser.get_normals().len(), 3);
+
+        assert_tuple(&parser.get_normals()[0], &n1_expected);
+        assert_tuple(&parser.get_normals()[1], &n2_expected);
+        assert_tuple(&parser.get_normals()[2], &n3_expected);
     }
 }

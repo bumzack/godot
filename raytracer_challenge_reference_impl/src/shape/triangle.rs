@@ -14,7 +14,7 @@ pub struct Triangle {
     normal: Tuple4D,
 }
 
-impl ShapeOps for Triangle {
+impl<'a> ShapeOps<'a> for Triangle {
     fn set_transformation(&mut self, m: Matrix) {
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("plane::set_transformation: cant unwrap inverse matrix");
@@ -29,16 +29,16 @@ impl ShapeOps for Triangle {
         &self.inverse_transformation_matrix
     }
 
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr) -> Tuple4D {
+    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
         // TODO: its for the tests -remove and fix tests and add unreachable
         let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point);
+        let local_normal = self.local_normal_at(&object_point, i);
         let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
         world_normal.w = 0.0;
         Tuple4D::normalize(&world_normal)
     }
 
-    fn local_normal_at(&self, _local_point: &Tuple4D) -> Tuple4D {
+    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
         self.normal.clone()
     }
 
@@ -103,6 +103,7 @@ impl<'a> ShapeIntersectOps<'a> for Triangle {
         intersection_list
     }
 }
+
 impl Triangle {
     pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
         let e1 = &p2 - &p1;
@@ -182,6 +183,8 @@ mod tests {
     // page 209
     #[test]
     fn test_triangle_normal_at() {
+        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let intersection = Intersection::new(1.0, &shape);
         let (t, _, _, _) = setup_triangle();
 
         let point1 = Tuple4D::new_point(0.0, 0.5, 0.0);
@@ -189,9 +192,9 @@ mod tests {
         let point3 = Tuple4D::new_point(0.5, 0.25, 0.0);
 
         let shapes = vec![];
-        let n1 = Triangle::normal_at(&t, &point1, &shapes);
-        let n2 = Triangle::normal_at(&t, &point2, &shapes);
-        let n3 = Triangle::normal_at(&t, &point3, &shapes);
+        let n1 = Triangle::normal_at(&t, &point1, &shapes, &intersection);
+        let n2 = Triangle::normal_at(&t, &point2, &shapes, &intersection);
+        let n3 = Triangle::normal_at(&t, &point3, &shapes, &intersection);
 
         assert_tuple(&n1, t.get_normal());
         assert_tuple(&n2, t.get_normal());
