@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // let height = 2048;
 
     let width = 400;
-    let height = 300;
+    let height = 400;
 
     let (world, camera) = setup_world(width, height);
 
@@ -49,7 +49,13 @@ fn hexagon_corner<'a>(idx: usize) -> Shape {
     let mut corner = Sphere::new();
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::scale(0.25, 0.25, 0.25);
     corner.set_transformation(trans);
-    corner.get_material_mut().set_color(get_color(idx));
+    // corner.get_material_mut().set_color(get_color(idx));
+    corner.get_material_mut().set_color(Color::new(1.0, 0.2,0.4));
+    corner.get_material_mut().set_diffuse(0.8);
+    corner.get_material_mut().set_specular(0.6);
+    corner.get_material_mut().set_ambient(0.0);
+    corner.get_material_mut().set_shininess(50.0);
+    corner.get_material_mut().set_reflective(0.3);
     Shape::new_part_of_group(ShapeEnum::Sphere(corner), format!("sphere {}", idx).to_string())
 }
 
@@ -62,7 +68,14 @@ fn hexagon_edge<'a>(idx: usize) -> Shape {
     let trans = &trans * &Matrix::scale(0.25, 1.0, 0.25);
 
     edge.set_transformation(trans);
-    edge.get_material_mut().set_color(get_color(idx));
+   edge.get_material_mut().set_color(Color::new(1.0, 0.2,0.4));
+   edge.get_material_mut().set_diffuse(0.8);
+   edge.get_material_mut().set_specular(0.6);
+   edge.get_material_mut().set_ambient(0.0);
+   edge.get_material_mut().set_shininess(50.0);
+   edge.get_material_mut().set_reflective(0.3);
+
+    //   edge.get_material_mut().set_color(get_color(idx));
     Shape::new_part_of_group(ShapeEnum::Cylinder(edge), format!("cylinder {}", idx).to_string())
 }
 
@@ -89,10 +102,10 @@ fn get_color(idx: usize) -> Color {
 fn hexagon<'a>(shapes: &mut ShapeArr) -> ShapeIdx {
     let hexagon = Group::new(shapes, "hexagon".to_string());
 
-    for i in 4..5 {
+    for i in 0..5 {
         let side_idx = hexagon_side(shapes, i as usize);
         let side = shapes.get_mut(side_idx).unwrap();
-        let trans = Matrix::rotate_y(i as f64 * PI / 3.0);
+        let trans = Matrix::rotate_y(i as f64 * PI / 6.0);
         side.set_transformation(trans);
         println!("i = {}", i);
         Group::add_child_idx(shapes, hexagon, side_idx);
@@ -104,18 +117,27 @@ fn hexagon<'a>(shapes: &mut ShapeArr) -> ShapeIdx {
 fn setup_world<'a>(width: usize, height: usize) -> (World, Camera) {
     let mut w = World::new();
     let _hexagon = hexagon(w.get_shapes_mut());
+    // let hexagon  = w.get_shapes_mut().get_mut(_hexagon as usize).unwrap();
+    //
+    // // ~color:(color 1. 0.2 0.4) ~diffuse:0.8 ~specular:0.6 ~ambient:0. ~shininess:50. ~reflective:0.3 () in
+    // hexagon.get_material_mut().set_color(Color::new(1.0, 0.2,0.4));
+    // hexagon.get_material_mut().set_diffuse(0.8);
+    // hexagon.get_material_mut().set_specular(0.6);
+    // hexagon.get_material_mut().set_ambient(0.0);
+    // hexagon.get_material_mut().set_shininess(50.0);
+    // hexagon.get_material_mut().set_reflective(0.3);
 
-    let pl = PointLight::new(Tuple4D::new_point(5.0, 8.0, -9.0), Color::new(1.0, 1.0, 1.0));
+    let pl = PointLight::new(Tuple4D::new_point(-10.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
     w.add_light(l);
 
-    let mut c = Camera::new(width, height, 0.3);
+    let mut c = Camera::new(width, height, 0.5);
     c.set_antialiasing(true);
     c.set_antialiasing_size(3);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(2.0, 4.0, -9.0),
+        &Tuple4D::new_point(1.0, 2.0, -5.0),
         &Tuple4D::new_point(0.0, 0.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));

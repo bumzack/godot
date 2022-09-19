@@ -1,3 +1,6 @@
+// every line of code in this file is just ugly
+// feels like it should with a 1/3 of loc
+
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io;

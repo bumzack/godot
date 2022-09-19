@@ -6,6 +6,7 @@
 - [ ] image texture mapping not working as expected
 - [x] chapter07.rs ¯\_(ツ)_/¯
 - [ ] implement additional test in obj_file.rs (see commented code)
+- [ ] chapter14_hexagon looks wierd, altough complex shapes like teapot and suzanne seem to work fine   ¯\_(ツ)_/¯
 
 ## future ToDos
 
