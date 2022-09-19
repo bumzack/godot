@@ -50,7 +50,7 @@ fn hexagon_corner<'a>(idx: usize) -> Shape {
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::scale(0.25, 0.25, 0.25);
     corner.set_transformation(trans);
     // corner.get_material_mut().set_color(get_color(idx));
-    corner.get_material_mut().set_color(Color::new(1.0, 0.2,0.4));
+    corner.get_material_mut().set_color(Color::new(1.0, 0.2, 0.4));
     corner.get_material_mut().set_diffuse(0.8);
     corner.get_material_mut().set_specular(0.6);
     corner.get_material_mut().set_ambient(0.0);
@@ -68,12 +68,12 @@ fn hexagon_edge<'a>(idx: usize) -> Shape {
     let trans = &trans * &Matrix::scale(0.25, 1.0, 0.25);
 
     edge.set_transformation(trans);
-   edge.get_material_mut().set_color(Color::new(1.0, 0.2,0.4));
-   edge.get_material_mut().set_diffuse(0.8);
-   edge.get_material_mut().set_specular(0.6);
-   edge.get_material_mut().set_ambient(0.0);
-   edge.get_material_mut().set_shininess(50.0);
-   edge.get_material_mut().set_reflective(0.3);
+    edge.get_material_mut().set_color(Color::new(1.0, 0.2, 0.4));
+    edge.get_material_mut().set_diffuse(0.8);
+    edge.get_material_mut().set_specular(0.6);
+    edge.get_material_mut().set_ambient(0.0);
+    edge.get_material_mut().set_shininess(50.0);
+    edge.get_material_mut().set_reflective(0.3);
 
     //   edge.get_material_mut().set_color(get_color(idx));
     Shape::new_part_of_group(ShapeEnum::Cylinder(edge), format!("cylinder {}", idx).to_string())
