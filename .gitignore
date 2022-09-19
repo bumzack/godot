@@ -3,6 +3,6 @@
 .idea
 *.ppm
 *.rs1
-*.png
+raytracer_challenge_reference_impl/**/*.png
 
 raytracer_challenge_reference_impl/downloaded_obj_files/*.obj
