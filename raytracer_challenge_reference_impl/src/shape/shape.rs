@@ -12,7 +12,6 @@ pub enum ShapeEnum {
     SmoothTriangleEnum(SmoothTriangle),
     GroupEnum(Group),
     CsgEnum(Csg),
-
 }
 
 #[derive(Clone, PartialEq)]
@@ -350,7 +349,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::PlaneEnum(_plane) => parent_msg.push_str(
                 format!(
@@ -359,7 +358,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::CubeEnum(_c) => parent_msg.push_str(
                 format!(
@@ -368,7 +367,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::CylinderEnum(_c) => parent_msg.push_str(
                 format!(
@@ -377,7 +376,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::TriangleEnum(_t) => parent_msg.push_str(
                 format!(
@@ -386,7 +385,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::SmoothTriangleEnum(_t) => parent_msg.push_str(
                 format!(
@@ -395,7 +394,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::GroupEnum(_g) => parent_msg.push_str(
                 format!(
@@ -404,7 +403,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
             ShapeEnum::CsgEnum(_g) => parent_msg.push_str(
                 format!(
@@ -413,7 +412,7 @@ impl<'a> fmt::Display for Shape {
                     self.get_parent(),
                     self.part_of_group
                 )
-                    .as_str(),
+                .as_str(),
             ),
         }
         write!(f, "Shape: {}   ", parent_msg)
@@ -431,7 +430,9 @@ impl fmt::Display for ShapeEnum {
             ShapeEnum::PlaneEnum(plane) => {
                 parent_msg.push_str(format!("plane    {:?}", &plane.get_transformation()).as_str())
             }
-            ShapeEnum::CubeEnum(cube) => parent_msg.push_str(format!("cube    {:?}", &cube.get_transformation()).as_str()),
+            ShapeEnum::CubeEnum(cube) => {
+                parent_msg.push_str(format!("cube    {:?}", &cube.get_transformation()).as_str())
+            }
             ShapeEnum::CylinderEnum(cylinder) => {
                 parent_msg.push_str(format!("cylinder   {:?}", &cylinder.get_transformation()).as_str())
             }
@@ -444,9 +445,7 @@ impl fmt::Display for ShapeEnum {
             ShapeEnum::GroupEnum(group) => {
                 parent_msg.push_str(format!("group    {:?}", &group.get_transformation()).as_str())
             }
-            ShapeEnum::CsgEnum(csg) => {
-                parent_msg.push_str(format!("CSG    {:?}", &csg.get_transformation()).as_str())
-            }
+            ShapeEnum::CsgEnum(csg) => parent_msg.push_str(format!("CSG    {:?}", &csg.get_transformation()).as_str()),
         }
         write!(f, "ShapeEnum: {}   ", parent_msg)
     }

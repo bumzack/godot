@@ -137,7 +137,12 @@ impl<'a> Csg {
         idx
     }
 
-    pub fn add_child(shapes: &mut ShapeArr, parent_idx: ShapeIdx, mut shape_left: Shape, mut shape_right: Shape) -> (ShapeIdx, ShapeIdx) {
+    pub fn add_child(
+        shapes: &mut ShapeArr,
+        parent_idx: ShapeIdx,
+        mut shape_left: Shape,
+        mut shape_right: Shape,
+    ) -> (ShapeIdx, ShapeIdx) {
         shape_right.set_parent(parent_idx);
         shape_left.set_parent(parent_idx);
         shapes.push(shape_left);
@@ -202,15 +207,9 @@ impl<'a> Csg {
 
 pub fn intersection_allowed(op: &CsgOp, lhit: bool, inl: bool, inr: bool) -> bool {
     match op {
-        CsgOp::UNION => {
-            (lhit && !inr) || (!lhit && !inl)
-        }
-        CsgOp::INTERSECTION => {
-            (lhit && inr) || (!lhit && inl)
-        }
-        CsgOp::DIFFERENCE => {
-            (lhit && !inr) || (!lhit && inl)
-        }
+        CsgOp::UNION => (lhit && !inr) || (!lhit && !inl),
+        CsgOp::INTERSECTION => (lhit && inr) || (!lhit && inl),
+        CsgOp::DIFFERENCE => (lhit && !inr) || (!lhit && inl),
     }
 }
 
@@ -265,12 +264,9 @@ fn a_includes_b(a: &Shape, b: &Shape, shapes: &ShapeArr) -> bool {
     };
 }
 
-
 impl fmt::Debug for Csg {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Csg")
-            .field("value", &"TODO Csg".to_string())
-            .finish()
+        f.debug_struct("Csg").field("value", &"TODO Csg".to_string()).finish()
     }
 }
 
@@ -288,8 +284,8 @@ impl fmt::Display for Csg {
 #[cfg(test)]
 mod tests {
     use crate::prelude::Sphere;
-    use crate::shape::Cube;
     use crate::shape::shape::{Shape, ShapeEnum};
+    use crate::shape::Cube;
 
     use super::*;
 
@@ -331,7 +327,6 @@ mod tests {
         assert_eq!(true, intersection_allowed(&CsgOp::UNION, false, false, true));
         assert_eq!(true, intersection_allowed(&CsgOp::UNION, false, false, false));
 
-
         assert_eq!(true, intersection_allowed(&CsgOp::INTERSECTION, true, true, true));
         assert_eq!(false, intersection_allowed(&CsgOp::INTERSECTION, true, true, false));
         assert_eq!(true, intersection_allowed(&CsgOp::INTERSECTION, true, false, true));
@@ -350,7 +345,6 @@ mod tests {
         assert_eq!(false, intersection_allowed(&CsgOp::DIFFERENCE, false, false, true));
         assert_eq!(false, intersection_allowed(&CsgOp::DIFFERENCE, false, false, false));
     }
-
 
     // page 234
     // Filtering a list of intertsections
@@ -375,7 +369,6 @@ mod tests {
         xs.add(i3);
         xs.add(i4);
 
-
         let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
         let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1_clone, s2_clone);
 
@@ -386,12 +379,25 @@ mod tests {
         test_filtering_list_of_intersections_helper(csg, CsgOp::DIFFERENCE, &xs, 0, 1, &shapes);
     }
 
-    fn test_filtering_list_of_intersections_helper(csg: &Shape, op: CsgOp, xs: &IntersectionList, expected_x0_idx: usize, expected_x1_idx: usize, shapes: &ShapeArr) {
+    fn test_filtering_list_of_intersections_helper(
+        csg: &Shape,
+        op: CsgOp,
+        xs: &IntersectionList,
+        expected_x0_idx: usize,
+        expected_x1_idx: usize,
+        shapes: &ShapeArr,
+    ) {
         let res = filter_intersections(csg, xs, shapes);
 
         assert_eq!(res.get_intersections().len(), 2);
 
-        assert_eq!(res.get_intersections().get(0).unwrap().get_t(), xs.get_intersections().get(expected_x0_idx).unwrap().get_t());
-        assert_eq!(res.get_intersections().get(1).unwrap().get_t(), xs.get_intersections().get(expected_x1_idx).unwrap().get_t());
+        assert_eq!(
+            res.get_intersections().get(0).unwrap().get_t(),
+            xs.get_intersections().get(expected_x0_idx).unwrap().get_t()
+        );
+        assert_eq!(
+            res.get_intersections().get(1).unwrap().get_t(),
+            xs.get_intersections().get(expected_x1_idx).unwrap().get_t()
+        );
     }
 }
