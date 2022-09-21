@@ -86,9 +86,9 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     w.add_light(l);
     //   w.add_light(    l);
 
-    w.add_shape(Shape::new(ShapeEnum::Plane(wall)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(glass_ball)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(hollow_center)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(glass_ball)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(hollow_center)));
 
     let mut c = Camera::new(width as usize, height as usize, pov);
     c.calc_pixel_size();

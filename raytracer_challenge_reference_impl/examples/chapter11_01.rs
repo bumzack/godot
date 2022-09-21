@@ -175,19 +175,19 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     w.add_light(l);
     //   w.add_light(    l);
 
-    w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(ceiling)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(west_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(east_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(north_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(south_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(bg_ball1)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(bg_ball2)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(bg_ball3)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(bg_ball4)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(red_sphere)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(blue_glass_sphere)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(green_glass_sphere)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(floor)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(ceiling)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(west_wall)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(east_wall)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(north_wall)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(south_wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(bg_ball1)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(bg_ball2)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(bg_ball3)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(bg_ball4)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(red_sphere)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(blue_glass_sphere)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(green_glass_sphere)));
 
     // w.add_x_axis();
     // w.add_y_axis();

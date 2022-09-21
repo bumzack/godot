@@ -6,6 +6,7 @@ pub use self::shape::*;
 pub use self::smooth_triangle::*;
 pub use self::sphere::*;
 pub use self::triangle::*;
+pub use self::csg::*;
 
 pub mod cube;
 pub mod cylinder;
@@ -15,3 +16,4 @@ pub mod shape;
 pub mod smooth_triangle;
 pub mod sphere;
 pub mod triangle;
+pub mod csg;

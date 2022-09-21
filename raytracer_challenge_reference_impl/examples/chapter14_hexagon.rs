@@ -56,7 +56,7 @@ fn hexagon_corner<'a>(idx: usize) -> Shape {
     corner.get_material_mut().set_ambient(0.0);
     corner.get_material_mut().set_shininess(50.0);
     corner.get_material_mut().set_reflective(0.3);
-    Shape::new_part_of_group(ShapeEnum::Sphere(corner), format!("sphere {}", idx).to_string())
+    Shape::new_part_of_group(ShapeEnum::SphereEnum(corner), format!("sphere {}", idx).to_string())
 }
 
 fn hexagon_edge<'a>(idx: usize) -> Shape {
@@ -76,7 +76,7 @@ fn hexagon_edge<'a>(idx: usize) -> Shape {
     edge.get_material_mut().set_reflective(0.3);
 
     //   edge.get_material_mut().set_color(get_color(idx));
-    Shape::new_part_of_group(ShapeEnum::Cylinder(edge), format!("cylinder {}", idx).to_string())
+    Shape::new_part_of_group(ShapeEnum::CylinderEnum(edge), format!("cylinder {}", idx).to_string())
 }
 
 fn hexagon_side(shapes: &mut ShapeArr, idx: usize) -> ShapeIdx {

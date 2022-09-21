@@ -126,7 +126,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -154,7 +154,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -168,7 +168,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -184,7 +184,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -228,7 +228,7 @@ mod tests {
         let m = Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
-        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -248,7 +248,7 @@ mod tests {
         let m = Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -259,7 +259,7 @@ mod tests {
     // page 78
     #[test]
     fn test_sphere_normal_at() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let s = Sphere::new();
@@ -295,7 +295,7 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_transformed() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut s = Sphere::new();
@@ -314,7 +314,7 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut s = Sphere::new();
@@ -352,9 +352,9 @@ mod tests {
         let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(p, o);
 
-        let a = Shape::new(ShapeEnum::Sphere(a));
-        let b = Shape::new(ShapeEnum::Sphere(b));
-        let c = Shape::new(ShapeEnum::Sphere(c));
+        let a = Shape::new(ShapeEnum::SphereEnum(a));
+        let b = Shape::new(ShapeEnum::SphereEnum(b));
+        let c = Shape::new(ShapeEnum::SphereEnum(c));
 
         let mut xs = IntersectionList::new();
 

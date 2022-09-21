@@ -37,7 +37,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Sphere(sphere)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(sphere)));
 
     let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();

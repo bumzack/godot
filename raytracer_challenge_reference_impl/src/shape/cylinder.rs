@@ -80,7 +80,7 @@ impl<'a> ShapeOps<'a> for Cylinder {
 impl<'a> ShapeIntersectOps<'a> for Cylinder {
     fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let cylinder = match shape.get_shape() {
-            ShapeEnum::Cylinder(cylinder) => Some(cylinder),
+            ShapeEnum::CylinderEnum(cylinder) => Some(cylinder),
             _ => None,
         };
         if cylinder.is_none() {
@@ -193,7 +193,7 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Cylinder(Cylinder::new()));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(Cylinder::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -224,7 +224,7 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::Cylinder(Cylinder::new()));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(Cylinder::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -268,7 +268,7 @@ mod tests {
 
     // page 181
     fn test_ray_cylinder_normal_at_helper(point: Tuple4D, n_expected: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
 
         let shapes = vec![];
@@ -331,7 +331,7 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::Cylinder(cyl));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(cyl));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -390,7 +390,7 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::Cylinder(cyl));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(cyl));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -432,7 +432,7 @@ mod tests {
 
     // page 186
     fn test_ray_cylinder_capped_normal_at_helper(point: Tuple4D, normal: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut cyl = Cylinder::new();

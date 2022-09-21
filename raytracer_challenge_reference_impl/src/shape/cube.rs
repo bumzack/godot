@@ -178,7 +178,7 @@ mod tests {
     fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f64, t2: f64) {
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Cube(Cube::new()));
+        let shape = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -236,7 +236,7 @@ mod tests {
     fn test_ray_cube_miss_helper(origin: Tuple4D, direction: Tuple4D) {
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Cube(Cube::new()));
+        let shape = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -278,7 +278,7 @@ mod tests {
 
     // page 173 helper
     fn test_cube_normal_helper(point: Tuple4D, n_expected: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
 
         let shapes = vec![];

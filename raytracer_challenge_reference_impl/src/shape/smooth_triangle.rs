@@ -74,7 +74,7 @@ impl<'a> ShapeOps<'a> for SmoothTriangle {
 impl<'a> ShapeIntersectOps<'a> for SmoothTriangle {
     fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let triangle = match shape.get_shape() {
-            ShapeEnum::SmoothTriangle(triangle) => Some(triangle),
+            ShapeEnum::SmoothTriangleEnum(triangle) => Some(triangle),
             _ => None,
         };
         if triangle.is_none() {
@@ -213,7 +213,7 @@ mod tests {
     #[test]
     fn test_smooth_triangle_intersection_encapsulates_u_and_v() {
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangle(t));
+        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
         let is = Intersection::new_u_v(3.5, &s, 0.2, 0.4);
 
         assert_eq!(0.2, is.get_u());
@@ -226,7 +226,7 @@ mod tests {
     fn test_intersection_with_smooth_triangle_intersection_stores_u_and_v() {
         let shapes = vec![];
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangle(t));
+        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
         let r = Ray::new(Tuple4D::new_point(-0.2, 0.3, -2.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
 
         let xs = SmoothTriangle::intersect_local(&s, r, &shapes);
@@ -240,7 +240,7 @@ mod tests {
     #[test]
     fn test_smooth_triangle_interpolates_normal() {
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangle(t));
+        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
         let i = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
 
         let shapes = vec![];
@@ -256,7 +256,7 @@ mod tests {
     #[test]
     fn test_smooth_triangle_prepare_normal() {
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangle(t));
+        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
         let i = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
         let i2 = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
         let r = Ray::new(Tuple4D::new_point(-0.2, 0.3, -2.0), Tuple4D::new_vector(0.0, 0.0, 1.0));

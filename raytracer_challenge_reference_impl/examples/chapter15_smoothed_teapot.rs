@@ -125,9 +125,9 @@ fn setup_world(
     w.add_light(area_light);
     // w.add_light(    l);
 
-    w.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right_wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(floor)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(right_wall)));
     // w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
     // w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     // w.add_shape(Shape::new(ShapeEnum::Sphere(right)));

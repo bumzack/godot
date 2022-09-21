@@ -57,7 +57,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     let m = &m_trans * &m_scale;
 
     c.set_transformation(m);
-    let mut cube = Shape::new(ShapeEnum::Cube(c));
+    let mut cube = Shape::new(ShapeEnum::CubeEnum(c));
     cube.set_casts_shadow(false);
 
     // ---- PLANE -------
@@ -67,7 +67,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     plane.get_material_mut().set_diffuse(0.67);
     plane.get_material_mut().set_specular(0.0);
 
-    let plane = Shape::new(ShapeEnum::Plane(plane));
+    let plane = Shape::new(ShapeEnum::PlaneEnum(plane));
 
     // ---- SPHERE 1 -------
     let mut sphere1 = Sphere::new();
@@ -82,7 +82,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     let m = &m_trans * &m_scale;
 
     sphere1.set_transformation(m);
-    let sphere1 = Shape::new(ShapeEnum::Sphere(sphere1));
+    let sphere1 = Shape::new(ShapeEnum::SphereEnum(sphere1));
 
     // ---- SPHERE 2 -------
     let mut sphere2 = Sphere::new();
@@ -97,7 +97,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     let m = &m_trans * &m_scale;
 
     sphere2.set_transformation(m);
-    let sphere2 = Shape::new(ShapeEnum::Sphere(sphere2));
+    let sphere2 = Shape::new(ShapeEnum::SphereEnum(sphere2));
 
     let mut w = World::new();
     w.add_light(l);

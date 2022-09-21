@@ -285,7 +285,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_between_light_and_surface() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -303,7 +303,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_offset_45() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -321,7 +321,7 @@ mod tests {
     #[test]
     fn test_material_lightning_light_opposite_eye() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -342,7 +342,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_in_path_of_reflecting_vector() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -363,7 +363,7 @@ mod tests {
     #[test]
     fn test_material_lightning_light_behind_surface() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -380,7 +380,7 @@ mod tests {
     #[test]
     fn test_material_lightning_with_surface_in_shadow() {
         let s = Sphere::new();
-        let object = Shape::new(ShapeEnum::Sphere(s));
+        let object = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (material, point) = setup();
 
@@ -403,7 +403,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
         let stripe_pattern = StripePattern::new();
         let pattern = Pattern::StripePattern(stripe_pattern);
 
@@ -434,7 +434,7 @@ mod tests {
     fn test_material_precomputing_reflection_vector() {
         let shapes = vec![];
         let p = Plane::new();
-        let shape = Shape::new(ShapeEnum::Plane(p));
+        let shape = Shape::new(ShapeEnum::PlaneEnum(p));
 
         let p = Tuple4D::new_point(0.0, 1.0, -1.0);
         let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
@@ -498,7 +498,7 @@ mod tests {
         sphere.get_material_mut().set_diffuse(0.9);
         sphere.get_material_mut().set_specular(0.0);
         sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         let eye = Tuple4D::new_point(0.0, 0.0, -5.0);
         let eye_vec = Tuple4D::normalize(&(&eye - &point));

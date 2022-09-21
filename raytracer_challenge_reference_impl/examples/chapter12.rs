@@ -77,13 +77,13 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let l = Light::PointLight(pl);
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(floor)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(right_wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(middle)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(left)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(right)));
+    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube)));
 
     let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();

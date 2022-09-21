@@ -61,18 +61,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut w = World::new();
     w.add_light(l);
-    let mut shape = Shape::new(ShapeEnum::Plane(floor));
+    let mut shape = Shape::new(ShapeEnum::PlaneEnum(floor));
     // shape.set_casts_shadow(false);
     w.add_shape(shape);
-    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
-    let mut shape3 = Shape::new(ShapeEnum::Sphere(middle));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(right_wall)));
+    let mut shape3 = Shape::new(ShapeEnum::SphereEnum(middle));
     // shape3.set_casts_shadow(false);
     w.add_shape(shape3);
-    let mut shape1 = Shape::new(ShapeEnum::Sphere(left));
+    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(left));
     shape1.set_casts_shadow(false);
     w.add_shape(shape1);
-    let mut shape2 = Shape::new(ShapeEnum::Sphere(right));
+    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(right));
     shape2.set_casts_shadow(false);
     w.add_shape(shape2);
 
