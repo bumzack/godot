@@ -67,7 +67,7 @@ impl<'a> ShapeIntersectOps<'a> for Group {
     fn intersect_local(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
         let root_idx = match shape.get_shape() {
-            ShapeEnum::Group(g) => Some(g.shape_idx),
+            ShapeEnum::GroupEnum(g) => Some(g.shape_idx),
             _ => None,
         };
         if root_idx.is_none() {
@@ -83,13 +83,14 @@ impl<'a> ShapeIntersectOps<'a> for Group {
         for child in children {
             let shape = shapes.get(*child as usize).unwrap();
             let mut xs = match shape.get_shape() {
-                ShapeEnum::Sphere(ref _sphere) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::Plane(ref _plane) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::Cylinder(ref _cylinder) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::Cube(ref _cube) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::Triangle(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::SmoothTriangle(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::Group(ref _group) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::SphereEnum(ref _sphere) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::PlaneEnum(ref _plane) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::CylinderEnum(ref _cylinder) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::CubeEnum(ref _cube) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::TriangleEnum(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::SmoothTriangleEnum(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::GroupEnum(ref _group) => Shape::intersects(shape, r.clone(), shapes),
+                ShapeEnum::CsgEnum(ref _group) => Shape::intersects(shape, r.clone(), shapes),
             };
 
             // println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
@@ -118,7 +119,7 @@ impl<'a> Group {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
         };
-        let g = ShapeEnum::Group(g);
+        let g = ShapeEnum::GroupEnum(g);
         let shape = Shape::new_with_name(g, name);
         shapes.push(shape);
         assert_eq!(idx, shapes.len() - 1);
@@ -133,7 +134,7 @@ impl<'a> Group {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
         };
-        let g = ShapeEnum::Group(g);
+        let g = ShapeEnum::GroupEnum(g);
         let shape = Shape::new_part_of_group(g, name);
         shapes.push(shape);
         assert_eq!(idx, shapes.len() - 1);
@@ -170,7 +171,7 @@ impl<'a> Group {
         let spaces = " ".repeat(depth);
         println!("{:?}  {:?}", spaces, &node);
 
-        if let ShapeEnum::Group(_) = node.get_shape() {
+        if let ShapeEnum::GroupEnum(_) = node.get_shape() {
             for c in node.get_children() {
                 // let n = shapes.get(*c).unwrap();
                 Self::print_tree(shapes, *c, depth + 2);
@@ -225,7 +226,7 @@ mod tests {
     // A shape has a parent attribute
     #[test]
     fn test_shape_has_empty_parent() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         assert!(shape.get_parent().is_none());
     }
 
@@ -238,7 +239,7 @@ mod tests {
         let group = shapes.get(group_idx).unwrap();
         assert!(group.get_parent().is_none());
 
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let _child_idx = Group::add_child(&mut shapes, group_idx, shape);
         // let child = shapes.get(child_idx).unwrap();
 
@@ -255,7 +256,7 @@ mod tests {
         let group_idx = Group::new(&mut shapes, "group".to_string());
         let shape = shapes.get(group_idx).unwrap();
         let group = match shape.get_shape() {
-            ShapeEnum::Group(g) => Some(g),
+            ShapeEnum::GroupEnum(g) => Some(g),
             _ => None,
         };
 
@@ -273,7 +274,7 @@ mod tests {
     #[test]
     fn test_intersecting_ray_with_non_empty_group_sphere1_alone() {
         // sphere 1
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
 
         let shapes = vec![];
@@ -289,7 +290,7 @@ mod tests {
         let translation2 = Matrix::translation(0.0, 0.0, -3.0);
         let mut s2 = Sphere::new();
         s2.set_transformation(translation2);
-        let shape = Shape::new(ShapeEnum::Sphere(s2));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s2));
 
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
         let shapes = vec![];
@@ -305,7 +306,7 @@ mod tests {
         let translation3 = Matrix::translation(5.0, 0.0, 0.0);
         let mut s3 = Sphere::new();
         s3.set_transformation(translation3);
-        let shape = Shape::new(ShapeEnum::Sphere(s3));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s3));
 
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
         let shapes = vec![];
@@ -320,19 +321,19 @@ mod tests {
     #[test]
     fn test_intersecting_ray_with_non_empty_group() {
         // sphere 1
-        let s1 = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let s1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
 
         // sphere 2
         let translation2 = Matrix::translation(0.0, 0.0, -3.0);
         let mut s2 = Sphere::new();
         s2.set_transformation(translation2);
-        let s2 = Shape::new(ShapeEnum::Sphere(s2));
+        let s2 = Shape::new(ShapeEnum::SphereEnum(s2));
 
         // sphere 3
         let translation3 = Matrix::translation(5.0, 0.0, 0.0);
         let mut s3 = Sphere::new();
         s3.set_transformation(translation3);
-        let s3 = Shape::new(ShapeEnum::Sphere(s3));
+        let s3 = Shape::new(ShapeEnum::SphereEnum(s3));
 
         let mut shapes: ShapeArr = vec![];
         let group_idx = Group::new(&mut shapes, "group".to_string());
@@ -365,7 +366,7 @@ mod tests {
         let translation = Matrix::translation(5.0, 0.0, 0.0);
         let mut sphere = Sphere::new();
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         let _s1_idx = Group::add_child(&mut shapes, group_idx, sphere);
 
@@ -404,7 +405,7 @@ mod tests {
         let translation = Matrix::translation(5.0, 0.0, 0.0);
         let mut sphere = Sphere::new();
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         // add sphere as child to group2
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
@@ -440,7 +441,7 @@ mod tests {
         let translation = Matrix::translation(5.0, 0.0, 0.0);
         let mut sphere = Sphere::new();
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         // add sphere as child to group2
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
@@ -458,7 +459,7 @@ mod tests {
     // finding a normal on a child object
     #[test]
     fn test_finding_normal_on_child_object() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let mut shapes: ShapeArr = vec![];
 
@@ -479,7 +480,7 @@ mod tests {
         let translation = Matrix::translation(5.0, 0.0, 0.0);
         let mut sphere = Sphere::new();
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         // add sphere as child to group2
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);

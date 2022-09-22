@@ -61,12 +61,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Plane(floor)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Plane(right_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
+    let mut shape = Shape::new(ShapeEnum::PlaneEnum(floor));
+    // shape.set_casts_shadow(false);
+    w.add_shape(shape);
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(right_wall)));
+    let mut shape3 = Shape::new(ShapeEnum::SphereEnum(middle));
+    // shape3.set_casts_shadow(false);
+    w.add_shape(shape3);
+    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(left));
+    shape1.set_casts_shadow(false);
+    w.add_shape(shape1);
+    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(right));
+    shape2.set_casts_shadow(false);
+    w.add_shape(shape2);
 
     let mut c = Camera::new(800, 600, PI / 3.0);
     c.calc_pixel_size();
@@ -81,7 +89,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let canvas = Camera::render_multi_core(&c, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter10.png")?;
+
+    let aa = match c.get_antialiasing() {
+        true => format!("with_AA_{}", c.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!("./chapter10_{}x{}_{} .png", c.get_hsize(), c.get_vsize(), aa);
+
+    canvas.write_png(filename)?;
+    println!("written file {}", filename);
 
     Ok(())
 }

@@ -9,12 +9,13 @@ use crate::math::tuple4d::{Tuple, Tuple4D};
 use crate::prelude::{Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, Triangle};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::Sphere;
-use crate::shape::Cube;
+use crate::shape::{Csg, Cube};
 use crate::world::world::World;
 use crate::world::world::WorldOps;
 
 type IntersectionContainer<'a> = Vec<Intersection<'a>>;
 
+#[derive(Clone)]
 pub struct Intersection<'a> {
     t: f64,
     shape: &'a Shape,
@@ -60,13 +61,14 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
         let mut xs = match shape.get_shape() {
-            ShapeEnum::Sphere(ref _sphere) => Sphere::intersect_local(shape, r2.clone(), shapes),
-            ShapeEnum::Plane(ref _plane) => Plane::intersect_local(shape, r2, shapes),
-            ShapeEnum::Cylinder(ref _cylinder) => Cylinder::intersect_local(shape, r2, shapes),
-            ShapeEnum::Triangle(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
-            ShapeEnum::SmoothTriangle(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
-            ShapeEnum::Cube(ref _cube) => Cube::intersect_local(shape, r2, shapes),
-            ShapeEnum::Group(ref _group) => Group::intersect_local(shape, r2, shapes),
+            ShapeEnum::SphereEnum(ref _sphere) => Sphere::intersect_local(shape, r2.clone(), shapes),
+            ShapeEnum::PlaneEnum(ref _plane) => Plane::intersect_local(shape, r2, shapes),
+            ShapeEnum::CylinderEnum(ref _cylinder) => Cylinder::intersect_local(shape, r2, shapes),
+            ShapeEnum::TriangleEnum(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
+            ShapeEnum::SmoothTriangleEnum(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
+            ShapeEnum::CubeEnum(ref _cube) => Cube::intersect_local(shape, r2, shapes),
+            ShapeEnum::GroupEnum(ref _group) => Group::intersect_local(shape, r2, shapes),
+            ShapeEnum::CsgEnum(ref _csg) => Csg::intersect_local(shape, r2, shapes),
         };
         for is in xs
             .get_intersections_mut()
@@ -77,29 +79,6 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         }
         intersection_list
     }
-
-    // fn intersect_with_u_v(t: f64, shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr, u: f64, v: f64) -> IntersectionList<'a> {
-    //     let mut intersection_list = IntersectionList::new();
-    //     let r2 = Ray::transform(r, shape.get_inverse_transformation());
-    //
-    //     let mut xs = match shape.get_shape() {
-    //         ShapeEnum::Sphere(ref _sphere) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
-    //         ShapeEnum::Plane(ref _plane) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
-    //         ShapeEnum::Cylinder(ref _cylinder) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
-    //         ShapeEnum::Triangle(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
-    //         ShapeEnum::SmoothTriangle(ref _smooth_triangle) => SmoothTriangle::intersect_local(shape, r2, shapes),
-    //         ShapeEnum::Cube(ref _cube) => unimplemented!("should never called. intersect_with_u_v only supported fr triangles"),
-    //         ShapeEnum::Group(ref _group) => Group::intersect_local(shape, r2, shapes ),
-    //     };
-    //     for is in xs
-    //         .get_intersections_mut()
-    //         .drain(..)
-    //         .filter(|i| !i.get_t().is_infinite())
-    //     {
-    //         intersection_list.add(is);
-    //     }
-    //     intersection_list
-    // }
 
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a> {
         let mut res = IntersectionList::new();
@@ -316,7 +295,7 @@ mod tests {
     fn test_new_intersection() {
         let s = Sphere::new();
         let t: f64 = 3.5;
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
         let i = Intersection::new(t, &o);
         assert_eq!(i.t, 3.5);
     }
@@ -325,12 +304,12 @@ mod tests {
     fn test_new_intersectionlist() {
         let s1 = Sphere::new();
         let t1: f64 = 3.5;
-        let o1 = Shape::new(ShapeEnum::Sphere(s1));
+        let o1 = Shape::new(ShapeEnum::SphereEnum(s1));
         let i1 = Intersection::new(t1, &o1);
 
         let s2 = Sphere::new();
         let t2: f64 = 4.5;
-        let o2 = Shape::new(ShapeEnum::Sphere(s2));
+        let o2 = Shape::new(ShapeEnum::SphereEnum(s2));
         let i2 = Intersection::new(t2, &o2);
 
         // let i_list = IntersectionList::new();
@@ -346,7 +325,7 @@ mod tests {
     #[test]
     fn test_intersection_hit() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
 
         let t1: f64 = 1.0;
         let i1 = Intersection::new(t1, &o);
@@ -367,7 +346,7 @@ mod tests {
     #[test]
     fn test_intersection_hit_neg() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
 
         let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
@@ -388,7 +367,7 @@ mod tests {
     #[test]
     fn test_intersection_no_hit() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
 
         let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
@@ -410,7 +389,7 @@ mod tests {
     #[test]
     fn test_intersection_hit_from_list() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
 
         let t1: f64 = 5.0;
         let i1 = Intersection::new(t1, &o);
@@ -445,7 +424,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
 
         let i = Intersection::intersect(&o, &r, &shapes);
         let intersections = i.get_intersections();
@@ -461,7 +440,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
 
         let i = Intersection::new(4.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
@@ -485,7 +464,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
         let i = Intersection::new(4.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
 
@@ -501,7 +480,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::Sphere(s));
+        let o = Shape::new(ShapeEnum::SphereEnum(s));
         let i = Intersection::new(1.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
 
@@ -525,7 +504,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(o, d);
 
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
         let i1 = Intersection::new(-SQRT_2 / 2.0, &sphere);
         let i2 = Intersection::new(SQRT_2 / 2.0, &sphere);
         let mut xs = IntersectionList::new();
@@ -548,7 +527,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(o, d);
 
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
         let i1 = Intersection::new(-1.0, &sphere);
         let i2 = Intersection::new(1.0, &sphere);
         let mut xs = IntersectionList::new();
@@ -571,7 +550,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
         let i1 = Intersection::new(1.8589, &sphere);
         let mut xs = IntersectionList::new();
         xs.add(i1);
@@ -601,8 +580,8 @@ mod tests {
         ball.get_material_mut().set_ambient(0.5);
         ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
-        let floor = Shape::new(ShapeEnum::Plane(floor));
-        let ball = Shape::new(ShapeEnum::Sphere(ball));
+        let floor = Shape::new(ShapeEnum::PlaneEnum(floor));
+        let ball = Shape::new(ShapeEnum::SphereEnum(ball));
 
         w.add_shape(floor.clone());
         w.add_shape(ball);

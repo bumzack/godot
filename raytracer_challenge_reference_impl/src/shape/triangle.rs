@@ -69,7 +69,7 @@ impl<'a> ShapeOps<'a> for Triangle {
 impl<'a> ShapeIntersectOps<'a> for Triangle {
     fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let triangle = match shape.get_shape() {
-            ShapeEnum::Triangle(triangle) => Some(triangle),
+            ShapeEnum::TriangleEnum(triangle) => Some(triangle),
             _ => None,
         };
         if triangle.is_none() {
@@ -183,7 +183,7 @@ mod tests {
     // page 209
     #[test]
     fn test_triangle_normal_at() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let (t, _, _, _) = setup_triangle();
 
@@ -210,7 +210,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 1.0, 0.0);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Triangle(t));
+        let shape = Shape::new(ShapeEnum::TriangleEnum(t));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -226,7 +226,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Triangle(t));
+        let shape = Shape::new(ShapeEnum::TriangleEnum(t));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -242,7 +242,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Triangle(t));
+        let shape = Shape::new(ShapeEnum::TriangleEnum(t));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -258,7 +258,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Triangle(t));
+        let shape = Shape::new(ShapeEnum::TriangleEnum(t));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -274,7 +274,7 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Triangle(t));
+        let shape = Shape::new(ShapeEnum::TriangleEnum(t));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 

@@ -45,7 +45,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::Cylinder(cylinder)));
+    w.add_shape(Shape::new(ShapeEnum::CylinderEnum(cylinder)));
 
     let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();
