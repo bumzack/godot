@@ -5,11 +5,11 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 600;
-    let height = 300;
+    let width = 1200;
+    let height = 720;
 
     let pov = 1.15;
-    let antialiasing = false;
+    let antialiasing = true;
     let antialiasing_size = 3;
 
     let (world, camera) = setup_world(width, height, pov, antialiasing, antialiasing_size);
