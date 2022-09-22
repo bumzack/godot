@@ -6,3 +6,4 @@
 raytracer_challenge_reference_impl/**/*.png
 
 raytracer_challenge_reference_impl/downloaded_obj_files/*.obj
+raytracer_challenge_reference_impl/examples/*.jpg
