@@ -162,12 +162,6 @@ impl WorldOps for World {
         let direction = Tuple4D::normalize(&v);
 
         let start = *point;
-        // println!("light_position            {:?}", light_position);
-        // println!("point                     {:?}", point);
-        // println!("v                         {:?}", v);
-        // println!("start                     {:?}", start);
-        // println!("direction                 {:?}", direction);
-        // println!("distance                  {:?}", distance);
         let r = Ray::new(start, direction);
 
         let intersections = Intersection::intersect_world(w, &r);

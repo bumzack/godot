@@ -16,7 +16,7 @@ pub struct Group {
 impl<'a> ShapeOps<'a> for Group {
     fn set_transformation(&mut self, m: Matrix) {
         println!("setting new transformation matrix {:?}", &m);
-        println!("old transofrmation matrix  {:?}", self.get_transformation());
+        println!("old transformation matrix  {:?}", self.get_transformation());
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("Group::set_transformation:  can't unwrap inverted matrix ");
         self.transformation_matrix = m;

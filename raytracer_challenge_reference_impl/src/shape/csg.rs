@@ -25,7 +25,7 @@ pub struct Csg {
 impl<'a> ShapeOps<'a> for Csg {
     fn set_transformation(&mut self, m: Matrix) {
         println!("setting new transformation matrix {:?}", &m);
-        println!("old transofrmation matrix  {:?}", self.get_transformation());
+        println!("old transformation matrix  {:?}", self.get_transformation());
         self.inverse_transformation_matrix =
             Matrix::invert(&m).expect("Group::set_transformation:  can't unwrap inverted matrix ");
         self.transformation_matrix = m;
@@ -74,48 +74,34 @@ impl<'a> ShapeOps<'a> for Csg {
 
 impl<'a> ShapeIntersectOps<'a> for Csg {
     fn intersect_local(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
-        let mut intersection_list = IntersectionList::new();
-        let root_idx = match shape.get_shape() {
-            ShapeEnum::CsgEnum(g) => Some(g.shape_idx),
-            _ => None,
-        };
-        if root_idx.is_none() {
-            return intersection_list;
-        }
-        let root_idx = root_idx.unwrap();
+        let left = shapes.get(shape.get_left() as usize).unwrap();
+        let mut xs_left = Shape::intersects(left, r.clone(), shapes);
 
-        let group = shapes.get(root_idx as usize).unwrap();
-        let children = group.get_children();
+        let right = shapes.get(shape.get_right() as usize).unwrap();
+        let mut xs_right = Shape::intersects(right, r.clone(), shapes);
 
-        let r = Ray::transform(&r, group.get_inverse_transformation());
+        let mut xs = IntersectionList::new();
 
-        for child in children {
-            let shape = shapes.get(*child as usize).unwrap();
-            let mut xs = match shape.get_shape() {
-                ShapeEnum::SphereEnum(ref _sphere) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::PlaneEnum(ref _plane) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::CylinderEnum(ref _cylinder) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::CubeEnum(ref _cube) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::TriangleEnum(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::SmoothTriangleEnum(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::GroupEnum(ref _group) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::CsgEnum(ref _csg) => Shape::intersects(shape, r.clone(), shapes),
-            };
-
-            // println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
-            for is in xs
-                .get_intersections_mut()
-                .drain(..)
-                .filter(|i| !i.get_t().is_infinite())
-            {
-                intersection_list.add(is);
-            }
-        }
-        intersection_list
+        for is in xs_left
             .get_intersections_mut()
+            .drain(..)
+            .filter(|i| !i.get_t().is_infinite())
+        {
+            xs.add(is);
+        }
+
+        for is in xs_right
+            .get_intersections_mut()
+            .drain(..)
+            .filter(|i| !i.get_t().is_infinite())
+        {
+            xs.add(is);
+        }
+
+        xs.get_intersections_mut()
             .sort_by(|a, b| a.get_t().partial_cmp(&b.get_t()).unwrap_or(std::cmp::Ordering::Equal));
 
-        intersection_list
+        filter_intersections(shape, &xs, shapes)
     }
 }
 
@@ -163,27 +149,6 @@ impl<'a> Csg {
         child.set_parent(parent_idx);
     }
 
-    pub fn print_children(shapes: &ShapeArr, node_idx: ShapeIdx) {
-        let parent = shapes.get(node_idx).unwrap();
-        for c in parent.get_children() {
-            let n = shapes.get(*c).unwrap();
-            println!("child: {:?}", n);
-        }
-    }
-
-    pub fn print_tree(shapes: &ShapeArr, root_idx: ShapeIdx, depth: usize) {
-        let node = shapes.get(root_idx).unwrap();
-        let spaces = " ".repeat(depth);
-        println!("{:?}  {:?}", spaces, &node);
-
-        if let ShapeEnum::GroupEnum(_) = node.get_shape() {
-            for c in node.get_children() {
-                // let n = shapes.get(*c).unwrap();
-                Self::print_tree(shapes, *c, depth + 2);
-            }
-        }
-    }
-
     pub fn get_left(&self) -> ShapeIdx {
         self.left.unwrap()
     }
@@ -221,7 +186,11 @@ pub fn filter_intersections<'a>(csg: &Shape, xs: &IntersectionList<'a>, shapes: 
 
     for i in xs.get_intersections() {
         let left = shapes.get(csg.get_left() as usize).unwrap();
-        let lhit = a_includes_b(i.get_shape(), left, shapes);
+        // println!("i          {:?}", i);
+        // println!("csg shape  {:?}", csg);
+        // println!("left       {:?}", left);
+
+        let lhit = a_includes_b(left, i.get_shape(), shapes);
 
         if intersection_allowed(csg.get_op(), lhit, inl, inr) {
             result.add((*i).clone());
@@ -238,7 +207,7 @@ pub fn filter_intersections<'a>(csg: &Shape, xs: &IntersectionList<'a>, shapes: 
 }
 
 fn a_includes_b(a: &Shape, b: &Shape, shapes: &ShapeArr) -> bool {
-    return match a.get_shape() {
+    match a.get_shape() {
         ShapeEnum::GroupEnum(g) => {
             for child in g.get_children() {
                 let c = shapes.get(*child as usize).unwrap();
@@ -256,12 +225,15 @@ fn a_includes_b(a: &Shape, b: &Shape, shapes: &ShapeArr) -> bool {
                 return true;
             }
             let right = shapes.get(csg.get_right() as usize).unwrap();
-            return a_includes_b(a, right, shapes);
+            a_includes_b(a, right, shapes)
         }
         _ => {
-            return a_includes_b(a, b, shapes);
+            // println!("a = {:?}", a);
+            // println!("b = {:?}", b);
+            // println!("a == b  {:?}", a == b);
+            a == b
         }
-    };
+    }
 }
 
 impl fmt::Debug for Csg {
@@ -283,6 +255,7 @@ impl fmt::Display for Csg {
 
 #[cfg(test)]
 mod tests {
+    use crate::math::Tuple;
     use crate::prelude::Sphere;
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::Cube;
@@ -347,7 +320,7 @@ mod tests {
     }
 
     // page 234
-    // Filtering a list of intertsections
+    // Filtering a list of intersections
     #[test]
     fn test_filtering_list_of_intersections() {
         let mut shapes: ShapeArr = vec![];
@@ -355,8 +328,17 @@ mod tests {
         let s1 = Shape::new_with_name(ShapeEnum::SphereEnum(Sphere::new()), "sphere".to_string());
         let s2 = Shape::new_with_name(ShapeEnum::CubeEnum(Cube::new()), "cube".to_string());
 
-        let s1_clone = s1.clone();
-        let s2_clone = s2.clone();
+        doit(&mut shapes, s1.clone(), s2.clone(), CsgOp::UNION, 0, 3);
+        doit(&mut shapes, s1.clone(), s2.clone(), CsgOp::INTERSECTION, 0, 3);
+        doit(&mut shapes, s1, s2, CsgOp::DIFFERENCE, 0, 3);
+    }
+
+    fn doit(mut shapes: &mut ShapeArr, s1: Shape, s2: Shape, op: CsgOp, x0: usize, x1: usize) {
+        let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
+        let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1, s2);
+
+        let s1 = shapes.get(shape_idx_left as usize).unwrap();
+        let s2 = shapes.get(shape_idx_right as usize).unwrap();
 
         let i1 = Intersection::new(1.0, &s1);
         let i2 = Intersection::new(2.0, &s2);
@@ -369,19 +351,13 @@ mod tests {
         xs.add(i3);
         xs.add(i4);
 
-        let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
-        let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1_clone, s2_clone);
-
         let csg = shapes.get(csg_idx as usize).unwrap();
 
-        test_filtering_list_of_intersections_helper(csg, CsgOp::UNION, &xs, 0, 3, &shapes);
-        test_filtering_list_of_intersections_helper(csg, CsgOp::INTERSECTION, &xs, 1, 2, &shapes);
-        test_filtering_list_of_intersections_helper(csg, CsgOp::DIFFERENCE, &xs, 0, 1, &shapes);
+        test_filtering_list_of_intersections_helper(csg, &xs, x0, x1, &shapes);
     }
 
     fn test_filtering_list_of_intersections_helper(
         csg: &Shape,
-        op: CsgOp,
         xs: &IntersectionList,
         expected_x0_idx: usize,
         expected_x1_idx: usize,
@@ -399,5 +375,58 @@ mod tests {
             res.get_intersections().get(1).unwrap().get_t(),
             xs.get_intersections().get(expected_x1_idx).unwrap().get_t()
         );
+    }
+
+    // page 236
+    // A ray misses a CSG object
+    #[test]
+    fn test_ray_misses_csg_object() {
+        let mut shapes: ShapeArr = vec![];
+
+        let s1 = Shape::new_with_name(ShapeEnum::SphereEnum(Sphere::new()), "sphere".to_string());
+        let s2 = Shape::new_with_name(ShapeEnum::CubeEnum(Cube::new()), "cube".to_string());
+
+        let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
+        let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1, s2);
+
+        let s1 = shapes.get(shape_idx_left as usize).unwrap();
+        let s2 = shapes.get(shape_idx_right as usize).unwrap();
+
+        let csg = shapes.get(csg_idx as usize).unwrap();
+        let r = Ray::new(Tuple4D::new_point(0.0, 2.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
+        let xs = Shape::intersect_local(csg, r, &shapes);
+
+        assert_eq!(xs.get_intersections().len(), 0);
+    }
+
+    // page 236
+    // A ray hits a CSG object
+    #[test]
+    fn test_ray_hits_csg_object() {
+        let mut shapes: ShapeArr = vec![];
+
+        let trans = Matrix::translation(0.0, 0.0, 0.5);
+
+        let s1 = Shape::new_with_name(ShapeEnum::SphereEnum(Sphere::new()), "sphere1".to_string());
+        let mut s2 = Shape::new_with_name(ShapeEnum::SphereEnum(Sphere::new()), "sphere2".to_string());
+        s2.set_transformation(trans);
+
+        let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
+        let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1, s2);
+
+        let s1 = shapes.get(shape_idx_left as usize).unwrap();
+        let s2 = shapes.get(shape_idx_right as usize).unwrap();
+
+        let csg = shapes.get(csg_idx as usize).unwrap();
+        let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
+        let xs = Csg::intersect_local(csg, r, &shapes);
+
+        assert_eq!(xs.get_intersections().len(), 2);
+
+        assert_eq!(xs.get_intersections().get(0).unwrap().get_t(), 4.0);
+        assert_eq!(xs.get_intersections().get(0).unwrap().get_shape(), s1);
+
+        assert_eq!(xs.get_intersections().get(1).unwrap().get_t(), 6.5);
+        assert_eq!(xs.get_intersections().get(1).unwrap().get_shape(), s2);
     }
 }
