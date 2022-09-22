@@ -1,20 +1,22 @@
 extern crate num_cpus;
 
 use std::error::Error;
+use std::mem::transmute;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let size_factor = 2.0;
-    let antialiasing = false;
+    let antialiasing = true;
     let antialiasing_size = 3;
-    let arealight_u = 1;
-    let arealight_v = 1;
+    let arealight_u = 8;
+    let arealight_v = 8;
 
     let (world, camera) = setup_world_csg(size_factor, antialiasing, antialiasing_size, arealight_u, arealight_v);
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &world);
+    // let canvas = Camera::render_debug(&camera, &world, 308, 254);
     let dur = Instant::now() - start;
 
     if camera.get_antialiasing() {
@@ -128,16 +130,6 @@ fn setup_world_csg<'a>(
     let mut w = World::new();
     let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::INTERSECTION);
     Csg::add_child(w.get_shapes_mut(), csg, sphere1, sphere2);
-
-    // let mut csg = w.get_shapes_mut().get_mut(csg as usize).unwrap();
-    // csg.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
-    // csg.get_material_mut().set_ambient(0.1);
-    // csg.get_material_mut().set_diffuse(0.6);
-    // csg.get_material_mut().set_specular(0.0);
-    // csg.get_material_mut().set_reflective(0.3);
-    // csg.get_material_mut().set_shininess(200.0);
-    // csg.get_material_mut().set_transparency(0.2);
-    // csg.get_material_mut().set_refractive_index(0.2);
 
     w.add_light(area_light);
     w.add_shape(cube);

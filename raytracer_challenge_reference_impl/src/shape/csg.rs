@@ -27,7 +27,7 @@ impl<'a> ShapeOps<'a> for Csg {
         println!("setting new transformation matrix {:?}", &m);
         println!("old transformation matrix  {:?}", self.get_transformation());
         self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Group::set_transformation:  can't unwrap inverted matrix ");
+            Matrix::invert(&m).expect("Csg::set_transformation:  can't unwrap inverted matrix ");
         self.transformation_matrix = m;
     }
 
@@ -192,6 +192,7 @@ pub fn filter_intersections<'a>(csg: &Shape, xs: &IntersectionList<'a>, shapes: 
 
         let lhit = a_includes_b(left, i.get_shape(), shapes);
 
+        // println!("csg op {:?}", csg.get_op());
         if intersection_allowed(csg.get_op(), lhit, inl, inr) {
             result.add((*i).clone());
         }

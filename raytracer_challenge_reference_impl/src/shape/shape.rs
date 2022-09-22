@@ -273,35 +273,35 @@ impl<'a> Shape {
     pub fn get_left(&self) -> ShapeIdx {
         match self.shape {
             ShapeEnum::CsgEnum(ref csg) => csg.get_left(),
-            _ => unreachable!("Jthis should never be called"),
+            _ => unreachable!("this should never be called"),
         }
     }
 
     pub fn get_right(&self) -> ShapeIdx {
         match self.shape {
             ShapeEnum::CsgEnum(ref csg) => csg.get_right(),
-            _ => unreachable!("Jthis should never be called"),
+            _ => unreachable!("this should never be called"),
         }
     }
 
     pub(crate) fn set_left(&mut self, idx: ShapeIdx) {
         match self.shape {
             ShapeEnum::CsgEnum(ref mut csg) => csg.set_left(idx),
-            _ => unreachable!("Jthis should never be called"),
+            _ => unreachable!("Jhis should never be called"),
         }
     }
 
     pub(crate) fn set_right(&mut self, idx: ShapeIdx) {
         match self.shape {
             ShapeEnum::CsgEnum(ref mut csg) => csg.set_right(idx),
-            _ => unreachable!("Jthis should never be called"),
+            _ => unreachable!("this should never be called"),
         }
     }
 
     pub(crate) fn get_op(&self) -> &CsgOp {
         match self.shape {
             ShapeEnum::CsgEnum(ref csg) => csg.get_op(),
-            _ => unreachable!("Jthis should never be called"),
+            _ => unreachable!("this should never be called"),
         }
     }
 }

@@ -37,8 +37,8 @@ impl<'a> PrecomputedComponent<'a> {
             normal_vector,
             reflected_vector,
             inside,
-            n1: 0.0,
-            n2: 0.0,
+            n1: 1.0,
+            n2: 1.0,
         }
     }
 
