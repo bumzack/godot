@@ -130,11 +130,17 @@ impl<'a> Csg {
         mut shape_right: Shape,
     ) -> (ShapeIdx, ShapeIdx) {
         shape_right.set_parent(parent_idx);
+        shape_right.set_part_of_group(true);
+
+        shape_left.set_part_of_group(true);
         shape_left.set_parent(parent_idx);
+
         shapes.push(shape_left);
         let shape_idx_left = shapes.len() - 1;
+
         shapes.push(shape_right);
         let shape_idx_right = shapes.len() - 1;
+
         let parent = shapes.get_mut(parent_idx).unwrap();
         parent.set_left(shape_idx_left);
         parent.set_right(shape_idx_right);

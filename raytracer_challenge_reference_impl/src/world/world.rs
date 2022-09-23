@@ -155,9 +155,7 @@ impl WorldOps for World {
     }
 
     fn is_shadowed(w: &World, light_position: &Tuple4D, point: &Tuple4D) -> bool {
-        // println!("              ");
         let v = light_position - point;
-
         let distance = Tuple4D::magnitude(&v);
         let direction = Tuple4D::normalize(&v);
 
@@ -173,20 +171,7 @@ impl WorldOps for World {
                 return false;
             }
             Some(_) => {
-                if DEBUG {
-                    println!("t = {:?}", h.unwrap().get_t());
-                }
                 let s = h.unwrap();
-                if DEBUG {
-                    println!("s = {:?}", s);
-                    println!("t = {:?}", s.get_t());
-                    println!("distance = {:?}", distance);
-                    println!(
-                        "t  - distance = {:?}    <  {}",
-                        s.get_t() - distance,
-                        EPSILON_OVER_UNDER
-                    );
-                }
                 let delta = s.get_t() - distance;
                 if delta < EPSILON_OVER_UNDER && s.get_shape().get_casts_shadow() {
                     return true;

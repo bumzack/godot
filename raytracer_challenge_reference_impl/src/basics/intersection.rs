@@ -27,7 +27,6 @@ pub trait IntersectionOps<'a> {
     fn new(t: f64, shape: &'a Shape) -> Intersection<'a>;
     fn new_u_v(t: f64, shape: &'a Shape, u: f64, v: f64) -> Intersection<'a>;
     fn intersect(shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr) -> IntersectionList<'a>;
-    // fn intersect_with_u_v(t: f64, shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr, u: f64, v: f64) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
     fn get_t(&self) -> f64;
     fn get_u(&self) -> f64;
@@ -137,13 +136,6 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
         let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
 
-        // println!();
-        // println!("intersection.get_t                     {:?}", intersection.get_t());
-        // println!("ray                       {:?}", r);
-        // println!("point                     {:?}", point);
-        // println!("normal_vector             {:?}", normal_vector);
-        // println!("over_point                {:?}", over_point);
-        // println!("under_point               {:?}", under_point);
         let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
             intersection.get_shape(),
@@ -158,14 +150,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
         let mut container: Vec<&'a Shape> = Vec::new();
 
-        //println!("all intersections:  {:?}", list.get_intersections());
-        //println!("intersection :  {:?}", intersection);
-
         for i in list.get_intersections().iter() {
-            //            println!("NEXT ITERATION");
-            //            println!(" i = {:?}", i);
-            //            println!("container  begin for    {:?}",container);
-            //
             if i == intersection {
                 // println!("i == intersection");
                 if container.is_empty() {
@@ -252,7 +237,6 @@ impl<'a> IntersectionListOps<'a> for IntersectionList<'a> {
         self.list_of_intersections.push(i);
         self.list_of_intersections
             .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
-        // expect("IntersectionListOps::add : cant unwrap"));
     }
 
     fn hit(&self) -> Option<&Intersection<'a>> {

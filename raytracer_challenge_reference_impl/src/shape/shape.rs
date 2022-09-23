@@ -55,14 +55,8 @@ impl<'a> ShapeIntersectOps<'a> for Shape {
             ShapeEnum::CylinderEnum(ref _cylinder) => Cylinder::intersect_local(shape, r, shapes),
             ShapeEnum::TriangleEnum(ref _triangle) => Triangle::intersect_local(shape, r, shapes),
             ShapeEnum::SmoothTriangleEnum(ref _triangle) => SmoothTriangle::intersect_local(shape, r, shapes),
-            ShapeEnum::GroupEnum(ref _group) => {
-                // println!("group intersect_local");
-                Group::intersect_local(shape, r, shapes)
-            }
-            ShapeEnum::CsgEnum(ref _csg) => {
-                println!("CSG intersect_local");
-                Csg::intersect_local(shape, r, shapes)
-            }
+            ShapeEnum::GroupEnum(ref _group) => Group::intersect_local(shape, r, shapes),
+            ShapeEnum::CsgEnum(ref _csg) => Csg::intersect_local(shape, r, shapes),
         }
     }
 }
@@ -111,19 +105,6 @@ impl<'a> ShapeOps<'a> for Shape {
         let local_point = world_to_object(self, world_point, shapes);
         let local_normal = Self::local_normal_at(self, &local_point, i);
         normal_to_world(self, &local_normal, shapes)
-
-        // let object_point = self.get_inverse_transformation() * world_point;
-        // let local_normal = match self.shape {
-        //     ShapeEnum::Sphere(ref sphere) => sphere.local_normal_at(&object_point),
-        //     ShapeEnum::Plane(ref plane) => plane.local_normal_at(&object_point),
-        //     ShapeEnum::Cube(ref cube) => cube.local_normal_at(&object_point),
-        //     ShapeEnum::Cylinder(ref cylinder) => cylinder.local_normal_at(&object_point),
-        //     ShapeEnum::Triangle(ref triangle) => triangle.local_normal_at(&object_point),
-        //     ShapeEnum::Group(_) => panic!("Group::normal_at should never be called "),
-        // };
-        // let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
-        // world_normal.w = 0.0;
-        // Tuple4D::normalize(&world_normal)
     }
 
     fn local_normal_at(&self, local_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D {
@@ -143,7 +124,7 @@ impl<'a> ShapeOps<'a> for Shape {
         match self.shape {
             ShapeEnum::SphereEnum(ref mut sphere) => sphere.set_material(m),
             ShapeEnum::PlaneEnum(ref mut plane) => plane.set_material(m),
-            ShapeEnum::CubeEnum(ref mut c) => c.set_material(m),
+            ShapeEnum::CubeEnum(ref mut cube) => cube.set_material(m),
             ShapeEnum::CylinderEnum(ref mut cylinder) => cylinder.set_material(m),
             ShapeEnum::TriangleEnum(ref mut triangle) => triangle.set_material(m),
             ShapeEnum::SmoothTriangleEnum(ref mut triangle) => triangle.set_material(m),
@@ -156,7 +137,7 @@ impl<'a> ShapeOps<'a> for Shape {
         match self.shape {
             ShapeEnum::SphereEnum(ref sphere) => sphere.get_material(),
             ShapeEnum::PlaneEnum(ref plane) => plane.get_material(),
-            ShapeEnum::CubeEnum(ref c) => c.get_material(),
+            ShapeEnum::CubeEnum(ref cube) => cube.get_material(),
             ShapeEnum::CylinderEnum(ref cylinder) => cylinder.get_material(),
             ShapeEnum::TriangleEnum(ref triangle) => triangle.get_material(),
             ShapeEnum::SmoothTriangleEnum(ref triangle) => triangle.get_material(),
@@ -169,7 +150,7 @@ impl<'a> ShapeOps<'a> for Shape {
         match self.shape {
             ShapeEnum::SphereEnum(ref mut sphere) => sphere.get_material_mut(),
             ShapeEnum::PlaneEnum(ref mut plane) => plane.get_material_mut(),
-            ShapeEnum::CubeEnum(ref mut c) => c.get_material_mut(),
+            ShapeEnum::CubeEnum(ref mut cube) => cube.get_material_mut(),
             ShapeEnum::CylinderEnum(ref mut cylinder) => cylinder.get_material_mut(),
             ShapeEnum::TriangleEnum(ref mut triangle) => triangle.get_material_mut(),
             ShapeEnum::SmoothTriangleEnum(ref mut triangle) => triangle.get_material_mut(),
@@ -184,27 +165,15 @@ impl<'a> ShapeOps<'a> for Shape {
 
     fn get_children(&self) -> &Vec<ShapeIdx> {
         match self.shape {
-            ShapeEnum::SphereEnum(ref _sphere) => unreachable!("tAhis should never be called"),
-            ShapeEnum::PlaneEnum(ref _plane) => unreachable!("Bthis should never be called"),
-            ShapeEnum::CubeEnum(ref _cube) => unreachable!("Cthis should never be called"),
-            ShapeEnum::CylinderEnum(ref _cylinder) => unreachable!("Dthis should never be called"),
-            ShapeEnum::TriangleEnum(ref _triangle) => unreachable!("Ethis should never be called"),
-            ShapeEnum::SmoothTriangleEnum(ref _triangle) => unreachable!("Ethis should never be called"),
             ShapeEnum::GroupEnum(ref group) => group.get_children(),
-            ShapeEnum::CsgEnum(ref _csg) => unreachable!("Ethis should never be called"),
+            _ => unreachable!("this should never be called"),
         }
     }
 
     fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
         match self.shape {
-            ShapeEnum::SphereEnum(ref mut _sphere) => unreachable!("Fthis should never be called"),
-            ShapeEnum::PlaneEnum(ref mut _plane) => unreachable!("Gthis should never be called"),
-            ShapeEnum::CubeEnum(ref mut _c) => unreachable!("Hthis should never be called"),
-            ShapeEnum::CylinderEnum(ref mut _cylinder) => unreachable!("Ithis should never be called"),
-            ShapeEnum::TriangleEnum(ref mut _triangle) => unreachable!("Jthis should never be called"),
-            ShapeEnum::SmoothTriangleEnum(ref mut _triangle) => unreachable!("Jthis should never be called"),
             ShapeEnum::GroupEnum(ref mut group) => group.get_children_mut(),
-            ShapeEnum::CsgEnum(ref mut _csg) => unreachable!("Jthis should never be called"),
+            _ => unreachable!("Jthis should never be called"),
         }
     }
 }
@@ -263,6 +232,10 @@ impl<'a> Shape {
 
     pub(crate) fn get_part_of_group(&self) -> bool {
         self.part_of_group
+    }
+
+    pub(crate) fn set_part_of_group(&mut self, part_of_group: bool) {
+        self.part_of_group = part_of_group;
     }
 
     pub(crate) fn get_name(&self) -> &Option<String> {

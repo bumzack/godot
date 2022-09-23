@@ -82,17 +82,7 @@ impl<'a> ShapeIntersectOps<'a> for Group {
 
         for child in children {
             let shape = shapes.get(*child as usize).unwrap();
-            let mut xs = match shape.get_shape() {
-                ShapeEnum::SphereEnum(ref _sphere) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::PlaneEnum(ref _plane) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::CylinderEnum(ref _cylinder) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::CubeEnum(ref _cube) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::TriangleEnum(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::SmoothTriangleEnum(ref _triangle) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::GroupEnum(ref _group) => Shape::intersects(shape, r.clone(), shapes),
-                ShapeEnum::CsgEnum(ref _group) => Shape::intersects(shape, r.clone(), shapes),
-            };
-
+            let mut xs = Shape::intersects(shape, r.clone(), shapes);
             // println!("shape {}  has  {} intersections ", shape, xs.get_intersections().len());
             for is in xs
                 .get_intersections_mut()

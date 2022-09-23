@@ -128,7 +128,7 @@ fn setup_world_csg<'a>(
     let sphere2 = Shape::new(ShapeEnum::SphereEnum(sphere2));
 
     let mut w = World::new();
-    let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::INTERSECTION);
+    let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::DIFFERENCE);
     Csg::add_child(w.get_shapes_mut(), csg, sphere1, sphere2);
 
     w.add_light(area_light);
