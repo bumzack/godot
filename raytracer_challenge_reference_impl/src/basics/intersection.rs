@@ -60,7 +60,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         let r2 = Ray::transform(r, shape.get_inverse_transformation());
 
         let mut xs = match shape.get_shape() {
-            ShapeEnum::SphereEnum(ref _sphere) => Sphere::intersect_local(shape, r2.clone(), shapes),
+            ShapeEnum::SphereEnum(ref _sphere) => Sphere::intersect_local(shape, r2, shapes),
             ShapeEnum::PlaneEnum(ref _plane) => Plane::intersect_local(shape, r2, shapes),
             ShapeEnum::CylinderEnum(ref _cylinder) => Cylinder::intersect_local(shape, r2, shapes),
             ShapeEnum::TriangleEnum(ref _triangke) => Triangle::intersect_local(shape, r2, shapes),
@@ -126,15 +126,15 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
         normal_vector.w = 0.0;
         let eye_vector = r.get_direction() * (-1.0);
         let mut inside = true;
-        if (&normal_vector ^ &eye_vector) < 0.0 {
+        if (normal_vector ^ eye_vector) < 0.0 {
             normal_vector = normal_vector * (-1.0);
         } else {
             inside = false;
         }
         let reflected_vector = Tuple4D::reflect(r.get_direction(), &normal_vector);
 
-        let over_point = &point + &(&normal_vector * EPSILON_OVER_UNDER);
-        let under_point = &point - &(&normal_vector * EPSILON_OVER_UNDER);
+        let over_point = point + (normal_vector * EPSILON_OVER_UNDER);
+        let under_point = point - (normal_vector * EPSILON_OVER_UNDER);
 
         let mut comp = PrecomputedComponent::new(
             intersection.get_t(),
@@ -257,7 +257,7 @@ impl<'a> fmt::Debug for IntersectionList<'a> {
         for i in self.list_of_intersections.iter() {
             writeln!(f, "isl  {:?}", i)?;
         }
-        writeln!(f, "")
+        writeln!(f)
     }
 }
 

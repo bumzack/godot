@@ -12,7 +12,7 @@ impl Sequence {
     }
 
     pub(crate) fn next(&mut self) -> f64 {
-        if self.data.len() > 0 {
+        if !self.data.is_empty() {
             let elem = self.data[self.idx % self.data.len()];
             self.idx += 1;
             elem

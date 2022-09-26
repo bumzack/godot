@@ -41,9 +41,9 @@ impl RingPattern {
 
     pub fn color_at(pattern: &RingPattern, point: &Tuple4D) -> Color {
         if (point.x.powf(2.0) + point.z.powf(2.0)).sqrt().floor() as i32 % 2 == 0 {
-            Color::from_color(&pattern.get_color_a())
+            Color::from_color(pattern.get_color_a())
         } else {
-            Color::from_color(&pattern.get_color_b())
+            Color::from_color(pattern.get_color_b())
         }
     }
 
@@ -65,6 +65,12 @@ impl RingPattern {
 
     pub fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
+    }
+}
+
+impl Default for RingPattern {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

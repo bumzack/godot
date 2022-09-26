@@ -29,7 +29,7 @@ pub struct Camera {
 }
 
 pub trait CameraOps {
-    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera;
+    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Self;
 
     fn get_hsize(&self) -> usize;
     fn get_vsize(&self) -> usize;
@@ -58,8 +58,8 @@ pub trait CameraOps {
 }
 
 impl CameraOps for Camera {
-    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Camera {
-        let c = Camera {
+    fn new(hsize: usize, vsize: usize, field_of_view: f64) -> Self {
+        Camera {
             hsize,
             vsize,
             field_of_view,
@@ -70,8 +70,7 @@ impl CameraOps for Camera {
             pixel_size: 0.0,
             antialiasing: false,
             antialiasing_size: 2,
-        };
-        c
+        }
     }
 
     fn get_hsize(&self) -> usize {
@@ -130,7 +129,7 @@ impl CameraOps for Camera {
 
         let pixel = &camera_transform_inv * &p;
         let mut origin = &camera_transform_inv * &o;
-        let mut direction = Tuple4D::normalize(&(&pixel - &origin));
+        let mut direction = Tuple4D::normalize(&(pixel - origin));
 
         // so the assert in Ray::new don't panic
         origin.w = 1.0;
@@ -159,7 +158,7 @@ impl CameraOps for Camera {
 
         let pixel = &camera_transform_inv * &p;
         let mut origin = &camera_transform_inv * &o;
-        let mut direction = Tuple4D::normalize(&(&pixel - &origin));
+        let mut direction = Tuple4D::normalize(&(pixel - origin));
 
         // so the assert in Ray::new don't panic
         origin.w = 1.0;
@@ -331,7 +330,7 @@ impl CameraOps for Camera {
                         if y < height {
                             let mut acty = cloned_act_y.lock().unwrap();
                             y = *acty;
-                            *acty = *acty + 1;
+                            *acty += 1;
                             println!("   thread_id {:?},   y = {}", thread::current().id(), acty);
                         }
 

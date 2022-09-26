@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
 use crate::material::Material;
-use crate::math::{Matrix, MatrixOps, Tuple, Tuple4D};
+use crate::math::{Matrix, MatrixOps, Tuple4D};
 use crate::prelude::{Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
 #[derive(Clone, PartialEq)]
@@ -100,7 +100,7 @@ impl<'a> ShapeIntersectOps<'a> for Group {
     }
 }
 
-impl<'a> Group {
+impl Group {
     pub fn new(shapes: &mut ShapeArr, name: String) -> ShapeIdx {
         let idx = shapes.len();
         let g = Group {
@@ -196,6 +196,7 @@ mod tests {
     use std::f64::consts::PI;
 
     use crate::math::common::assert_matrix;
+    use crate::math::Tuple;
     use crate::prelude::{assert_tuple, normal_to_world, world_to_object, Sphere};
     use crate::shape::shape::{Shape, ShapeEnum};
 

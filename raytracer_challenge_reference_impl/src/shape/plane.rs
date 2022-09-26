@@ -88,15 +88,22 @@ impl Plane {
     }
 }
 
+impl Default for Plane {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+
     use crate::basics::intersection::{IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
     use crate::math::common::assert_float;
     use crate::math::common::assert_matrix;
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::Sphere;
-    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     use super::*;
 

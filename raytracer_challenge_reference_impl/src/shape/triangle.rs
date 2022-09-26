@@ -1,5 +1,6 @@
-use crate::prelude::*;
 use std::fmt;
+
+use crate::prelude::*;
 
 #[derive(Clone, PartialEq)]
 pub struct Triangle {
@@ -39,7 +40,7 @@ impl<'a> ShapeOps<'a> for Triangle {
     }
 
     fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
-        self.normal.clone()
+        self.normal
     }
 
     fn set_material(&mut self, m: Material) {
@@ -87,8 +88,9 @@ impl<'a> ShapeIntersectOps<'a> for Triangle {
 
         let f = 1.0 / det;
         let p1_to_origin = r.get_origin() - triangle.get_p1();
-        let u = f * (&p1_to_origin ^ &dir_cross_e2);
-        if u < 0.0 || u > 1.0 {
+        let u = f * (p1_to_origin ^ dir_cross_e2);
+        // clippy says  if u < 0.0 || u > 1.0 { is bad form
+        if !(0.0..=1.0).contains(&u) {
             return intersection_list;
         }
 
@@ -106,9 +108,9 @@ impl<'a> ShapeIntersectOps<'a> for Triangle {
 
 impl Triangle {
     pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D) -> Triangle {
-        let e1 = &p2 - &p1;
-        let e2 = &p3 - &p1;
-        let normal = Tuple4D::normalize(&(&e2 * &e1));
+        let e1 = p2 - p1;
+        let e2 = p3 - p1;
+        let normal = Tuple4D::normalize(&(e2 * e1));
         Triangle {
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -147,7 +149,7 @@ impl Triangle {
     }
 }
 
-impl<'a> fmt::Debug for Triangle {
+impl fmt::Debug for Triangle {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,

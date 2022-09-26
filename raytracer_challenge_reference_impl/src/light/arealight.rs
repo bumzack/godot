@@ -98,10 +98,10 @@ impl AreaLight {
         vsteps: usize,
         intensity: Color,
         jitter_sequence: Sequence,
-    ) -> AreaLight {
-        let uvec = &v1 / usteps;
-        let vvec = &v2 / vsteps;
-        let position = &corner + &(&v1 / 2.0) + (&v2 / 2.0);
+    ) -> Self {
+        let uvec = v1 / usteps;
+        let vvec = v2 / vsteps;
+        let position = corner + (v1 / 2.0) + (v2 / 2.0);
 
         AreaLight {
             position,

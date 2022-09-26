@@ -65,10 +65,10 @@ impl<'a> ShapeIntersectOps<'a> for Sphere {
     fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let mut intersection_list = IntersectionList::new();
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let sphere_to_ray = &r.origin - &o;
-        let a = &r.direction ^ &r.direction;
-        let b = 2.0 * (&r.direction ^ &sphere_to_ray);
-        let c = (&sphere_to_ray ^ &sphere_to_ray) - 1.0;
+        let sphere_to_ray = r.origin - o;
+        let a = r.direction ^ r.direction;
+        let b = 2.0 * (r.direction ^ sphere_to_ray);
+        let c = (sphere_to_ray ^ sphere_to_ray) - 1.0;
         let disc = b * b - 4.0 * a * c;
 
         if disc < 0.0 {
@@ -94,6 +94,12 @@ impl Sphere {
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
             material: Material::new(),
         }
+    }
+}
+
+impl Default for Sphere {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -370,7 +376,7 @@ mod tests {
 
         println!("n1 = {}   n1_expected = {}", comps.get_n1(), n1_expected);
         println!("n2 = {}   n2_expected = {}", comps.get_n2(), n2_expected);
-        println!("");
+        println!();
 
         assert_float(comps.get_n1(), n1_expected);
         assert_float(comps.get_n2(), n2_expected);
