@@ -145,6 +145,12 @@ impl fmt::Display for BoundingBox {
     }
 }
 
+impl Default for BoundingBox {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f64::consts::PI;

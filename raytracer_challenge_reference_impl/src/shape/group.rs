@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
 use crate::material::Material;
-use crate::math::{Matrix, MatrixOps, Tuple, Tuple4D};
+use crate::math::{Matrix, MatrixOps, Tuple4D};
 use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
 #[derive(Clone, PartialEq)]
