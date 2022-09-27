@@ -95,6 +95,12 @@ impl Sphere {
             material: Material::new(),
         }
     }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of sphere");
+        let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
+        let max = Tuple4D::new_point(1.0, 1.0, 1.0);
+        BoundingBox::new_from_min_max(min, max)
+    }
 }
 
 impl fmt::Debug for Sphere {

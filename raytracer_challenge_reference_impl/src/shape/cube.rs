@@ -118,7 +118,7 @@ impl Cube {
         }
     }
 
-    fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
+    pub fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
         let tmin_numerator = -1.0 - origin;
         let tmax_numerator = 1.0 - origin;
 
@@ -163,6 +163,12 @@ impl Cube {
             return CubeFace::FRONT;
         }
         CubeFace::BACK
+    }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of cube");
+        let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
+        let max = Tuple4D::new_point(1.0, 1.0, 1.0);
+        BoundingBox::new_from_min_max(min, max)
     }
 }
 

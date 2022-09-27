@@ -1,3 +1,4 @@
+pub use self::bounding_box::*;
 pub use self::csg::*;
 pub use self::cube::*;
 pub use self::cylinder::*;
@@ -8,6 +9,7 @@ pub use self::smooth_triangle::*;
 pub use self::sphere::*;
 pub use self::triangle::*;
 
+pub mod bounding_box;
 pub mod csg;
 pub mod cube;
 pub mod cylinder;

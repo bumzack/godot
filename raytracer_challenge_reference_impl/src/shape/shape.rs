@@ -21,6 +21,7 @@ pub struct Shape {
     part_of_group: bool,
     parent: Option<ShapeIdx>,
     name: Option<String>,
+    bounding_box: Option<BoundingBox>,
 }
 
 pub trait ShapeOps<'a> {
@@ -180,33 +181,45 @@ impl<'a> ShapeOps<'a> for Shape {
 
 impl<'a> Shape {
     pub fn new_with_name(shape: ShapeEnum, name: String) -> Shape {
-        Shape {
+        let mut s = Shape {
             shape,
             casts_shadow: true,
             parent: None,
             part_of_group: false,
             name: Some(name),
-        }
+            bounding_box: None,
+        };
+        // it makes sad and sick - this has to change
+        s.add_bounding_box(&vec![]);
+        s
     }
 
     pub fn new(shape: ShapeEnum) -> Shape {
-        Shape {
+        let mut s = Shape {
             shape,
             casts_shadow: true,
             parent: None,
             part_of_group: false,
             name: None,
-        }
+            bounding_box: None,
+        };
+        // it makes sad and sick - this has to change
+        s.add_bounding_box(&vec![]);
+        s
     }
 
     pub fn new_part_of_group(shape: ShapeEnum, name: String) -> Shape {
-        Shape {
+        let mut s = Shape {
             shape,
             casts_shadow: true,
             parent: None,
             part_of_group: true,
             name: Some(name),
-        }
+            bounding_box: None,
+        };
+        // it makes sad and sick - this has to change
+        s.add_bounding_box(&vec![]);
+        s
     }
 
     pub fn get_shape(&self) -> &ShapeEnum {
@@ -275,6 +288,32 @@ impl<'a> Shape {
         match self.shape {
             ShapeEnum::CsgEnum(ref csg) => csg.get_op(),
             _ => unreachable!("this should never be called"),
+        }
+    }
+
+    pub fn get_parent_space_bounds_of(shape: &Shape, shapes: &ShapeArr) -> BoundingBox {
+        BoundingBox::transform(&shape.get_bounds_of(shapes), shape.get_transformation())
+    }
+
+    pub fn add_bounding_box(&mut self, shapes: &ShapeArr) {
+        let bounding_box = self.get_bounds_of(shapes);
+        self.bounding_box = Some(bounding_box);
+    }
+
+    pub fn get_bounding_box(&self) -> &BoundingBox {
+        &self.bounding_box.as_ref().unwrap()
+    }
+
+    pub(crate) fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
+        match self.shape {
+            ShapeEnum::SphereEnum(ref sphere) => sphere.get_bounds_of(),
+            ShapeEnum::PlaneEnum(ref plane) => plane.get_bounds_of(),
+            ShapeEnum::CubeEnum(ref cube) => cube.get_bounds_of(),
+            ShapeEnum::CylinderEnum(ref cylinder) => cylinder.get_bounds_of(),
+            ShapeEnum::TriangleEnum(ref triangle) => triangle.get_bounds_of(),
+            ShapeEnum::SmoothTriangleEnum(ref triangle) => triangle.get_bounds_of(),
+            ShapeEnum::GroupEnum(ref group) => group.get_bounds_of(shapes),
+            ShapeEnum::CsgEnum(ref csg) => csg.get_bounds_of(shapes),
         }
     }
 }

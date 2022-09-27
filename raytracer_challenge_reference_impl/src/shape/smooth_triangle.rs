@@ -166,6 +166,14 @@ impl SmoothTriangle {
     fn get_normal(&self) -> &Tuple4D {
         &self.n1
     }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of smooth_triangle");
+        let mut bb = BoundingBox::new();
+        bb.add_point(self.get_p1());
+        bb.add_point(self.get_p2());
+        bb.add_point(self.get_p3());
+        bb
+    }
 }
 
 impl<'a> fmt::Debug for SmoothTriangle {
@@ -186,10 +194,10 @@ mod tests {
     use super::*;
 
     // page 221
-    // Constructig a smooth triangle
+    // Constructing a smooth triangle
     #[test]
     fn test_triangle_new() {
-        let (t, p1, p2, p3, n1, n2, n3) = setup_smooth_triangle();
+        let (t, _, _, _, _, _, _) = setup_smooth_triangle();
 
         let p1_expected = Tuple4D::new_point(0.0, 1.0, 0.0);
         let p2_expected = Tuple4D::new_point(-1.0, 0.0, 0.0);

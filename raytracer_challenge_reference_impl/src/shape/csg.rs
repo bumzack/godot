@@ -3,7 +3,7 @@ use std::fmt;
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
 use crate::material::Material;
 use crate::math::{Matrix, MatrixOps, Tuple4D};
-use crate::prelude::{Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
+use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum CsgOp {
@@ -74,6 +74,11 @@ impl<'a> ShapeOps<'a> for Csg {
 
 impl<'a> ShapeIntersectOps<'a> for Csg {
     fn intersect_local(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
+        // let bb = shape.get_bounds_of(shapes);
+        // if !bb.intersects(&r) {
+        if !shape.get_bounding_box().intersects(&r) {
+            return IntersectionList::new();
+        }
         let left = shapes.get(shape.get_left() as usize).unwrap();
         let mut xs_left = Shape::intersects(left, r.clone(), shapes);
 
@@ -174,13 +179,25 @@ impl<'a> Csg {
     pub fn get_op(&self) -> &CsgOp {
         &self.op
     }
+
+    pub(crate) fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
+        println!("get_bounds_of CSG");
+        let mut bb = BoundingBox::new();
+        let left = shapes.get(self.left.unwrap()).unwrap();
+        let b = Shape::get_parent_space_bounds_of(left, shapes);
+        bb.add(&b);
+        let right = shapes.get(self.right.unwrap()).unwrap();
+        let b = Shape::get_parent_space_bounds_of(right, shapes);
+        bb.add(&b);
+        bb
+    }
 }
 
 pub fn intersection_allowed(op: &CsgOp, lhit: bool, inl: bool, inr: bool) -> bool {
     match op {
-        CsgOp::UNION => (lhit && !inr) || (!lhit && !inl),
-        CsgOp::INTERSECTION => (lhit && inr) || (!lhit && inl),
-        CsgOp::DIFFERENCE => (lhit && !inr) || (!lhit && inl),
+        CsgOp::UNION => (lhit & !inr) || (!lhit & !inl),
+        CsgOp::INTERSECTION => (lhit & inr) || (!lhit & inl),
+        CsgOp::DIFFERENCE => (lhit & !inr) || (!lhit & inl),
     }
 }
 
@@ -340,7 +357,7 @@ mod tests {
         doit(&mut shapes, s1, s2, CsgOp::DIFFERENCE, 0, 3);
     }
 
-    fn doit(mut shapes: &mut ShapeArr, s1: Shape, s2: Shape, op: CsgOp, x0: usize, x1: usize) {
+    fn doit(mut shapes: &mut ShapeArr, s1: Shape, s2: Shape, _op: CsgOp, x0: usize, x1: usize) {
         let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
         let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1, s2);
 
@@ -394,10 +411,7 @@ mod tests {
         let s2 = Shape::new_with_name(ShapeEnum::CubeEnum(Cube::new()), "cube".to_string());
 
         let csg_idx = Csg::new(&mut shapes, "csg".to_string(), CsgOp::UNION);
-        let (shape_idx_left, shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1, s2);
-
-        let s1 = shapes.get(shape_idx_left as usize).unwrap();
-        let s2 = shapes.get(shape_idx_right as usize).unwrap();
+        let (_shape_idx_left, _shape_idx_right) = Csg::add_child(&mut shapes, csg_idx, s1, s2);
 
         let csg = shapes.get(csg_idx as usize).unwrap();
         let r = Ray::new(Tuple4D::new_point(0.0, 2.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));

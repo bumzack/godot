@@ -78,7 +78,6 @@ fn setup_world(
     );
     right_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     right_wall.get_material_mut().set_specular(0.0);
-
     // let mut middle = Sphere::new();
     // middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
     // middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
@@ -131,6 +130,8 @@ fn setup_world(
     // w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
     // w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
     // w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
+
+    // w.get_shapes_mut().iter_mut().for_each(|s| s.add_bounding_box(w.get_shapes()));
 
     let filename = "/Users/gsc/stoff/lernen/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
     println!("filename {}", filename);

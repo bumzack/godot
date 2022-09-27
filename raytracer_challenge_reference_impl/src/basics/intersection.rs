@@ -202,7 +202,7 @@ impl<'a> IntersectionOps<'a> for Intersection<'a> {
 
 impl<'a> PartialEq for Intersection<'a> {
     fn eq(&self, other: &Self) -> bool {
-        self.shape == other.shape && self.t == other.t
+        (self.shape == other.shape) & (self.t == other.t)
     }
 }
 

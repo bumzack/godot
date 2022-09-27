@@ -36,17 +36,17 @@ impl<'a> ShapeOps<'a> for Cylinder {
 
     fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
         let dist = local_point.x.powi(2) + local_point.z.powi(2);
-        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
+        if (dist < 1.0) & (local_point.y >= self.get_maximum() - EPSILON) {
             return Tuple4D::new_vector(0.0, 1.0, 0.0);
-        } else if dist < 1.0 && local_point.y <= self.get_minimum() + EPSILON {
+        } else if (dist < 1.0) & (local_point.y <= self.get_minimum() + EPSILON) {
             return Tuple4D::new_vector(0.0, -1.0, 0.0);
         }
         Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
 
         //        let dist = intri_powi(local_point.x, 2) + intri_powi(local_point.z, 2);
-        //        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
+        //        if dist < 1.0 & local_point.y >= self.get_maximum() - EPSILON {
         //            return Tuple4D::new_vector(0.0, 1.0, 0.0);
-        //        } else if dist < 1.0 && local_point.y <= self.get_minimum() + EPSILON {
+        //        } else if dist < 1.0 & local_point.y <= self.get_minimum() + EPSILON {
         //            return Tuple4D::new_vector(0.0, -1.0, 0.0);
         //        }
         //        Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
@@ -107,12 +107,12 @@ impl<'a> ShapeIntersectOps<'a> for Cylinder {
                 t1 = tmp;
             }
             let y0 = r.get_origin().y + t0 * r.get_direction().y;
-            if cylinder.get_minimum() < y0 && y0 < cylinder.get_maximum() {
+            if (cylinder.get_minimum() < y0) & (y0 < cylinder.get_maximum()) {
                 ts.push(t0);
             }
 
             let y1 = r.get_origin().y + t1 * r.get_direction().y;
-            if cylinder.get_minimum() < y1 && y1 < cylinder.get_maximum() {
+            if ((cylinder.get_minimum()) < y1) & (y1 < cylinder.get_maximum()) {
                 ts.push(t1);
             }
         }
@@ -178,6 +178,12 @@ impl Cylinder {
         if Self::check_cap(r, t) {
             xs.push(t);
         }
+    }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of cylinder");
+        let min = Tuple4D::new_point(-1.0, self.minimum, -1.0);
+        let max = Tuple4D::new_point(1.0, self.maximum, 1.0);
+        BoundingBox::new_from_min_max(min, max)
     }
 }
 

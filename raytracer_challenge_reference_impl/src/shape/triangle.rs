@@ -145,6 +145,15 @@ impl Triangle {
     fn get_normal(&self) -> &Tuple4D {
         &self.normal
     }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of triangle");
+        let mut bb = BoundingBox::new();
+        bb.add_point(self.get_p1());
+        bb.add_point(self.get_p2());
+        bb.add_point(self.get_p3());
+
+        bb
+    }
 }
 
 impl<'a> fmt::Debug for Triangle {

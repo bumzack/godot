@@ -110,7 +110,7 @@ impl WorldOps for World {
         assert_valid_color(&refracted);
 
         let material = comp.get_object().get_material();
-        if material.get_reflective() > 0.0 && material.get_transparency() > 0.0 {
+        if (material.get_reflective() > 0.0) & (material.get_transparency() > 0.0) {
             let reflectance = Intersection::schlick(comp);
             if DEBUG {
                 println!("WITH  schlick");
@@ -173,7 +173,7 @@ impl WorldOps for World {
             Some(_) => {
                 let s = h.unwrap();
                 let delta = s.get_t() - distance;
-                if delta < EPSILON_OVER_UNDER && s.get_shape().get_casts_shadow() {
+                if (delta < EPSILON_OVER_UNDER) & s.get_shape().get_casts_shadow() {
                     return true;
                 }
                 false

@@ -86,6 +86,13 @@ impl Plane {
             material: Material::new(),
         }
     }
+
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of plane");
+        let min = Tuple4D::new_point(-f64::INFINITY, 0.0, -f64::INFINITY);
+        let max = Tuple4D::new_point(f64::INFINITY, 0.0, f64::INFINITY);
+        BoundingBox::new_from_min_max(min, max)
+    }
 }
 
 #[cfg(test)]

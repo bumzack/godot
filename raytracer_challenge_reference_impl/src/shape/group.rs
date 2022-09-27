@@ -3,7 +3,7 @@ use std::fmt;
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
 use crate::material::Material;
 use crate::math::{Matrix, MatrixOps, Tuple, Tuple4D};
-use crate::prelude::{Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
+use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
 #[derive(Clone, PartialEq)]
 pub struct Group {
@@ -65,6 +65,13 @@ impl<'a> ShapeOps<'a> for Group {
 
 impl<'a> ShapeIntersectOps<'a> for Group {
     fn intersect_local(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
+        // let bb = shape.get_bounds_of(shapes);
+        // if !bb.intersects(&r) {
+        if !shape.get_bounding_box().intersects(&r) {
+            println!("group boundbox has NO hit");
+            return IntersectionList::new();
+        }
+        println!("group boundbox has A hit");
         let mut intersection_list = IntersectionList::new();
         let root_idx = match shape.get_shape() {
             ShapeEnum::GroupEnum(g) => Some(g.shape_idx),
@@ -167,6 +174,17 @@ impl<'a> Group {
                 Self::print_tree(shapes, *c, depth + 2);
             }
         }
+    }
+
+    pub(crate) fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
+        println!("get_bounds_of group");
+        let mut bb = BoundingBox::new();
+        for c in self.get_children() {
+            let child = shapes.get(*c as usize).unwrap();
+            let b = Shape::get_parent_space_bounds_of(child, shapes);
+            bb.add(&b);
+        }
+        bb
     }
 }
 

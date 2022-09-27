@@ -236,7 +236,7 @@ impl MatrixOps for Matrix {
 
     fn cofactor(m: &Matrix, row: usize, col: usize) -> f64 {
         let minor = Self::minor(m, row, col);
-        if (row + col) % 2 != 0 && minor != 0.0 {
+        if ((row + col) % 2 != 0) & (minor != 0.0) {
             return -minor;
         }
         minor
