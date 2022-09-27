@@ -1,11 +1,11 @@
 use std::fmt;
 
-use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
+use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray};
 use crate::material::Material;
 use crate::math::{Matrix, MatrixOps, Tuple4D};
 use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub enum CsgOp {
     UNION,
     INTERSECTION,
@@ -83,7 +83,7 @@ impl<'a> ShapeIntersectOps<'a> for Csg {
         let mut xs_left = Shape::intersects(left, r.clone(), shapes);
 
         let right = shapes.get(shape.get_right() as usize).unwrap();
-        let mut xs_right = Shape::intersects(right, r.clone(), shapes);
+        let mut xs_right = Shape::intersects(right, r, shapes);
 
         let mut xs = IntersectionList::new();
 
@@ -110,7 +110,7 @@ impl<'a> ShapeIntersectOps<'a> for Csg {
     }
 }
 
-impl<'a> Csg {
+impl Csg {
     pub fn new(shapes: &mut ShapeArr, name: String, op: CsgOp) -> ShapeIdx {
         let idx = shapes.len();
         let g = Csg {
@@ -279,6 +279,7 @@ impl fmt::Display for Csg {
 
 #[cfg(test)]
 mod tests {
+    use crate::basics::RayOps;
     use crate::math::Tuple;
     use crate::prelude::Sphere;
     use crate::shape::shape::{Shape, ShapeEnum};

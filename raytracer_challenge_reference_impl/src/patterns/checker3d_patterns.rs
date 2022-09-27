@@ -14,7 +14,7 @@ pub struct Checker3DPattern {
 }
 
 impl Checker3DPattern {
-    pub fn new() -> Checker3DPattern {
+    pub fn new() -> Self {
         Checker3DPattern {
             color_a: WHITE,
             color_b: BLACK,
@@ -41,9 +41,9 @@ impl Checker3DPattern {
 
     pub fn color_at(pattern: &Checker3DPattern, point: &Tuple4D) -> Color {
         if (point.x.abs() + point.y.abs() + point.z.abs()).floor() as i32 % 2 == 0 {
-            Color::from_color(&pattern.get_color_a())
+            Color::from_color(pattern.get_color_a())
         } else {
-            Color::from_color(&pattern.get_color_b())
+            Color::from_color(pattern.get_color_b())
         }
     }
 
@@ -64,6 +64,12 @@ impl Checker3DPattern {
 
     pub fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
+    }
+}
+
+impl Default for Checker3DPattern {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

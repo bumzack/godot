@@ -22,7 +22,7 @@ pub struct Material {
 }
 
 pub trait MaterialOps {
-    fn new() -> Material;
+    fn new() -> Self;
 
     fn lightning(
         material: &Material,
@@ -85,17 +85,15 @@ impl MaterialOps for Material {
         n: &Tuple4D,
         intensity: f64,
     ) -> Color {
-        let c: Color;
-
         // TODO: a lot of color copying here ...
-        match material.get_pattern() {
-            None => c = &material.color * light.get_intensity(),
-            Some(pattern) => c = pattern.color_at_object(object, point),
-        }
+        let c = match material.get_pattern() {
+            None => &material.color * light.get_intensity(),
+            Some(pattern) => pattern.color_at_object(object, point),
+        };
 
         // ambient
         let effective_color = &c * light.get_intensity();
-        let ambient = &effective_color * material.ambient;
+        let ambient = effective_color * material.ambient;
 
         let mut sum = BLACK;
 
@@ -114,15 +112,15 @@ impl MaterialOps for Material {
             let mut diffuse;
 
             let light_v = Tuple4D::normalize(&(sample - point));
-            let light_dot_normal = &light_v ^ &n;
+            let light_dot_normal = &light_v ^ n;
 
             if light_dot_normal < 0.0 || intensity == 0.0 {
                 specular = BLACK;
                 diffuse = BLACK;
             } else {
-                diffuse = &effective_color * material.diffuse * light_dot_normal;
+                diffuse = effective_color * material.diffuse * light_dot_normal;
                 diffuse.fix_nan();
-                let reflect_v = Tuple4D::reflect(&light_v, &n) * (-1.0);
+                let reflect_v = Tuple4D::reflect(&light_v, n) * (-1.0);
                 let reflect_dot_eye = &reflect_v ^ eye;
 
                 specular = BLACK;
@@ -166,8 +164,8 @@ impl MaterialOps for Material {
                     }
                 }
             }
-            sum = &sum + &diffuse;
-            sum = &sum + &specular;
+            sum = sum + diffuse;
+            sum = sum + specular;
         }
         assert_valid_color(&ambient);
 

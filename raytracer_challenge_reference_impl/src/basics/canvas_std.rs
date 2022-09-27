@@ -1,10 +1,11 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
-use crate::basics::{Canvas, CanvasOps, Color, ColorOps};
 use image::io::Reader as ImageReader;
 use image::RgbImage;
 use image::{GenericImageView, ImageBuffer, ImageError};
+
+use crate::basics::{Canvas, CanvasOps, Color, ColorOps};
 
 pub trait CanvasOpsStd<'a> {
     fn write_ppm(&self, filename: &'a str) -> Result<(), Error>;
@@ -52,7 +53,6 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
     fn write_png(&self, filename: &'a str) -> Result<(), ImageError> {
         let mut x = 0;
         let mut y = 0;
-        let mut idx = 0;
         let mut image: RgbImage = ImageBuffer::new(self.get_width() as u32, self.get_height() as u32);
 
         for p in self.get_pixels().iter() {
@@ -63,10 +63,9 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
             ]);
             // println!("pixels_vec = {:?}, pixel = {:?}", p, pixel);
             image.put_pixel(x as u32, y as u32, pixel);
-            x = x + 1;
-            idx = idx + 1;
+            x += 1;
             if x % self.get_width() == 0 {
-                y = y + 1;
+                y += 1;
                 x = 0;
             }
         }

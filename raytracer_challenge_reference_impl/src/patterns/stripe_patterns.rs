@@ -14,7 +14,7 @@ pub struct StripePattern {
 }
 
 impl StripePattern {
-    pub fn new() -> StripePattern {
+    pub fn new() -> Self {
         StripePattern {
             color_a: WHITE,
             color_b: BLACK,
@@ -42,9 +42,9 @@ impl StripePattern {
     pub fn stripe_at(pattern: &StripePattern, point: &Tuple4D) -> Color {
         // TODO: we copy here colors all the way -> may be there is a chance to returen references?
         if point.x.floor() as i32 % 2 == 0 {
-            Color::from_color(&pattern.get_color_a())
+            Color::from_color(pattern.get_color_a())
         } else {
-            Color::from_color(&pattern.get_color_b())
+            Color::from_color(pattern.get_color_b())
         }
     }
 
@@ -66,6 +66,12 @@ impl StripePattern {
 
     pub fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
+    }
+}
+
+impl Default for StripePattern {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

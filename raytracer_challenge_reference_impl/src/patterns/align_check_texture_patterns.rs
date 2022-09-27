@@ -23,7 +23,7 @@ impl AlignCheckTexturePattern {
 
     pub fn pattern_at(pattern: &AlignCheckTexturePattern, p: &Tuple4D) -> Color {
         let (u, v) = (p.x.rem_euclid(1.0), p.z.rem_euclid(1.0));
-        uv_align_check_pattern_at(&pattern.checker, u, v).clone()
+        *uv_align_check_pattern_at(&pattern.checker, u, v)
     }
 
     pub fn color_at_object(pattern: &AlignCheckTexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {
@@ -77,7 +77,7 @@ pub fn uv_align_check_pattern_at(pattern: &CubeChecker, u: f64, v: f64) -> &Colo
             return &pattern.br;
         }
     }
-    return &pattern.main;
+    &pattern.main
 }
 
 #[cfg(test)]

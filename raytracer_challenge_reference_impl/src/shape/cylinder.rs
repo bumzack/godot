@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cylinder {
@@ -90,7 +91,13 @@ impl<'a> ShapeIntersectOps<'a> for Cylinder {
         let mut ts = Vec::new();
 
         let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
-        if !(a.abs() < EPSILON_OVER_UNDER) {
+
+        let not_less_or_equal = match a.partial_cmp(&EPSILON_OVER_UNDER) {
+            None | Some(Ordering::Greater) => true,
+            _ => false,
+        };
+
+        if not_less_or_equal {
             let b = 2.0 * r.get_origin().x * r.get_direction().x + 2.0 * r.get_origin().z * r.get_direction().z;
             let c = r.get_origin().x.powi(2) + r.get_origin().z.powi(2) - 1.0;
 
@@ -116,7 +123,7 @@ impl<'a> ShapeIntersectOps<'a> for Cylinder {
                 ts.push(t1);
             }
         }
-        Self::intersect_caps(&cylinder, &r, &mut ts);
+        Self::intersect_caps(cylinder, &r, &mut ts);
         let mut intersection_list = IntersectionList::new();
         ts.into_iter()
             .for_each(|t| intersection_list.add(Intersection::new(t, shape)));
@@ -184,6 +191,12 @@ impl Cylinder {
         let min = Tuple4D::new_point(-1.0, self.minimum, -1.0);
         let max = Tuple4D::new_point(1.0, self.maximum, 1.0);
         BoundingBox::new_from_min_max(min, max)
+    }
+}
+
+impl Default for Cylinder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

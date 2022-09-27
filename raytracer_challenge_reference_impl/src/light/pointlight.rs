@@ -59,7 +59,7 @@ impl LightOps for PointLight {
 
     // TODO: clone :-(
     fn point_on_light(&mut self, _u: usize, _v: usize) -> Tuple4D {
-        self.position.clone()
+        self.position
     }
 }
 

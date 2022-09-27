@@ -92,8 +92,9 @@ impl<'a> ShapeIntersectOps<'a> for SmoothTriangle {
 
         let f = 1.0 / det;
         let p1_to_origin = r.get_origin() - triangle.get_p1();
-        let u = f * (&p1_to_origin ^ &dir_cross_e2);
-        if u < 0.0 || u > 1.0 {
+        let u = f * (p1_to_origin ^ dir_cross_e2);
+        if !(0.0..=1.0).contains(&u) {
+            //  u < 0.0 || u > 1.0 {
             return intersection_list;
         }
 
@@ -111,9 +112,9 @@ impl<'a> ShapeIntersectOps<'a> for SmoothTriangle {
 
 impl SmoothTriangle {
     pub fn new(p1: Tuple4D, p2: Tuple4D, p3: Tuple4D, n1: Tuple4D, n2: Tuple4D, n3: Tuple4D) -> SmoothTriangle {
-        let e1 = &p2 - &p1;
-        let e2 = &p3 - &p1;
-        let normal = Tuple4D::normalize(&(&e2 * &e1));
+        let e1 = p2 - p1;
+        let e2 = p3 - p1;
+        let normal = Tuple4D::normalize(&(e2 * e1));
 
         SmoothTriangle {
             transformation_matrix: Matrix::new_identity_4x4(),
@@ -176,7 +177,7 @@ impl SmoothTriangle {
     }
 }
 
-impl<'a> fmt::Debug for SmoothTriangle {
+impl fmt::Debug for SmoothTriangle {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,

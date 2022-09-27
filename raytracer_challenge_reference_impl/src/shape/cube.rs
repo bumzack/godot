@@ -91,11 +91,11 @@ impl<'a> ShapeIntersectOps<'a> for Cube {
         }
         let mut res = vec![0.0; 2];
 
-        if tmin == f64::NAN {
+        if tmin.is_nan() {
             println!("CUBE: here we have a NAN tmin is {}", tmin);
         }
 
-        if tmax == f64::NAN {
+        if tmax.is_nan() {
             println!("CUBE:  here we have a NAN tmax is {}", tmax);
         }
 
@@ -169,6 +169,12 @@ impl Cube {
         let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
         let max = Tuple4D::new_point(1.0, 1.0, 1.0);
         BoundingBox::new_from_min_max(min, max)
+    }
+}
+
+impl Default for Cube {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

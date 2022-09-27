@@ -11,17 +11,17 @@ pub struct Tuple4D {
 
 pub trait Tuple {
     fn magnitude(a: &Tuple4D) -> f64;
-    fn normalize(a: &Tuple4D) -> Tuple4D;
+    fn normalize(a: &Tuple4D) -> Self;
 
-    fn new_vector(x: f64, y: f64, z: f64) -> Tuple4D;
-    fn new_point(x: f64, y: f64, z: f64) -> Tuple4D;
-    fn new(x: f64, y: f64, z: f64, w: f64) -> Tuple4D;
-    fn empty() -> Tuple4D;
+    fn new_vector(x: f64, y: f64, z: f64) -> Self;
+    fn new_point(x: f64, y: f64, z: f64) -> Self;
+    fn new(x: f64, y: f64, z: f64, w: f64) -> Self;
+    fn empty() -> Self;
 
     fn is_point(a: &Tuple4D) -> bool;
     fn is_vector(a: &Tuple4D) -> bool;
 
-    fn reflect(v: &Tuple4D, n: &Tuple4D) -> Tuple4D;
+    fn reflect(v: &Tuple4D, n: &Tuple4D) -> Self;
 }
 
 impl Tuple for Tuple4D {
@@ -40,12 +40,7 @@ impl Tuple for Tuple4D {
     }
 
     fn new_vector(x: f64, y: f64, z: f64) -> Tuple4D {
-        Tuple4D {
-            x: x,
-            y: y,
-            z: z,
-            w: 0.0,
-        }
+        Tuple4D { x, y, z, w: 0.0 }
     }
 
     fn new_point(x: f64, y: f64, z: f64) -> Tuple4D {
@@ -250,7 +245,7 @@ impl<'a> Div<usize> for &'a Tuple4D {
     }
 }
 
-impl<'a> fmt::Debug for Tuple4D {
+impl fmt::Debug for Tuple4D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,

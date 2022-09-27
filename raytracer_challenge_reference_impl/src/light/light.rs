@@ -32,11 +32,10 @@ pub trait LightOps {
 
 impl LightOps for Light {
     fn get_intensity(&self) -> &Color {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_intensity(),
             Light::AreaLight(ref pl) => pl.get_intensity(),
-        };
-        res
+        }
     }
 
     fn set_intensity(&mut self, intensity: Color) {
@@ -62,66 +61,58 @@ impl LightOps for Light {
     }
 
     fn get_uvec(&self) -> &Tuple4D {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_uvec(),
             Light::AreaLight(ref pl) => pl.get_uvec(),
-        };
-        res
+        }
     }
 
     fn get_vvec(&self) -> &Tuple4D {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_vvec(),
             Light::AreaLight(ref pl) => pl.get_vvec(),
-        };
-        res
+        }
     }
 
     fn get_samples(&self) -> usize {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_samples(),
             Light::AreaLight(ref pl) => pl.get_samples(),
-        };
-        res
+        }
     }
 
     fn get_corner(&self) -> &Tuple4D {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_corner(),
             Light::AreaLight(ref pl) => pl.get_corner(),
-        };
-        res
+        }
     }
 
     fn get_usteps(&self) -> usize {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_usteps(),
             Light::AreaLight(ref pl) => pl.get_usteps(),
-        };
-        res
+        }
     }
 
     fn get_vsteps(&self) -> usize {
-        let res = match self {
+        match self {
             Light::PointLight(ref pl) => pl.get_vsteps(),
             Light::AreaLight(ref pl) => pl.get_vsteps(),
-        };
-        res
+        }
     }
 
     fn intensity_at_point(&mut self, point: &Tuple4D, world: &World) -> f64 {
-        let res = match self {
+        match self {
             Light::PointLight(ref mut point_light) => point_light.intensity_at_point(point, world),
             Light::AreaLight(ref mut pl) => pl.intensity_at_point(point, world),
-        };
-        res
+        }
     }
 
     fn point_on_light(&mut self, u: usize, v: usize) -> Tuple4D {
-        let res = match self {
+        match self {
             Light::PointLight(ref mut point_light) => point_light.point_on_light(u, v),
             Light::AreaLight(ref mut area_light) => area_light.point_on_light(u, v),
-        };
-        res
+        }
     }
 }

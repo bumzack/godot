@@ -69,11 +69,11 @@ pub fn uv_checkers(width: usize, height: usize, color_a: Color, color_b: Color) 
 pub fn uv_pattern_at(checker: &Checker, u: f64, v: f64) -> Color {
     let u2 = (u * checker.width as f64).floor() as i32;
     let v2 = (v * checker.height as f64).floor() as i32;
-    return if (u2 + v2) % 2 == 0 {
+    if (u2 + v2) % 2 == 0 {
         checker.color_a
     } else {
         checker.color_b
-    };
+    }
 }
 
 pub fn spherical_map(p: &Tuple4D) -> (f64, f64) {
@@ -89,9 +89,9 @@ pub fn spherical_map(p: &Tuple4D) -> (f64, f64) {
 
 #[cfg(test)]
 mod tests {
-    use crate::basics::{BLACK, WHITE};
     use std::f64::consts::SQRT_2;
 
+    use crate::basics::{BLACK, WHITE};
     use crate::math::assert_two_float;
     use crate::math::common::assert_color;
     use crate::math::tuple4d::Tuple;

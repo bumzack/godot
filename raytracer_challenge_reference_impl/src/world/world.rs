@@ -17,7 +17,7 @@ pub struct World {
 pub const MAX_REFLECTION_RECURSION_DEPTH: i32 = 3;
 
 pub trait WorldOps {
-    fn new() -> World;
+    fn new() -> Self;
 
     fn add_light(&mut self, light: Light);
     fn get_light(&self) -> &LightArr;
@@ -119,7 +119,7 @@ impl WorldOps for World {
                 println!("refracted = {:?}", refracted);
                 println!("reflectance = {}", reflectance);
             }
-            return &surface + &(&reflected * reflectance + &refracted * (1.0 - reflectance));
+            return surface + (reflected * reflectance + refracted * (1.0 - reflectance));
         }
         if DEBUG {
             println!("NO schlick");
@@ -127,14 +127,14 @@ impl WorldOps for World {
             println!("reflected = {:?}", reflected);
             println!("refracted = {:?}", refracted);
         }
-        &surface + &(&reflected + &refracted)
+        surface + (reflected + refracted)
     }
 
     fn color_at(w: &World, r: &Ray, remaining: i32) -> Color {
         let xs = Intersection::intersect_world(w, r);
         let res = match xs.hit() {
             Some(i) => {
-                let comp = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), w.get_shapes());
+                let comp = Intersection::prepare_computations(i, r, &IntersectionList::new(), w.get_shapes());
                 World::shade_hit(w, &comp, remaining)
             }
             None => BLACK,
@@ -151,7 +151,7 @@ impl WorldOps for World {
         }
         let reflect_ray = Ray::new(*comp.get_over_point(), *comp.get_reflected_vector());
         let color = World::color_at(w, &reflect_ray, remaining - 1);
-        &color * comp.get_object().get_material().get_reflective()
+        color * comp.get_object().get_material().get_reflective()
     }
 
     fn is_shadowed(w: &World, light_position: &Tuple4D, point: &Tuple4D) -> bool {
@@ -167,9 +167,7 @@ impl WorldOps for World {
         let h = intersections.hit();
 
         match h {
-            None => {
-                return false;
-            }
+            None => false,
             Some(_) => {
                 let s = h.unwrap();
                 let delta = s.get_t() - distance;

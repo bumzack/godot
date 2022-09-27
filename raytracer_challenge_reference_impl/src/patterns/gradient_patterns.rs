@@ -66,6 +66,12 @@ impl GradientPattern {
     }
 }
 
+impl Default for GradientPattern {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::basics::color::ColorOps;

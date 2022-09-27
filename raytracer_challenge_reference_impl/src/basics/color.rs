@@ -18,7 +18,7 @@ pub struct Color {
 }
 
 pub trait ColorOps {
-    fn new(r: f64, g: f64, b: f64) -> Color;
+    fn new(r: f64, g: f64, b: f64) -> Self;
     fn from_color(c: &Color) -> Color;
     fn fix_nan(&mut self);
     fn clamp_color(&mut self);
@@ -26,7 +26,7 @@ pub trait ColorOps {
 }
 
 impl ColorOps for Color {
-    fn new(r: f64, g: f64, b: f64) -> Color {
+    fn new(r: f64, g: f64, b: f64) -> Self {
         Color { r, g, b }
     }
 
