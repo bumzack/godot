@@ -12,11 +12,11 @@ pub struct Matrix {
 }
 
 pub trait MatrixOps {
-    fn new(row: usize, col: usize) -> Matrix;
+    fn new(row: usize, col: usize) -> Self;
 
-    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Matrix;
+    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Self;
 
-    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Matrix;
+    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Self;
 
     fn new_matrix_4x4(
         a1: f64,
@@ -35,39 +35,38 @@ pub trait MatrixOps {
         b4: f64,
         c4: f64,
         d4: f64,
-    ) -> Matrix;
+    ) -> Self;
 
-    fn new_identity_4x4() -> Matrix;
-    fn transpose(m: &Matrix) -> Matrix;
+    fn new_identity_4x4() -> Self;
+    fn transpose(m: &Matrix) -> Self;
 
     fn determinant(m: &Matrix) -> f64;
 
-    fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix;
+    fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Self;
     fn minor(m: &Matrix, row: usize, col: usize) -> f64;
     fn cofactor(m: &Matrix, row: usize, col: usize) -> f64;
     fn invert(m: &Matrix) -> Option<Matrix>;
 
-    fn translation(tx: f64, ty: f64, tz: f64) -> Matrix;
-    fn scale(sx: f64, sy: f64, sz: f64) -> Matrix;
-    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix;
-    fn rotate_x(rad: f64) -> Matrix;
-    fn rotate_y(rad: f64) -> Matrix;
-    fn rotate_z(rad: f64) -> Matrix;
+    fn translation(tx: f64, ty: f64, tz: f64) -> Self;
+    fn scale(sx: f64, sy: f64, sz: f64) -> Self;
+    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self;
+    fn rotate_x(rad: f64) -> Self;
+    fn rotate_y(rad: f64) -> Self;
+    fn rotate_z(rad: f64) -> Self;
 
-    fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix;
+    fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Self;
 }
 
 impl MatrixOps for Matrix {
-    fn new(row: usize, col: usize) -> Matrix {
-        let m = Matrix {
+    fn new(row: usize, col: usize) -> Self {
+        Matrix {
             rows: row,
             cols: col,
             m: vec![vec![0.0; row]; col],
-        };
-        m
+        }
     }
 
-    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Matrix {
+    fn new_matrix_2x2(a1: f64, b1: f64, a2: f64, b2: f64) -> Self {
         let mut m = Matrix {
             rows: 2,
             cols: 2,
@@ -82,7 +81,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Matrix {
+    fn new_matrix_3x3(a1: f64, b1: f64, c1: f64, a2: f64, b2: f64, c2: f64, a3: f64, b3: f64, c3: f64) -> Self {
         let mut m = Matrix {
             rows: 3,
             cols: 3,
@@ -119,7 +118,7 @@ impl MatrixOps for Matrix {
         b4: f64,
         c4: f64,
         d4: f64,
-    ) -> Matrix {
+    ) -> Self {
         let mut m = Matrix {
             rows: 4,
             cols: 4,
@@ -146,7 +145,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn new_identity_4x4() -> Matrix {
+    fn new_identity_4x4() -> Self {
         let mut m = Matrix {
             rows: 4,
             cols: 4,
@@ -161,7 +160,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn transpose(m: &Matrix) -> Matrix {
+    fn transpose(m: &Matrix) -> Self {
         let mut transpose = Matrix {
             rows: m.rows,
             cols: m.cols,
@@ -189,12 +188,12 @@ impl MatrixOps for Matrix {
         }
         let mut det = 0.0;
         for col in 0..m.cols {
-            det += m.m[0][col] * Self::cofactor(&m, 0, col);
+            det += m.m[0][col] * Self::cofactor(m, 0, col);
         }
         det
     }
 
-    fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Matrix {
+    fn sub_matrix(m: &Matrix, row: usize, col: usize) -> Self {
         let mut sub_matrix = Matrix {
             rows: m.rows - 1,
             cols: m.cols - 1,
@@ -236,7 +235,7 @@ impl MatrixOps for Matrix {
 
     fn cofactor(m: &Matrix, row: usize, col: usize) -> f64 {
         let minor = Self::minor(m, row, col);
-        if (row + col) % 2 != 0 && minor != 0.0 {
+        if ((row + col) % 2 != 0) & (minor != 0.0) {
             return -minor;
         }
         minor
@@ -248,21 +247,21 @@ impl MatrixOps for Matrix {
             cols: m.cols,
             m: vec![vec![0.0; m.rows]; m.cols],
         };
-        if assert_two_float(Self::determinant(&m), 0.0) {
+        if assert_two_float(Self::determinant(m), 0.0) {
             return None;
         }
 
-        let det = Self::determinant(&m);
+        let det = Self::determinant(m);
         for row in 0..m.rows {
             for col in 0..m.cols {
-                let c = Self::cofactor(&m, row, col);
+                let c = Self::cofactor(m, row, col);
                 inv.m[col][row] = c / det;
             }
         }
         Some(inv)
     }
 
-    fn translation(tx: f64, ty: f64, tz: f64) -> Matrix {
+    fn translation(tx: f64, ty: f64, tz: f64) -> Self {
         let mut m = Self::new_identity_4x4();
         m.m[0][3] = tx;
         m.m[1][3] = ty;
@@ -271,7 +270,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn scale(sx: f64, sy: f64, sz: f64) -> Matrix {
+    fn scale(sx: f64, sy: f64, sz: f64) -> Self {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = sx;
         m.m[1][1] = sy;
@@ -280,7 +279,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {
+    fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         let mut m = Self::new_identity_4x4();
         m.m[0][1] = xy;
         m.m[0][2] = xz;
@@ -291,7 +290,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_x(rad: f64) -> Matrix {
+    fn rotate_x(rad: f64) -> Self {
         let mut m = Self::new_identity_4x4();
         m.m[1][1] = rad.cos();
         m.m[1][2] = -rad.sin();
@@ -301,7 +300,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_y(rad: f64) -> Matrix {
+    fn rotate_y(rad: f64) -> Self {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = rad.cos();
         m.m[0][2] = rad.sin();
@@ -311,7 +310,7 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn rotate_z(rad: f64) -> Matrix {
+    fn rotate_z(rad: f64) -> Self {
         let mut m = Self::new_identity_4x4();
         m.m[0][0] = rad.cos();
         m.m[0][1] = -rad.sin();
@@ -321,14 +320,14 @@ impl MatrixOps for Matrix {
         m
     }
 
-    fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Matrix {
+    fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Self {
         assert!(Tuple4D::is_point(from));
         assert!(Tuple4D::is_point(to));
         assert!(Tuple4D::is_vector(up));
 
         let forward = Tuple4D::normalize(&(to - from));
-        let left = &forward * &Tuple4D::normalize(up);
-        let true_up = &left * &forward;
+        let left = forward * Tuple4D::normalize(up);
+        let true_up = left * forward;
 
         #[rustfmt::skip]
         let orientation = Matrix::new_matrix_4x4(
@@ -343,8 +342,8 @@ impl MatrixOps for Matrix {
 
 impl PartialEq for Matrix {
     fn eq(&self, other: &Matrix) -> bool {
-        assert!(self.rows == other.rows);
-        assert!(self.cols == other.cols);
+        assert_eq!(self.rows, other.rows);
+        assert_eq!(self.cols, other.cols);
 
         // TODO: row col and widht height correct?
         for row in 0..self.cols {
@@ -361,7 +360,7 @@ impl PartialEq for Matrix {
 impl Mul for Matrix {
     type Output = Matrix;
 
-    fn mul(self, rhs: Matrix) -> Matrix {
+    fn mul(self, rhs: Matrix) -> Self {
         // TODO: thats not a generic check for matrices which are non-quadratic
         assert!(self.rows == rhs.rows);
         let mut m = Matrix::new(self.rows, self.cols);

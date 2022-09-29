@@ -34,7 +34,7 @@ impl CubeTexturePattern {
             CubeFace::FRONT => cube_uv_front(p),
             CubeFace::BACK => cube_uv_back(p),
         };
-        uv_align_check_pattern_at(&cube_map.get(&face).unwrap(), u, v).clone()
+        *uv_align_check_pattern_at(cube_map.get(&face).unwrap(), u, v)
     }
 
     pub fn color_at_object(pattern: &CubeTexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {

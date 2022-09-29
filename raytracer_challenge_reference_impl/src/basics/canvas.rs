@@ -11,7 +11,7 @@ pub struct Canvas {
 }
 
 pub trait CanvasOps {
-    fn new(width: usize, height: usize) -> Canvas;
+    fn new(width: usize, height: usize) -> Self;
     fn empty() -> Canvas;
     fn write_pixel(&mut self, x: usize, y: usize, c: Color);
     fn pixel_at(&self, x: usize, y: usize) -> &Pixel;
@@ -29,7 +29,7 @@ pub trait CanvasOps {
 }
 
 impl CanvasOps for Canvas {
-    fn new(width: usize, height: usize) -> Canvas {
+    fn new(width: usize, height: usize) -> Self {
         let mut c = Canvas {
             width,
             height,

@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cylinder {
@@ -36,17 +37,17 @@ impl<'a> ShapeOps<'a> for Cylinder {
 
     fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
         let dist = local_point.x.powi(2) + local_point.z.powi(2);
-        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
+        if (dist < 1.0) & (local_point.y >= self.get_maximum() - EPSILON) {
             return Tuple4D::new_vector(0.0, 1.0, 0.0);
-        } else if dist < 1.0 && local_point.y <= self.get_minimum() + EPSILON {
+        } else if (dist < 1.0) & (local_point.y <= self.get_minimum() + EPSILON) {
             return Tuple4D::new_vector(0.0, -1.0, 0.0);
         }
         Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
 
         //        let dist = intri_powi(local_point.x, 2) + intri_powi(local_point.z, 2);
-        //        if dist < 1.0 && local_point.y >= self.get_maximum() - EPSILON {
+        //        if dist < 1.0 & local_point.y >= self.get_maximum() - EPSILON {
         //            return Tuple4D::new_vector(0.0, 1.0, 0.0);
-        //        } else if dist < 1.0 && local_point.y <= self.get_minimum() + EPSILON {
+        //        } else if dist < 1.0 & local_point.y <= self.get_minimum() + EPSILON {
         //            return Tuple4D::new_vector(0.0, -1.0, 0.0);
         //        }
         //        Tuple4D::new_vector(local_point.x, 0.0, local_point.z)
@@ -80,7 +81,7 @@ impl<'a> ShapeOps<'a> for Cylinder {
 impl<'a> ShapeIntersectOps<'a> for Cylinder {
     fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let cylinder = match shape.get_shape() {
-            ShapeEnum::Cylinder(cylinder) => Some(cylinder),
+            ShapeEnum::CylinderEnum(cylinder) => Some(cylinder),
             _ => None,
         };
         if cylinder.is_none() {
@@ -90,7 +91,13 @@ impl<'a> ShapeIntersectOps<'a> for Cylinder {
         let mut ts = Vec::new();
 
         let a = r.get_direction().x.powi(2) + r.get_direction().z.powi(2);
-        if !(a.abs() < EPSILON_OVER_UNDER) {
+
+        let not_less_or_equal = match a.partial_cmp(&EPSILON_OVER_UNDER) {
+            None | Some(Ordering::Greater) => true,
+            _ => false,
+        };
+
+        if not_less_or_equal {
             let b = 2.0 * r.get_origin().x * r.get_direction().x + 2.0 * r.get_origin().z * r.get_direction().z;
             let c = r.get_origin().x.powi(2) + r.get_origin().z.powi(2) - 1.0;
 
@@ -107,16 +114,16 @@ impl<'a> ShapeIntersectOps<'a> for Cylinder {
                 t1 = tmp;
             }
             let y0 = r.get_origin().y + t0 * r.get_direction().y;
-            if cylinder.get_minimum() < y0 && y0 < cylinder.get_maximum() {
+            if (cylinder.get_minimum() < y0) & (y0 < cylinder.get_maximum()) {
                 ts.push(t0);
             }
 
             let y1 = r.get_origin().y + t1 * r.get_direction().y;
-            if cylinder.get_minimum() < y1 && y1 < cylinder.get_maximum() {
+            if ((cylinder.get_minimum()) < y1) & (y1 < cylinder.get_maximum()) {
                 ts.push(t1);
             }
         }
-        Self::intersect_caps(&cylinder, &r, &mut ts);
+        Self::intersect_caps(cylinder, &r, &mut ts);
         let mut intersection_list = IntersectionList::new();
         ts.into_iter()
             .for_each(|t| intersection_list.add(Intersection::new(t, shape)));
@@ -179,6 +186,18 @@ impl Cylinder {
             xs.push(t);
         }
     }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of cylinder");
+        let min = Tuple4D::new_point(-1.0, self.minimum, -1.0);
+        let max = Tuple4D::new_point(1.0, self.maximum, 1.0);
+        BoundingBox::new_from_min_max(min, max)
+    }
+}
+
+impl Default for Cylinder {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -193,7 +212,7 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Cylinder(Cylinder::new()));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(Cylinder::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -224,7 +243,7 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::Cylinder(Cylinder::new()));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(Cylinder::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -268,7 +287,7 @@ mod tests {
 
     // page 181
     fn test_ray_cylinder_normal_at_helper(point: Tuple4D, n_expected: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
 
         let shapes = vec![];
@@ -331,7 +350,7 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::Cylinder(cyl));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(cyl));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -390,7 +409,7 @@ mod tests {
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::Cylinder(cyl));
+        let shape = Shape::new(ShapeEnum::CylinderEnum(cyl));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -432,7 +451,7 @@ mod tests {
 
     // page 186
     fn test_ray_cylinder_capped_normal_at_helper(point: Tuple4D, normal: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut cyl = Cylinder::new();

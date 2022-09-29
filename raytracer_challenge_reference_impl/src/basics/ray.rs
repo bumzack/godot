@@ -9,7 +9,7 @@ pub struct Ray {
 }
 
 pub trait RayOps {
-    fn new(origin: Tuple4D, direction: Tuple4D) -> Ray;
+    fn new(origin: Tuple4D, direction: Tuple4D) -> Self;
     fn position(r: &Ray, t: f64) -> Tuple4D;
     fn transform(r: &Ray, m: &Matrix) -> Ray;
 
@@ -18,14 +18,14 @@ pub trait RayOps {
 }
 
 impl RayOps for Ray {
-    fn new(origin: Tuple4D, direction: Tuple4D) -> Ray {
+    fn new(origin: Tuple4D, direction: Tuple4D) -> Self {
         assert!(Tuple4D::is_point(&origin));
         assert!(Tuple4D::is_vector(&direction));
         Ray { origin, direction }
     }
 
     fn position(r: &Ray, t: f64) -> Tuple4D {
-        &r.origin + &(&r.direction * t)
+        r.origin + (r.direction * t)
     }
 
     fn transform(r: &Ray, m: &Matrix) -> Ray {

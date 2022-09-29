@@ -14,7 +14,7 @@ pub struct StripePattern {
 }
 
 impl StripePattern {
-    pub fn new() -> StripePattern {
+    pub fn new() -> Self {
         StripePattern {
             color_a: WHITE,
             color_b: BLACK,
@@ -42,9 +42,9 @@ impl StripePattern {
     pub fn stripe_at(pattern: &StripePattern, point: &Tuple4D) -> Color {
         // TODO: we copy here colors all the way -> may be there is a chance to returen references?
         if point.x.floor() as i32 % 2 == 0 {
-            Color::from_color(&pattern.get_color_a())
+            Color::from_color(pattern.get_color_a())
         } else {
-            Color::from_color(&pattern.get_color_b())
+            Color::from_color(pattern.get_color_b())
         }
     }
 
@@ -66,6 +66,12 @@ impl StripePattern {
 
     pub fn get_inverse_transformation(&self) -> &Matrix {
         &self.inverse_transformation_matrix
+    }
+}
+
+impl Default for StripePattern {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -159,7 +165,7 @@ mod tests {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut s = Sphere::new();
         s.set_transformation(transformation);
-        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s));
 
         let pattern = StripePattern::new();
 
@@ -172,7 +178,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern_transformation2() {
         let s = Sphere::new();
-        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s));
 
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut pattern = StripePattern::new();
@@ -189,7 +195,7 @@ mod tests {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut s = Sphere::new();
         s.set_transformation(transformation);
-        let shape = Shape::new(ShapeEnum::Sphere(s));
+        let shape = Shape::new(ShapeEnum::SphereEnum(s));
 
         let transformation_pattern = Matrix::translation(0.5, 0.0, 0.0);
         let mut pattern = StripePattern::new();

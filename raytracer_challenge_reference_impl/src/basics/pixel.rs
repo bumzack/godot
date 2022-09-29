@@ -16,3 +16,9 @@ impl Pixel {
         }
     }
 }
+
+impl Default for Pixel {
+    fn default() -> Self {
+        Self::new()
+    }
+}

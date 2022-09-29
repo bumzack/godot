@@ -1,3 +1,6 @@
+// every line of code in this file is just ugly
+// feels like it should with a 1/3 of loc
+
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io;
@@ -16,7 +19,7 @@ pub struct Parser {
     named_groups: BTreeMap<String, Vec<Shape>>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Eq, Debug, PartialEq)]
 pub struct FaceIndices {
     vertex_index: Option<usize>,
     texture_index: Option<usize>,
@@ -83,11 +86,11 @@ impl Parser {
 }
 
 pub trait ObjFileOps {
-    fn parse_obj_file<'a>(filename: &'a str) -> Parser;
+    fn parse_obj_file(filename: &str) -> Parser;
 }
 
 impl ObjFileOps for Parser {
-    fn parse_obj_file<'a>(filename: &'a str) -> Parser {
+    fn parse_obj_file(filename: &str) -> Parser {
         let mut vertices = Vec::new();
         let mut normals = Vec::new();
         let mut triangles = Vec::new();
@@ -138,16 +141,13 @@ impl ObjFileOps for Parser {
                                     // for i in &params {
                                     //     println!("param {}", i);
                                     // }
-                                    let has_vertex_normals = match params[0].find("/") {
-                                        Some(_) => true,
-                                        None => false,
-                                    };
+                                    let has_vertex_normals = params[0].find('/').is_some();
 
                                     let indices = params
                                         .into_iter()
                                         .map(|p| {
                                             if has_vertex_normals {
-                                                let mut indices = p.split("/");
+                                                let mut indices = p.split('/');
                                                 let vert_i =
                                                     Some(str::parse::<usize>(indices.next().unwrap()).unwrap());
                                                 let _vert_t = indices.next(); // omit, unused
@@ -211,8 +211,8 @@ impl ObjFileOps for Parser {
 
 fn fan_triangulation(
     indices: &Vec<FaceIndices>,
-    vertices: &Vec<Tuple4D>,
-    normals: &Vec<Tuple4D>,
+    vertices: &[Tuple4D],
+    normals: &[Tuple4D],
     triangles: &mut Vec<Shape>,
 ) {
     // for v in vertices {
@@ -236,19 +236,19 @@ fn fan_triangulation(
                 let n2 = normals.get(face_idx2.normal_index.unwrap() - 1).unwrap();
                 let n3 = normals.get(face_idx3.normal_index.unwrap() - 1).unwrap();
 
-                let t = SmoothTriangle::new(p1.clone(), p2.clone(), p3.clone(), n1.clone(), n2.clone(), n3.clone());
-                Shape::new_part_of_group(ShapeEnum::SmoothTriangle(t), "bla".to_string())
+                let t = SmoothTriangle::new(*p1, *p2, *p3, *n1, *n2, *n3);
+                Shape::new_part_of_group(ShapeEnum::SmoothTriangleEnum(t), "bla".to_string())
             }
             None => {
                 let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
                 let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
                 let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
-                let t = Triangle::new(p1.clone(), p2.clone(), p3.clone());
-                Shape::new_part_of_group(ShapeEnum::Triangle(t), "bla".to_string())
+                let t = Triangle::new(*p1, *p2, *p3);
+                Shape::new_part_of_group(ShapeEnum::TriangleEnum(t), "bla".to_string())
             }
         };
 
-        println!("triangle from 3 indices {:?}", &t);
+        // println!("triangle from 3 indices {:?}", &t);
         triangles.push(t);
     } else {
         for i in 2..indices.len() {
@@ -266,15 +266,15 @@ fn fan_triangulation(
                     let n2 = normals.get(face_idx2.normal_index.unwrap() - 1).unwrap();
                     let n3 = normals.get(face_idx3.normal_index.unwrap() - 1).unwrap();
 
-                    let t = SmoothTriangle::new(p1.clone(), p2.clone(), p3.clone(), n1.clone(), n2.clone(), n3.clone());
-                    Shape::new_part_of_group(ShapeEnum::SmoothTriangle(t), "bla".to_string())
+                    let t = SmoothTriangle::new(*p1, *p2, *p3, *n1, *n2, *n3);
+                    Shape::new_part_of_group(ShapeEnum::SmoothTriangleEnum(t), "bla".to_string())
                 }
                 None => {
                     let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
                     let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
                     let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
-                    let t = Triangle::new(p1.clone(), p2.clone(), p3.clone());
-                    Shape::new_part_of_group(ShapeEnum::Triangle(t), "bla".to_string())
+                    let t = Triangle::new(*p1, *p2, *p3);
+                    Shape::new_part_of_group(ShapeEnum::TriangleEnum(t), "bla".to_string())
                 }
             };
             triangles.push(t);
@@ -352,11 +352,11 @@ mod tests {
         let t2 = parser.get_triangles().get(1).unwrap();
 
         let t1 = match t1.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let t2 = match t2.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -383,11 +383,11 @@ mod tests {
         let triangle2 = shapes.get(*triangle2 as usize).unwrap();
 
         let triangle1 = match triangle1.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle2 = match triangle2.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -425,15 +425,15 @@ mod tests {
         let t3 = parser.get_triangles().get(2).unwrap();
 
         let t1 = match t1.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let t2 = match t2.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let t3 = match t3.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -466,15 +466,15 @@ mod tests {
         let triangle3 = shapes.get(*triangle3 as usize).unwrap();
 
         let triangle1 = match triangle1.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle2 = match triangle2.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle3 = match triangle3.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -533,11 +533,11 @@ mod tests {
         let triangle2 = shapes.get(*triangle2 as usize).unwrap();
 
         let triangle1 = match triangle1.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle2 = match triangle2.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -596,15 +596,15 @@ mod tests {
         let triangle2 = shapes.get(*triangle2 as usize).unwrap();
 
         let triangle1 = match triangle1.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle1a = match triangle1a.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle2 = match triangle2.get_shape() {
-            ShapeEnum::Triangle(t) => t,
+            ShapeEnum::TriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -675,11 +675,11 @@ mod tests {
         let triangle2 = shapes.get(*triangle2 as usize).unwrap();
 
         let triangle1 = match triangle1.get_shape() {
-            ShapeEnum::SmoothTriangle(t) => t,
+            ShapeEnum::SmoothTriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
         let triangle2 = match triangle2.get_shape() {
-            ShapeEnum::SmoothTriangle(t) => t,
+            ShapeEnum::SmoothTriangleEnum(t) => t,
             _ => panic!("unexpected shape"),
         };
 
@@ -769,11 +769,11 @@ mod tests {
     //     // let triangle2 = shapes.get(*triangle2 as usize).unwrap();
     //     //
     //     // let triangle1 = match triangle1.get_shape() {
-    //     //     ShapeEnum::SmoothTriangle(t) => t,
+    //     //     ShapeEnum::SmoothTriangleEnum(t) => t,
     //     //     _ => panic!("unexpected shape"),
     //     // };
     //     // let triangle2 = match triangle2.get_shape() {
-    //     //     ShapeEnum::SmoothTriangle(t) => t,
+    //     //     ShapeEnum::SmoothTriangleEnum(t) => t,
     //     //     _ => panic!("unexpected shape"),
     //     // };
     //     //

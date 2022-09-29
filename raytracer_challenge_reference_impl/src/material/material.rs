@@ -22,7 +22,7 @@ pub struct Material {
 }
 
 pub trait MaterialOps {
-    fn new() -> Material;
+    fn new() -> Self;
 
     fn lightning(
         material: &Material,
@@ -85,17 +85,15 @@ impl MaterialOps for Material {
         n: &Tuple4D,
         intensity: f64,
     ) -> Color {
-        let c: Color;
-
         // TODO: a lot of color copying here ...
-        match material.get_pattern() {
-            None => c = &material.color * light.get_intensity(),
-            Some(pattern) => c = pattern.color_at_object(object, point),
-        }
+        let c = match material.get_pattern() {
+            None => &material.color * light.get_intensity(),
+            Some(pattern) => pattern.color_at_object(object, point),
+        };
 
         // ambient
         let effective_color = &c * light.get_intensity();
-        let ambient = &effective_color * material.ambient;
+        let ambient = effective_color * material.ambient;
 
         let mut sum = BLACK;
 
@@ -114,15 +112,15 @@ impl MaterialOps for Material {
             let mut diffuse;
 
             let light_v = Tuple4D::normalize(&(sample - point));
-            let light_dot_normal = &light_v ^ &n;
+            let light_dot_normal = &light_v ^ n;
 
             if light_dot_normal < 0.0 || intensity == 0.0 {
                 specular = BLACK;
                 diffuse = BLACK;
             } else {
-                diffuse = &effective_color * material.diffuse * light_dot_normal;
+                diffuse = effective_color * material.diffuse * light_dot_normal;
                 diffuse.fix_nan();
-                let reflect_v = Tuple4D::reflect(&light_v, &n) * (-1.0);
+                let reflect_v = Tuple4D::reflect(&light_v, n) * (-1.0);
                 let reflect_dot_eye = &reflect_v ^ eye;
 
                 specular = BLACK;
@@ -166,8 +164,8 @@ impl MaterialOps for Material {
                     }
                 }
             }
-            sum = &sum + &diffuse;
-            sum = &sum + &specular;
+            sum = sum + diffuse;
+            sum = sum + specular;
         }
         assert_valid_color(&ambient);
 
@@ -285,7 +283,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_between_light_and_surface() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -303,7 +301,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_offset_45() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -321,7 +319,7 @@ mod tests {
     #[test]
     fn test_material_lightning_light_opposite_eye() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -342,7 +340,7 @@ mod tests {
     #[test]
     fn test_material_lightning_eye_in_path_of_reflecting_vector() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -363,7 +361,7 @@ mod tests {
     #[test]
     fn test_material_lightning_light_behind_surface() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (m, p) = setup();
 
@@ -380,7 +378,7 @@ mod tests {
     #[test]
     fn test_material_lightning_with_surface_in_shadow() {
         let s = Sphere::new();
-        let object = Shape::new(ShapeEnum::Sphere(s));
+        let object = Shape::new(ShapeEnum::SphereEnum(s));
 
         let (material, point) = setup();
 
@@ -403,7 +401,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern() {
         let s = Sphere::new();
-        let dummy_obj = Shape::new(ShapeEnum::Sphere(s));
+        let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
         let stripe_pattern = StripePattern::new();
         let pattern = Pattern::StripePattern(stripe_pattern);
 
@@ -434,7 +432,7 @@ mod tests {
     fn test_material_precomputing_reflection_vector() {
         let shapes = vec![];
         let p = Plane::new();
-        let shape = Shape::new(ShapeEnum::Plane(p));
+        let shape = Shape::new(ShapeEnum::PlaneEnum(p));
 
         let p = Tuple4D::new_point(0.0, 1.0, -1.0);
         let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
@@ -498,7 +496,7 @@ mod tests {
         sphere.get_material_mut().set_diffuse(0.9);
         sphere.get_material_mut().set_specular(0.0);
         sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
-        let sphere = Shape::new(ShapeEnum::Sphere(sphere));
+        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         let eye = Tuple4D::new_point(0.0, 0.0, -5.0);
         let eye_vec = Tuple4D::normalize(&(&eye - &point));

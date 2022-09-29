@@ -86,17 +86,31 @@ impl Plane {
             material: Material::new(),
         }
     }
+
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of plane");
+        let min = Tuple4D::new_point(-f64::INFINITY, 0.0, -f64::INFINITY);
+        let max = Tuple4D::new_point(f64::INFINITY, 0.0, f64::INFINITY);
+        BoundingBox::new_from_min_max(min, max)
+    }
+}
+
+impl Default for Plane {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+
     use crate::basics::intersection::{IntersectionListOps, IntersectionOps};
     use crate::basics::ray::RayOps;
     use crate::math::common::assert_float;
     use crate::math::common::assert_matrix;
     use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::Sphere;
-    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     use super::*;
 
@@ -104,7 +118,7 @@ mod tests {
     // Intersect with a ray parallel to the plane
     #[test]
     fn test_ray_plane_intersection_parallel() {
-        let p = Shape::new(ShapeEnum::Plane(Plane::new()));
+        let p = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
         let o = Tuple4D::new_point(0.0, 10.0, 0.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
@@ -120,7 +134,7 @@ mod tests {
     #[test]
     fn test_ray_plane_intersection_above_and_below() {
         // above
-        let p = Shape::new(ShapeEnum::Plane(Plane::new()));
+        let p = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
         let o = Tuple4D::new_point(0.0, 1.0, 0.0);
         let d = Tuple4D::new_vector(0.0, -1.0, 0.0);
         let r = Ray::new(o, d);
@@ -145,7 +159,7 @@ mod tests {
 
     #[test]
     fn test_ray_sphere_intersection_no_hits() {
-        let p = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let p = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let o = Tuple4D::new_point(0.0, 2.0, -5.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
@@ -158,7 +172,7 @@ mod tests {
 
     #[test]
     fn test_ray_sphere_intersection_origin_inside_sphere() {
-        let p = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let p = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let o = Tuple4D::new_point(0.0, 0.0, 0.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
@@ -174,7 +188,7 @@ mod tests {
 
     #[test]
     fn test_ray_sphere_intersection_sphere_behind_origin() {
-        let p = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let p = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let o = Tuple4D::new_point(0.0, 0.0, 5.0);
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
@@ -210,7 +224,7 @@ mod tests {
         let m = Matrix::scale(2.0, 2.0, 2.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
+        let sphere_shape = Shape::new(ShapeEnum::SphereEnum(s));
         let shapes = vec![];
         let is = Shape::intersects(&sphere_shape, r, &shapes);
 
@@ -235,7 +249,7 @@ mod tests {
         let m = Matrix::translation(5.0, 0.0, 0.0);
         s.set_transformation(m);
 
-        let sphere_shape = Shape::new(ShapeEnum::Sphere(s));
+        let sphere_shape = Shape::new(ShapeEnum::SphereEnum(s));
 
         let shapes = vec![];
         let is = Shape::intersects(&sphere_shape, r, &shapes);
@@ -247,11 +261,11 @@ mod tests {
     // page 122
     #[test]
     fn test_sphere_normal_at() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
 
-        let shape = Shape::new(ShapeEnum::Plane(Plane::new()));
+        let shape = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
         let n_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
 
         let point = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -269,10 +283,10 @@ mod tests {
 
     #[test]
     fn test_sphere_normal_at_transformed() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
-        let mut shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         shape.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
 
         let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
@@ -287,7 +301,7 @@ mod tests {
 
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
         let shapes = vec![];
         let mut s = Sphere::new();

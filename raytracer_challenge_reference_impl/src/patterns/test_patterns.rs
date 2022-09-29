@@ -14,7 +14,7 @@ pub struct TestPattern {
 }
 
 impl TestPattern {
-    pub fn new() -> TestPattern {
+    pub fn new() -> Self {
         TestPattern {
             color_a: WHITE,
             color_b: BLACK,
@@ -42,9 +42,9 @@ impl TestPattern {
     pub fn stripe_at(pattern: &TestPattern, point: &Tuple4D) -> Color {
         // TODO: we copy here colors all the way -> may be there is a chance to returen references?
         if point.x.floor() as i32 % 2 == 0 {
-            Color::from_color(&pattern.get_color_a())
+            Color::from_color(pattern.get_color_a())
         } else {
-            Color::from_color(&pattern.get_color_b())
+            Color::from_color(pattern.get_color_b())
         }
     }
 
@@ -69,16 +69,22 @@ impl TestPattern {
     }
 }
 
+impl Default for TestPattern {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::math::common::{assert_color, assert_matrix};
     use crate::math::tuple4d::Tuple;
     use crate::patterns::patterns::Pattern;
+    use crate::prelude::ShapeOps;
     use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;
 
     use super::*;
-    use crate::prelude::ShapeOps;
 
     // page 133
     #[test]
@@ -107,7 +113,7 @@ mod tests {
         let mut shape = Sphere::new();
         let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
         shape.set_transformation(matrix_scale);
-        let shape = Shape::new(ShapeEnum::Sphere(shape));
+        let shape = Shape::new(ShapeEnum::SphereEnum(shape));
 
         let p = TestPattern::new();
 
@@ -124,7 +130,7 @@ mod tests {
     #[test]
     fn test_pattern_pattern_transformation() {
         let shape = Sphere::new();
-        let shape = Shape::new(ShapeEnum::Sphere(shape));
+        let shape = Shape::new(ShapeEnum::SphereEnum(shape));
 
         let mut p = TestPattern::new();
         let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
@@ -144,7 +150,7 @@ mod tests {
         let mut shape = Sphere::new();
         let matrix_scale = Matrix::scale(2.0, 2.0, 2.0);
         shape.set_transformation(matrix_scale);
-        let shape = Shape::new(ShapeEnum::Sphere(shape));
+        let shape = Shape::new(ShapeEnum::SphereEnum(shape));
 
         let mut p = TestPattern::new();
         let matrix_translate = Matrix::translation(0.5, 1.0, 1.5);

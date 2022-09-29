@@ -91,11 +91,11 @@ impl<'a> ShapeIntersectOps<'a> for Cube {
         }
         let mut res = vec![0.0; 2];
 
-        if tmin == f64::NAN {
+        if tmin.is_nan() {
             println!("CUBE: here we have a NAN tmin is {}", tmin);
         }
 
-        if tmax == f64::NAN {
+        if tmax.is_nan() {
             println!("CUBE:  here we have a NAN tmax is {}", tmax);
         }
 
@@ -118,7 +118,7 @@ impl Cube {
         }
     }
 
-    fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
+    pub fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
         let tmin_numerator = -1.0 - origin;
         let tmax_numerator = 1.0 - origin;
 
@@ -164,6 +164,18 @@ impl Cube {
         }
         CubeFace::BACK
     }
+    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+        println!("get_bounds_of cube");
+        let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
+        let max = Tuple4D::new_point(1.0, 1.0, 1.0);
+        BoundingBox::new_from_min_max(min, max)
+    }
+}
+
+impl Default for Cube {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -178,7 +190,7 @@ mod tests {
     fn test_ray_cube_intersection_helper(origin: Tuple4D, direction: Tuple4D, t1: f64, t2: f64) {
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Cube(Cube::new()));
+        let shape = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -236,7 +248,7 @@ mod tests {
     fn test_ray_cube_miss_helper(origin: Tuple4D, direction: Tuple4D) {
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::Cube(Cube::new()));
+        let shape = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -278,7 +290,7 @@ mod tests {
 
     // page 173 helper
     fn test_cube_normal_helper(point: Tuple4D, n_expected: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::Sphere(Sphere::new()));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
 
         let shapes = vec![];

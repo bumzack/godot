@@ -123,7 +123,7 @@ fn setup_world(
     let area_light = Light::AreaLight(area_light);
 
     let mut w = World::new();
-      w.add_light(area_light);
+    w.add_light(area_light);
     //   w.add_light(    l);
 
     w.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
@@ -146,11 +146,9 @@ fn setup_world(
     let idx = teapot_group.get(0).unwrap();
     let mut teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
 
-   let trans = &Matrix::translation( 1.5, 1.0, 0.9) * &Matrix::rotate_y(-PI / 2.0);
+    let trans = &Matrix::translation(1.5, 1.0, 0.9) * &Matrix::rotate_y(-PI / 2.0);
 
-
-
-     teapot.set_transformation(trans);
+    teapot.set_transformation(trans);
 
     println!("teapot_group index {}", teapot_group.get(0).unwrap());
 

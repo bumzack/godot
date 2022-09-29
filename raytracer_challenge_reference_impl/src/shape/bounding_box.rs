@@ -1,6 +1,6 @@
-use crate::basics::{Ray, RayOps};
 use std::fmt;
 
+use crate::basics::{Ray, RayOps};
 use crate::math::{max_float, min_float, Matrix, Tuple, Tuple4D, EPSILON};
 
 #[derive(Clone, PartialEq)]
@@ -131,6 +131,13 @@ impl BoundingBox {
 
     pub fn get_max(&self) -> &Tuple4D {
         &self.max
+    }
+
+    pub fn overlaps(&self, bb: &BoundingBox) -> bool {
+        let x = (self.max.x >= bb.min.x) && (self.min.x <= bb.max.x);
+        let y = (self.max.y >= bb.min.y) && (self.min.y <= bb.max.y);
+        let z = (self.max.z >= bb.min.z) && (self.min.z <= bb.max.z);
+        x & y & z
     }
 }
 
