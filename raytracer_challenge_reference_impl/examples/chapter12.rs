@@ -10,8 +10,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &world);
     let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter12.png")?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!("./chapter12_{}x{}_{}.png", camera.get_hsize(), camera.get_vsize(), aa);
+    println!("filename {}", filename);
+    canvas.write_png(filename)?;
 
     Ok(())
 }

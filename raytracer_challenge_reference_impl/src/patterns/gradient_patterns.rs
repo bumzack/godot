@@ -1,5 +1,5 @@
 use crate::basics::color::{Color, BLACK, WHITE};
- use crate::math::tuple4d::Tuple4D;
+use crate::math::tuple4d::Tuple4D;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GradientPattern {

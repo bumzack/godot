@@ -15,10 +15,10 @@ impl<'a> ShapeIntersectOps<'a> for Group {
         // let bb = shape.get_bounds_of(shapes);
         // if !bb.intersects(&r) {
         if !shape.get_bounding_box().intersects(&r) {
-            println!("group boundbox has NO hit");
+            // println!("group boundbox has NO hit");
             return IntersectionList::new();
         }
-        println!("group boundbox has A hit");
+        // println!("group boundbox has A hit");
         let mut intersection_list = IntersectionList::new();
         let root_idx = match shape.get_shape() {
             ShapeEnum::GroupEnum(g) => Some(g.shape_idx),

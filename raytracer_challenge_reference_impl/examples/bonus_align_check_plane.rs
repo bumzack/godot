@@ -9,12 +9,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 400;
     let height = 400;
 
-    let (w, c) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height);
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core(&camera, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("./align_checker_plane_bonus.png")?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!(
+        "./bonus_align_checker_plane_{}x{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+    println!("filename {}", filename);
+    canvas.write_png(filename)?;
     println!("file exported");
     Ok(())
 }

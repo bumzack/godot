@@ -6,7 +6,7 @@ use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 1200;
-    let height = 7200;
+    let height = 720;
 
     let pov = 0.45;
     let antialiasing = true;
@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasing_size: usize) -> (World, Camera) {
     let mut checker_pattern = Checker3DPattern::new();
     checker_pattern.set_color_a(Color::new(0.15, 0.15, 0.15));
-    checker_pattern.set_color_a(Color::new(0.85, 0.85, 0.85));
+    checker_pattern.set_color_b(Color::new(0.85, 0.85, 0.85));
 
     let mut wall_material = Material::new();
     wall_material.set_pattern(Pattern::new(PatternEnum::Checker3DPatternEnum(checker_pattern)));
@@ -54,7 +54,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
 
     // wall
     let mut wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
-    wall.set_transformation(Matrix::rotate_y(0.13145));
+    wall.set_transformation(wall_trans);
     wall.set_material(wall_material);
 
     // bg glass_ball

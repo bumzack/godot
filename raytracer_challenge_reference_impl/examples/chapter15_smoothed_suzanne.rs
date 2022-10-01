@@ -8,6 +8,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 3840;
     let height = 2160;
 
+    let width = 1280;
+    let height = 720;
+
     let pov = 0.8;
     let antialiasing = true;
     let antialiasing_size = 3;

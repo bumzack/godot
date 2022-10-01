@@ -10,13 +10,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 800;
     let height = 400;
 
-    let (w, c) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height);
 
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core(&camera, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("./image_texture_bonus.png")?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!(
+        "./image_texture_bonus_{}x{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+    println!("filename {}", filename);
+    canvas.write_png(filename)?;
     println!("file exported");
     Ok(())
 }
@@ -42,11 +53,12 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let pl = PointLight::new(Tuple4D::new_point(-100.0, 100.0, -100.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
-    let image =
-        Canvas::read_png("/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/examples/earthmap1k.jpg")
-            .expect("loading image linear_gradient.png");
+    let image = Canvas::read_png(
+        "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/Earthmap1000x500.jpg",
+    )
+    .expect("loading image linear_gradient.png");
     let pattern = ImageTexturePattern::new(image);
-    let pattern = Pattern::new(PatternEnum::ImageTexturePatternEnum(pattern));
+    let pattern = Pattern::new(ImageTexturePatternEnum(pattern));
     s.get_material_mut().set_pattern(pattern);
 
     let mut w = World::new();

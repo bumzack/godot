@@ -89,10 +89,10 @@ fn get_color(idx: usize) -> Color {
 fn hexagon<'a>(shapes: &mut ShapeArr) -> ShapeIdx {
     let hexagon = Group::new(shapes, "hexagon".to_string());
 
-    for i in 4..5 {
+    for i in 0..5 {
         let side_idx = hexagon_side(shapes, i as usize);
         let side = shapes.get_mut(side_idx).unwrap();
-        let trans = Matrix::rotate_y(i as f64 * PI / 3.0);
+        let trans = Matrix::rotate_y(i as f64 * PI / 6.0);
         side.set_transformation(trans);
         println!("i = {}", i);
         Group::add_child_idx(shapes, hexagon, side_idx);

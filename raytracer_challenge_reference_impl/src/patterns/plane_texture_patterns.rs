@@ -1,5 +1,5 @@
 use crate::basics::color::Color;
- use crate::math::tuple4d::Tuple4D;
+use crate::math::tuple4d::Tuple4D;
 use crate::patterns::{uv_pattern_at, Checker};
 
 #[derive(PartialEq, Debug, Clone)]

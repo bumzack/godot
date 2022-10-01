@@ -10,13 +10,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 400;
     let height = 400;
 
-    let (w, c) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height);
 
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core(&camera, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("./checker_cylinder_bonus.png")?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!(
+        "./bonus_checker_cylinder_{}x{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+    println!("filename {}", filename);
+    canvas.write_png(filename)?;
     println!("file exported");
     Ok(())
 }
@@ -51,7 +62,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 0.0, -10.0),
+        &Tuple4D::new_point(0.0, 3.0, -10.0),
         &Tuple4D::new_point(0.0, 0.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));

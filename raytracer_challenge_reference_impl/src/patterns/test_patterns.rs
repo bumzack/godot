@@ -1,4 +1,4 @@
-use crate::basics::color::{   Color, ColorOps };
+use crate::basics::color::{Color, ColorOps};
 use crate::math::tuple4d::Tuple4D;
 use crate::shape::shape::Shape;
 
@@ -25,8 +25,8 @@ impl Default for TestPattern {
 mod tests {
     use crate::math::common::{assert_color, assert_matrix};
     use crate::math::tuple4d::Tuple;
-    use crate::patterns::Pattern;
     use crate::patterns::patterns::PatternEnum;
+    use crate::patterns::Pattern;
     use crate::prelude::{Matrix, MatrixOps, ShapeOps};
     use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;

@@ -1,10 +1,10 @@
 use std::f64::consts::PI;
 
-use crate::DEBUG;
-use crate::prelude::*;
 use crate::prelude::patterns::PatternEnum;
 use crate::prelude::test_patterns::TestPattern;
+use crate::prelude::*;
 use crate::shape::ShapeEnum::PlaneEnum;
+use crate::DEBUG;
 
 pub type ShapeIdx = usize;
 pub type ShapeArr = Vec<Shape>;
@@ -95,14 +95,14 @@ impl WorldOps for World {
             }
             surface = surface
                 + Material::lightning(
-                comp.get_object().get_material(),
-                comp.get_object(),
-                &mut l,
-                comp.get_over_point(),
-                comp.get_eye_vector(),
-                comp.get_normal_vector(),
-                intensity,
-            );
+                    comp.get_object().get_material(),
+                    comp.get_object(),
+                    &mut l,
+                    comp.get_over_point(),
+                    comp.get_eye_vector(),
+                    comp.get_normal_vector(),
+                    intensity,
+                );
         }
 
         assert_valid_color(&surface);
@@ -810,11 +810,11 @@ mod tests {
     fn test_material_shade_hit_reflective_material() {
         let mut w: World = default_world();
 
-        let mut plane =Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
         plane.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         plane.set_transformation(m);
-         w.add_shape(plane);
+        w.add_shape(plane);
 
         let p = Tuple4D::new_point(0.0, 0.0, -3.0);
         let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
@@ -849,7 +849,6 @@ mod tests {
         upper.set_transformation(m_upper);
         upper.get_material_mut().set_reflective(1.0);
 
-
         w.add_shape(lower);
         w.add_shape(upper);
 
@@ -858,7 +857,7 @@ mod tests {
         let r = Ray::new(p, o);
 
         let _color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
-       assert!(true);
+        assert!(true);
     }
 
     // page 147

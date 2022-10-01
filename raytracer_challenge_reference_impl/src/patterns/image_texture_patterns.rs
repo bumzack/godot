@@ -1,6 +1,6 @@
 use crate::basics::color::Color;
 use crate::basics::{Canvas, CanvasOps};
-  use crate::math::tuple4d::Tuple4D;
+use crate::math::tuple4d::Tuple4D;
 use crate::patterns::spherical_map;
 
 #[derive(PartialEq, Debug, Clone)]
@@ -23,14 +23,14 @@ impl ImageTexturePattern {
         let x = u * (image.get_width() as f64 - 1.0);
         let y = v * (image.get_height() as f64 - 1.0);
         let color = image.pixel_at(x as usize, y as usize).color;
-        println!(
-            "x  = {}, y =  {}    color = {:?}      w {}, h {}",
-            x,
-            y,
-            color,
-            image.get_width(),
-            image.get_height()
-        );
+        // println!(
+        //     "x  = {}, y =  {}    color = {:?}      w {}, h {}",
+        //     x,
+        //     y,
+        //     color,
+        //     image.get_width(),
+        //     image.get_height()
+        // );
         image.pixel_at(x as usize, y as usize).color
     }
 }
