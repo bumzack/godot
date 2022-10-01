@@ -57,61 +57,46 @@ impl Curve {
     }
 
     pub fn intersect(&self, r: &Ray) -> IntersectionList {
-        let r = &self.transform * r;
-
-        let (cp_obj0, cp_obj1, cp_obj2, cp_obj3) = self.calc_blossom();
-
-        let (dx, dy) = coordinate_system(&r);
-
-        let (object_to_ray, object_to_ray_inv) = look_at(&r.origin, r.origin + r.direction, &dx);
-
-        let cp0 = &object_to_ray * &cp_obj0;
-        let cp1 = &object_to_ray * &cp_obj0;
-        let cp2 = &object_to_ray * &cp_obj0;
-        let cp3 = &object_to_ray * &cp_obj0;
-
-        let cp = vec![cp0, cp1, cp2, cp3];
-
-        let mut l0 = 0.0;
-
-        for i in 0..2 {
-            let tmp_x = (cp.get(i).unwrap().x - 2 * cp.get(i + 1).unwrap().x + cp.get(i + 2).unwrap().x).abs();
-            let tmp_y = (cp.get(i).unwrap().y - 2 * cp.get(i + 1).unwrap().y + cp.get(i + 2).unwrap().y).abs();
-            let tmp: f64 = tmp_x.max(tmp_y);
-            let tmp_z = (cp.get(i).unwrap().z - 2 * cp.get(i + 1).unwrap().z + cp.get(i + 2).unwrap().z).abs();
-            let tmp = tmp.max(tmp_z);
-            l0 = l0.max(tmp);
-        }
-        let eps = self
-            .common
-            .width
-            .get(0)
-            .unwrap()
-            .max(*self.common.width.get(1).unwrap())
-            * 0.05;
-
-        let fr0 = (1.41421356237 * 12.0 * l0 / (8. * eps)).ln() * 0.7213475108;
-        let r0 = fr0.round() as i32;
-        let max_depth = clamp(r0, 0, 10);
-
-        let res = self.recursive_intersect(r, cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth);
-
-        // let p0 = blossom_bezier(&self.common.p, self.u_min, self.u_min, self.u_min);
-        // let p1 = blossom_bezier(&self.common.p, self.u_min, self.u_min, self.u_max);
-        // let p2 = blossom_bezier(&self.common.p, self.u_min, self.u_max, self.u_max);
-        // let p3 = blossom_bezier(&self.common.p, self.u_max, self.u_max, self.u_max);
+        // let r = &self.transform * r;
         //
-        // let mut bounding_box1 = BoundingBox::new_from_min_max(p0, p1);
-        // let bounding_box2 = BoundingBox::new_from_min_max(p2, p3);
+        // let (cp_obj0, cp_obj1, cp_obj2, cp_obj3) = self.calc_blossom();
         //
-        // bounding_box1.add(&bounding_box2);
+        // let (dx, dy) = coordinate_system(&r);
         //
-        // let width0 = lerp_float(self.u_min, self.common.width[0], self.common.width[1]);
-        // let width1 = lerp_float(self.u_max, self.common.width[0], self.common.width[1]);
+        // let (object_to_ray, object_to_ray_inv) = look_at(&r.origin, r.origin + r.direction, &dx);
         //
-        // expand(&mut bounding_box1, width0.max(width1) * 0.5);
+        // let cp0 = &object_to_ray * &cp_obj0;
+        // let cp1 = &object_to_ray * &cp_obj0;
+        // let cp2 = &object_to_ray * &cp_obj0;
+        // let cp3 = &object_to_ray * &cp_obj0;
         //
-        // bounding_box1
+        // let cp = vec![cp0, cp1, cp2, cp3];
+        //
+        // let mut l0 = 0.0;
+        //
+        // for i in 0..2 {
+        //     let tmp_x = (cp.get(i).unwrap().x - 2 * cp.get(i + 1).unwrap().x + cp.get(i + 2).unwrap().x).abs();
+        //     let tmp_y = (cp.get(i).unwrap().y - 2 * cp.get(i + 1).unwrap().y + cp.get(i + 2).unwrap().y).abs();
+        //     let tmp: f64 = tmp_x.max(tmp_y);
+        //     let tmp_z = (cp.get(i).unwrap().z - 2 * cp.get(i + 1).unwrap().z + cp.get(i + 2).unwrap().z).abs();
+        //     let tmp = tmp.max(tmp_z);
+        //     l0 = l0.max(tmp);
+        // }
+        // let eps = self
+        //     .common
+        //     .width
+        //     .get(0)
+        //     .unwrap()
+        //     .max(*self.common.width.get(1).unwrap())
+        //     * 0.05;
+        //
+        // let fr0 = (1.41421356237 * 12.0 * l0 / (8. * eps)).ln() * 0.7213475108;
+        // let r0 = fr0.round() as i32;
+        // let max_depth = clamp(r0, 0, 10);
+        //
+        // let res = self.recursive_intersect(r, cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth);
+
+        IntersectionList::new()
     }
 
     fn calc_blossom(&self) -> (Tuple4D, Tuple4D, Tuple4D, Tuple4D) {
@@ -150,13 +135,14 @@ impl Curve {
         }
 
         if depth > 0 {
-            let u_mid = 0.5 * (u0 + u1);
-            let csplit = subdivide_bezier(cp);
-            let c = csplit.slice(0, 3).to_vec();
-            let r1 = self.recursive_intersect(r, c, object_to_ray_inv, u0, u_mid, depth - 1, intersection);
-            let c = csplit.slice(3, 7).to_vec();
-            let r2 = self.recursive_intersect(r, c, object_to_ray_inv, u_mid, u1, depth - 1, intersection);
-            r1 || r2
+            // let u_mid = 0.5 * (u0 + u1);
+            // let csplit = subdivide_bezier(cp);
+            // let c = csplit.as_slice().slice(0, 3).to_vec();
+            // let r1 = self.recursive_intersect(r, c, object_to_ray_inv, u0, u_mid, depth - 1, intersection);
+            // let c = csplit.as_slice().slice(3, 7).to_vec();
+            // let r2 = self.recursive_intersect(r, c, object_to_ray_inv, u_mid, u1, depth - 1, intersection);
+            // r1 || r2
+            return false;
         }
 
         true
@@ -208,7 +194,7 @@ impl CurveCommon {
     }
 }
 
-pub fn clamp<T: PartialEq>(val: T, low: T, high: T) -> T {
+pub fn clamp<T: PartialEq + std::cmp::PartialOrd>(val: T, low: T, high: T) -> T {
     if val < low {
         low
     } else if val > high {
@@ -289,17 +275,24 @@ pub fn look_at(pos: &Tuple4D, look: &Tuple4D, up: &Tuple4D) -> (Matrix, Matrix) 
     camera_to_world.m[2][2] = dir.z;
     camera_to_world.m[3][2] = 0.0;
 
-    (camera_to_world, Matrix::invert(&camera_to_world).unwrap())
+    (camera_to_world.clone(), Matrix::invert(&camera_to_world).unwrap())
 }
 
 pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
     let csplit0 = cp[0];
     let csplit1 = (cp[0] + cp[1]) / 2.0;
-    let csplit2 = (cp[0] + 2.0 * cp[1] + cp[2]) / 4.0;
-    let csplit3 = (cp[0] + 3.0 * cp[1] + 3.0 * cp[2] + cp[3]) / 8.0;
-    let csplit4 = (cp[1] + 2.0 * cp[2] + cp[3]) / 4.0;
+    let csplit2 = (cp[0] + cp[1] * 2.0 + cp[2]) / 4.0;
+    let csplit3 = (cp[0] + cp[1] * 3.0 + cp[2] * 3.0 + cp[3]) / 8.0;
+    let csplit4 = (cp[1] + cp[2] * 2.0 + cp[3]) / 4.0;
     let csplit5 = (cp[2] + cp[3]) / 2.0;
     let csplit6 = cp[3];
 
     vec![csplit0, csplit1, csplit2, csplit3, csplit4, csplit5, csplit6]
+}
+
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    pub fn test_lerp_f64() {}
 }
