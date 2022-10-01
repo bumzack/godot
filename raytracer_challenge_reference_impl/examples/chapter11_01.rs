@@ -60,7 +60,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     checker_pattern.set_color_a(Color::new(0.65, 0.65, 0.65));
     floor
         .get_material_mut()
-        .set_pattern(Pattern::Checker3DPattern(checker_pattern));
+        .set_pattern(Pattern::new(PatternEnum::Checker3DPatternEnum(checker_pattern)));
     floor.get_material_mut().set_specular(0.0);
     floor.get_material_mut().set_reflective(0.4);
 

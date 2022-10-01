@@ -45,7 +45,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     checker_pattern.set_color_a(Color::new(0.85, 0.85, 0.85));
 
     let mut wall_material = Material::new();
-    wall_material.set_pattern(Pattern::Checker3DPattern(checker_pattern));
+    wall_material.set_pattern(Pattern::new(PatternEnum::Checker3DPatternEnum(checker_pattern)));
     wall_material.set_ambient(0.8);
     wall_material.set_diffuse(0.2);
     wall_material.set_specular(0.0);

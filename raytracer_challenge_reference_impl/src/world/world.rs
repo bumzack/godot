@@ -1,9 +1,10 @@
-use crate::prelude::patterns::Pattern;
-use crate::prelude::test_patterns::TestPattern;
-use crate::prelude::*;
-use crate::shape::ShapeEnum::PlaneEnum;
-use crate::DEBUG;
 use std::f64::consts::PI;
+
+use crate::DEBUG;
+use crate::prelude::*;
+use crate::prelude::patterns::PatternEnum;
+use crate::prelude::test_patterns::TestPattern;
+use crate::shape::ShapeEnum::PlaneEnum;
 
 pub type ShapeIdx = usize;
 pub type ShapeArr = Vec<Shape>;
@@ -94,14 +95,14 @@ impl WorldOps for World {
             }
             surface = surface
                 + Material::lightning(
-                    comp.get_object().get_material(),
-                    comp.get_object(),
-                    &mut l,
-                    comp.get_over_point(),
-                    comp.get_eye_vector(),
-                    comp.get_normal_vector(),
-                    intensity,
-                );
+                comp.get_object().get_material(),
+                comp.get_object(),
+                &mut l,
+                comp.get_over_point(),
+                comp.get_eye_vector(),
+                comp.get_normal_vector(),
+                intensity,
+            );
         }
 
         assert_valid_color(&surface);
@@ -232,7 +233,7 @@ impl WorldOps for World {
         let mut floor_stripe_pattern = StripePattern::new();
         floor_stripe_pattern.set_color_a(Color::new(1.0, 0.0, 0.0));
         floor_stripe_pattern.set_color_b(Color::new(0.0, 0.0, 1.0));
-        let floor_stripe_pattern = Pattern::StripePattern(floor_stripe_pattern);
+        let floor_stripe_pattern = Pattern::new(PatternEnum::StripePatternEnum(floor_stripe_pattern));
         floor.get_material_mut().set_pattern(floor_stripe_pattern);
 
         self.add_shape(floor);
@@ -410,8 +411,7 @@ pub fn default_world_refracted_color_page_158() -> World {
     let light = Light::PointLight(pl);
     w.add_light(light);
 
-    let test_pattern: TestPattern = TestPattern::new();
-    let test_pattern = Pattern::TestPattern(test_pattern);
+    let test_pattern = Pattern::new(PatternEnum::TestPatternEnum(TestPattern::new()));
     let mut m1 = Material::new();
     m1.set_color(Color::new(0.8, 1.0, 0.6));
     m1.set_diffuse(0.7);
@@ -774,129 +774,119 @@ mod tests {
         assert_color(&color, &color_expected);
     }
 
-    // page 144  bottom
-    // #[test]
-    // fn test_material_precomputing_reflection_reflective_material() {
-    //     let mut w: World = default_world();
-    //
-    //     let mut p = Plane::new();
-    //     p.get_material_mut().set_reflective(0.5);
-    //     let m = Matrix::translation(0.0, -1.0, 0.0);
-    //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::PlaneEnum(p));
-    //     w.add_shape(plane);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
-    //     let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let s = &w.get_shapes()[2];
-    //     let i = Intersection::new(SQRT_2, s);
-    //
-    //     let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-    //
-    //     let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-    //     let color_expected = Color::new(0.19034664, 0.23793328, 0.14275998);
-    //
-    //     // TODO: this fails - probably/hopefully because the is_shadowed method is broken
-    //     // fix this, when the shadows work
-    //
-    //     println!("expected color    = {:?}", color_expected);
-    //     println!("actual color      = {:?}", color);
-    //     assert_color(&color, &color_expected);
-    // }
+    //page 144  bottom
+    #[test]
+    fn test_material_precomputing_reflection_reflective_material() {
+        let mut w: World = default_world();
+
+        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        plane.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        plane.set_transformation(m);
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+
+        let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
+        let color_expected = Color::new(0.190332201495133, 0.23791525186891627, 0.14274915112134975);
+
+        // TODO: this fails - probably/hopefully because the is_shadowed method is broken
+        // fix this, when the shadows work
+
+        println!("expected color    = {:?}", color_expected);
+        println!("actual color      = {:?}", color);
+        assert_color(&color, &color_expected);
+    }
 
     // page 145
-    // #[test]
-    // fn test_material_shade_hit_reflective_material() {
-    //     let mut w: World = default_world();
-    //
-    //     let mut p = Plane::new();
-    //     p.get_material_mut().set_reflective(0.5);
-    //     let m = Matrix::translation(0.0, -1.0, 0.0);
-    //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::PlaneEnum(p));
-    //     w.add_shape(plane);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
-    //     let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let s = &w.get_shapes()[2];
-    //     let i = Intersection::new(SQRT_2, s);
-    //
-    //     let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-    //
-    //     let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-    //     let color_expected = Color::new(0.87676895, 0.92435557, 0.82918227);
-    //
-    //     println!("expected color    = {:?}", color_expected);
-    //     println!("actual color      = {:?}", color);
-    //
-    //     // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-    //     // fix this, when the shadows work
-    //     assert_color(&color, &color_expected);
-    // }
-    //
-    // // page 146
-    // #[test]
-    // fn test_material_shade_hit_handle_recursion() {
-    //     let mut w = World::new();
-    //
-    //     let mut l = Plane::new();
-    //     let m_lower = Matrix::translation(0.0, -1.0, 0.0);
-    //     l.set_transformation(m_lower);
-    //     l.get_material_mut().set_reflective(1.0);
-    //
-    //     let mut u = Plane::new();
-    //     let m_upper = Matrix::translation(0.0, 1.0, 0.0);
-    //     u.set_transformation(m_upper);
-    //     u.get_material_mut().set_reflective(1.0);
-    //
-    //     let upper = Shape::new(ShapeEnum::PlaneEnum(u));
-    //     let lower = Shape::new(ShapeEnum::PlaneEnum(l));
-    //
-    //     w.add_shape(lower);
-    //     w.add_shape(upper);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, 0.0);
-    //     let o = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let _color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
-    //     println!("FIX ME");
-    //     // assert!(true, false);
-    // }
-    //
-    // // page 147
-    // #[test]
-    // fn test_material_shade_hit_reflective_material_max_recursive_depth() {
-    //     let mut w: World = default_world();
-    //
-    //     let mut p = Plane::new();
-    //     p.get_material_mut().set_reflective(0.5);
-    //     let m = Matrix::translation(0.0, -1.0, 0.0);
-    //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::PlaneEnum(p));
-    //
-    //     w.add_shape(plane);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
-    //     let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let s = &w.get_shapes()[2];
-    //     let i = Intersection::new(SQRT_2, s);
-    //
-    //     let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-    //
-    //     let color = World::reflected_color(&w, &comps, 0);
-    //     let color_expected = Color::new(0., 0., 0.);
-    //
-    //     // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-    //     // fix this, when the shadows work
-    //     assert_color(&color, &color_expected);
-    // }
+    #[test]
+    fn test_material_shade_hit_reflective_material() {
+        let mut w: World = default_world();
+
+        let mut plane =Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        plane.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        plane.set_transformation(m);
+         w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+
+        let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
+        let color_expected = Color::new(0.8767572837020907, 0.924340334075874, 0.8291742333283075);
+
+        println!("expected color    = {:?}", color_expected);
+        println!("actual color      = {:?}", color);
+
+        assert_color(&color, &color_expected);
+    }
+
+    // page 146
+    #[test]
+    fn test_material_shade_hit_handle_recursion() {
+        let mut w = World::new();
+
+        let mut lower = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let m_lower = Matrix::translation(0.0, -1.0, 0.0);
+        lower.set_transformation(m_lower);
+        lower.get_material_mut().set_reflective(1.0);
+
+        let mut upper = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let m_upper = Matrix::translation(0.0, 1.0, 0.0);
+        upper.set_transformation(m_upper);
+        upper.get_material_mut().set_reflective(1.0);
+
+
+        w.add_shape(lower);
+        w.add_shape(upper);
+
+        let p = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let o = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(p, o);
+
+        let _color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+       assert!(true);
+    }
+
+    // page 147
+    #[test]
+    fn test_material_shade_hit_reflective_material_max_recursive_depth() {
+        let mut w: World = default_world();
+
+        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        plane.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        plane.set_transformation(m);
+
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+
+        let color = World::reflected_color(&w, &comps, 0);
+        let color_expected = Color::new(0., 0., 0.);
+
+        assert_color(&color, &color_expected);
+    }
 
     // page 154
     #[test]

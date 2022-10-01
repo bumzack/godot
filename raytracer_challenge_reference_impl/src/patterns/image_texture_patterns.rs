@@ -1,31 +1,21 @@
 use crate::basics::color::Color;
 use crate::basics::{Canvas, CanvasOps};
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
-use crate::math::tuple4d::Tuple4D;
+  use crate::math::tuple4d::Tuple4D;
 use crate::patterns::spherical_map;
-use crate::prelude::ShapeOps;
-use crate::shape::shape::Shape;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct ImageTexturePattern {
     image: Canvas,
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
 }
 
 impl ImageTexturePattern {
     pub fn new(image: Canvas) -> ImageTexturePattern {
-        ImageTexturePattern {
-            image,
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-        }
+        ImageTexturePattern { image }
     }
 
-    pub fn pattern_at(pattern: &ImageTexturePattern, p: &Tuple4D) -> Color {
+    pub fn pattern_at(&self, p: &Tuple4D) -> Color {
         let (u, v) = spherical_map(p);
-        ImageTexturePattern::uv_pattern_at(&pattern.image, u, v)
+        ImageTexturePattern::uv_pattern_at(&self.image, u, v)
     }
 
     pub fn uv_pattern_at(image: &Canvas, u: f64, v: f64) -> Color {
@@ -42,24 +32,5 @@ impl ImageTexturePattern {
             image.get_height()
         );
         image.pixel_at(x as usize, y as usize).color
-    }
-
-    pub fn color_at_object(pattern: &ImageTexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {
-        let object_point = shape.get_inverse_transformation() * world_point;
-        let pattern_point = pattern.get_inverse_transformation() * &object_point;
-        ImageTexturePattern::pattern_at(pattern, &pattern_point)
-    }
-
-    pub fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
-        self.transformation_matrix = m;
-    }
-
-    pub fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    pub fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
     }
 }

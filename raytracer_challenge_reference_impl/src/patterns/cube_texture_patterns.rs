@@ -1,30 +1,21 @@
 use std::collections::HashMap;
 
 use crate::basics::color::Color;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::{uv_align_check_pattern_at, CubeChecker};
-use crate::prelude::{Cube, CubeFace, ShapeOps};
-use crate::shape::shape::Shape;
+use crate::prelude::{Cube, CubeFace};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct CubeTexturePattern {
     cube_map: HashMap<CubeFace, CubeChecker>,
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
 }
 
 impl CubeTexturePattern {
     pub fn new(cube_map: HashMap<CubeFace, CubeChecker>) -> CubeTexturePattern {
-        CubeTexturePattern {
-            cube_map,
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-        }
+        CubeTexturePattern { cube_map }
     }
 
-    pub fn pattern_at(cube_map: &HashMap<CubeFace, CubeChecker>, p: &Tuple4D) -> Color {
+    pub fn pattern_at(&self, p: &Tuple4D) -> Color {
         let face = Cube::face_from_point(p);
         let (u, v) = match face {
             CubeFace::LEFT => cube_uv_left(p),
@@ -34,26 +25,7 @@ impl CubeTexturePattern {
             CubeFace::FRONT => cube_uv_front(p),
             CubeFace::BACK => cube_uv_back(p),
         };
-        *uv_align_check_pattern_at(cube_map.get(&face).unwrap(), u, v)
-    }
-
-    pub fn color_at_object(pattern: &CubeTexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {
-        let object_point = shape.get_inverse_transformation() * world_point;
-        let pattern_point = pattern.get_inverse_transformation() * &object_point;
-        CubeTexturePattern::pattern_at(&pattern.cube_map, &pattern_point)
-    }
-
-    pub fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
-        self.transformation_matrix = m;
-    }
-
-    pub fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    pub fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
+        *uv_align_check_pattern_at(self.cube_map.get(&face).unwrap(), u, v)
     }
 }
 
@@ -192,124 +164,125 @@ mod tests {
         cube_map.insert(CubeFace::FRONT, front);
         cube_map.insert(CubeFace::BACK, back);
 
+        let cube_map = CubeTexturePattern::new(cube_map);
         let p = Tuple4D::new_point(-1.0, 0.0, 0.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &yellow);
 
         let p = Tuple4D::new_point(-1.0, 0.9, -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &cyan);
 
         let p = Tuple4D::new_point(-1.0, 0.9, 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &red);
 
         let p = Tuple4D::new_point(-1.0, -0.9, -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &blue);
 
         let p = Tuple4D::new_point(-1.0, -0.9, 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &brown);
 
         let p = Tuple4D::new_point(0.0, 0.0, 1.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &cyan);
 
         let p = Tuple4D::new_point(-0.9, 0.9, 1.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &red);
 
         let p = Tuple4D::new_point(0.9, 0.9, 1.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &yellow);
 
         let p = Tuple4D::new_point(-0.9, -0.9, 1.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &brown);
 
         let p = Tuple4D::new_point(0.9, -0.9, 1.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &green);
 
         let p = Tuple4D::new_point(1., 0., 0.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &red);
 
         let p = Tuple4D::new_point(1., 0.9, 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &yellow);
 
         let p = Tuple4D::new_point(1., 0.9, -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &purple);
 
         let p = Tuple4D::new_point(1., -0.9, 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &green);
 
         let p = Tuple4D::new_point(1., -0.9, -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &white);
 
         let p = Tuple4D::new_point(0., 0., -1.);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &green);
 
         let p = Tuple4D::new_point(0.9, 0.9, -1.);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &purple);
 
         let p = Tuple4D::new_point(-0.9, 0.9, -1.);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &cyan);
 
         let p = Tuple4D::new_point(0.9, -0.9, -1.);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &white);
 
         let p = Tuple4D::new_point(-0.9, -0.9, -1.0);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &blue);
 
         let p = Tuple4D::new_point(0., 1., 0.);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &brown);
 
         let p = Tuple4D::new_point(-0.9, 1., -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &cyan);
 
         let p = Tuple4D::new_point(0.9, 1., -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &purple);
 
         let p = Tuple4D::new_point(-0.9, 1., 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &red);
 
         let p = Tuple4D::new_point(0.9, 1., 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &yellow);
 
         let p = Tuple4D::new_point(0., -1., 0.);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &purple);
 
         let p = Tuple4D::new_point(-0.9, -1., 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &brown);
 
         let p = Tuple4D::new_point(0.9, -1., 0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &green);
 
         let p = Tuple4D::new_point(-0.9, -1., -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &blue);
 
         let p = Tuple4D::new_point(0.9, -1., -0.9);
-        let actual = CubeTexturePattern::pattern_at(&cube_map, &p);
+        let actual = cube_map.pattern_at(&p);
         assert_color(&actual, &white);
     }
 

@@ -29,7 +29,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let cube_checker = CubeChecker::new(main, ul, ur, bl, br);
     let texture = AlignCheckTexturePattern::new(cube_checker);
 
-    let p = Pattern::AlignCheckTexturePattern(texture);
+    let p = Pattern::new(PatternEnum::AlignCheckTexturePatternEnum(texture));
 
     let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     plane.get_material_mut().set_pattern(p);

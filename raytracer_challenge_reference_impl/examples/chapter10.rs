@@ -1,3 +1,4 @@
+use raytracer_challenge_reference_impl::patterns::PatternEnum::Checker3DPatternEnum;
 use std::error::Error;
 use std::f64::consts::PI;
 use std::time::Instant;
@@ -6,20 +7,20 @@ use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
-    let mut p: GradientPattern = GradientPattern::new();
-    p.set_color_a(Color::new(1.0, 0.0, 0.0));
-    p.set_color_a(Color::new(1.0, 0.0, 1.0));
+    let mut gradient_pattern = GradientPattern::new();
+    gradient_pattern.set_color_a(Color::new(1.0, 0.0, 0.0));
+    gradient_pattern.set_color_a(Color::new(1.0, 0.0, 1.0));
+    let mut p = Pattern::new(PatternEnum::GradientPatternEnum(gradient_pattern));
     let m = Matrix::rotate_y(PI / 4.0);
     p.set_transformation(m);
-    let p = Pattern::GradientPattern(p);
     floor.get_material_mut().set_pattern(p);
 
-    let mut p = RingPattern::new();
-    p.set_color_a(Color::new(0.5, 0.0, 0.0));
-    p.set_color_a(Color::new(0.5, 0.0, 0.8));
+    let mut ring_pattern = RingPattern::new();
+    ring_pattern.set_color_a(Color::new(0.5, 0.0, 0.0));
+    ring_pattern.set_color_a(Color::new(0.5, 0.0, 0.8));
+    let mut p = Pattern::new(PatternEnum::RingPatternEnum(ring_pattern));
     let m = Matrix::rotate_x(PI / 4.0);
     p.set_transformation(m);
-    let p = Pattern::RingPattern(p);
 
     let mut left_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     left_wall.set_transformation(
@@ -27,16 +28,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     left_wall.get_material_mut().set_pattern(p);
 
-    let mut checker_3d = Checker3DPattern::new();
-    checker_3d.set_color_a(Color::new(0.1, 0.8, 0.4));
-    checker_3d.set_color_a(Color::new(0.8, 0.2, 0.2));
-    let p = Pattern::Checker3DPattern(checker_3d);
+    let mut checker3dpattern = Checker3DPattern::new();
+    checker3dpattern.set_color_a(Color::new(0.1, 0.8, 0.4));
+    checker3dpattern.set_color_a(Color::new(0.8, 0.2, 0.2));
+    let mut checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3dpattern));
 
     let mut right_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     right_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
-    right_wall.get_material_mut().set_pattern(p);
+    right_wall.get_material_mut().set_pattern(checker_3d);
 
     let mut middle = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));

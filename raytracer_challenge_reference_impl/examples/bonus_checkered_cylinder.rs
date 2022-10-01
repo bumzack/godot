@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(16, 8, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
     let checker_3d = CylinderTexturePattern::new(checker);
-    let p = Pattern::CylinderTexturePattern(checker_3d);
+    let p = Pattern::new(PatternEnum::CylinderTexturePatternEnum(checker_3d));
 
     let trans = Matrix::translation(0.0, -0.5, 0.0);
     let scale = Matrix::scale(1.0, PI, 1.0);

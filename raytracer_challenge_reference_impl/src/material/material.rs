@@ -1,4 +1,4 @@
-use crate::prelude::patterns::Pattern;
+use crate::prelude::patterns::PatternEnum;
 use crate::prelude::*;
 use crate::DEBUG;
 
@@ -88,7 +88,7 @@ impl MaterialOps for Material {
         // TODO: a lot of color copying here ...
         let c = match material.get_pattern() {
             None => &material.color * light.get_intensity(),
-            Some(pattern) => pattern.color_at_object(object, point),
+            Some(pattern) => pattern.pattern_at_shape(object, point),
         };
 
         // ambient
@@ -403,7 +403,7 @@ mod tests {
         let s = Sphere::new();
         let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
         let stripe_pattern = StripePattern::new();
-        let pattern = Pattern::StripePattern(stripe_pattern);
+        let pattern = Pattern::new(PatternEnum::StripePatternEnum(stripe_pattern));
 
         let mut m = Material::new();
         m.set_pattern(pattern);

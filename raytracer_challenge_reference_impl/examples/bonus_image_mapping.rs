@@ -3,6 +3,7 @@ extern crate num_cpus;
 use std::error::Error;
 use std::time::Instant;
 
+use raytracer_challenge_reference_impl::patterns::PatternEnum::ImageTexturePatternEnum;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -45,7 +46,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
         Canvas::read_png("/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/examples/earthmap1k.jpg")
             .expect("loading image linear_gradient.png");
     let pattern = ImageTexturePattern::new(image);
-    let pattern = Pattern::ImageTexturePattern(pattern);
+    let pattern = Pattern::new(PatternEnum::ImageTexturePatternEnum(pattern));
     s.get_material_mut().set_pattern(pattern);
 
     let mut w = World::new();

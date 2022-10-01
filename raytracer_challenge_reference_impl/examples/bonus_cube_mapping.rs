@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::time::Instant;
 
+use raytracer_challenge_reference_impl::prelude::PatternEnum::CubeTextPatternEnum;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -142,7 +143,7 @@ fn cube() -> Shape {
 
     let cube_checker = CubeTexturePattern::new(cube_map);
 
-    let p = Pattern::CubeTextPattern(cube_checker);
+    let p = Pattern::new(PatternEnum::CubeTextPatternEnum(cube_checker));
 
     let mut cube = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
     cube.get_material_mut().set_pattern(p);

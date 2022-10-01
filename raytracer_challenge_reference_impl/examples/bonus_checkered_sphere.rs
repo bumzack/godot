@@ -22,8 +22,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(20, 10, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
-    let checker_3d = SphereTexturePattern::new(checker);
-    let p = Pattern::SphereTexturePattern(checker_3d);
+    let p = Pattern::new(PatternEnum::SphereTexturePatternEnum(SphereTexturePattern::new(
+        checker,
+    )));
 
     let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere.get_material_mut().set_pattern(p);
