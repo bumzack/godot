@@ -25,7 +25,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker_3d = SphereTexturePattern::new(checker);
     let p = Pattern::SphereTexturePattern(checker_3d);
 
-    let mut sphere = Sphere::new();
+    let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere.get_material_mut().set_pattern(p);
     sphere.get_material_mut().set_ambient(0.1);
     sphere.get_material_mut().set_specular(0.4);
@@ -37,7 +37,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(sphere)));
+    w.add_shape(sphere);
 
     let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();

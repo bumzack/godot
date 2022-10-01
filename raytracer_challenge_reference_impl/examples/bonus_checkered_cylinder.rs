@@ -31,9 +31,10 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let p_transformed = &scale * &trans;
 
     let mut cylinder = Cylinder::new();
-    cylinder.set_transformation(p_transformed);
     cylinder.set_minimum(0.0);
     cylinder.set_maximum(1.0);
+    let mut cylinder = Shape::new(ShapeEnum::CylinderEnum(cylinder));
+    cylinder.set_transformation(p_transformed);
     cylinder.get_material_mut().set_pattern(p);
     cylinder.get_material_mut().set_ambient(0.1);
     cylinder.get_material_mut().set_specular(0.4);
@@ -45,7 +46,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::CylinderEnum(cylinder)));
+    w.add_shape(cylinder);
 
     let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();

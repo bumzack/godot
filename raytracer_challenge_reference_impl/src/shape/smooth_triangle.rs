@@ -4,9 +4,6 @@ use crate::prelude::*;
 
 #[derive(Clone, PartialEq)]
 pub struct SmoothTriangle {
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
-    material: Material,
     p1: Tuple4D,
     p2: Tuple4D,
     p3: Tuple4D,
@@ -16,59 +13,6 @@ pub struct SmoothTriangle {
     e1: Tuple4D,
     e2: Tuple4D,
     normal: Tuple4D,
-}
-
-impl<'a> ShapeOps<'a> for SmoothTriangle {
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("plane::set_transformation: cant unwrap inverse matrix");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
-        // TODO: its for the tests -remove and fix tests and add unreachable
-        let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point, i);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
-    }
-
-    fn local_normal_at(&self, _local_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D {
-        self.get_n2() * i.get_u() + self.get_n3() * i.get_v() + self.get_n1() * (1.0 - i.get_u() - i.get_v())
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
-    }
-
-    fn get_parent(&self) -> &Option<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children(&self) -> &Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
 }
 
 impl<'a> ShapeIntersectOps<'a> for SmoothTriangle {
@@ -108,6 +52,10 @@ impl<'a> ShapeIntersectOps<'a> for SmoothTriangle {
 
         intersection_list
     }
+
+    fn local_normal_at(&self, _local_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D {
+        self.get_n2() * i.get_u() + self.get_n3() * i.get_v() + self.get_n1() * (1.0 - i.get_u() - i.get_v())
+    }
 }
 
 impl SmoothTriangle {
@@ -117,9 +65,6 @@ impl SmoothTriangle {
         let normal = Tuple4D::normalize(&(e2 * e1));
 
         SmoothTriangle {
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            material: Material::new(),
             p1,
             p2,
             p3,
@@ -132,15 +77,15 @@ impl SmoothTriangle {
         }
     }
 
-    pub(crate) fn get_p1(&self) -> &Tuple4D {
+    pub fn get_p1(&self) -> &Tuple4D {
         &self.p1
     }
 
-    pub(crate) fn get_p2(&self) -> &Tuple4D {
+    pub fn get_p2(&self) -> &Tuple4D {
         &self.p2
     }
 
-    pub(crate) fn get_p3(&self) -> &Tuple4D {
+    pub fn get_p3(&self) -> &Tuple4D {
         &self.p3
     }
 
@@ -152,22 +97,23 @@ impl SmoothTriangle {
         &self.e2
     }
 
-    pub(crate) fn get_n1(&self) -> &Tuple4D {
+    pub fn get_n1(&self) -> &Tuple4D {
         &self.n1
     }
 
-    pub(crate) fn get_n2(&self) -> &Tuple4D {
+    pub fn get_n2(&self) -> &Tuple4D {
         &self.n2
     }
 
-    pub(crate) fn get_n3(&self) -> &Tuple4D {
+    pub fn get_n3(&self) -> &Tuple4D {
         &self.n3
     }
 
-    fn get_normal(&self) -> &Tuple4D {
+    pub fn get_normal(&self) -> &Tuple4D {
         &self.n1
     }
-    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
+
+    pub fn get_bounds_of(&self) -> BoundingBox {
         println!("get_bounds_of smooth_triangle");
         let mut bb = BoundingBox::new();
         bb.add_point(self.get_p1());
@@ -252,9 +198,8 @@ mod tests {
         let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
         let i = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
 
-        let shapes = vec![];
         let point = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let n = s.normal_at(&point, &shapes, &i);
+        let n = s.normal_at(&point, &i);
         let n_expected = Tuple4D::new_vector(-0.5547, 0.83205, 0.0);
 
         assert_tuple(&n, &n_expected);
@@ -273,8 +218,7 @@ mod tests {
         let mut xs = IntersectionList::new();
         xs.add(i2);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&i, &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&i, &r, &xs);
 
         let n = comps.get_normal_vector();
 

@@ -47,7 +47,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut cube1 = cube();
     cube1.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube1)));
+    w.add_shape(cube1);
 
     let trans = Matrix::translation(-2.0, 2., 0.0);
     let rot_x = Matrix::rotate_x(0.7854);
@@ -55,7 +55,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let transform = &(&rot_y * &rot_x) * &trans;
     let mut cube2 = cube();
     cube2.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube2)));
+    w.add_shape(cube2);
 
     let trans = Matrix::translation(2.0, 2., 0.0);
     let rot_x = Matrix::rotate_x(0.7854);
@@ -63,7 +63,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let transform = &(&rot_y * &rot_x) * &trans;
     let mut cube3 = cube();
     cube3.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube3)));
+    w.add_shape(cube3);
 
     let trans = Matrix::translation(6.0, 2., 0.0);
     let rot_x = Matrix::rotate_x(0.7854);
@@ -71,7 +71,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let transform = &(&rot_y * &rot_x) * &trans;
     let mut cube4 = cube();
     cube4.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube4)));
+    w.add_shape(cube4);
 
     // let trans = Matrix::translation(-6.0, -2., 0.0);
     // let rot_x = Matrix::rotate_x(-0.7854);
@@ -115,7 +115,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     (w, c)
 }
 
-fn cube() -> Cube {
+fn cube() -> Shape {
     let red = Color::new(1.0, 0.0, 0.0);
     let yellow = Color::new(1.0, 1.0, 0.0);
     let brown = Color::new(1.0, 0.5, 0.0);
@@ -144,7 +144,7 @@ fn cube() -> Cube {
 
     let p = Pattern::CubeTextPattern(cube_checker);
 
-    let mut cube = Cube::new();
+    let mut cube = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
     cube.get_material_mut().set_pattern(p);
     cube.get_material_mut().set_ambient(0.2);
     cube.get_material_mut().set_specular(0.0);

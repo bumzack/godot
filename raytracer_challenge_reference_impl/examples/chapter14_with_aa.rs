@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let mut floor = Plane::new();
+    let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     let mut p: GradientPattern = GradientPattern::new();
     p.set_color_a(Color::new(1.0, 0.0, 0.0));
     p.set_color_a(Color::new(1.0, 0.0, 1.0));
@@ -36,7 +36,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let m = Matrix::rotate_x(PI / 4.0);
     p.set_transformation(m);
     let p = Pattern::RingPattern(p);
-    let mut left_wall = Plane::new();
+    let mut left_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     left_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
@@ -45,19 +45,19 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     checker_3d.set_color_a(Color::new(0.1, 0.8, 0.4));
     checker_3d.set_color_a(Color::new(0.8, 0.2, 0.2));
     let p = Pattern::Checker3DPattern(checker_3d);
-    let mut right_wall = Plane::new();
+    let mut right_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     right_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
     right_wall.get_material_mut().set_pattern(p);
-    let mut middle = Sphere::new();
+    let mut middle = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
     middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
     middle.get_material_mut().set_diffuse(0.7);
     middle.get_material_mut().set_specular(0.3);
     middle.get_material_mut().set_reflective(1.3);
     middle.get_material_mut().set_refractive_index(1.3);
-    let mut right = Sphere::new();
+    let mut right = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
     right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
     right.get_material_mut().set_diffuse(0.7);
@@ -65,7 +65,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     middle.get_material_mut().set_reflective(1.8);
     middle.get_material_mut().set_refractive_index(1.8);
 
-    let mut left = Sphere::new();
+    let mut left = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
     left.get_material_mut().set_color(Color::new(1., 0., 0.));
     left.get_material_mut().set_diffuse(0.7);
@@ -76,7 +76,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     checker_3d.set_color_a(Color::new(0.1, 0.1, 1.0));
     let p = Pattern::Checker3DPattern(checker_3d);
 
-    let mut cube = Cube::new();
+    let mut cube = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
     let c_trans = Matrix::translation(-2.0, 2.0, -1.75);
     let c_scale = Matrix::scale(0.5, 0.5, 0.25);
     cube.set_transformation(c_scale * c_trans);
@@ -89,26 +89,27 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let p = Pattern::Checker3DPattern(checker);
 
     let mut cylinder = Cylinder::new();
+    cylinder.set_minimum(0.0);
+    cylinder.set_maximum(1.0);
+    let mut cylinder = Shape::new(ShapeEnum::CylinderEnum(cylinder));
     let c_trans = Matrix::translation(-3.5, 1.0, -0.75);
     // let c_scale = Matrix::scale(2.0, 0.5, 0.25);
     cylinder.set_transformation(c_trans);
     cylinder.get_material_mut().set_pattern(p);
     cylinder.get_material_mut().set_transparency(1.5);
-    cylinder.set_minimum(0.0);
-    cylinder.set_minimum(1.0);
 
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(floor)));
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(right_wall)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(middle)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(left)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(right)));
-    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube)));
+    w.add_shape(floor);
+    w.add_shape(left_wall);
+    w.add_shape(right_wall);
+    w.add_shape(middle);
+    w.add_shape(left);
+    w.add_shape(right);
+    w.add_shape(cube);
     // w.add_shape(Shape::new(ShapeEnum::CylinderEnum(cylinder)));
 
     let mut c = Camera::new(width, height, PI / 4.0);

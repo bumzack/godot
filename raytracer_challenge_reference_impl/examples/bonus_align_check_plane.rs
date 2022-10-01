@@ -31,7 +31,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let p = Pattern::AlignCheckTexturePattern(texture);
 
-    let mut plane = Plane::new();
+    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     plane.get_material_mut().set_pattern(p);
     plane.get_material_mut().set_ambient(0.1);
     plane.get_material_mut().set_diffuse(0.8);
@@ -41,7 +41,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(plane)));
+    w.add_shape(plane);
 
     let mut c = Camera::new(width, height, 0.9);
     c.calc_pixel_size();

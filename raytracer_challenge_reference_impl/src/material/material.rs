@@ -430,7 +430,6 @@ mod tests {
     // page 143
     #[test]
     fn test_material_precomputing_reflection_vector() {
-        let shapes = vec![];
         let p = Plane::new();
         let shape = Shape::new(ShapeEnum::PlaneEnum(p));
 
@@ -439,7 +438,7 @@ mod tests {
         let r = Ray::new(p, o);
         let i = Intersection::new(SQRT_2, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let reflection_vector_expected = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0);
         assert_tuple(comps.get_reflected_vector(), &reflection_vector_expected);
@@ -491,12 +490,11 @@ mod tests {
         let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.5]));
         let mut light = Light::AreaLight(arealight);
 
-        let mut sphere = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         sphere.get_material_mut().set_ambient(0.1);
         sphere.get_material_mut().set_diffuse(0.9);
         sphere.get_material_mut().set_specular(0.0);
         sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
-        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         let eye = Tuple4D::new_point(0.0, 0.0, -5.0);
         let eye_vec = Tuple4D::normalize(&(&eye - &point));

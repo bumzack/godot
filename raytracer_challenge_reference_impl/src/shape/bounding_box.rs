@@ -528,10 +528,9 @@ mod tests {
     // Querying a shpaes bounding box in its parents space
     #[test]
     fn test_bounding_box_query_in_parent_space() {
-        let mut s = Sphere::new();
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let trans = &Matrix::translation(1.0, -3.0, 5.0) * &Matrix::scale(0.5, 2.0, 4.0);
-        s.set_transformation(trans);
-        let shape = Shape::new(ShapeEnum::SphereEnum(s));
+        shape.set_transformation(trans);
         let shapes = vec![];
         let b2 = Shape::get_parent_space_bounds_of(&shape, &shapes);
 
@@ -551,17 +550,16 @@ mod tests {
     // A group has a bounding box that contains its children
     #[test]
     fn test_bounding_box_that_contains_its_children() {
-        let mut s = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let trans = &Matrix::translation(2.0, 5.0, -3.0) * &Matrix::scale(2.0, 2.0, 2.0);
-        s.set_transformation(trans);
-        let sphere = Shape::new(ShapeEnum::SphereEnum(s));
+        sphere.set_transformation(trans);
 
-        let mut c = Cylinder::new();
-        c.set_minimum(-2.0);
-        c.set_maximum(2.0);
+        let mut cylinder = Cylinder::new();
+        cylinder.set_minimum(-2.0);
+        cylinder.set_maximum(2.0);
+        let mut cylinder = Shape::new(ShapeEnum::CylinderEnum(cylinder));
         let trans = &Matrix::translation(-4.0, -1.0, 4.0) * &Matrix::scale(0.5, 1.0, 0.5);
-        c.set_transformation(trans);
-        let cylinder = Shape::new(ShapeEnum::CylinderEnum(c));
+        cylinder.set_transformation(trans);
 
         let mut shapes = vec![];
         let group_idx = Group::new(&mut shapes, "group".to_string());
@@ -588,13 +586,11 @@ mod tests {
     // A CSG shape  has a bounding box that contains its children
     #[test]
     fn test_bounding_csg_that_contains_its_children() {
-        let s = Sphere::new();
-        let left = Shape::new(ShapeEnum::SphereEnum(s));
-
-        let mut s = Sphere::new();
+        let mut left = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let trans = Matrix::translation(2.0, 3.0, 4.0);
-        s.set_transformation(trans);
-        let right = Shape::new(ShapeEnum::SphereEnum(s));
+        left.set_transformation(trans);
+
+        let right = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
 
         let mut shapes = vec![];
         let csg = Csg::new(&mut shapes, "csg".to_string(), CsgOp::DIFFERENCE);

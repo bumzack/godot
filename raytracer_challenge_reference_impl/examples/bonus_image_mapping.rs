@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let mut s = Sphere::new();
+    let mut s = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     s.get_material_mut().set_diffuse(0.9);
     s.get_material_mut().set_specular(0.1);
     s.get_material_mut().set_ambient(0.1);
@@ -32,7 +32,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let trans = &rot_y * &translate;
     s.set_transformation(trans);
 
-    let mut p = Plane::new();
+    let mut p = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     p.get_material_mut().set_diffuse(0.1);
     p.get_material_mut().set_specular(0.);
     p.get_material_mut().set_ambient(0.);
@@ -50,8 +50,8 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(p)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(s)));
+    w.add_shape(p);
+    w.add_shape(s);
 
     let mut c = Camera::new(width, height, 0.9);
     c.calc_pixel_size();

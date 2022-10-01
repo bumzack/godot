@@ -30,7 +30,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let plane_checker = PlaneTexturePattern::new(checker);
     let p = Pattern::PlaneTexturePattern(plane_checker);
 
-    let mut plane = Plane::new();
+    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     plane.get_material_mut().set_pattern(p);
     plane.get_material_mut().set_ambient(0.1);
     plane.get_material_mut().set_specular(0.0);
@@ -41,7 +41,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(plane)));
+    w.add_shape(plane);
 
     let mut c = Camera::new(width, height, 0.50);
     c.set_antialiasing(true);

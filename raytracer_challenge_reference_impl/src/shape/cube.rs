@@ -1,11 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Cube {
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
-    material: Material,
-}
+pub struct Cube {}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum CubeFace {
@@ -15,64 +11,6 @@ pub enum CubeFace {
     BACK,
     UP,
     DOWN,
-}
-
-impl<'a> ShapeOps<'a> for Cube {
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Cube::set_transformation: cant unwrap inverse matrix");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
-        // TODO: its for the tests -remove and fix tests and add unreachable
-        let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point, i);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
-    }
-
-    fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
-        let maxc = max_float(local_point.x.abs(), local_point.y.abs(), local_point.z.abs());
-        if (maxc - local_point.x.abs()) < EPSILON {
-            return Tuple4D::new_vector(local_point.x, 0.0, 0.0);
-        } else if (maxc - local_point.y.abs()) < EPSILON {
-            return Tuple4D::new_vector(0.0, local_point.y, 0.0);
-        }
-        Tuple4D::new_vector(0.0, 0.0, local_point.z)
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
-    }
-
-    fn get_parent(&self) -> &Option<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children(&self) -> &Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
 }
 
 impl<'a> ShapeIntersectOps<'a> for Cube {
@@ -107,15 +45,21 @@ impl<'a> ShapeIntersectOps<'a> for Cube {
 
         intersection_list
     }
+
+    fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
+        let maxc = max_float(local_point.x.abs(), local_point.y.abs(), local_point.z.abs());
+        if (maxc - local_point.x.abs()) < EPSILON {
+            return Tuple4D::new_vector(local_point.x, 0.0, 0.0);
+        } else if (maxc - local_point.y.abs()) < EPSILON {
+            return Tuple4D::new_vector(0.0, local_point.y, 0.0);
+        }
+        Tuple4D::new_vector(0.0, 0.0, local_point.z)
+    }
 }
 
 impl Cube {
     pub fn new() -> Cube {
-        Cube {
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            material: Material::new(),
-        }
+        Cube {}
     }
 
     pub fn check_axis(origin: f64, direction: f64) -> (f64, f64) {
@@ -164,8 +108,8 @@ impl Cube {
         }
         CubeFace::BACK
     }
-    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
-        println!("get_bounds_of cube");
+
+    pub fn get_bounds_of(&self) -> BoundingBox {
         let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
         let max = Tuple4D::new_point(1.0, 1.0, 1.0);
         BoundingBox::new_from_min_max(min, max)
@@ -182,7 +126,6 @@ impl Default for Cube {
 mod tests {
     use crate::basics::ray::RayOps;
     use crate::math::common::{assert_float, assert_tuple};
-    use crate::prelude::ShapeOps;
 
     use super::*;
 
@@ -293,10 +236,8 @@ mod tests {
         let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
 
-        let shapes = vec![];
-
         let c = Cube::new();
-        let n = c.normal_at(&point, &shapes, &intersection);
+        let n = c.local_normal_at(&point, &intersection);
         assert_tuple(&n, &n_expected);
     }
 

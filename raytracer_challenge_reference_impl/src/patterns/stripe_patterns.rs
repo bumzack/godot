@@ -163,9 +163,8 @@ mod tests {
     #[test]
     fn test_material_with_pattern_transformation1() {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
-        let mut s = Sphere::new();
-        s.set_transformation(transformation);
-        let shape = Shape::new(ShapeEnum::SphereEnum(s));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape.set_transformation(transformation);
 
         let pattern = StripePattern::new();
 
@@ -177,8 +176,7 @@ mod tests {
     // page 131 part2
     #[test]
     fn test_material_with_pattern_transformation2() {
-        let s = Sphere::new();
-        let shape = Shape::new(ShapeEnum::SphereEnum(s));
+        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
 
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut pattern = StripePattern::new();
@@ -193,9 +191,8 @@ mod tests {
     #[test]
     fn test_material_with_pattern_transformation3() {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
-        let mut s = Sphere::new();
-        s.set_transformation(transformation);
-        let shape = Shape::new(ShapeEnum::SphereEnum(s));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape.set_transformation(transformation);
 
         let transformation_pattern = Matrix::translation(0.5, 0.0, 0.0);
         let mut pattern = StripePattern::new();

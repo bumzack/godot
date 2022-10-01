@@ -290,7 +290,6 @@ pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
     vec![csplit0, csplit1, csplit2, csplit3, csplit4, csplit5, csplit6]
 }
 
-
 #[cfg(test)]
 mod tests {
     #[test]
