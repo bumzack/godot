@@ -47,7 +47,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut cube1 = cube();
     cube1.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube1)));
+    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube1)));
 
     let trans = Matrix::translation(-2.0, 2., 0.0);
     let rot_x = Matrix::rotate_x(0.7854);
@@ -55,7 +55,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let transform = &(&rot_y * &rot_x) * &trans;
     let mut cube2 = cube();
     cube2.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube2)));
+    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube2)));
 
     let trans = Matrix::translation(2.0, 2., 0.0);
     let rot_x = Matrix::rotate_x(0.7854);
@@ -63,7 +63,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let transform = &(&rot_y * &rot_x) * &trans;
     let mut cube3 = cube();
     cube3.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube3)));
+    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube3)));
 
     let trans = Matrix::translation(6.0, 2., 0.0);
     let rot_x = Matrix::rotate_x(0.7854);
@@ -71,7 +71,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let transform = &(&rot_y * &rot_x) * &trans;
     let mut cube4 = cube();
     cube4.set_transformation(transform);
-    w.add_shape(Shape::new(ShapeEnum::Cube(cube4)));
+    w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube4)));
 
     // let trans = Matrix::translation(-6.0, -2., 0.0);
     // let rot_x = Matrix::rotate_x(-0.7854);
@@ -79,7 +79,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     // let transform = &(&rot_y * &rot_x) * &trans;
     // let mut cube5 = cube( );
     // cube5.set_transformation(transform);
-    // w.add_shape(Shape::new(ShapeEnum::Cube(cube5)));
+    // w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube5)));
     //
     // let trans = Matrix::translation(-2.0, -2., 0.0);
     // let rot_x = Matrix::rotate_x(-0.7854);
@@ -87,7 +87,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     // let transform = &(&rot_y * &rot_x) * &trans;
     // let mut cube6 = cube( );
     // cube6.set_transformation(transform);
-    // w.add_shape(Shape::new(ShapeEnum::Cube(cube6)));
+    // w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube6)));
     //
     // let trans = Matrix::translation(2.0, -2., 0.0);
     // let rot_x = Matrix::rotate_x(-0.7854);
@@ -95,7 +95,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     // let transform = &(&rot_y * &rot_x) * &trans;
     // let mut cube7 = cube( );
     // cube7.set_transformation(transform);
-    // w.add_shape(Shape::new(ShapeEnum::Cube(cube7)));
+    // w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube7)));
     //
     // let trans = Matrix::translation(6.0, -2., 0.0);
     // let rot_x = Matrix::rotate_x(-0.7854);
@@ -103,7 +103,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     // let transform = &(&rot_y * &rot_x) * &trans;
     // let mut cube8 = cube( );
     // cube8.set_transformation(transform);
-    // w.add_shape(Shape::new(ShapeEnum::Cube(cube8)));
+    // w.add_shape(Shape::new(ShapeEnum::CubeEnum(cube8)));
 
     let mut c = Camera::new(width, height, 0.8);
     c.calc_pixel_size();

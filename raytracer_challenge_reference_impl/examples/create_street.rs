@@ -93,7 +93,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     x_axis.get_material_mut().set_diffuse(0.6);
     x_axis.get_material_mut().set_specular(0.0);
     x_axis.get_material_mut().set_reflective(0.1);
-    let x_axis = Shape::new(ShapeEnum::Cylinder(x_axis));
+    let x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
 
     let mut floor = Cube::new();
     floor.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
@@ -105,7 +105,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let m_scale = Matrix::scale(2.0, 0.01, 4.0);
     floor.set_transformation(m_scale);
 
-    let floor = Shape::new(ShapeEnum::Cube(floor));
+    let floor = Shape::new(ShapeEnum::CubeEnum(floor));
 
     let mut world = World::new();
     world.add_shape(x_axis);

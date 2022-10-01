@@ -792,7 +792,7 @@ mod tests {
     //     p.get_material_mut().set_reflective(0.5);
     //     let m = Matrix::translation(0.0, -1.0, 0.0);
     //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::Plane(p));
+    //     let plane = Shape::new(ShapeEnum::PlaneEnum(p));
     //     w.add_shape(plane);
     //
     //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
@@ -824,7 +824,7 @@ mod tests {
     //     p.get_material_mut().set_reflective(0.5);
     //     let m = Matrix::translation(0.0, -1.0, 0.0);
     //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::Plane(p));
+    //     let plane = Shape::new(ShapeEnum::PlaneEnum(p));
     //     w.add_shape(plane);
     //
     //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
@@ -862,8 +862,8 @@ mod tests {
     //     u.set_transformation(m_upper);
     //     u.get_material_mut().set_reflective(1.0);
     //
-    //     let upper = Shape::new(ShapeEnum::Plane(u));
-    //     let lower = Shape::new(ShapeEnum::Plane(l));
+    //     let upper = Shape::new(ShapeEnum::PlaneEnum(u));
+    //     let lower = Shape::new(ShapeEnum::PlaneEnum(l));
     //
     //     w.add_shape(lower);
     //     w.add_shape(upper);
@@ -886,7 +886,7 @@ mod tests {
     //     p.get_material_mut().set_reflective(0.5);
     //     let m = Matrix::translation(0.0, -1.0, 0.0);
     //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::Plane(p));
+    //     let plane = Shape::new(ShapeEnum::PlaneEnum(p));
     //
     //     w.add_shape(plane);
     //
@@ -1091,8 +1091,8 @@ mod tests {
     //     ball.get_material_mut().set_ambient(0.5);
     //     ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
     //
-    //     let plane = Shape::new(ShapeEnum::Plane(plane));
-    //     let sphere = Shape::new(ShapeEnum::Sphere(ball));
+    //     let plane = Shape::new(ShapeEnum::PlaneEnum(plane));
+    //     let sphere = Shape::new(ShapeEnum::SphereEnum(ball));
     //     w.add_shape(plane.clone());
     //     w.add_shape(sphere);
     //

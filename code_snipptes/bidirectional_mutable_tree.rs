@@ -11,24 +11,24 @@ use std::{
 
 
 fn main() {
-    let root = Node::new( ShapeEnum::Sphere(DummyShape { x: 1.0, y: -1.0 }));
-    let child_node1 = Node::new(ShapeEnum::Cube(DummyShape { x: 1.0, y: 1.0 }));
+    let root = Node::new( ShapeEnum::SphereEnum(DummyShape { x: 1.0, y: -1.0 }));
+    let child_node1 = Node::new(ShapeEnum::CubeEnum(DummyShape { x: 1.0, y: 1.0 }));
     root.add_child_and_update_its_parent(&child_node1);
-    let child_node2 = Node::new(ShapeEnum::Cylinder(DummyShape { x: 1.0, y: 2.0 }));
-    let child_node3 = Node::new(ShapeEnum::Plane(DummyShape { x: 1.0, y: 3.0 }));
+    let child_node2 = Node::new(ShapeEnum::CylinderEnum(DummyShape { x: 1.0, y: 2.0 }));
+    let child_node3 = Node::new(ShapeEnum::PlaneEnum(DummyShape { x: 1.0, y: 3.0 }));
     root.add_child_and_update_its_parent(&child_node1);
     root.add_child_and_update_its_parent(&child_node2);
     root.add_child_and_update_its_parent(&child_node3);
 
-    let child_node11 = Node::new(ShapeEnum::Plane(DummyShape { x: 2.0, y: 1.0 }));
-    let child_node12 = Node::new(ShapeEnum::Cube(DummyShape { x: 2.0, y: 2.0 }));
-    let child_node13 = Node::new(ShapeEnum::Triangle(DummyShape { x: 2.0, y: 3.0 }));
+    let child_node11 = Node::new(ShapeEnum::PlaneEnum(DummyShape { x: 2.0, y: 1.0 }));
+    let child_node12 = Node::new(ShapeEnum::CubeEnum(DummyShape { x: 2.0, y: 2.0 }));
+    let child_node13 = Node::new(ShapeEnum::TriangleEnum(DummyShape { x: 2.0, y: 3.0 }));
 
     child_node1.add_child_and_update_its_parent(&child_node11);
     child_node1.add_child_and_update_its_parent(&child_node12);
     child_node1.add_child_and_update_its_parent(&child_node13);
 
-    let child_node21 = Node::new( ShapeEnum::Sphere(DummyShape { x: 1.0, y: -1.0 }));
+    let child_node21 = Node::new( ShapeEnum::SphereEnum(DummyShape { x: 1.0, y: -1.0 }));
     child_node13.add_child_and_update_its_parent(&child_node21);
 
     println!("{:#?}: {:#?}", "[tree]", root); // Pretty print.
@@ -216,11 +216,11 @@ mod tests {
 
     #[test]
     fn test_tree_low_level_node_manipulation() {
-        let cube = ShapeEnum::Cube(DummyShape::new());
+        let cube = ShapeEnum::CubeEnum(DummyShape::new());
         let child_node = Node::new(cube);
 
         {
-            let sphere = ShapeEnum::Sphere(DummyShape::new());
+            let sphere = ShapeEnum::SphereEnum(DummyShape::new());
             let parent_node = Node::new(sphere);
             parent_node.add_child_and_update_its_parent(&child_node);
 
@@ -262,14 +262,14 @@ mod tests {
 
     #[test]
     fn test_tree_simple_api() {
-        let cube = ShapeEnum::Cube(DummyShape::new());
+        let cube = ShapeEnum::CubeEnum(DummyShape::new());
         let root_node = Node::new(cube);
         // assert_eq!(root_node.get_copy_of_internal_arc().value, 5);
 
         {
             // ⚠️ In the following line, `Node` is not returned by `create_and_add_child()`. Instead a ref
             // (`Arc`) to the underlying `NodeData` is returned.
-            let sphere = ShapeEnum::Sphere(DummyShape::new());
+            let sphere = ShapeEnum::SphereEnum(DummyShape::new());
             let child_node_data_ref = root_node.create_and_add_child(sphere);
            //  assert_eq!(child_node_data_ref.value, 3);
             assert_eq!(

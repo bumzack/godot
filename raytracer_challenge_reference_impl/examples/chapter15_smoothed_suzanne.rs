@@ -126,15 +126,15 @@ fn setup_world(
     w.add_light(area_light);
     //   w.add_light(    l);
 
-    w.add_shape(Shape::new(ShapeEnum::Sphere(floor)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::Sphere(right_wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(floor)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(left_wall)));
+    w.add_shape(Shape::new(ShapeEnum::SphereEnum(right_wall)));
     // w.add_x_axis();
     // w.add_y_axis();
     // w.add_z_axis();
-    // w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
-    // w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
-    // w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
+    // w.add_shape(Shape::new(ShapeEnum::SphereEnum(middle)));
+    // w.add_shape(Shape::new(ShapeEnum::SphereEnum(left)));
+    // w.add_shape(Shape::new(ShapeEnum::SphereEnum(right)));
 
     let filename =
         "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/suzanne.obj";
