@@ -53,12 +53,12 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     let wall_trans = &Matrix::rotate_x(1.5708) * &Matrix::translation(0., 0., 10.);
 
     // wall
-    let mut wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut wall = Shape::new_plane(Plane::new(), "plane".to_string());
     wall.set_transformation(wall_trans);
     wall.set_material(wall_material);
 
     // bg glass_ball
-    let mut glass_ball = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut glass_ball = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     glass_ball.get_material_mut().set_ambient(0.0);
     glass_ball.get_material_mut().set_diffuse(0.0);
     glass_ball.get_material_mut().set_specular(0.9);
@@ -68,7 +68,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     glass_ball.get_material_mut().set_refractive_index(1.5);
 
     //hollow_center
-    let mut hollow_center = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut hollow_center = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.5, 0.5, 0.5);
     hollow_center.set_transformation(trans);
     hollow_center.get_material_mut().set_ambient(0.0);

@@ -54,7 +54,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     let area_light = Light::AreaLight(area_light);
 
     // ---- CUBE -------
-    let mut cube = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    let mut cube = Shape::new_cube(Cube::new(), "cube".to_string());
     cube.get_material_mut().set_color(Color::new(1.5, 1.5, 1.5));
     cube.get_material_mut().set_ambient(1.0);
     cube.get_material_mut().set_diffuse(0.0);
@@ -68,14 +68,14 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     cube.set_casts_shadow(false);
 
     // ---- PLANE -------
-    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut plane = Shape::new_plane(Plane::new(), "plane".to_string());
     plane.get_material_mut().set_color(Color::new(1., 1., 1.));
     plane.get_material_mut().set_ambient(0.025);
     plane.get_material_mut().set_diffuse(0.67);
     plane.get_material_mut().set_specular(0.0);
 
     // ---- SPHERE 1 -------
-    let mut sphere1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut sphere1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     sphere1.get_material_mut().set_color(Color::new(1.0, 0., 0.));
     sphere1.get_material_mut().set_ambient(0.1);
     sphere1.get_material_mut().set_diffuse(0.6);
@@ -89,7 +89,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     sphere1.set_transformation(m);
 
     // ---- SPHERE 2 -------
-    let mut sphere2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut sphere2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
     sphere2.get_material_mut().set_ambient(0.1);
     sphere2.get_material_mut().set_diffuse(0.6);

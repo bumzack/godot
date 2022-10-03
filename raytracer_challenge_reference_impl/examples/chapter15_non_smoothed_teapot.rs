@@ -58,12 +58,12 @@ fn setup_world(
     arealight_u: usize,
     arealight_v: usize,
 ) -> (World, Camera) {
-    let mut floor = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut floor = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     floor.set_transformation(Matrix::scale(20.0, 0.01, 20.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     floor.get_material_mut().set_specular(0.0);
 
-    let mut left_wall = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut left_wall = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     left_wall.set_transformation(
         &(&(&Matrix::translation(0.0, 0.0, 6.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.),
@@ -71,7 +71,7 @@ fn setup_world(
     left_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     left_wall.get_material_mut().set_specular(0.0);
 
-    let mut right_wall = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut right_wall = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     right_wall.set_transformation(
         &(&(&Matrix::translation(0.0, 0.0, 6.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.0),

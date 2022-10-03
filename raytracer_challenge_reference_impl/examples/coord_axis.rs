@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 pub fn add_floor(world: &mut World) {
     // floor
-    let mut floor = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    let mut floor = Shape::new_cube(Cube::new(), "cube".to_string());
     floor.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
     floor.get_material_mut().set_ambient(0.3);
     floor.get_material_mut().set_diffuse(0.6);
@@ -69,7 +69,7 @@ pub fn add_borders(world: &mut World) {
     let distance_from_z_axis = 1.0;
 
     // left border
-    let mut left_border = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    let mut left_border = Shape::new_cube(Cube::new(), "cube".to_string());
     left_border.get_material_mut().set_color(Color::new(1.0, 0.0, 1.0));
 
     let m_trans = Matrix::translation(-distance_from_z_axis, height, length);
@@ -79,7 +79,7 @@ pub fn add_borders(world: &mut World) {
     left_border.set_transformation(m);
     left_border.set_casts_shadow(false);
 
-    let mut right_border = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    let mut right_border = Shape::new_cube(Cube::new(), "cube".to_string());
     right_border.get_material_mut().set_color(Color::new(1.0, 1.0, 0.0));
 
     let m_trans = Matrix::translation(distance_from_z_axis, height, length);
@@ -101,7 +101,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     x_axis.set_minimum(0.0);
     x_axis.set_maximum(1.0);
     x_axis.set_closed(true);
-    let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
+    let mut x_axis = Shape::new_cylinder(x_axis, "cylinder".to_string());
     x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
     x_axis.get_material_mut().set_ambient(0.3);
     x_axis.get_material_mut().set_diffuse(0.6);
@@ -121,7 +121,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     y_axis.set_minimum(0.0);
     y_axis.set_maximum(1.0);
     y_axis.set_closed(true);
-    let mut y_axis = Shape::new(ShapeEnum::CylinderEnum(y_axis));
+    let mut y_axis = Shape::new_cylinder(y_axis, "cylinder".to_string());
     y_axis.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
     y_axis.get_material_mut().set_ambient(0.3);
     y_axis.get_material_mut().set_diffuse(0.6);
@@ -141,7 +141,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     z_axis.set_minimum(0.0);
     z_axis.set_maximum(1.0);
     z_axis.set_closed(true);
-    let mut z_axis = Shape::new(ShapeEnum::CylinderEnum(z_axis));
+    let mut z_axis = Shape::new_cylinder(z_axis, "cylinder".to_string());
     z_axis.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
     z_axis.get_material_mut().set_ambient(0.3);
     z_axis.get_material_mut().set_diffuse(0.6);
@@ -157,7 +157,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     z_axis.set_casts_shadow(false);
 
     // sphere to test Z axis
-    let mut sphere_z = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut sphere_z = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     sphere_z.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
     sphere_z.get_material_mut().set_ambient(0.3);
 
@@ -166,7 +166,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     sphere_z.set_casts_shadow(false);
 
     // sphere to test y axis
-    let mut sphere_y = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut sphere_y = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     sphere_y.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
 
     let m_translate = &Matrix::translation(0.0, 1.00, 0.0) * &Matrix::scale(0.2, 0.2, 0.2);
@@ -174,7 +174,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     sphere_y.set_casts_shadow(false);
 
     // sphere to test y axis
-    let mut sphere_x = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut sphere_x = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     sphere_x.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
     let m_translate = &Matrix::translation(1.0, 0.00, 0.0) * &Matrix::scale(0.2, 0.2, 0.2);

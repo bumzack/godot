@@ -34,7 +34,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(2, 2, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
     let plane_checker = Pattern::new(PatternEnum::PlaneTexturePatternEnum(PlaneTexturePattern::new(checker)));
 
-    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut plane = Shape::new_plane(Plane::new(), "plane".to_string());
     plane.get_material_mut().set_pattern(plane_checker);
     plane.get_material_mut().set_ambient(0.1);
     plane.get_material_mut().set_specular(0.0);

@@ -157,7 +157,7 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin, direction);
 
-        let shape = Shape::new(ShapeEnum::CylinderEnum(Cylinder::new()));
+        let shape = Shape::new_cylinder(Cylinder::new(), "cylinder".to_string());
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -188,7 +188,7 @@ mod tests {
         direction = Tuple4D::normalize(&direction);
         let r = Ray::new(origin.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::CylinderEnum(Cylinder::new()));
+        let shape = Shape::new_cylinder(Cylinder::new(), "cylinder".to_string());
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -232,7 +232,7 @@ mod tests {
 
     // page 181
     fn test_ray_cylinder_normal_at_helper(point: Tuple4D, n_expected: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let intersection = Intersection::new(1.0, &shape);
 
         let cyl = Cylinder::new();
@@ -286,14 +286,14 @@ mod tests {
 
     // page 182
     fn test_ray_cylinder_truncate_helper(point: Tuple4D, mut direction: Tuple4D, count: usize) {
-        let mut cyl = Cylinder::new();
-        cyl.set_minimum(1.0);
-        cyl.set_maximum(2.0);
+        let mut cylinder = Cylinder::new();
+        cylinder.set_minimum(1.0);
+        cylinder.set_maximum(2.0);
         direction = Tuple4D::normalize(&direction);
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::CylinderEnum(cyl));
+        let shape = Shape::new_cylinder(cylinder, "cylinder".to_string());
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -344,15 +344,15 @@ mod tests {
 
     // page 185
     fn test_ray_cylinder_capped_helper(point: Tuple4D, mut direction: Tuple4D, count: usize) {
-        let mut cyl = Cylinder::new();
-        cyl.set_minimum(1.0);
-        cyl.set_maximum(2.0);
-        cyl.set_closed(true);
+        let mut cylinder = Cylinder::new();
+        cylinder.set_minimum(1.0);
+        cylinder.set_maximum(2.0);
+        cylinder.set_closed(true);
         direction = Tuple4D::normalize(&direction);
 
         let r = Ray::new(point.clone(), direction.clone());
 
-        let shape = Shape::new(ShapeEnum::CylinderEnum(cyl));
+        let shape = Shape::new_cylinder(cylinder, "cylinder".to_string());
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -394,7 +394,7 @@ mod tests {
 
     // page 186
     fn test_ray_cylinder_capped_normal_at_helper(point: Tuple4D, normal: Tuple4D) {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let intersection = Intersection::new(1.0, &shape);
         let mut cyl = Cylinder::new();
         cyl.set_minimum(1.0);

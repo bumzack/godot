@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());
     let mut ring_pattern = RingPattern::new();
     ring_pattern.set_color_a(Color::new(1.0, 0.9, 0.9));
     ring_pattern.set_color_b(Color::new(0.1, 0.3, 0.3));
@@ -46,7 +46,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     ring_pattern.set_color_b(Color::new(0.9, 0.6, 0.9));
     let mut ring_pattern = Pattern::new(RingPatternEnum(ring_pattern));
 
-    let mut ball1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut ball1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     ball1.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
     ball1.get_material_mut().set_pattern(ring_pattern);
     ball1.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
@@ -61,7 +61,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut stripe_pattern = Pattern::new(PatternEnum::StripePatternEnum(stripe_pattern));
     stripe_pattern.set_transformation(&Matrix::rotate_y(PI / 5.0) * &Matrix::scale(0.25, 0.25, 0.25));
 
-    let mut ball2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut ball2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     ball2.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
     ball2.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
     ball2.get_material_mut().set_diffuse(0.7);
@@ -78,7 +78,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
         &(&Matrix::rotate_x(PI / 2.0) * &Matrix::rotate_y(PI / 5.0)) * &Matrix::scale(0.25, 0.25, 0.25),
     );
 
-    let mut ball3 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut ball3 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     ball3.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.33, 0.33, 0.33));
     ball3.get_material_mut().set_diffuse(0.7);
     ball3.get_material_mut().set_specular(0.3);

@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn hexagon_corner<'a>(idx: usize) -> Shape {
-    let mut corner = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut corner = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::scale(0.25, 0.25, 0.25);
     corner.set_transformation(trans);
     corner.get_material_mut().set_color(get_color(idx));
@@ -55,7 +55,7 @@ fn hexagon_edge<'a>(idx: usize) -> Shape {
     let mut edge = Cylinder::new();
     edge.set_minimum(0.0);
     edge.set_maximum(1.0);
-    let mut edge = Shape::new(ShapeEnum::CylinderEnum(edge));
+    let mut edge = Shape::new_cylinder(edge, "cylinder".to_string());
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::rotate_y(-PI / 6.0);
     let trans = &trans * &Matrix::rotate_z(-PI / 2.0);
     let trans = &trans * &Matrix::scale(0.25, 1.0, 0.25);

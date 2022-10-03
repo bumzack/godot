@@ -225,7 +225,7 @@ mod tests {
     #[test]
     fn test_bounding_box_sphere() {
         let sphere = Sphere::new();
-        let shape = Shape::new(ShapeEnum::SphereEnum(sphere));
+        let shape = Shape::new_sphere(sphere, "sphere".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -242,7 +242,7 @@ mod tests {
     #[test]
     fn test_bounding_box_plane() {
         let plane = Plane::new();
-        let shape = Shape::new(ShapeEnum::PlaneEnum(plane));
+        let shape = Shape::new_plane(plane, "plane".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -264,7 +264,7 @@ mod tests {
     #[test]
     fn test_bounding_box_cube() {
         let cube = Cube::new();
-        let shape = Shape::new(ShapeEnum::CubeEnum(cube));
+        let shape = Shape::new_cube(cube, "cube".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -281,7 +281,7 @@ mod tests {
     #[test]
     fn test_bounding_box_unbounded_cylinder() {
         let cylinder = Cylinder::new();
-        let shape = Shape::new(ShapeEnum::CylinderEnum(cylinder));
+        let shape = Shape::new_cylinder(cylinder, "cylinder".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -305,7 +305,7 @@ mod tests {
         let mut cylinder = Cylinder::new();
         cylinder.set_minimum(-5.0);
         cylinder.set_maximum(3.0);
-        let shape = Shape::new(ShapeEnum::CylinderEnum(cylinder));
+        let shape = Shape::new_cylinder(cylinder, "cylinder".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -376,7 +376,7 @@ mod tests {
         let p3 = Tuple4D::new_point(2.0, -1.0, -1.0);
 
         let triangle = Triangle::new(p1, p2, p3);
-        let shape = Shape::new(ShapeEnum::TriangleEnum(triangle));
+        let shape = Shape::new_triangle(triangle, "triangle".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -404,7 +404,7 @@ mod tests {
         let n = Tuple4D::new_vector(1.0, 1.0, 1.0);
 
         let triangle = SmoothTriangle::new(p1, p2, p3, n.clone(), n.clone(), n);
-        let shape = Shape::new(ShapeEnum::SmoothTriangleEnum(triangle));
+        let shape = Shape::new_smooth_triangle(triangle, "smooth triangle".to_string());
 
         let shapes = vec![];
         let bb = shape.get_bounds_of(&shapes);
@@ -528,7 +528,7 @@ mod tests {
     // Querying a shpaes bounding box in its parents space
     #[test]
     fn test_bounding_box_query_in_parent_space() {
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let trans = &Matrix::translation(1.0, -3.0, 5.0) * &Matrix::scale(0.5, 2.0, 4.0);
         shape.set_transformation(trans);
         let shapes = vec![];
@@ -550,14 +550,14 @@ mod tests {
     // A group has a bounding box that contains its children
     #[test]
     fn test_bounding_box_that_contains_its_children() {
-        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let trans = &Matrix::translation(2.0, 5.0, -3.0) * &Matrix::scale(2.0, 2.0, 2.0);
         sphere.set_transformation(trans);
 
         let mut cylinder = Cylinder::new();
         cylinder.set_minimum(-2.0);
         cylinder.set_maximum(2.0);
-        let mut cylinder = Shape::new(ShapeEnum::CylinderEnum(cylinder));
+        let mut cylinder = Shape::new_cylinder(cylinder, "cylinder".to_string());
         let trans = &Matrix::translation(-4.0, -1.0, 4.0) * &Matrix::scale(0.5, 1.0, 0.5);
         cylinder.set_transformation(trans);
 
@@ -586,11 +586,11 @@ mod tests {
     // A CSG shape  has a bounding box that contains its children
     #[test]
     fn test_bounding_csg_that_contains_its_children() {
-        let mut left = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut left = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let trans = Matrix::translation(2.0, 3.0, 4.0);
         left.set_transformation(trans);
 
-        let right = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let right = Shape::new_sphere(Sphere::new(), "sphere".to_string());
 
         let mut shapes = vec![];
         let csg = Csg::new(&mut shapes, "csg".to_string(), CsgOp::DIFFERENCE);

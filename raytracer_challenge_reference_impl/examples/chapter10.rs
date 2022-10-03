@@ -6,7 +6,7 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());
     let mut gradient_pattern = GradientPattern::new();
     gradient_pattern.set_color_a(Color::new(1.0, 0.0, 0.0));
     gradient_pattern.set_color_a(Color::new(1.0, 0.0, 1.0));
@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let m = Matrix::rotate_x(PI / 4.0);
     p.set_transformation(m);
 
-    let mut left_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut left_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     left_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
@@ -33,25 +33,25 @@ fn main() -> Result<(), Box<dyn Error>> {
     checker3dpattern.set_color_a(Color::new(0.8, 0.2, 0.2));
     let mut checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3dpattern));
 
-    let mut right_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut right_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     right_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
     right_wall.get_material_mut().set_pattern(checker_3d);
 
-    let mut middle = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut middle = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
     middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
     middle.get_material_mut().set_diffuse(0.7);
     middle.get_material_mut().set_specular(0.3);
 
-    let mut right = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut right = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
     right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
     right.get_material_mut().set_diffuse(0.7);
     right.get_material_mut().set_specular(0.3);
 
-    let mut left = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut left = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
     left.get_material_mut().set_color(Color::new(1.0, 0.8, 0.1));
     left.get_material_mut().set_diffuse(0.7);

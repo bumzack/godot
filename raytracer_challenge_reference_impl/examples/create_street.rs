@@ -89,14 +89,14 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     x_axis.set_maximum(1.0);
     x_axis.set_closed(true);
 
-    let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
+    let mut x_axis = Shape::new_cylinder(x_axis, "x_axis".to_string());
     x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
     x_axis.get_material_mut().set_ambient(0.3);
     x_axis.get_material_mut().set_diffuse(0.6);
     x_axis.get_material_mut().set_specular(0.0);
     x_axis.get_material_mut().set_reflective(0.1);
 
-    let mut floor = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    let mut floor = Shape::new_cube(Cube::new(), "cube".to_string());
     floor.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
     floor.get_material_mut().set_ambient(0.3);
     floor.get_material_mut().set_diffuse(0.6);

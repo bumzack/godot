@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let mut s = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut s = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     s.get_material_mut().set_diffuse(0.9);
     s.get_material_mut().set_specular(0.1);
     s.get_material_mut().set_ambient(0.1);
@@ -44,7 +44,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let trans = &translate * &rot_y;
     s.set_transformation(trans);
 
-    let mut p = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut p = Shape::new_plane(Plane::new(), "plane".to_string());
     p.get_material_mut().set_diffuse(0.1);
     p.get_material_mut().set_specular(0.);
     p.get_material_mut().set_ambient(0.);
