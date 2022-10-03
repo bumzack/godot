@@ -57,7 +57,6 @@ mod tests {
     use crate::math::tuple4d::Tuple;
     use crate::patterns::Pattern;
     use crate::prelude::PatternEnum::StripePatternEnum;
-    use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;
 
     use super::*;

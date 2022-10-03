@@ -28,7 +28,6 @@ mod tests {
     use crate::patterns::patterns::PatternEnum;
     use crate::patterns::Pattern;
     use crate::prelude::{Matrix, MatrixOps, ShapeOps};
-    use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;
 
     use super::*;

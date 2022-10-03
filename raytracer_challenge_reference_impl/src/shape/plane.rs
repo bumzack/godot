@@ -52,7 +52,6 @@ mod tests {
     use crate::basics::ray::RayOps;
     use crate::math::common::assert_float;
     use crate::math::common::assert_matrix;
-    use crate::shape::shape::{Shape, ShapeEnum};
     use crate::shape::sphere::Sphere;
 
     use super::*;

@@ -3,7 +3,6 @@ use std::f64::consts::PI;
 use crate::prelude::patterns::PatternEnum;
 use crate::prelude::test_patterns::TestPattern;
 use crate::prelude::*;
-use crate::shape::ShapeEnum::PlaneEnum;
 use crate::DEBUG;
 
 pub type ShapeIdx = usize;

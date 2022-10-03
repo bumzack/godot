@@ -67,10 +67,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     ));
 
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core_tiled(&c, &w, 10, 10);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter07.png")?;
+    canvas.write_png("chapter07_tiled.png")?;
 
     println!("DONE");
 

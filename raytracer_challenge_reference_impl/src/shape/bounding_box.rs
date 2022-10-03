@@ -165,7 +165,7 @@ mod tests {
     use crate::basics::{Ray, RayOps};
     use crate::math::{assert_tuple, Matrix, MatrixOps, Tuple};
     use crate::prelude::{Csg, Cylinder, Shape, ShapeOps, Sphere};
-    use crate::shape::{CsgOp, Cube, Group, Plane, ShapeEnum, SmoothTriangle, Triangle};
+    use crate::shape::{CsgOp, Cube, Group, Plane, SmoothTriangle, Triangle};
 
     use super::*;
 

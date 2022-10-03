@@ -77,7 +77,7 @@ mod tests {
     use crate::material::{Material, MaterialOps};
     use crate::math::{assert_color, assert_float, assert_matrix, assert_tuple, Matrix, MatrixOps, Tuple, Tuple4D};
     use crate::prelude::ShapeEnum::SphereEnum;
-    use crate::prelude::{glass_sphere, Shape, ShapeEnum, ShapeIntersectOps, ShapeOps, Sphere};
+    use crate::prelude::{glass_sphere, Shape, ShapeIntersectOps, ShapeOps, Sphere};
 
     #[test]
     fn test_ray_sphere_intersection() {
