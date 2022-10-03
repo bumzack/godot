@@ -19,18 +19,13 @@ impl ImageTexturePattern {
     }
 
     pub fn uv_pattern_at(image: &Canvas, u: f64, v: f64) -> Color {
-        let v = 1.0 - v;
+        let flipped_v = 1.0 - v;
         let x = u * (image.get_width() as f64 - 1.0);
-        let y = v * (image.get_height() as f64 - 1.0);
+        let y = flipped_v * (image.get_height() as f64 - 1.0);
         let color = image.pixel_at(x as usize, y as usize).color;
-        // println!(
-        //     "x  = {}, y =  {}    color = {:?}      w {}, h {}",
-        //     x,
-        //     y,
-        //     color,
-        //     image.get_width(),
-        //     image.get_height()
-        // );
-        image.pixel_at(x as usize, y as usize).color
+        if u < 10. && v < 10. {
+            println!("u {}  v {}   c  {:?} ", u, v, &color);
+        }
+        color
     }
 }

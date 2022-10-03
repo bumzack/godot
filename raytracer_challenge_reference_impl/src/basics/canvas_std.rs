@@ -79,18 +79,16 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
 
         let mut c = Canvas::new(w, h);
 
-        c.set_width(w);
-        c.set_height(h);
         println!("w {}, h {}", w, h);
 
         for (x, y, pixel) in img.pixels() {
             let p = pixel.0;
-            // println!("pixel r: {:?} g: {:?} b: {:?} a: {:?}", p[0], p[1], p[2], p[3]);
-            c.write_pixel(
-                x as usize,
-                y as usize,
-                Color::new(p[0] as f64, p[1] as f64, p[2] as f64),
-            );
+            let color = Color::new(p[0] as f64, p[1] as f64, p[2] as f64);
+            // println!(
+            //     "pixel r: {:?} g: {:?} b: {:?} a: {:?}    -->   Color  {:?}",
+            //     p[0], p[1], p[2], p[3], &color
+            // );
+            c.write_pixel(x as usize, y as usize, color);
         }
         Ok(c)
     }

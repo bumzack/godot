@@ -56,7 +56,7 @@ impl CanvasOps for Canvas {
     fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
         assert!(x < self.width);
         assert!(y < self.height);
-
+        //println!("write_pixel   x {}  y {}   c   {:?} ", x, y, &c);
         self.pixel[y * self.width + x].color = c;
     }
 

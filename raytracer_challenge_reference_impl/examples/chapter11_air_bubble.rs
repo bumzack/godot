@@ -96,8 +96,8 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     c.set_antialiasing_size(anitaliasing_size);
 
     c.set_transformation(Matrix::view_transform(
-        //&Tuple4D::new_point(4.0, 4.0, -6.0),
-        &Tuple4D::new_point(0., 0.0, -5.0),
+        &Tuple4D::new_point(4.0, 4.0, -6.0),
+        // &Tuple4D::new_point(0., 0.0, -5.0),
         &Tuple4D::new_point(0.0, 0.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));

@@ -10,19 +10,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let antialiasing = true;
     let antialiasing_size = 3;
 
-    let filename;
-    if antialiasing {
-        filename = format!("./soft_shadow_aa_size_{}_multi_core.png", antialiasing_size);
-    } else {
-        filename = format!("./soft_shadow_multi_core_no_aa.png",);
-    }
-
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-
     let start = Instant::now();
-
     let canvas = Camera::render_multi_core(&camera, &world);
-
     let dur = Instant::now() - start;
     if camera.get_antialiasing() {
         println!(
@@ -33,7 +23,19 @@ fn main() -> Result<(), Box<dyn Error>> {
     } else {
         println!("multi core duration: {:?}, no AA", dur);
     }
-    canvas.write_png(filename.as_str())?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!(
+        "./test_soft_shadow_aka_area_lights_{}_{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+
+    canvas.write_png(&filename)?;
+    println!("written file {}", filename);
 
     Ok(())
 }
