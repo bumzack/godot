@@ -1,8 +1,10 @@
-use crate::prelude::patterns::Pattern;
+use std::f64::consts::PI;
+
+use crate::prelude::patterns::PatternEnum;
 use crate::prelude::test_patterns::TestPattern;
 use crate::prelude::*;
+use crate::shape::ShapeEnum::PlaneEnum;
 use crate::DEBUG;
-use std::f64::consts::PI;
 
 pub type ShapeIdx = usize;
 pub type ShapeArr = Vec<Shape>;
@@ -134,7 +136,7 @@ impl WorldOps for World {
         let xs = Intersection::intersect_world(w, r);
         let res = match xs.hit() {
             Some(i) => {
-                let comp = Intersection::prepare_computations(i, r, &IntersectionList::new(), w.get_shapes());
+                let comp = Intersection::prepare_computations(i, r, &IntersectionList::new());
                 World::shade_hit(w, &comp, remaining)
             }
             None => BLACK,
@@ -221,7 +223,7 @@ impl WorldOps for World {
         let m_translate = Matrix::translation(0.0, -1.0, 0.0);
         let m = m_translate;
 
-        let mut floor = Plane::new();
+        let mut floor = Shape::new(PlaneEnum(Plane::new()));
         floor.set_transformation(m);
 
         floor.get_material_mut().set_ambient(0.1);
@@ -231,10 +233,10 @@ impl WorldOps for World {
         let mut floor_stripe_pattern = StripePattern::new();
         floor_stripe_pattern.set_color_a(Color::new(1.0, 0.0, 0.0));
         floor_stripe_pattern.set_color_b(Color::new(0.0, 0.0, 1.0));
-        let floor_stripe_pattern = Pattern::StripePattern(floor_stripe_pattern);
+        let floor_stripe_pattern = Pattern::new(PatternEnum::StripePatternEnum(floor_stripe_pattern));
         floor.get_material_mut().set_pattern(floor_stripe_pattern);
 
-        self.add_shape(Shape::new(ShapeEnum::PlaneEnum(floor)));
+        self.add_shape(floor);
     }
 
     fn add_x_axis(&mut self) {
@@ -245,6 +247,9 @@ impl WorldOps for World {
         x_axis.set_minimum(0.0);
         x_axis.set_maximum(1.0);
         x_axis.set_closed(true);
+
+        let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
+
         x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
         x_axis.get_material_mut().set_ambient(0.3);
         x_axis.get_material_mut().set_diffuse(0.6);
@@ -257,7 +262,6 @@ impl WorldOps for World {
         let m_scale = Matrix::scale(radius, len, radius);
         let m = &m_trans * &(m_rot * m_scale);
         x_axis.set_transformation(m);
-        let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
         x_axis.set_casts_shadow(false);
         self.add_shape(x_axis);
     }
@@ -269,19 +273,20 @@ impl WorldOps for World {
         y_axis.set_minimum(0.0);
         y_axis.set_maximum(1.0);
         y_axis.set_closed(true);
+        // y_axis.get_material_mut().set_transparency(0.5);
+        let mut y_axis = Shape::new(ShapeEnum::CylinderEnum(y_axis));
+
         y_axis.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
         y_axis.get_material_mut().set_ambient(0.3);
         y_axis.get_material_mut().set_diffuse(0.6);
         y_axis.get_material_mut().set_specular(0.0);
         y_axis.get_material_mut().set_reflective(0.1);
-        // y_axis.get_material_mut().set_transparency(0.5);
 
         let m_rot = Matrix::rotate_y(PI / 2.0);
         let m_trans = Matrix::translation(0.0, 0.0, 0.0);
         let m_scale = Matrix::scale(radius, len, radius);
         let m = &m_trans * &(m_rot * m_scale);
         y_axis.set_transformation(m);
-        let mut y_axis = Shape::new(ShapeEnum::CylinderEnum(y_axis));
         y_axis.set_casts_shadow(false);
         self.add_shape(y_axis);
     }
@@ -293,19 +298,20 @@ impl WorldOps for World {
         z_axis.set_minimum(0.0);
         z_axis.set_maximum(1.0);
         z_axis.set_closed(true);
+        // z_axis.get_material_mut().set_transparency(0.5);
+        let mut z_axis = Shape::new(ShapeEnum::CylinderEnum(z_axis));
+
         z_axis.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
         z_axis.get_material_mut().set_ambient(0.3);
         z_axis.get_material_mut().set_diffuse(0.6);
         z_axis.get_material_mut().set_specular(0.0);
         z_axis.get_material_mut().set_reflective(0.1);
-        // z_axis.get_material_mut().set_transparency(0.5);
 
         let m_rot = Matrix::rotate_x(PI / 2.0);
         let m_trans = Matrix::translation(0.0, 0.0, 0.0);
         let m_scale = Matrix::scale(radius, len, radius);
         let m = &m_trans * &(m_rot * m_scale);
         z_axis.set_transformation(m);
-        let mut z_axis = Shape::new(ShapeEnum::CylinderEnum(z_axis));
         z_axis.set_casts_shadow(false);
         self.add_shape(z_axis);
     }
@@ -355,14 +361,12 @@ pub fn default_world() -> World {
     m.set_diffuse(0.7);
     m.set_specular(0.2);
 
-    let mut s1 = Sphere::new();
-    s1.set_material(m);
-    let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    shape1.set_material(m);
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut s2 = Sphere::new();
-    s2.set_transformation(m);
-    let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    shape2.set_transformation(m);
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -385,14 +389,12 @@ pub fn default_world_soft_shadows() -> World {
     m.set_specular(0.0);
     m.set_color(Color::new(1.0, 1.0, 1.0));
 
-    let mut s1 = Sphere::new();
-    s1.set_material(m);
-    let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    shape1.set_material(m);
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut s2 = Sphere::new();
-    s2.set_transformation(m);
-    let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    shape2.set_transformation(m);
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -409,8 +411,7 @@ pub fn default_world_refracted_color_page_158() -> World {
     let light = Light::PointLight(pl);
     w.add_light(light);
 
-    let test_pattern: TestPattern = TestPattern::new();
-    let test_pattern = Pattern::TestPattern(test_pattern);
+    let test_pattern = Pattern::new(PatternEnum::TestPatternEnum(TestPattern::new()));
     let mut m1 = Material::new();
     m1.set_color(Color::new(0.8, 1.0, 0.6));
     m1.set_diffuse(0.7);
@@ -418,16 +419,14 @@ pub fn default_world_refracted_color_page_158() -> World {
     m1.set_ambient(1.0);
     m1.set_pattern(test_pattern);
 
-    let mut s1 = Sphere::new();
-    s1.set_material(m1);
-    let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    shape1.set_material(m1);
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut s2 = Sphere::new();
-    s2.set_transformation(m);
-    s2.get_material_mut().set_transparency(1.0);
-    s2.get_material_mut().set_refractive_index(1.5);
-    let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    shape2.set_transformation(m);
+    shape2.get_material_mut().set_transparency(1.0);
+    shape2.get_material_mut().set_refractive_index(1.5);
 
     w.add_shape(shape1);
     w.add_shape(shape2);
@@ -484,7 +483,7 @@ mod tests {
         let shape = shapes.get(0).unwrap();
         let i = Intersection::new(4.0, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), w.get_shapes());
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let c_expected = Color::new(0.38065884, 0.47582352, 0.28549412);
 
@@ -511,7 +510,7 @@ mod tests {
         let shapes = w.get_shapes();
         let shape = shapes.get(1).unwrap();
         let i = Intersection::new(0.5, &shape);
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), w.get_shapes());
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let c_expected = Color::new(0.9049812520679432, 0.9049812520679432, 0.9049812520679432);
@@ -566,15 +565,13 @@ mod tests {
         m.set_specular(0.2);
         m.set_ambient(1.0);
 
-        let mut s1 = Sphere::new();
-        s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape1.set_material(m);
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut s2 = Sphere::new();
-        s2.set_transformation(m);
-        s2.get_material_mut().set_ambient(1.0);
-        let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape2.set_transformation(m);
+        shape2.get_material_mut().set_ambient(1.0);
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -602,9 +599,8 @@ mod tests {
         let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
 
         let m = Matrix::translation(0.0, 0.0, 10.0);
-        let mut s2 = Sphere::new();
-        s2.set_transformation(m);
-        let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape2.set_transformation(m);
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -618,7 +614,7 @@ mod tests {
 
         let i = Intersection::new(4.0, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), w.get_shapes());
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let c_expected = Color::new(0.1, 0.1, 0.1);
 
@@ -636,13 +632,11 @@ mod tests {
         let r = Ray::new(origin, direction);
 
         let m = Matrix::translation(0.0, 0.0, 1.0);
-        let mut s1 = Sphere::new();
-        s1.set_transformation(m);
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape1.set_transformation(m);
 
         let i = Intersection::new(5.0, &shape1);
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         assert!(comps.get_over_point().z < -EPSILON / 2.0);
         assert!(comps.get_point().z > comps.get_over_point().z);
@@ -754,15 +748,13 @@ mod tests {
         m.set_diffuse(0.7);
         m.set_specular(0.2);
 
-        let mut s1 = Sphere::new();
-        s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape1.set_material(m);
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut s2 = Sphere::new();
-        s2.set_transformation(m);
-        s2.get_material_mut().set_ambient(1.0);
-        let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape2.set_transformation(m);
+        shape2.get_material_mut().set_ambient(1.0);
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -774,8 +766,7 @@ mod tests {
         let s = &w.get_shapes()[1];
         let i = Intersection::new(1.0, s);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
         let color_expected = Color::new(0.0, 0.0, 0.0);
@@ -783,129 +774,118 @@ mod tests {
         assert_color(&color, &color_expected);
     }
 
-    // page 144  bottom
-    // #[test]
-    // fn test_material_precomputing_reflection_reflective_material() {
-    //     let mut w: World = default_world();
-    //
-    //     let mut p = Plane::new();
-    //     p.get_material_mut().set_reflective(0.5);
-    //     let m = Matrix::translation(0.0, -1.0, 0.0);
-    //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::Plane(p));
-    //     w.add_shape(plane);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
-    //     let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let s = &w.get_shapes()[2];
-    //     let i = Intersection::new(SQRT_2, s);
-    //
-    //     let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-    //
-    //     let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-    //     let color_expected = Color::new(0.19034664, 0.23793328, 0.14275998);
-    //
-    //     // TODO: this fails - probably/hopefully because the is_shadowed method is broken
-    //     // fix this, when the shadows work
-    //
-    //     println!("expected color    = {:?}", color_expected);
-    //     println!("actual color      = {:?}", color);
-    //     assert_color(&color, &color_expected);
-    // }
+    //page 144  bottom
+    #[test]
+    fn test_material_precomputing_reflection_reflective_material() {
+        let mut w: World = default_world();
+
+        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        plane.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        plane.set_transformation(m);
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+
+        let color = World::reflected_color(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
+        let color_expected = Color::new(0.190332201495133, 0.23791525186891627, 0.14274915112134975);
+
+        // TODO: this fails - probably/hopefully because the is_shadowed method is broken
+        // fix this, when the shadows work
+
+        println!("expected color    = {:?}", color_expected);
+        println!("actual color      = {:?}", color);
+        assert_color(&color, &color_expected);
+    }
 
     // page 145
-    // #[test]
-    // fn test_material_shade_hit_reflective_material() {
-    //     let mut w: World = default_world();
-    //
-    //     let mut p = Plane::new();
-    //     p.get_material_mut().set_reflective(0.5);
-    //     let m = Matrix::translation(0.0, -1.0, 0.0);
-    //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::Plane(p));
-    //     w.add_shape(plane);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
-    //     let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let s = &w.get_shapes()[2];
-    //     let i = Intersection::new(SQRT_2, s);
-    //
-    //     let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-    //
-    //     let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
-    //     let color_expected = Color::new(0.87676895, 0.92435557, 0.82918227);
-    //
-    //     println!("expected color    = {:?}", color_expected);
-    //     println!("actual color      = {:?}", color);
-    //
-    //     // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-    //     // fix this, when the shadows work
-    //     assert_color(&color, &color_expected);
-    // }
-    //
-    // // page 146
-    // #[test]
-    // fn test_material_shade_hit_handle_recursion() {
-    //     let mut w = World::new();
-    //
-    //     let mut l = Plane::new();
-    //     let m_lower = Matrix::translation(0.0, -1.0, 0.0);
-    //     l.set_transformation(m_lower);
-    //     l.get_material_mut().set_reflective(1.0);
-    //
-    //     let mut u = Plane::new();
-    //     let m_upper = Matrix::translation(0.0, 1.0, 0.0);
-    //     u.set_transformation(m_upper);
-    //     u.get_material_mut().set_reflective(1.0);
-    //
-    //     let upper = Shape::new(ShapeEnum::Plane(u));
-    //     let lower = Shape::new(ShapeEnum::Plane(l));
-    //
-    //     w.add_shape(lower);
-    //     w.add_shape(upper);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, 0.0);
-    //     let o = Tuple4D::new_vector(0.0, 1.0, 0.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let _color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
-    //     println!("FIX ME");
-    //     // assert!(true, false);
-    // }
-    //
-    // // page 147
-    // #[test]
-    // fn test_material_shade_hit_reflective_material_max_recursive_depth() {
-    //     let mut w: World = default_world();
-    //
-    //     let mut p = Plane::new();
-    //     p.get_material_mut().set_reflective(0.5);
-    //     let m = Matrix::translation(0.0, -1.0, 0.0);
-    //     p.set_transformation(m);
-    //     let plane = Shape::new(ShapeEnum::Plane(p));
-    //
-    //     w.add_shape(plane);
-    //
-    //     let p = Tuple4D::new_point(0.0, 0.0, -3.0);
-    //     let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
-    //     let r = Ray::new(p, o);
-    //
-    //     let s = &w.get_shapes()[2];
-    //     let i = Intersection::new(SQRT_2, s);
-    //
-    //     let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
-    //
-    //     let color = World::reflected_color(&w, &comps, 0);
-    //     let color_expected = Color::new(0., 0., 0.);
-    //
-    //     // TODO: this fails - probably/hopefully because the is_shadowed mehtod is borken
-    //     // fix this, when the shadows work
-    //     assert_color(&color, &color_expected);
-    // }
+    #[test]
+    fn test_material_shade_hit_reflective_material() {
+        let mut w: World = default_world();
+
+        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        plane.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        plane.set_transformation(m);
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+
+        let color = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
+        let color_expected = Color::new(0.8767572837020907, 0.924340334075874, 0.8291742333283075);
+
+        println!("expected color    = {:?}", color_expected);
+        println!("actual color      = {:?}", color);
+
+        assert_color(&color, &color_expected);
+    }
+
+    // page 146
+    #[test]
+    fn test_material_shade_hit_handle_recursion() {
+        let mut w = World::new();
+
+        let mut lower = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let m_lower = Matrix::translation(0.0, -1.0, 0.0);
+        lower.set_transformation(m_lower);
+        lower.get_material_mut().set_reflective(1.0);
+
+        let mut upper = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let m_upper = Matrix::translation(0.0, 1.0, 0.0);
+        upper.set_transformation(m_upper);
+        upper.get_material_mut().set_reflective(1.0);
+
+        w.add_shape(lower);
+        w.add_shape(upper);
+
+        let p = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let o = Tuple4D::new_vector(0.0, 1.0, 0.0);
+        let r = Ray::new(p, o);
+
+        let _color = World::color_at(&w, &r, MAX_REFLECTION_RECURSION_DEPTH);
+        assert!(true);
+    }
+
+    // page 147
+    #[test]
+    fn test_material_shade_hit_reflective_material_max_recursive_depth() {
+        let mut w: World = default_world();
+
+        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        plane.get_material_mut().set_reflective(0.5);
+        let m = Matrix::translation(0.0, -1.0, 0.0);
+        plane.set_transformation(m);
+
+        w.add_shape(plane);
+
+        let p = Tuple4D::new_point(0.0, 0.0, -3.0);
+        let o = Tuple4D::new_vector(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0);
+        let r = Ray::new(p, o);
+
+        let s = &w.get_shapes()[2];
+        let i = Intersection::new(SQRT_2, s);
+
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
+
+        let color = World::reflected_color(&w, &comps, 0);
+        let color_expected = Color::new(0., 0., 0.);
+
+        assert_color(&color, &color_expected);
+    }
 
     // page 154
     #[test]
@@ -914,11 +894,9 @@ mod tests {
         let direction = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(origin, direction);
 
-        let mut s = glass_sphere();
+        let mut shape1 = glass_sphere();
         let m_trans = Matrix::translation(0.0, 0.0, 1.0);
-        s.set_transformation(m_trans);
-
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s));
+        shape1.set_transformation(m_trans);
 
         let i = Intersection::new(5.0, &shape1);
         let i_clone = Intersection::new(5.0, &shape1);
@@ -926,8 +904,7 @@ mod tests {
         let mut xs = IntersectionList::new();
         xs.add(i_clone);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&i, &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&i, &r, &xs);
 
         assert!(comps.get_under_point().z > EPSILON / 2.0);
         assert!(comps.get_point().z < comps.get_under_point().z);
@@ -951,8 +928,7 @@ mod tests {
         xs.add(i1);
         xs.add(i2);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
 
         let c = World::refracted_color(&w, &comps, 5);
         let c_expected = Color::new(0.0, 0.0, 0.0);
@@ -973,15 +949,13 @@ mod tests {
         m.set_transparency(1.0);
         m.set_refractive_index(1.5);
 
-        let mut s1 = Sphere::new();
-        s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape1.set_material(m);
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut s2 = Sphere::new();
-        s2.set_transformation(m);
-        s2.get_material_mut().set_ambient(1.0);
-        let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape2.set_transformation(m);
+        shape2.get_material_mut().set_ambient(1.0);
 
         w.add_shape(shape1);
         w.add_shape(shape2);
@@ -997,8 +971,7 @@ mod tests {
         xs.add(i1);
         xs.add(i2);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[0], &r, &xs);
 
         let c = World::refracted_color(&w, &comps, 0);
         let c_expected = Color::new(0.0, 0.0, 0.0);
@@ -1031,8 +1004,7 @@ mod tests {
         xs.add(i1);
         xs.add(i2);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[1], &r, &xs);
         let c = World::refracted_color(&w, &comps, 5);
         let c_expected = Color::new(0.0, 0.0, 0.0);
 
@@ -1062,8 +1034,7 @@ mod tests {
         xs.add(i3);
         xs.add(i4);
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[2], &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[2], &r, &xs);
 
         let c = World::refracted_color(&w, &comps, 5);
         let c_expected = Color::new(0.0, 0.9988745506795582, 0.04721898034382347);
@@ -1091,8 +1062,8 @@ mod tests {
     //     ball.get_material_mut().set_ambient(0.5);
     //     ball.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
     //
-    //     let plane = Shape::new(ShapeEnum::Plane(plane));
-    //     let sphere = Shape::new(ShapeEnum::Sphere(ball));
+    //     let plane = Shape::new(ShapeEnum::PlaneEnum(plane));
+    //     let sphere = Shape::new(ShapeEnum::SphereEnum(ball));
     //     w.add_shape(plane.clone());
     //     w.add_shape(sphere);
     //
@@ -1392,13 +1363,11 @@ mod tests {
         m.set_ambient(0.1);
         m.set_diffuse(0.9);
         m.set_specular(0.0);
-        let mut s1 = Sphere::new();
-        s1.set_material(m);
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape1.set_material(m);
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut s2 = Sphere::new();
-        s2.set_transformation(m);
-        let shape2 = Shape::new(ShapeEnum::SphereEnum(s2));
+        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape2.set_transformation(m);
         w.add_shape(shape1);
         w.add_shape(shape2);
         w

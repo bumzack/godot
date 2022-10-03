@@ -10,8 +10,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let pov = 0.8;
     let antialiasing = true;
     let antialiasing_size = 3;
-    let arealight_u = 8;
-    let arealight_v = 8;
+    let arealight_u = 16;
+    let arealight_v = 16;
     let (world, camera) = setup_world(
         width,
         height,
@@ -58,12 +58,12 @@ fn setup_world(
     arealight_u: usize,
     arealight_v: usize,
 ) -> (World, Camera) {
-    let mut floor = Sphere::new();
+    let mut floor = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     floor.set_transformation(Matrix::scale(20.0, 0.01, 20.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     floor.get_material_mut().set_specular(0.0);
 
-    let mut left_wall = Sphere::new();
+    let mut left_wall = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     left_wall.set_transformation(
         &(&(&Matrix::translation(0.0, 0.0, 6.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.),
@@ -71,13 +71,14 @@ fn setup_world(
     left_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     left_wall.get_material_mut().set_specular(0.0);
 
-    let mut right_wall = Sphere::new();
+    let mut right_wall = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     right_wall.set_transformation(
         &(&(&Matrix::translation(0.0, 0.0, 6.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0))
             * &Matrix::scale(10.0, 0.01, 10.0),
     );
     right_wall.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
     right_wall.get_material_mut().set_specular(0.0);
+
     // let mut middle = Sphere::new();
     // middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
     // middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
@@ -124,16 +125,15 @@ fn setup_world(
     w.add_light(area_light);
     // w.add_light(    l);
 
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(floor)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(right_wall)));
-    // w.add_shape(Shape::new(ShapeEnum::Sphere(middle)));
-    // w.add_shape(Shape::new(ShapeEnum::Sphere(left)));
-    // w.add_shape(Shape::new(ShapeEnum::Sphere(right)));
+    w.add_shape(floor);
+    w.add_shape(left_wall);
+    w.add_shape(right_wall);
+    // w.add_shape(Shape::new(ShapeEnum::SphereEnum(middle)));
+    // w.add_shape(Shape::new(ShapeEnum::SphereEnum(left)));
+    // w.add_shape(Shape::new(ShapeEnum::SphereEnum(right)));
 
-    // w.get_shapes_mut().iter_mut().for_each(|s| s.add_bounding_box(w.get_shapes()));
-
-    let filename = "/Users/gsc/stoff/lernen/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
+    let filename =
+        "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
     println!("filename {}", filename);
 
     let teapot = Parser::parse_obj_file(&filename);

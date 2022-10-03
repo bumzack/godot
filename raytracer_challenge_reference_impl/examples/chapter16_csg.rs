@@ -66,33 +66,30 @@ fn setup_world_csg<'a>(
     let area_light = Light::AreaLight(area_light);
 
     // ---- CUBE -------
-    let mut c = Cube::new();
-    c.get_material_mut().set_color(Color::new(1.5, 1.5, 1.5));
-    c.get_material_mut().set_ambient(1.0);
-    c.get_material_mut().set_diffuse(0.0);
-    c.get_material_mut().set_specular(0.0);
-    c.get_material_mut().set_shininess(100.0);
+    let mut cube = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    cube.get_material_mut().set_color(Color::new(1.5, 1.5, 1.5));
+    cube.get_material_mut().set_ambient(1.0);
+    cube.get_material_mut().set_diffuse(0.0);
+    cube.get_material_mut().set_specular(0.0);
+    cube.get_material_mut().set_shininess(100.0);
 
     let m_trans = Matrix::translation(0.0, 3.0, 4.0);
     let m_scale = Matrix::scale(1.0, 1.0, 0.01);
     let m = &m_trans * &m_scale;
 
-    c.set_transformation(m);
-    let mut cube = Shape::new(ShapeEnum::CubeEnum(c));
+    cube.set_transformation(m);
     cube.set_casts_shadow(false);
 
     // ---- PLANE -------
-    let mut plane = Plane::new();
+    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     plane.get_material_mut().set_color(Color::new(1., 1., 1.));
     plane.get_material_mut().set_ambient(0.025);
     plane.get_material_mut().set_diffuse(0.67);
     plane.get_material_mut().set_specular(0.0);
     plane.get_material_mut().set_shininess(200.0);
 
-    let plane = Shape::new(ShapeEnum::PlaneEnum(plane));
-
     // ---- SPHERE 1 -------
-    let mut sphere1 = Sphere::new();
+    let mut sphere1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere1.get_material_mut().set_color(Color::new(1.0, 0., 0.));
     sphere1.get_material_mut().set_ambient(0.1);
     sphere1.get_material_mut().set_diffuse(0.6);
@@ -107,10 +104,9 @@ fn setup_world_csg<'a>(
     let m = &m_trans * &m_scale;
 
     sphere1.set_transformation(m);
-    let sphere1 = Shape::new(ShapeEnum::SphereEnum(sphere1));
 
     // ---- SPHERE 2 -------
-    let mut sphere2 = Sphere::new();
+    let mut sphere2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere2.get_material_mut().set_color(Color::new(0.5, 0.5, 1.0));
     sphere2.get_material_mut().set_ambient(0.1);
     sphere2.get_material_mut().set_diffuse(0.6);
@@ -125,7 +121,6 @@ fn setup_world_csg<'a>(
     let m = &m_trans * &m_scale;
 
     sphere2.set_transformation(m);
-    let sphere2 = Shape::new(ShapeEnum::SphereEnum(sphere2));
 
     let mut w = World::new();
     let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::DIFFERENCE);

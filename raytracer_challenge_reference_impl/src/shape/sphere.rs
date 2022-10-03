@@ -3,63 +3,7 @@ use core::fmt;
 use crate::prelude::*;
 
 #[derive(Clone, PartialEq)]
-pub struct Sphere {
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
-    material: Material,
-}
-
-impl<'a> ShapeOps<'a> for Sphere {
-    fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Sphere::set_transformation:  cant unwrap inverted matrix ");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, world_point: &Tuple4D, _shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
-        let object_point = self.get_inverse_transformation() * world_point;
-        let local_normal = self.local_normal_at(&object_point, i);
-        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
-        world_normal.w = 0.0;
-        Tuple4D::normalize(&world_normal)
-    }
-
-    fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
-        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
-        local_point - &o
-    }
-
-    fn set_material(&mut self, m: Material) {
-        self.material = m;
-    }
-
-    fn get_material(&self) -> &Material {
-        &self.material
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        &mut self.material
-    }
-
-    fn get_parent(&self) -> &Option<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children(&self) -> &Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-}
+pub struct Sphere {}
 
 impl<'a> ShapeIntersectOps<'a> for Sphere {
     fn intersect_local(shape: &'a Shape, r: Ray, _shapes: &'a ShapeArr) -> IntersectionList<'a> {
@@ -85,18 +29,19 @@ impl<'a> ShapeIntersectOps<'a> for Sphere {
 
         intersection_list
     }
+
+    fn local_normal_at(&self, local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
+        let o = Tuple4D::new_point(0.0, 0.0, 0.0);
+        local_point - &o
+    }
 }
 
 impl Sphere {
     pub fn new() -> Sphere {
-        Sphere {
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            material: Material::new(),
-        }
+        Sphere {}
     }
-    pub(crate) fn get_bounds_of(&self) -> BoundingBox {
-        println!("get_bounds_of sphere");
+
+    pub fn get_bounds_of(&self) -> BoundingBox {
         let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
         let max = Tuple4D::new_point(1.0, 1.0, 1.0);
         BoundingBox::new_from_min_max(min, max)
@@ -117,8 +62,8 @@ impl fmt::Debug for Sphere {
 
 // helper
 // page 151
-pub fn glass_sphere() -> Sphere {
-    let mut s = Sphere::new();
+pub fn glass_sphere() -> Shape {
+    let mut s = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     s.get_material_mut().set_transparency(1.0);
     s.get_material_mut().set_refractive_index(1.5);
     s
@@ -126,11 +71,13 @@ pub fn glass_sphere() -> Sphere {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+
     use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
     use crate::material::{Material, MaterialOps};
     use crate::math::{assert_color, assert_float, assert_matrix, assert_tuple, Matrix, MatrixOps, Tuple, Tuple4D};
+    use crate::prelude::ShapeEnum::SphereEnum;
     use crate::prelude::{glass_sphere, Shape, ShapeEnum, ShapeIntersectOps, ShapeOps, Sphere};
-    use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
     #[test]
     fn test_ray_sphere_intersection() {
@@ -208,7 +155,7 @@ mod tests {
     // page 69
     #[test]
     fn test_sphere_new_check_transformation_matrix() {
-        let s = Sphere::new();
+        let s = Shape::new(SphereEnum(Sphere::new()));
 
         let m_expected = Matrix::new_identity_4x4();
         let met_m_inv_expected = Matrix::invert(&m_expected).unwrap();
@@ -220,7 +167,7 @@ mod tests {
     // page 69
     #[test]
     fn test_sphere_transformation() {
-        let mut s = Sphere::new();
+        let mut s = Shape::new(SphereEnum(Sphere::new()));
         let m = Matrix::translation(2.0, 3.0, 4.0);
         s.set_transformation(m);
         let m = Matrix::translation(2.0, 3.0, 4.0);
@@ -236,11 +183,10 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let mut s = Sphere::new();
+        let mut shape = Shape::new(SphereEnum(Sphere::new()));
         let m = Matrix::scale(2.0, 2.0, 2.0);
-        s.set_transformation(m);
+        shape.set_transformation(m);
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(s));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -256,11 +202,10 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let mut s = Sphere::new();
+        let mut shape = Shape::new(SphereEnum(Sphere::new()));
         let m = Matrix::translation(5.0, 0.0, 0.0);
-        s.set_transformation(m);
+        shape.set_transformation(m);
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(s));
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -273,33 +218,31 @@ mod tests {
     fn test_sphere_normal_at() {
         let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         let intersection = Intersection::new(1.0, &shape);
-        let shapes = vec![];
-        let s = Sphere::new();
 
         let p = Tuple4D::new_point(1.0, 0.0, 0.0);
-        let n = s.normal_at(&p, &shapes, &intersection);
+        let n = shape.normal_at(&p, &intersection);
         let n_expected = Tuple4D::new_vector(1.0, 0.0, 0.0);
         assert_tuple(&n, &n_expected);
 
         let p = Tuple4D::new_point(0.0, 1.0, 0.0);
-        let n = s.normal_at(&p, &shapes, &intersection);
+        let n = shape.normal_at(&p, &intersection);
         let n_expected = Tuple4D::new_vector(0.0, 1.0, 0.0);
         assert_tuple(&n, &n_expected);
 
         let p = Tuple4D::new_point(0.0, 0.0, 1.0);
-        let n = s.normal_at(&p, &shapes, &intersection);
+        let n = shape.normal_at(&p, &intersection);
         let n_expected = Tuple4D::new_vector(0.0, 0.0, 1.0);
         assert_tuple(&n, &n_expected);
 
         let a = 3_f64.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
-        let n = s.normal_at(&p, &shapes, &intersection);
+        let n = shape.normal_at(&p, &intersection);
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
 
         let a = 3_f64.sqrt() / 3.0;
         let p = Tuple4D::new_point(a, a, a);
-        let n = Tuple4D::normalize(&s.normal_at(&p, &shapes, &intersection));
+        let n = Tuple4D::normalize(&shape.normal_at(&p, &intersection));
         let n_expected = Tuple4D::new_vector(a, a, a);
         assert_tuple(&n, &n_expected);
     }
@@ -307,14 +250,13 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_transformed() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
+
         let intersection = Intersection::new(1.0, &shape);
-        let shapes = vec![];
-        let mut s = Sphere::new();
-        s.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
 
         let p = Tuple4D::new_point(0.0, 1.0 + FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
-        let n = s.normal_at(&p, &shapes, &intersection);
+        let n = shape.normal_at(&p, &intersection);
         let n_expected = Tuple4D::new_vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
 
         println!("n             = {:?}   ", n);
@@ -326,14 +268,13 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape.set_transformation(Matrix::scale(1.0, 0.5, 1.0) * Matrix::rotate_z(PI / 5.0));
+
         let intersection = Intersection::new(1.0, &shape);
-        let shapes = vec![];
-        let mut s = Sphere::new();
-        s.set_transformation(Matrix::scale(1.0, 0.5, 1.0) * Matrix::rotate_z(PI / 5.0));
 
         let p = Tuple4D::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
-        let n = s.normal_at(&p, &shapes, &intersection);
+        let n = shape.normal_at(&p, &intersection);
 
         let n_expected = Tuple4D::new_vector(0.0, 0.97014254, -0.24253564);
 
@@ -364,10 +305,6 @@ mod tests {
         let o = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(p, o);
 
-        let a = Shape::new(ShapeEnum::SphereEnum(a));
-        let b = Shape::new(ShapeEnum::SphereEnum(b));
-        let c = Shape::new(ShapeEnum::SphereEnum(c));
-
         let mut xs = IntersectionList::new();
 
         xs.add(Intersection::new(2.0, &a));
@@ -377,8 +314,7 @@ mod tests {
         xs.add(Intersection::new(5.25, &c));
         xs.add(Intersection::new(6.0, &a));
 
-        let shapes = vec![];
-        let comps = Intersection::prepare_computations(&xs.get_intersections()[index], &r, &xs, &shapes);
+        let comps = Intersection::prepare_computations(&xs.get_intersections()[index], &r, &xs);
 
         println!("n1 = {}   n1_expected = {}", comps.get_n1(), n1_expected);
         println!("n2 = {}   n2_expected = {}", comps.get_n2(), n2_expected);
@@ -404,17 +340,17 @@ mod tests {
     // page 85
     #[test]
     fn test_new_sphere_material() {
-        let s = Sphere::new();
+        let shape = Shape::new(SphereEnum(Sphere::new()));
         let m = Material::new();
 
-        assert_eq!(s.get_material(), &m);
-        assert_color(s.get_material().get_color(), m.get_color());
-        assert_float(s.get_material().get_transparency(), m.get_transparency());
-        assert_float(s.get_material().get_refractive_index(), m.get_refractive_index());
-        assert_float(s.get_material().get_reflective(), m.get_reflective());
-        assert_float(s.get_material().get_ambient(), m.get_ambient());
-        assert_float(s.get_material().get_diffuse(), m.get_diffuse());
-        assert_float(s.get_material().get_specular(), m.get_specular());
-        assert_float(s.get_material().get_shininess(), m.get_shininess());
+        assert_eq!(shape.get_material(), &m);
+        assert_color(shape.get_material().get_color(), m.get_color());
+        assert_float(shape.get_material().get_transparency(), m.get_transparency());
+        assert_float(shape.get_material().get_refractive_index(), m.get_refractive_index());
+        assert_float(shape.get_material().get_reflective(), m.get_reflective());
+        assert_float(shape.get_material().get_ambient(), m.get_ambient());
+        assert_float(shape.get_material().get_diffuse(), m.get_diffuse());
+        assert_float(shape.get_material().get_specular(), m.get_specular());
+        assert_float(shape.get_material().get_shininess(), m.get_shininess());
     }
 }

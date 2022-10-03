@@ -1,4 +1,4 @@
-use crate::prelude::patterns::Pattern;
+use crate::prelude::patterns::PatternEnum;
 use crate::prelude::*;
 use crate::DEBUG;
 
@@ -88,7 +88,7 @@ impl MaterialOps for Material {
         // TODO: a lot of color copying here ...
         let c = match material.get_pattern() {
             None => &material.color * light.get_intensity(),
-            Some(pattern) => pattern.color_at_object(object, point),
+            Some(pattern) => pattern.pattern_at_shape(object, point),
         };
 
         // ambient
@@ -403,7 +403,7 @@ mod tests {
         let s = Sphere::new();
         let dummy_obj = Shape::new(ShapeEnum::SphereEnum(s));
         let stripe_pattern = StripePattern::new();
-        let pattern = Pattern::StripePattern(stripe_pattern);
+        let pattern = Pattern::new(PatternEnum::StripePatternEnum(stripe_pattern));
 
         let mut m = Material::new();
         m.set_pattern(pattern);
@@ -430,7 +430,6 @@ mod tests {
     // page 143
     #[test]
     fn test_material_precomputing_reflection_vector() {
-        let shapes = vec![];
         let p = Plane::new();
         let shape = Shape::new(ShapeEnum::PlaneEnum(p));
 
@@ -439,7 +438,7 @@ mod tests {
         let r = Ray::new(p, o);
         let i = Intersection::new(SQRT_2, &shape);
 
-        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new(), &shapes);
+        let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let reflection_vector_expected = Tuple4D::new_vector(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0);
         assert_tuple(comps.get_reflected_vector(), &reflection_vector_expected);
@@ -491,12 +490,11 @@ mod tests {
         let arealight = AreaLight::new(corner, v1, usteps, v2, vsteps, intensity, Sequence::new(vec![0.5]));
         let mut light = Light::AreaLight(arealight);
 
-        let mut sphere = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         sphere.get_material_mut().set_ambient(0.1);
         sphere.get_material_mut().set_diffuse(0.9);
         sphere.get_material_mut().set_specular(0.0);
         sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
-        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         let eye = Tuple4D::new_point(0.0, 0.0, -5.0);
         let eye_vec = Tuple4D::normalize(&(&eye - &point));

@@ -1,16 +1,10 @@
 use crate::basics::color::{Color, ColorOps, BLACK, WHITE};
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
-use crate::prelude::ShapeOps;
-use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Checker3DPattern {
     color_a: Color,
     color_b: Color,
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
 }
 
 impl Checker3DPattern {
@@ -18,8 +12,6 @@ impl Checker3DPattern {
         Checker3DPattern {
             color_a: WHITE,
             color_b: BLACK,
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
         }
     }
 
@@ -39,31 +31,12 @@ impl Checker3DPattern {
         &self.color_b
     }
 
-    pub fn color_at(pattern: &Checker3DPattern, point: &Tuple4D) -> Color {
+    pub fn pattern_at(&self, point: &Tuple4D) -> Color {
         if (point.x.abs() + point.y.abs() + point.z.abs()).floor() as i32 % 2 == 0 {
-            Color::from_color(pattern.get_color_a())
+            Color::from_color(self.get_color_a())
         } else {
-            Color::from_color(pattern.get_color_b())
+            Color::from_color(self.get_color_b())
         }
-    }
-
-    pub fn color_at_object(pattern: &Checker3DPattern, shape: &Shape, world_point: &Tuple4D) -> Color {
-        let object_point = shape.get_inverse_transformation() * world_point;
-        let pattern_point = pattern.get_inverse_transformation() * &object_point;
-        Self::color_at(pattern, &pattern_point)
-    }
-
-    pub fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
-        self.transformation_matrix = m;
-    }
-
-    pub fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    pub fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
     }
 }
 
@@ -94,15 +67,15 @@ mod tests {
         let p = Checker3DPattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let c1 = Checker3DPattern::color_at(&p, &point1);
+        let c1 = p.pattern_at(&point1);
         assert_color(&c1, &WHITE);
 
         let point2 = Tuple4D::new_point(0.99, 0.0, 0.0);
-        let c2 = Checker3DPattern::color_at(&p, &point2);
+        let c2 = p.pattern_at(&point2);
         assert_color(&c2, &WHITE);
 
         let point3 = Tuple4D::new_point(1.01, 0.0, 0.0);
-        let c3 = Checker3DPattern::color_at(&p, &point3);
+        let c3 = p.pattern_at(&point3);
         assert_color(&c3, &BLACK);
     }
 
@@ -112,15 +85,15 @@ mod tests {
         let p = Checker3DPattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let c1 = Checker3DPattern::color_at(&p, &point1);
+        let c1 = p.pattern_at(&point1);
         assert_color(&c1, &WHITE);
 
         let point2 = Tuple4D::new_point(0.0, 0.99, 0.0);
-        let c2 = Checker3DPattern::color_at(&p, &point2);
+        let c2 = p.pattern_at(&point2);
         assert_color(&c2, &WHITE);
 
         let point3 = Tuple4D::new_point(0.0, 1.01, 0.0);
-        let c3 = Checker3DPattern::color_at(&p, &point3);
+        let c3 = p.pattern_at(&point3);
         assert_color(&c3, &BLACK);
     }
 
@@ -130,15 +103,15 @@ mod tests {
         let p = Checker3DPattern::new();
 
         let point1 = Tuple4D::new_point(0.0, 0.0, 0.0);
-        let c1 = Checker3DPattern::color_at(&p, &point1);
+        let c1 = p.pattern_at(&point1);
         assert_color(&c1, &WHITE);
 
         let point2 = Tuple4D::new_point(0.0, 0.0, 0.99);
-        let c2 = Checker3DPattern::color_at(&p, &point2);
+        let c2 = p.pattern_at(&point2);
         assert_color(&c2, &WHITE);
 
         let point3 = Tuple4D::new_point(0.0, 0.0, 1.01);
-        let c3 = Checker3DPattern::color_at(&p, &point3);
+        let c3 = p.pattern_at(&point3);
         assert_color(&c3, &BLACK);
     }
 }

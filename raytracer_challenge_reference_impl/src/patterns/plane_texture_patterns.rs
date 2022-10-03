@@ -1,49 +1,20 @@
 use crate::basics::color::Color;
-use crate::math::matrix::Matrix;
-use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple4D;
 use crate::patterns::{uv_pattern_at, Checker};
-use crate::prelude::ShapeOps;
-use crate::shape::shape::Shape;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct PlaneTexturePattern {
     checker: Checker,
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
 }
 
 impl PlaneTexturePattern {
     pub fn new(checker: Checker) -> PlaneTexturePattern {
-        PlaneTexturePattern {
-            checker,
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-        }
+        PlaneTexturePattern { checker }
     }
 
-    pub fn pattern_at(pattern: &PlaneTexturePattern, p: &Tuple4D) -> Color {
+    pub fn pattern_at(&self, p: &Tuple4D) -> Color {
         let (u, v) = planar_map(p);
-        uv_pattern_at(&pattern.checker, u, v)
-    }
-
-    pub fn color_at_object(pattern: &PlaneTexturePattern, shape: &Shape, world_point: &Tuple4D) -> Color {
-        let object_point = shape.get_inverse_transformation() * world_point;
-        let pattern_point = pattern.get_inverse_transformation() * &object_point;
-        PlaneTexturePattern::pattern_at(pattern, &pattern_point)
-    }
-
-    pub fn set_transformation(&mut self, m: Matrix) {
-        self.inverse_transformation_matrix = Matrix::invert(&m).unwrap();
-        self.transformation_matrix = m;
-    }
-
-    pub fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    pub fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
+        uv_pattern_at(&self.checker, u, v)
     }
 }
 

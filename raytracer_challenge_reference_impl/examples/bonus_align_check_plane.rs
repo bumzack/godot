@@ -9,12 +9,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 400;
     let height = 400;
 
-    let (w, c) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height);
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core(&camera, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("./align_checker_plane_bonus.png")?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!(
+        "./bonus_align_checker_plane_{}x{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+    println!("filename {}", filename);
+    canvas.write_png(filename)?;
     println!("file exported");
     Ok(())
 }
@@ -29,9 +40,9 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let cube_checker = CubeChecker::new(main, ul, ur, bl, br);
     let texture = AlignCheckTexturePattern::new(cube_checker);
 
-    let p = Pattern::AlignCheckTexturePattern(texture);
+    let p = Pattern::new(PatternEnum::AlignCheckTexturePatternEnum(texture));
 
-    let mut plane = Plane::new();
+    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     plane.get_material_mut().set_pattern(p);
     plane.get_material_mut().set_ambient(0.1);
     plane.get_material_mut().set_diffuse(0.8);
@@ -41,7 +52,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(plane)));
+    w.add_shape(plane);
 
     let mut c = Camera::new(width, height, 0.9);
     c.calc_pixel_size();

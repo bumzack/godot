@@ -1,7 +1,6 @@
 use std::fmt;
 
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray};
-use crate::material::Material;
 use crate::math::{Matrix, MatrixOps, Tuple4D};
 use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
@@ -20,56 +19,6 @@ pub struct Csg {
     transformation_matrix: Matrix,
     inverse_transformation_matrix: Matrix,
     op: CsgOp,
-}
-
-impl<'a> ShapeOps<'a> for Csg {
-    fn set_transformation(&mut self, m: Matrix) {
-        println!("setting new transformation matrix {:?}", &m);
-        println!("old transformation matrix  {:?}", self.get_transformation());
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Csg::set_transformation:  can't unwrap inverted matrix ");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, _world_point: &Tuple4D, _shapes: &ShapeArr, _i: &Intersection<'a>) -> Tuple4D {
-        unreachable!("this should never be called");
-    }
-
-    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
-        unreachable!("this should never be called");
-    }
-
-    fn set_material(&mut self, _m: Material) {
-        unreachable!("this should never be called");
-    }
-
-    fn get_material(&self) -> &Material {
-        unreachable!("this should never be called");
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        unreachable!("this should never be called");
-    }
-
-    fn get_parent(&self) -> &Option<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children(&self) -> &Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
 }
 
 impl<'a> ShapeIntersectOps<'a> for Csg {
@@ -107,6 +56,10 @@ impl<'a> ShapeIntersectOps<'a> for Csg {
             .sort_by(|a, b| a.get_t().partial_cmp(&b.get_t()).unwrap_or(std::cmp::Ordering::Equal));
 
         filter_intersections(shape, &xs, shapes)
+    }
+
+    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
+        unreachable!("this should never be called");
     }
 }
 
@@ -180,8 +133,7 @@ impl Csg {
         &self.op
     }
 
-    pub(crate) fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
-        println!("get_bounds_of CSG");
+    pub fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
         let mut bb = BoundingBox::new();
         let left = shapes.get(self.left.unwrap()).unwrap();
         let b = Shape::get_parent_space_bounds_of(left, shapes);

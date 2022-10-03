@@ -1,7 +1,6 @@
 use std::fmt;
 
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
-use crate::material::Material;
 use crate::math::{Matrix, MatrixOps, Tuple4D};
 use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
@@ -9,58 +8,6 @@ use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeInt
 pub struct Group {
     shape_idx: ShapeIdx,
     children: Vec<ShapeIdx>,
-    transformation_matrix: Matrix,
-    inverse_transformation_matrix: Matrix,
-}
-
-impl<'a> ShapeOps<'a> for Group {
-    fn set_transformation(&mut self, m: Matrix) {
-        println!("setting new transformation matrix {:?}", &m);
-        println!("old transformation matrix  {:?}", self.get_transformation());
-        self.inverse_transformation_matrix =
-            Matrix::invert(&m).expect("Group::set_transformation:  can't unwrap inverted matrix ");
-        self.transformation_matrix = m;
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        &self.transformation_matrix
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        &self.inverse_transformation_matrix
-    }
-
-    fn normal_at(&self, _world_point: &Tuple4D, _shapes: &ShapeArr, _i: &Intersection<'a>) -> Tuple4D {
-        unreachable!("this should never be called");
-    }
-
-    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
-        unreachable!("this should never be called");
-    }
-
-    fn set_material(&mut self, _m: Material) {
-        unreachable!("this should never be called");
-    }
-
-    fn get_material(&self) -> &Material {
-        unreachable!("this should never be called");
-    }
-
-    fn get_material_mut(&mut self) -> &mut Material {
-        unreachable!("this should never be called");
-    }
-
-    fn get_parent(&self) -> &Option<ShapeIdx> {
-        unreachable!("this should never be called");
-    }
-
-    fn get_children(&self) -> &Vec<ShapeIdx> {
-        &self.children
-    }
-
-    fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
-        &mut self.children
-    }
 }
 
 impl<'a> ShapeIntersectOps<'a> for Group {
@@ -68,10 +15,10 @@ impl<'a> ShapeIntersectOps<'a> for Group {
         // let bb = shape.get_bounds_of(shapes);
         // if !bb.intersects(&r) {
         if !shape.get_bounding_box().intersects(&r) {
-            println!("group boundbox has NO hit");
+            // println!("group boundbox has NO hit");
             return IntersectionList::new();
         }
-        println!("group boundbox has A hit");
+        // println!("group boundbox has A hit");
         let mut intersection_list = IntersectionList::new();
         let root_idx = match shape.get_shape() {
             ShapeEnum::GroupEnum(g) => Some(g.shape_idx),
@@ -105,6 +52,10 @@ impl<'a> ShapeIntersectOps<'a> for Group {
 
         intersection_list
     }
+
+    fn local_normal_at(&self, _local_point: &Tuple4D, _i: &Intersection<'a>) -> Tuple4D {
+        unreachable!("this should never be called");
+    }
 }
 
 impl Group {
@@ -113,8 +64,6 @@ impl Group {
         let g = Group {
             shape_idx: idx,
             children: vec![],
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
         };
         let g = ShapeEnum::GroupEnum(g);
         let shape = Shape::new_with_name(g, name);
@@ -123,16 +72,15 @@ impl Group {
         idx
     }
 
-    pub fn new_part_of_group(shapes: &mut ShapeArr, name: String) -> ShapeIdx {
+    pub fn new_part_of_group(shapes: &mut ShapeArr) -> ShapeIdx {
         let idx = shapes.len();
         let g = Group {
             shape_idx: idx,
             children: vec![],
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
         };
         let g = ShapeEnum::GroupEnum(g);
-        let shape = Shape::new_part_of_group(g, name);
+        let mut shape = Shape::new(g);
+        shape.set_part_of_group(true);
         shapes.push(shape);
         assert_eq!(idx, shapes.len() - 1);
         idx
@@ -176,7 +124,15 @@ impl Group {
         }
     }
 
-    pub(crate) fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
+    pub fn get_children(&self) -> &Vec<ShapeIdx> {
+        &self.children
+    }
+
+    pub fn get_children_mut(&mut self) -> &mut Vec<ShapeIdx> {
+        &mut self.children
+    }
+
+    pub fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
         println!("get_bounds_of group");
         let mut bb = BoundingBox::new();
         for c in self.get_children() {
@@ -297,9 +253,8 @@ mod tests {
     fn test_intersecting_ray_with_non_empty_group_sphere2_alone() {
         // sphere 2
         let translation2 = Matrix::translation(0.0, 0.0, -3.0);
-        let mut s2 = Sphere::new();
-        s2.set_transformation(translation2);
-        let shape = Shape::new(ShapeEnum::SphereEnum(s2));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape.set_transformation(translation2);
 
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
         let shapes = vec![];
@@ -313,9 +268,8 @@ mod tests {
     fn test_intersecting_ray_with_non_empty_group_sphere3_alone() {
         // sphere 3
         let translation3 = Matrix::translation(5.0, 0.0, 0.0);
-        let mut s3 = Sphere::new();
-        s3.set_transformation(translation3);
-        let shape = Shape::new(ShapeEnum::SphereEnum(s3));
+        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        shape.set_transformation(translation3);
 
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
         let shapes = vec![];
@@ -334,15 +288,13 @@ mod tests {
 
         // sphere 2
         let translation2 = Matrix::translation(0.0, 0.0, -3.0);
-        let mut s2 = Sphere::new();
+        let mut s2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         s2.set_transformation(translation2);
-        let s2 = Shape::new(ShapeEnum::SphereEnum(s2));
 
         // sphere 3
         let translation3 = Matrix::translation(5.0, 0.0, 0.0);
-        let mut s3 = Sphere::new();
+        let mut s3 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         s3.set_transformation(translation3);
-        let s3 = Shape::new(ShapeEnum::SphereEnum(s3));
 
         let mut shapes: ShapeArr = vec![];
         let group_idx = Group::new(&mut shapes, "group".to_string());
@@ -373,9 +325,8 @@ mod tests {
 
         // sphere 1
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         let _s1_idx = Group::add_child(&mut shapes, group_idx, sphere);
 
@@ -412,9 +363,8 @@ mod tests {
 
         // sphere
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         // add sphere as child to group2
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
@@ -448,9 +398,8 @@ mod tests {
 
         // sphere
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         // add sphere as child to group2
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
@@ -487,15 +436,14 @@ mod tests {
 
         // sphere
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Sphere::new();
+        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
         sphere.set_transformation(translation);
-        let sphere = Shape::new(ShapeEnum::SphereEnum(sphere));
 
         // add sphere as child to group2
         let sphere_idx = Group::add_child(&mut shapes, group2_idx, sphere);
 
         let sphere = shapes.get(sphere_idx).unwrap();
-        let n = sphere.normal_at(&Tuple4D::new_point(1.7321, 1.1547, -5.5774), &shapes, &intersection);
+        let n = sphere.normal_at(&Tuple4D::new_point(1.7321, 1.1547, -5.5774), &intersection);
         let expected = Tuple4D::new_vector(0.28570366, 0.42854306, -0.8571606);
         println!("actual {:?}        expected {:?}", &n, &expected);
 

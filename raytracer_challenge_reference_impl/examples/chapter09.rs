@@ -5,37 +5,37 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut floor = Plane::new();
+    let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     floor.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
     floor.get_material_mut().set_specular(0.0);
 
-    let mut left_wall = Plane::new();
+    let mut left_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     left_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(-PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
     left_wall.get_material_mut().set_color(Color::new(0.0, 1., 0.0));
     left_wall.get_material_mut().set_specular(0.5);
 
-    let mut right_wall = Plane::new();
+    let mut right_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
     right_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
     );
     right_wall.get_material_mut().set_color(Color::new(0.0, 0.0, 1.));
     right_wall.get_material_mut().set_specular(1.0);
 
-    let mut middle = Sphere::new();
+    let mut middle = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     middle.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));
     middle.get_material_mut().set_color(Color::new(0.1, 1.0, 0.5));
     middle.get_material_mut().set_diffuse(0.7);
     middle.get_material_mut().set_specular(0.3);
 
-    let mut right = Sphere::new();
+    let mut right = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     right.set_transformation(&Matrix::translation(1.5, 0.5, -0.5) * &Matrix::scale(0.5, 0.5, 0.5));
     right.get_material_mut().set_color(Color::new(0.5, 1.0, 0.1));
     right.get_material_mut().set_diffuse(0.7);
     right.get_material_mut().set_specular(0.3);
 
-    let mut left = Sphere::new();
+    let mut left = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     left.set_transformation(&Matrix::translation(-1.5, 0.33, -0.75) * &Matrix::scale(0.333, 0.333, 0.333));
     left.get_material_mut().set_color(Color::new(1.0, 0.8, 0.1));
     left.get_material_mut().set_diffuse(0.7);
@@ -45,13 +45,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let l = Light::PointLight(pl);
 
     let mut w = World::new();
+    w.add_shape(floor);
+    w.add_shape(left_wall);
+    w.add_shape(right_wall);
+    w.add_shape(middle);
+    w.add_shape(left);
+    w.add_shape(right);
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(floor)));
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(left_wall)));
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(right_wall)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(middle)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(left)));
-    w.add_shape(Shape::new(ShapeEnum::SphereEnum(right)));
 
     let mut c = Camera::new(800, 600, PI / 3.0);
     c.calc_pixel_size();

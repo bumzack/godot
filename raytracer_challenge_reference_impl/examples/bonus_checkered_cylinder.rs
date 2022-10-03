@@ -10,13 +10,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 400;
     let height = 400;
 
-    let (w, c) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height);
 
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core(&camera, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    canvas.write_png("./checker_cylinder_bonus.png")?;
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
+        false => "no_AA".to_string(),
+    };
+    let filename = &format!(
+        "./bonus_checker_cylinder_{}x{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+    println!("filename {}", filename);
+    canvas.write_png(filename)?;
     println!("file exported");
     Ok(())
 }
@@ -24,16 +35,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(16, 8, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
     let checker_3d = CylinderTexturePattern::new(checker);
-    let p = Pattern::CylinderTexturePattern(checker_3d);
+    let p = Pattern::new(PatternEnum::CylinderTexturePatternEnum(checker_3d));
 
     let trans = Matrix::translation(0.0, -0.5, 0.0);
     let scale = Matrix::scale(1.0, PI, 1.0);
     let p_transformed = &scale * &trans;
 
     let mut cylinder = Cylinder::new();
-    cylinder.set_transformation(p_transformed);
     cylinder.set_minimum(0.0);
     cylinder.set_maximum(1.0);
+    let mut cylinder = Shape::new(ShapeEnum::CylinderEnum(cylinder));
+    cylinder.set_transformation(p_transformed);
     cylinder.get_material_mut().set_pattern(p);
     cylinder.get_material_mut().set_ambient(0.1);
     cylinder.get_material_mut().set_specular(0.4);
@@ -45,12 +57,12 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::CylinderEnum(cylinder)));
+    w.add_shape(cylinder);
 
     let mut c = Camera::new(width, height, 0.5);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 0.0, -10.0),
+        &Tuple4D::new_point(0.0, 3.0, -10.0),
         &Tuple4D::new_point(0.0, 0.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));

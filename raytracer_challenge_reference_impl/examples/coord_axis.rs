@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 pub fn add_floor(world: &mut World) {
     // floor
-    let mut floor = Cube::new();
+    let mut floor = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
     floor.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
     floor.get_material_mut().set_ambient(0.3);
     floor.get_material_mut().set_diffuse(0.6);
@@ -57,7 +57,6 @@ pub fn add_floor(world: &mut World) {
     let m_scale = Matrix::scale(3.0, 0.01, 10.0);
     //  let m_scam_transle = Matrix::translation(0.0, -1.5, 0.0);
     floor.set_transformation(m_scale);
-    let mut floor = Shape::new(ShapeEnum::CubeEnum(floor));
     floor.set_casts_shadow(false);
 
     world.add_shape(floor);
@@ -70,7 +69,7 @@ pub fn add_borders(world: &mut World) {
     let distance_from_z_axis = 1.0;
 
     // left border
-    let mut left_border = Cube::new();
+    let mut left_border = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
     left_border.get_material_mut().set_color(Color::new(1.0, 0.0, 1.0));
 
     let m_trans = Matrix::translation(-distance_from_z_axis, height, length);
@@ -78,10 +77,9 @@ pub fn add_borders(world: &mut World) {
     let m_scale = Matrix::scale(thick, height, length);
     let m = &m_trans * &(m_rot * m_scale);
     left_border.set_transformation(m);
-    let mut left_border = Shape::new(ShapeEnum::CubeEnum(left_border));
     left_border.set_casts_shadow(false);
 
-    let mut right_border = Cube::new();
+    let mut right_border = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
     right_border.get_material_mut().set_color(Color::new(1.0, 1.0, 0.0));
 
     let m_trans = Matrix::translation(distance_from_z_axis, height, length);
@@ -89,7 +87,6 @@ pub fn add_borders(world: &mut World) {
     let m_scale = Matrix::scale(thick, height, length);
     let m = &m_trans * &(m_rot * m_scale);
     right_border.set_transformation(m);
-    let mut right_border = Shape::new(ShapeEnum::CubeEnum(right_border));
     right_border.set_casts_shadow(false);
 
     world.add_shape(left_border);
@@ -104,6 +101,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     x_axis.set_minimum(0.0);
     x_axis.set_maximum(1.0);
     x_axis.set_closed(true);
+    let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
     x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
     x_axis.get_material_mut().set_ambient(0.3);
     x_axis.get_material_mut().set_diffuse(0.6);
@@ -116,7 +114,6 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     let m_scale = Matrix::scale(radius, len, radius);
     let m = &m_trans * &(m_rot * m_scale);
     x_axis.set_transformation(m);
-    let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
     x_axis.set_casts_shadow(false);
 
     // y axis
@@ -124,6 +121,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     y_axis.set_minimum(0.0);
     y_axis.set_maximum(1.0);
     y_axis.set_closed(true);
+    let mut y_axis = Shape::new(ShapeEnum::CylinderEnum(y_axis));
     y_axis.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
     y_axis.get_material_mut().set_ambient(0.3);
     y_axis.get_material_mut().set_diffuse(0.6);
@@ -136,7 +134,6 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     let m_scale = Matrix::scale(radius, len, radius);
     let m = &m_trans * &(m_rot * m_scale);
     y_axis.set_transformation(m);
-    let mut y_axis = Shape::new(ShapeEnum::CylinderEnum(y_axis));
     y_axis.set_casts_shadow(false);
 
     // z axis
@@ -144,6 +141,7 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     z_axis.set_minimum(0.0);
     z_axis.set_maximum(1.0);
     z_axis.set_closed(true);
+    let mut z_axis = Shape::new(ShapeEnum::CylinderEnum(z_axis));
     z_axis.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
     z_axis.get_material_mut().set_ambient(0.3);
     z_axis.get_material_mut().set_diffuse(0.6);
@@ -156,35 +154,31 @@ pub fn setup_world_coord_axes(width: usize, height: usize, show_axis_shperes: bo
     let m_scale = Matrix::scale(radius, len, radius);
     let m = &m_trans * &(m_rot * m_scale);
     z_axis.set_transformation(m);
-    let mut z_axis = Shape::new(ShapeEnum::CylinderEnum(z_axis));
     z_axis.set_casts_shadow(false);
 
     // sphere to test Z axis
-    let mut sphere_z = Sphere::new();
+    let mut sphere_z = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere_z.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
     sphere_z.get_material_mut().set_ambient(0.3);
 
     let m_translate = &Matrix::translation(0.0, 0.00, 1.0) * &Matrix::scale(0.2, 0.2, 0.2);
     sphere_z.set_transformation(m_translate);
-    let mut sphere_z = Shape::new(ShapeEnum::SphereEnum(sphere_z));
     sphere_z.set_casts_shadow(false);
 
     // sphere to test y axis
-    let mut sphere_y = Sphere::new();
+    let mut sphere_y = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere_y.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
 
     let m_translate = &Matrix::translation(0.0, 1.00, 0.0) * &Matrix::scale(0.2, 0.2, 0.2);
     sphere_y.set_transformation(m_translate);
-    let mut sphere_y = Shape::new(ShapeEnum::SphereEnum(sphere_y));
     sphere_y.set_casts_shadow(false);
 
     // sphere to test y axis
-    let mut sphere_x = Sphere::new();
+    let mut sphere_x = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
     sphere_x.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
 
     let m_translate = &Matrix::translation(1.0, 0.00, 0.0) * &Matrix::scale(0.2, 0.2, 0.2);
     sphere_x.set_transformation(m_translate);
-    let mut sphere_x = Shape::new(ShapeEnum::SphereEnum(sphere_x));
     sphere_x.set_casts_shadow(false);
 
     let mut w = World::new();

@@ -22,6 +22,9 @@ pub struct Shape {
     parent: Option<ShapeIdx>,
     name: Option<String>,
     bounding_box: Option<BoundingBox>,
+    transformation_matrix: Matrix,
+    inverse_transformation_matrix: Matrix,
+    material: Material,
 }
 
 pub trait ShapeOps<'a> {
@@ -29,8 +32,7 @@ pub trait ShapeOps<'a> {
     fn get_transformation(&self) -> &Matrix;
     fn get_inverse_transformation(&self) -> &Matrix;
 
-    fn normal_at(&self, p: &Tuple4D, shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D;
-    fn local_normal_at(&self, local_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D;
+    fn normal_at(&self, p: &Tuple4D, i: &Intersection<'a>) -> Tuple4D;
 
     fn set_material(&mut self, m: Material);
     fn get_material(&self) -> &Material;
@@ -45,6 +47,7 @@ pub trait ShapeOps<'a> {
 
 pub trait ShapeIntersectOps<'a> {
     fn intersect_local(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a>;
+    fn local_normal_at(&self, local_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D;
 }
 
 impl<'a> ShapeIntersectOps<'a> for Shape {
@@ -60,53 +63,6 @@ impl<'a> ShapeIntersectOps<'a> for Shape {
             ShapeEnum::CsgEnum(ref _csg) => Csg::intersect_local(shape, r, shapes),
         }
     }
-}
-
-impl<'a> ShapeOps<'a> for Shape {
-    fn set_transformation(&mut self, m: Matrix) {
-        match self.shape {
-            ShapeEnum::SphereEnum(ref mut sphere) => sphere.set_transformation(m),
-            ShapeEnum::PlaneEnum(ref mut plane) => plane.set_transformation(m),
-            ShapeEnum::CubeEnum(ref mut cube) => cube.set_transformation(m),
-            ShapeEnum::CylinderEnum(ref mut cylinder) => cylinder.set_transformation(m),
-            ShapeEnum::TriangleEnum(ref mut triangle) => triangle.set_transformation(m),
-            ShapeEnum::SmoothTriangleEnum(ref mut triangle) => triangle.set_transformation(m),
-            ShapeEnum::GroupEnum(ref mut group) => group.set_transformation(m),
-            ShapeEnum::CsgEnum(ref mut csg) => csg.set_transformation(m),
-        }
-    }
-
-    fn get_transformation(&self) -> &Matrix {
-        match self.shape {
-            ShapeEnum::SphereEnum(ref sphere) => sphere.get_transformation(),
-            ShapeEnum::PlaneEnum(ref plane) => plane.get_transformation(),
-            ShapeEnum::CubeEnum(ref cube) => cube.get_transformation(),
-            ShapeEnum::CylinderEnum(ref cylinder) => cylinder.get_transformation(),
-            ShapeEnum::TriangleEnum(ref triangle) => triangle.get_transformation(),
-            ShapeEnum::SmoothTriangleEnum(ref triangle) => triangle.get_transformation(),
-            ShapeEnum::GroupEnum(ref group) => group.get_transformation(),
-            ShapeEnum::CsgEnum(ref csg) => csg.get_transformation(),
-        }
-    }
-
-    fn get_inverse_transformation(&self) -> &Matrix {
-        match self.shape {
-            ShapeEnum::SphereEnum(ref sphere) => sphere.get_inverse_transformation(),
-            ShapeEnum::PlaneEnum(ref plane) => plane.get_inverse_transformation(),
-            ShapeEnum::CubeEnum(ref cube) => cube.get_inverse_transformation(),
-            ShapeEnum::CylinderEnum(ref cylinder) => cylinder.get_inverse_transformation(),
-            ShapeEnum::TriangleEnum(ref triangle) => triangle.get_inverse_transformation(),
-            ShapeEnum::SmoothTriangleEnum(ref triangle) => triangle.get_inverse_transformation(),
-            ShapeEnum::GroupEnum(ref group) => group.get_inverse_transformation(),
-            ShapeEnum::CsgEnum(ref csg) => csg.get_inverse_transformation(),
-        }
-    }
-
-    fn normal_at(&self, world_point: &Tuple4D, shapes: &ShapeArr, i: &Intersection<'a>) -> Tuple4D {
-        let local_point = world_to_object(self, world_point, shapes);
-        let local_normal = Self::local_normal_at(self, &local_point, i);
-        normal_to_world(self, &local_normal, shapes)
-    }
 
     fn local_normal_at(&self, local_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D {
         match self.shape {
@@ -120,44 +76,41 @@ impl<'a> ShapeOps<'a> for Shape {
             ShapeEnum::CsgEnum(ref csg) => csg.local_normal_at(local_point, i),
         }
     }
+}
+
+impl<'a> ShapeOps<'a> for Shape {
+    fn set_transformation(&mut self, m: Matrix) {
+        self.inverse_transformation_matrix =
+            Matrix::invert(&m).expect("Cube::set_transformation: cant unwrap inverse matrix");
+        self.transformation_matrix = m;
+    }
+
+    fn get_transformation(&self) -> &Matrix {
+        &self.transformation_matrix
+    }
+
+    fn get_inverse_transformation(&self) -> &Matrix {
+        &self.inverse_transformation_matrix
+    }
+
+    fn normal_at(&self, world_point: &Tuple4D, i: &Intersection<'a>) -> Tuple4D {
+        let object_point = self.get_inverse_transformation() * world_point;
+        let local_normal = self.local_normal_at(&object_point, i);
+        let mut world_normal = &Matrix::transpose(self.get_inverse_transformation()) * &local_normal;
+        world_normal.w = 0.0;
+        Tuple4D::normalize(&world_normal)
+    }
 
     fn set_material(&mut self, m: Material) {
-        match self.shape {
-            ShapeEnum::SphereEnum(ref mut sphere) => sphere.set_material(m),
-            ShapeEnum::PlaneEnum(ref mut plane) => plane.set_material(m),
-            ShapeEnum::CubeEnum(ref mut cube) => cube.set_material(m),
-            ShapeEnum::CylinderEnum(ref mut cylinder) => cylinder.set_material(m),
-            ShapeEnum::TriangleEnum(ref mut triangle) => triangle.set_material(m),
-            ShapeEnum::SmoothTriangleEnum(ref mut triangle) => triangle.set_material(m),
-            ShapeEnum::GroupEnum(ref mut group) => group.set_material(m),
-            ShapeEnum::CsgEnum(ref mut csg) => csg.set_material(m),
-        }
+        self.material = m;
     }
 
     fn get_material(&self) -> &Material {
-        match self.shape {
-            ShapeEnum::SphereEnum(ref sphere) => sphere.get_material(),
-            ShapeEnum::PlaneEnum(ref plane) => plane.get_material(),
-            ShapeEnum::CubeEnum(ref cube) => cube.get_material(),
-            ShapeEnum::CylinderEnum(ref cylinder) => cylinder.get_material(),
-            ShapeEnum::TriangleEnum(ref triangle) => triangle.get_material(),
-            ShapeEnum::SmoothTriangleEnum(ref triangle) => triangle.get_material(),
-            ShapeEnum::GroupEnum(_) => panic!("Group::get_material should never be called "),
-            ShapeEnum::CsgEnum(_) => panic!("CSG::get_material should never be called "),
-        }
+        &self.material
     }
 
     fn get_material_mut(&mut self) -> &mut Material {
-        match self.shape {
-            ShapeEnum::SphereEnum(ref mut sphere) => sphere.get_material_mut(),
-            ShapeEnum::PlaneEnum(ref mut plane) => plane.get_material_mut(),
-            ShapeEnum::CubeEnum(ref mut cube) => cube.get_material_mut(),
-            ShapeEnum::CylinderEnum(ref mut cylinder) => cylinder.get_material_mut(),
-            ShapeEnum::TriangleEnum(ref mut triangle) => triangle.get_material_mut(),
-            ShapeEnum::SmoothTriangleEnum(ref mut triangle) => triangle.get_material_mut(),
-            ShapeEnum::GroupEnum(_) => panic!("Group::get_material should never be called "),
-            ShapeEnum::CsgEnum(_) => panic!("CSG::get_material should never be called "),
-        }
+        &mut self.material
     }
 
     fn get_parent(&self) -> &Option<ShapeIdx> {
@@ -188,6 +141,9 @@ impl<'a> Shape {
             part_of_group: false,
             name: Some(name),
             bounding_box: None,
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            material: Material::new(),
         };
         // it makes sad and sick - this has to change
         s.add_bounding_box(&vec![]);
@@ -202,25 +158,31 @@ impl<'a> Shape {
             part_of_group: false,
             name: None,
             bounding_box: None,
+            transformation_matrix: Matrix::new_identity_4x4(),
+            inverse_transformation_matrix: Matrix::new_identity_4x4(),
+            material: Material::new(),
         };
         // it makes sad and sick - this has to change
         s.add_bounding_box(&vec![]);
         s
     }
 
-    pub fn new_part_of_group(shape: ShapeEnum, name: String) -> Shape {
-        let mut s = Shape {
-            shape,
-            casts_shadow: true,
-            parent: None,
-            part_of_group: true,
-            name: Some(name),
-            bounding_box: None,
-        };
-        // it makes sad and sick - this has to change
-        s.add_bounding_box(&vec![]);
-        s
-    }
+    // pub fn new_part_of_group(shape: Shape , name: String) -> Shape {
+    //     let mut s = Shape {
+    //         shape,
+    //         casts_shadow: true,
+    //         parent: None,
+    //         part_of_group: true,
+    //         name: Some(name),
+    //         bounding_box: None,
+    //         transformation_matrix: Matrix::new_identity_4x4(),
+    //         inverse_transformation_matrix: Matrix::new_identity_4x4(),
+    //         material: Material::new(),
+    //     };
+    //     // it makes sad and sick - this has to change
+    //     s.add_bounding_box(&vec![]);
+    //     s
+    // }
 
     pub fn get_shape(&self) -> &ShapeEnum {
         &self.shape
@@ -234,24 +196,24 @@ impl<'a> Shape {
         self.casts_shadow = casts_shadow;
     }
 
-    pub(crate) fn intersects(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
+    pub fn intersects(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let r = Ray::transform(&r, shape.get_inverse_transformation());
         Self::intersect_local(shape, r, shapes)
     }
 
-    pub(crate) fn set_parent(&mut self, parent_idx: ShapeIdx) {
+    pub fn set_parent(&mut self, parent_idx: ShapeIdx) {
         self.parent = Some(parent_idx);
     }
 
-    pub(crate) fn get_part_of_group(&self) -> bool {
+    pub fn get_part_of_group(&self) -> bool {
         self.part_of_group
     }
 
-    pub(crate) fn set_part_of_group(&mut self, part_of_group: bool) {
+    pub fn set_part_of_group(&mut self, part_of_group: bool) {
         self.part_of_group = part_of_group;
     }
 
-    pub(crate) fn get_name(&self) -> &Option<String> {
+    pub fn get_name(&self) -> &Option<String> {
         &self.name
     }
 
@@ -270,21 +232,21 @@ impl<'a> Shape {
         }
     }
 
-    pub(crate) fn set_left(&mut self, idx: ShapeIdx) {
+    pub fn set_left(&mut self, idx: ShapeIdx) {
         match self.shape {
             ShapeEnum::CsgEnum(ref mut csg) => csg.set_left(idx),
             _ => unreachable!("Jhis should never be called"),
         }
     }
 
-    pub(crate) fn set_right(&mut self, idx: ShapeIdx) {
+    pub fn set_right(&mut self, idx: ShapeIdx) {
         match self.shape {
             ShapeEnum::CsgEnum(ref mut csg) => csg.set_right(idx),
             _ => unreachable!("this should never be called"),
         }
     }
 
-    pub(crate) fn get_op(&self) -> &CsgOp {
+    pub fn get_op(&self) -> &CsgOp {
         match self.shape {
             ShapeEnum::CsgEnum(ref csg) => csg.get_op(),
             _ => unreachable!("this should never be called"),
@@ -304,7 +266,7 @@ impl<'a> Shape {
         &self.bounding_box.as_ref().unwrap()
     }
 
-    pub(crate) fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
+    pub fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
         match self.shape {
             ShapeEnum::SphereEnum(ref sphere) => sphere.get_bounds_of(),
             ShapeEnum::PlaneEnum(ref plane) => plane.get_bounds_of(),
@@ -436,28 +398,14 @@ impl fmt::Display for ShapeEnum {
         let mut parent_msg = String::new();
 
         match &self {
-            ShapeEnum::SphereEnum(sphere) => {
-                parent_msg.push_str(format!("sphere     {:?}", &sphere.get_transformation()).as_str())
-            }
-            ShapeEnum::PlaneEnum(plane) => {
-                parent_msg.push_str(format!("plane    {:?}", &plane.get_transformation()).as_str())
-            }
-            ShapeEnum::CubeEnum(cube) => {
-                parent_msg.push_str(format!("cube    {:?}", &cube.get_transformation()).as_str())
-            }
-            ShapeEnum::CylinderEnum(cylinder) => {
-                parent_msg.push_str(format!("cylinder   {:?}", &cylinder.get_transformation()).as_str())
-            }
-            ShapeEnum::TriangleEnum(triangle) => {
-                parent_msg.push_str(format!("triangle   {:?}", &triangle.get_transformation()).as_str())
-            }
-            ShapeEnum::SmoothTriangleEnum(triangle) => {
-                parent_msg.push_str(format!("smooth triangle   {:?}", &triangle.get_transformation()).as_str())
-            }
-            ShapeEnum::GroupEnum(group) => {
-                parent_msg.push_str(format!("group    {:?}", &group.get_transformation()).as_str())
-            }
-            ShapeEnum::CsgEnum(csg) => parent_msg.push_str(format!("CSG    {:?}", &csg.get_transformation()).as_str()),
+            ShapeEnum::SphereEnum(_sphere) => parent_msg.push_str(format!("sphere ").as_str()),
+            ShapeEnum::PlaneEnum(_plane) => parent_msg.push_str(format!("plane").as_str()),
+            ShapeEnum::CubeEnum(_cube) => parent_msg.push_str(format!("cube").as_str()),
+            ShapeEnum::CylinderEnum(_cylinder) => parent_msg.push_str(format!("cylinder").as_str()),
+            ShapeEnum::TriangleEnum(_triangle) => parent_msg.push_str(format!("triangle").as_str()),
+            ShapeEnum::SmoothTriangleEnum(_triangle) => parent_msg.push_str(format!("smooth triangle").as_str()),
+            ShapeEnum::GroupEnum(_group) => parent_msg.push_str(format!("group").as_str()),
+            ShapeEnum::CsgEnum(_csg) => parent_msg.push_str(format!("CSG").as_str()),
         }
         write!(f, "ShapeEnum: {}   ", parent_msg)
     }

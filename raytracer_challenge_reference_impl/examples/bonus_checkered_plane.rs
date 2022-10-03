@@ -9,29 +9,33 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 2048;
     let height = 2048;
 
-    let (w, c) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height);
 
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
+    let canvas = Camera::render_multi_core(&camera, &w);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
-    let aa = match c.get_antialiasing() {
-        true => format!("with_AA_{}", c.get_antialiasing_size()),
+    let aa = match camera.get_antialiasing() {
+        true => format!("with_AA_{}", camera.get_antialiasing_size()),
         false => "no_AA".to_string(),
     };
-    let filename = &format!("./checker_plane_bonus_{}_{}_{}.png", width, height, aa);
+    let filename = &format!(
+        "./bonus_checkered_plane_{}x{}_{}.png",
+        camera.get_hsize(),
+        camera.get_vsize(),
+        aa
+    );
+    println!("filename {}", filename);
     canvas.write_png(filename)?;
-    println!("file {} exported", filename);
     Ok(())
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(2, 2, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));
-    let plane_checker = PlaneTexturePattern::new(checker);
-    let p = Pattern::PlaneTexturePattern(plane_checker);
+    let plane_checker = Pattern::new(PatternEnum::PlaneTexturePatternEnum(PlaneTexturePattern::new(checker)));
 
-    let mut plane = Plane::new();
-    plane.get_material_mut().set_pattern(p);
+    let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    plane.get_material_mut().set_pattern(plane_checker);
     plane.get_material_mut().set_ambient(0.1);
     plane.get_material_mut().set_specular(0.0);
     plane.get_material_mut().set_diffuse(0.9);
@@ -41,7 +45,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let mut w = World::new();
     w.add_light(l);
-    w.add_shape(Shape::new(ShapeEnum::PlaneEnum(plane)));
+    w.add_shape(plane);
 
     let mut c = Camera::new(width, height, 0.50);
     c.set_antialiasing(true);

@@ -85,7 +85,7 @@ impl<'a> CanvasOpsStd<'a> for Canvas {
 
         for (x, y, pixel) in img.pixels() {
             let p = pixel.0;
-            println!("pixel r: {:?} g: {:?} b: {:?} a: {:?}", p[0], p[1], p[2], p[3]);
+            // println!("pixel r: {:?} g: {:?} b: {:?} a: {:?}", p[0], p[1], p[2], p[3]);
             c.write_pixel(
                 x as usize,
                 y as usize,
