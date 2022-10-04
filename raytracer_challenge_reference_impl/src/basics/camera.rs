@@ -339,16 +339,21 @@ impl CameraOps for Camera {
                             Some(ref tile) => {
                                 println!("thread   {:?}    processing tile  {}", thread::current().id(), tile);
 
+                                let mut pixels = vec![];
+
                                 cnt_tiles += 1;
                                 for y in tile.y_from()..tile.y_to() {
                                     for x in tile.x_from()..tile.x_to() {
                                         // println!("thread_id {:?}   raytracing pixel:  {}/{} ", thread::current().id(), x, y);
                                         let color =
                                             Self::raytrace_pixel(n_samples, &jitter_matrix, &c_clone, &w_clone, x, y);
-
-                                        let mut canvas = cloned_data.lock().unwrap();
-                                        canvas.write_pixel(x, y, color);
+                                        pixels.push((x, y, color));
                                     }
+                                }
+
+                                let mut canvas = cloned_data.lock().unwrap();
+                                for p in pixels {
+                                    canvas.write_pixel(p.0, p.1, p.2);
                                 }
                             }
                             None => {
