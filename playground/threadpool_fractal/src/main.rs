@@ -1,9 +1,9 @@
 use error_chain::error_chain;
-use image::ImageError;
 use image::{ImageBuffer, Pixel, Rgb};
 use num::complex::Complex;
 use std::sync::mpsc::{channel, RecvError};
 use threadpool::ThreadPool;
+
 error_chain! {
     foreign_links {
         MpscRecv(RecvError);

@@ -4,7 +4,7 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let size_factor = 3.0;
+    let size_factor = 4.0;
     let antialiasing = true;
     let antialiasing_size = 3;
 
