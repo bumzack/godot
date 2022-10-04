@@ -1,8 +1,8 @@
 extern crate num_cpus;
 
+use image::ImageError;
 use std::error::Error;
 use std::time::Instant;
-use image::ImageError;
 
 use raytracer_challenge_reference_impl::patterns::PatternEnum::ImageTexturePatternEnum;
 use raytracer_challenge_reference_impl::prelude::*;
@@ -58,7 +58,7 @@ fn setup_world(width: usize, height: usize) -> Result<(World, Camera), ImageErro
     let image = Canvas::read_png(
         "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/earthmap1k.jpg",
     )
-        .expect("loading image linear_gradient.png");
+    .expect("loading image linear_gradient.png");
 
     image.write_png("blupp.png")?;
 

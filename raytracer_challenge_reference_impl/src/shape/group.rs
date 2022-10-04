@@ -170,7 +170,7 @@ mod tests {
 
     use crate::math::common::assert_matrix;
     use crate::math::Tuple;
-    use crate::prelude::{assert_tuple, normal_to_world, world_to_object, Sphere, Matrix, MatrixOps};
+    use crate::prelude::{assert_tuple, normal_to_world, world_to_object, Matrix, MatrixOps, Sphere};
     use crate::shape::shape::{Shape, ShapeEnum};
 
     use super::*;
