@@ -1,13 +1,16 @@
+use std::thread;
 use std::time::Instant;
 
+use crossbeam_channel::unbounded;
 use serde_derive::{Deserialize, Serialize};
 use tracing_log::log::info;
 use warp::Filter;
-use std::thread;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Canvas, CanvasOpsStd};
-use crossbeam_channel::unbounded;
+
+use raytracer_challenge_reference_impl::basics::TileData;
+use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, CanvasOpsStd};
+
 use crate::scene::scene;
-use raytracer_challenge_reference_impl::prelude::CanvasOps;
+
 mod scene;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -15,7 +18,6 @@ struct WorldReq {
     name: String,
     rate: u32,
 }
-
 
 #[tokio::main]
 async fn main() {
@@ -25,30 +27,28 @@ async fn main() {
         // Only accept bodies smaller than 64kb...
         .and(warp::body::content_length_limit(1024 * 64))
         .and(warp::body::json())
-        .map(|mut world: WorldReq| {
-            let (w, c) = scene();
+        .map(|world: WorldReq| {
+            let width = 2180;
+            let height = 1800;
 
-            let (s , r) = unbounded::<Canvas>();
+            let (w, c) = scene(width, height);
+            let width = c.get_hsize();
+            let height = c.get_vsize();
+            let (s, r) = unbounded::<Vec<TileData>>();
 
             thread::spawn(move || {
-                info!("{}",format!("got a world   {:?}", &world));
+                info!("{}", format!("got a world   {:?}", &world));
                 let start = Instant::now();
-                let canvas = Camera::render_multi_core_tiled_sender(&c, &w, 5, 5, s);
+                Camera::render_multi_core_tile_producer(&c, &w, 5, 5, s);
                 let dur = Instant::now() - start;
                 info!("multi core duration: {:?}", dur);
             });
 
-          let full_image =   r.iter().reduce(|_, item| {
-              println!("got something");
-                info!("got a new image from render threads    {} {}", item.get_width(), item.get_height());
-                item
-            }).unwrap();
-
+            let canvas = Camera::collect_tiles_to_canvas(r, width, height);
 
             let filename = "./chapter07_webgui_threaded.png";
-            full_image.write_png(filename).expect("wrote png");
-            info!("wrote file: {:?}",filename);
-
+            canvas.write_png(filename).expect("wrote png");
+            info!("wrote file: {:?}", filename);
 
             let w = WorldReq {
                 rate: 1234,

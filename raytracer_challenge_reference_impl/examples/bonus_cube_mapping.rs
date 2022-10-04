@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::time::Instant;
 
-use raytracer_challenge_reference_impl::prelude::PatternEnum::CubeTextPatternEnum;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {

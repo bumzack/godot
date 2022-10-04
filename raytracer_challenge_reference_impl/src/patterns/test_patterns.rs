@@ -1,6 +1,5 @@
 use crate::basics::color::{Color, ColorOps};
 use crate::math::tuple4d::Tuple4D;
-use crate::shape::shape::Shape;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TestPattern {}
@@ -27,7 +26,7 @@ mod tests {
     use crate::math::tuple4d::Tuple;
     use crate::patterns::patterns::PatternEnum;
     use crate::patterns::Pattern;
-    use crate::prelude::{Matrix, MatrixOps, ShapeOps};
+    use crate::prelude::{Matrix, MatrixOps, Shape, ShapeOps};
     use crate::shape::sphere::Sphere;
 
     use super::*;

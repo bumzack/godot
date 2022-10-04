@@ -5,6 +5,23 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let width = 2180;
+    let height = 1800;
+
+    let (w, c) = setup_world(width, height);
+
+    let start = Instant::now();
+    let canvas = Camera::render_multi_core(&c, &w);
+    let dur = Instant::now() - start;
+    println!("multi core duration: {:?}", dur);
+    canvas.write_png("chapter07.png")?;
+
+    println!("DONE");
+
+    Ok(())
+}
+
+fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut floor = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -57,7 +74,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     w.add_shape(left);
     w.add_shape(right);
 
-    let mut c = Camera::new(2180, 1440, PI / 3.0);
+    let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(
@@ -65,14 +82,5 @@ fn main() -> Result<(), Box<dyn Error>> {
         &Tuple4D::new_point(0.0, 1.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
-
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&c, &w);
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter07.png")?;
-
-    println!("DONE");
-
-    Ok(())
+    (w, c)
 }

@@ -34,7 +34,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut ring_pattern = RingPattern::new();
     ring_pattern.set_color_a(Color::new(1.0, 0.9, 0.9));
     ring_pattern.set_color_b(Color::new(0.1, 0.3, 0.3));
-    let mut ring_pattern = Pattern::new(RingPatternEnum(ring_pattern));
+    let   ring_pattern = Pattern::new(RingPatternEnum(ring_pattern));
     //let m = Matrix::rotate_y(PI / 4.0);
     // p.set_transformation(m);
     floor.get_material_mut().set_pattern(ring_pattern);
@@ -44,7 +44,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut ring_pattern = RingPattern::new();
     ring_pattern.set_color_a(Color::new(0.2, 0.2, 0.2));
     ring_pattern.set_color_b(Color::new(0.9, 0.6, 0.9));
-    let mut ring_pattern = Pattern::new(RingPatternEnum(ring_pattern));
+    let   ring_pattern = Pattern::new(RingPatternEnum(ring_pattern));
 
     let mut ball1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     ball1.set_transformation(Matrix::translation(-0.5, 1.0, 0.5));

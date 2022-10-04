@@ -150,23 +150,6 @@ impl Shape {
         s
     }
 
-    fn new(shape: ShapeEnum, name: String) -> Shape {
-        let mut s = Shape {
-            shape,
-            casts_shadow: true,
-            parent: None,
-            part_of_group: false,
-            name: Some(name),
-            bounding_box: None,
-            transformation_matrix: Matrix::new_identity_4x4(),
-            inverse_transformation_matrix: Matrix::new_identity_4x4(),
-            material: Material::new(),
-        };
-        // it makes sad and sick - this has to change
-        s.add_bounding_box(&vec![]);
-        s
-    }
-
     pub fn new_sphere(sphere: Sphere, name: String) -> Shape {
         Self::new_with_name(ShapeEnum::SphereEnum(sphere), name)
     }

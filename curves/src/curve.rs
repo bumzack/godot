@@ -240,9 +240,11 @@ pub fn blossom_bezier(p: &Vec<Tuple4D>, u0: f64, u1: f64, u2: f64) -> Tuple4D {
 }
 
 pub fn pbrt_cross(v1: &Tuple4D, v2: &Tuple4D) -> Tuple4D {
-    Tuple4D::new_vector((v1.y * v2.z) - (v1.z * v2.y),
-                        (v1.z * v2.x) - (v1.x * v2.z),
-                        (v1.x * v2.y) - (v1.y * v2.x))
+    Tuple4D::new_vector(
+        (v1.y * v2.z) - (v1.z * v2.y),
+        (v1.z * v2.x) - (v1.x * v2.z),
+        (v1.x * v2.y) - (v1.y * v2.x),
+    )
 }
 
 pub fn coordinate_system(v: &Tuple4D) -> (Tuple4D, Tuple4D) {
@@ -321,7 +323,6 @@ mod tests {
         assert!(assert_two_float(actual.w, expected.w));
     }
 
-
     #[test]
     pub fn test_lerp_f64() {
         let data = vec![
@@ -345,14 +346,54 @@ mod tests {
     #[test]
     pub fn test_lerp_vec() {
         let data = vec![
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.000000, Tuple4D::new_vector(1.0, 2.0, 3.0)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.250000, Tuple4D::new_vector(4.25, -2.25, 6.25)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.750000, Tuple4D::new_vector(10.75, -10.75, 12.75)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.500000, Tuple4D::new_vector(7.5, -6.5, 9.5)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 1.000000, Tuple4D::new_vector(14.0, -15.0, 16.0)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 1.500000, Tuple4D::new_vector(20.5, -23.5, 22.5)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 1.750000, Tuple4D::new_vector(23.75, -27.75, 25.75)),
-            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 2.000000, Tuple4D::new_vector(27.0, -32.0, 29.0)),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                0.000000,
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                0.250000,
+                Tuple4D::new_vector(4.25, -2.25, 6.25),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                0.750000,
+                Tuple4D::new_vector(10.75, -10.75, 12.75),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                0.500000,
+                Tuple4D::new_vector(7.5, -6.5, 9.5),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                1.000000,
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                1.500000,
+                Tuple4D::new_vector(20.5, -23.5, 22.5),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                1.750000,
+                Tuple4D::new_vector(23.75, -27.75, 25.75),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 2.0, 3.0),
+                Tuple4D::new_vector(14.0, -15.0, 16.0),
+                2.000000,
+                Tuple4D::new_vector(27.0, -32.0, 29.0),
+            ),
         ];
 
         for d in data {
@@ -361,7 +402,6 @@ mod tests {
             assert_eq!(actual, expected);
         }
     }
-
 
     #[test]
     pub fn test_blossom_bezier() {
@@ -392,17 +432,31 @@ mod tests {
         }
     }
 
-
     // TODO this crashes probably due to the coordinate system used in the PBRT and the left handed system from the Math Functions in this raytracer
     #[test]
     pub fn test_coordinate_system() {
         let data = vec![
-            (Tuple4D::new_vector(1.0, 0.0, 0.0), Tuple4D::new_vector(0., 0., 1.), Tuple::new_vector(0., -1., 0.)),
-            (Tuple4D::new_vector(1.0, 1.0, 0.0), Tuple4D::new_vector(0., 0., -1.), Tuple::new_vector(-1., 1., 0.)),
-            (Tuple4D::new_vector(1.0, 0.0, 1.0), Tuple4D::new_vector(-SQRT_2 / 2.0, 0., SQRT_2 / 2.0), Tuple::new_vector(0., -SQRT_2, 0.)),
-            (Tuple4D::new_vector(1.0, 1.0, 1.0), Tuple4D::new_vector(0., SQRT_2 / 2.0, -SQRT_2 / 2.0), Tuple::new_vector(-SQRT_2, SQRT_2 / 2.0, SQRT_2 / 2.0)),
+            (
+                Tuple4D::new_vector(1.0, 0.0, 0.0),
+                Tuple4D::new_vector(0., 0., 1.),
+                Tuple::new_vector(0., -1., 0.),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 1.0, 0.0),
+                Tuple4D::new_vector(0., 0., -1.),
+                Tuple::new_vector(-1., 1., 0.),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 0.0, 1.0),
+                Tuple4D::new_vector(-SQRT_2 / 2.0, 0., SQRT_2 / 2.0),
+                Tuple::new_vector(0., -SQRT_2, 0.),
+            ),
+            (
+                Tuple4D::new_vector(1.0, 1.0, 1.0),
+                Tuple4D::new_vector(0., SQRT_2 / 2.0, -SQRT_2 / 2.0),
+                Tuple::new_vector(-SQRT_2, SQRT_2 / 2.0, SQRT_2 / 2.0),
+            ),
         ];
-
 
         for d in data {
             let (actual1, actual2) = coordinate_system(&d.0);

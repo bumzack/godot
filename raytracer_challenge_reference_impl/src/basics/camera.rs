@@ -1,19 +1,21 @@
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
-use crossbeam_channel::{Sender, unbounded};
 
-use crate::basics::{CanvasOps, CanvasOpsStd, Color, Tile};
+use crossbeam_channel::{unbounded, Receiver, Sender};
+
 use crate::basics::canvas::Canvas;
 use crate::basics::color::BLACK;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
+use crate::basics::{CanvasOps, Color};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
+use crate::prelude::TileData;
 use crate::world::world::WorldOps;
+use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -55,8 +57,15 @@ pub trait CameraOps {
 
     fn render(c: &Camera, w: &World) -> Canvas;
     fn render_multi_core(c: &Camera, w: &World) -> Canvas;
-    fn render_multi_core_tiled(c: &Camera, w: &World, x_tiles: usize, y_tiles: usize) -> Canvas;
-    fn render_multi_core_tiled_sender(ca: &Camera, wo: &World, x_tiles: usize, y_tiles: usize, s: Sender<Canvas>)-> Canvas;
+    fn render_multi_core_tiled<'a>(ca: &'a Camera, wo: &'a World, x_tiles: usize, y_tiles: usize) -> Canvas;
+    fn render_multi_core_tile_producer(
+        ca: &Camera,
+        wo: &World,
+        x_tiles: usize,
+        y_tiles: usize,
+        s: Sender<Vec<TileData>>,
+    );
+    fn collect_tiles_to_canvas(r: Receiver<Vec<TileData>>, width: usize, height: usize) -> Canvas;
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas;
 }
 
@@ -288,104 +297,40 @@ impl CameraOps for Camera {
 
             data.lock().unwrap()
         })
-            .unwrap();
+        .unwrap();
 
         c.clone()
     }
 
-    fn render_multi_core_tiled(ca: &Camera, wo: &World, x_tiles: usize, y_tiles: usize) -> Canvas {
-        let camera = ca.clone();
-        let world = wo.clone();
+    fn render_multi_core_tiled(c: &Camera, w: &World, x_tiles: usize, y_tiles: usize) -> Canvas {
+        let width = c.get_hsize();
+        let height = c.get_vsize();
+        let (s, r) = unbounded::<Vec<TileData>>();
 
-        let start = Instant::now();
-        let num_cores = num_cpus::get();
-
-        println!("using {} cores", num_cores);
-
-        let canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
-        let mut tiles = canvas.tiles(x_tiles, y_tiles);
-        let data = Arc::new(Mutex::new(canvas));
-        let tiles = Arc::new(Mutex::new(tiles));
-
-        let c = crossbeam::scope(|s| {
-            let mut children = vec![];
-
-            for _i in 0..num_cores {
-                let n_samples = camera.get_antialiasing_size();
-                let jitter_matrix = Self::get_jitter_for_sampling(n_samples);
-
-                let cloned_data = Arc::clone(&data);
-                let height = camera.get_vsize();
-                let width = camera.get_hsize();
-
-                let c_clone = camera.clone();
-                let w_clone = world.clone();
-
-                let cloned_tiles = Arc::clone(&tiles);
-                children.push(s.spawn(move |_| {
-                    let mut cnt_tiles = 0;
-
-                    println!(
-                        "camera height / width  {}/{}     thread_id {:?}",
-                        height,
-                        width,
-                        thread::current().id()
-                    );
-
-                    while cloned_tiles.lock().unwrap().peekable().peek().is_some() {
-                        let tile_candidate;
-                        {
-                            tile_candidate = cloned_tiles.lock().unwrap().next();
-                        }
-                        match tile_candidate {
-                            Some(ref tile) => {
-                                println!("thread   {:?}    processing tile  {}", thread::current().id(), tile);
-
-                                let mut pixels = vec![];
-
-                                cnt_tiles += 1;
-                                for y in tile.y_from()..tile.y_to() {
-                                    for x in tile.x_from()..tile.x_to() {
-                                        // println!("thread_id {:?}   raytracing pixel:  {}/{} ", thread::current().id(), x, y);
-                                        let color =
-                                            Self::raytrace_pixel(n_samples, &jitter_matrix, &c_clone, &w_clone, x, y);
-                                        pixels.push((x, y, color));
-                                    }
-                                }
-
-                                let mut canvas = cloned_data.lock().unwrap();
-                                for p in pixels {
-                                    canvas.write_pixel(p.0, p.1, p.2);
-                                }
-                            }
-                            None => {
-                                println!(" no more tiles for thread {:?}", thread::current().id());
-                            }
-                        };
-                    }
-
-                    (thread::current().id(), cnt_tiles)
-                }));
-            }
-
-            for child in children {
-                let dur = Instant::now() - start;
-                let (thread_id, cnt_tiles) = child.join().unwrap();
-                println!(
-                    "child thread {:?} finished. run for {:?} , processed {:?} tiles",
-                    thread_id, dur, cnt_tiles
-                );
-            }
+        let camera = c.clone();
+        let world = w.clone();
+        thread::spawn(move || {
+            let start = Instant::now();
+            Camera::render_multi_core_tile_producer(&camera, &world, x_tiles, y_tiles, s);
             let dur = Instant::now() - start;
-            Self::print_duration(camera, dur);
-            data.lock().unwrap()
-        })
-            .unwrap();
+            println!("multi core duration: {:?}", dur);
+        });
 
-        c.clone()
+        let canvas = Camera::collect_tiles_to_canvas(r, width, height);
+
+        // let filename = "./chapter07_webgui_threaded.png";
+        //canvas.write_png(filename).expect("wrote png");
+        println!("got full canvas");
+        canvas
     }
 
-    fn render_multi_core_tiled_sender(ca: &Camera, wo: &World, x_tiles: usize, y_tiles: usize, sender: Sender<Canvas>) -> Canvas {
+    fn render_multi_core_tile_producer(
+        ca: &Camera,
+        wo: &World,
+        x_tiles: usize,
+        y_tiles: usize,
+        sender: Sender<Vec<TileData>>,
+    ) {
         let camera = ca.clone();
         let world = wo.clone();
 
@@ -395,18 +340,16 @@ impl CameraOps for Camera {
         println!("using {} cores", num_cores);
 
         let canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
-        let mut tiles = canvas.tiles(x_tiles, y_tiles);
-        let data = Arc::new(Mutex::new(canvas));
+        let tiles = canvas.tiles(x_tiles, y_tiles);
         let tiles = Arc::new(Mutex::new(tiles));
 
-        let c = crossbeam::scope(|s| {
+        crossbeam::scope(|s| {
             let mut children = vec![];
 
             for _i in 0..num_cores {
                 let n_samples = camera.get_antialiasing_size();
                 let jitter_matrix = Self::get_jitter_for_sampling(n_samples);
 
-                let cloned_data = Arc::clone(&data);
                 let height = camera.get_vsize();
                 let width = camera.get_hsize();
 
@@ -418,7 +361,6 @@ impl CameraOps for Camera {
                 children.push(s.spawn(move |_| {
                     let mut cnt_tiles = 0;
 
-
                     println!(
                         "camera height / width  {}/{}     thread_id {:?}",
                         height,
@@ -441,29 +383,23 @@ impl CameraOps for Camera {
                                 for y in tile.y_from()..tile.y_to() {
                                     for x in tile.x_from()..tile.x_to() {
                                         // println!("thread_id {:?}   raytracing pixel:  {}/{} ", thread::current().id(), x, y);
-                                        let color =
+                                        let c =
                                             Self::raytrace_pixel(n_samples, &jitter_matrix, &c_clone, &w_clone, x, y);
-                                        pixels.push((x, y, color));
+                                        let tile_data = TileData::new(x, y, c);
+                                        pixels.push(tile_data);
                                     }
                                 }
 
-                                let mut canvas = cloned_data.lock().unwrap();
-                                for p in pixels {
-                                    canvas.write_pixel(p.0, p.1, p.2);
-                                }
-                                sender_thread.send(canvas.clone());
-
-                                match sender_thread.send(canvas.clone()) {
+                                match sender_thread.send(pixels) {
                                     Ok(_) => {
-                                         println!("sent stuff");
+                                        println!("sent stuff");
                                         ()
-                                    },
-                                    Err(_)=> {
+                                    }
+                                    Err(_) => {
                                         println!("error sending stuff ");
                                         ()
                                     }
                                 };
-
                             }
                             None => {
                                 println!(" no more tiles for thread {:?}", thread::current().id());
@@ -485,13 +421,21 @@ impl CameraOps for Camera {
             }
             let dur = Instant::now() - start;
             Self::print_duration(camera, dur);
-            data.lock().unwrap()
         })
-            .unwrap();
-
-        c.clone()
+        .expect("TODO: something went wrong");
     }
 
+    fn collect_tiles_to_canvas(r: Receiver<Vec<TileData>>, width: usize, height: usize) -> Canvas {
+        let mut canvas = Canvas::new(width, height);
+
+        r.iter().for_each(|tile_data| {
+            println!("got something");
+            tile_data.iter().for_each(|p| {
+                canvas.write_pixel(p.get_x(), p.get_y(), p.get_color());
+            })
+        });
+        canvas
+    }
 
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas {
         println!("DEBUG render point  {}/{}", x, y);
@@ -524,7 +468,7 @@ impl CameraOps for Camera {
 impl Camera {
     fn raytrace_pixel(
         n_samples: usize,
-        mut jitter_matrix: &Vec<f64>,
+        jitter_matrix: &Vec<f64>,
         c_clone: &Camera,
         w_clone: &World,
         x: usize,

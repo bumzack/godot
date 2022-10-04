@@ -101,7 +101,6 @@ impl CanvasOps for Canvas {
 impl Canvas {
     pub fn tiles(&self, x_tiles: usize, y_tiles: usize) -> CanvasTile {
         let c = CanvasTile {
-            tiles: x_tiles * y_tiles,
             x_inc: self.width / x_tiles,
             y_inc: self.height / y_tiles,
             width: self.width,
@@ -144,7 +143,6 @@ impl Tile {
 
 #[derive(Debug, Clone, Copy)]
 pub struct CanvasTile {
-    tiles: usize,
     x: usize,
     y: usize,
     x_inc: usize,
@@ -191,6 +189,31 @@ impl Iterator for CanvasTile {
 
             Some(tile)
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct TileData {
+    x: usize,
+    y: usize,
+    c: Color,
+}
+
+impl TileData {
+    pub fn new(x: usize, y: usize, c: Color) -> TileData {
+        TileData { x, y, c }
+    }
+
+    pub fn get_x(&self) -> usize {
+        self.x
+    }
+
+    pub fn get_y(&self) -> usize {
+        self.y
+    }
+
+    pub fn get_color(&self) -> Color {
+        self.c
     }
 }
 

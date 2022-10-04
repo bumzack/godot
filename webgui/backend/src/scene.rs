@@ -1,7 +1,10 @@
+use raytracer_challenge_reference_impl::prelude::{
+    Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, PointLight, Shape, ShapeOps, Sphere,
+    Tuple, Tuple4D, World, WorldOps,
+};
 use std::f64::consts::PI;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, PointLight, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps};
 
-pub fn scene() -> (World, Camera) {
+pub fn scene(width: usize, height: usize) -> (World, Camera) {
     let mut floor = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -54,7 +57,7 @@ pub fn scene() -> (World, Camera) {
     w.add_shape(left);
     w.add_shape(right);
 
-    let mut c = Camera::new(100, 80, PI / 3.0);
+    let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();
 
     c.set_transformation(Matrix::view_transform(

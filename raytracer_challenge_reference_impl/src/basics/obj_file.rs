@@ -8,7 +8,7 @@ use std::io::BufRead;
 use std::path::Path;
 
 use crate::math::{Tuple, Tuple4D};
-use crate::prelude::{Shape, ShapeEnum, ShapeIdx, Triangle};
+use crate::prelude::{Shape, ShapeIdx, Triangle};
 use crate::shape::{Group, SmoothTriangle};
 use crate::world::ShapeArr;
 
@@ -308,7 +308,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::math::{assert_tuple, Tuple};
-    use crate::prelude::ShapeOps;
+    use crate::prelude::{ShapeEnum, ShapeOps};
 
     use super::*;
 
