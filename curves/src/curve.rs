@@ -59,7 +59,7 @@ impl Curve {
     pub fn intersect(&self, r: &Ray) -> IntersectionList {
         // let r = &self.transform * r;
         //
-        // let (cp_obj0, cp_obj1, cp_obj2, cp_obj3) = self.calc_blossom();
+        // let (cp_obj0, cp_obj1, cp_obj2.0, cp_obj3) = self.calc_blossom();
         //
         // let (dx, dy) = coordinate_system(&r);
         //
@@ -70,7 +70,7 @@ impl Curve {
         // let cp2 = &object_to_ray * &cp_obj0;
         // let cp3 = &object_to_ray * &cp_obj0;
         //
-        // let cp = vec![cp0, cp1, cp2, cp3];
+        // let cp = vec![cp0, cp1, cp2.0, cp3];
         //
         // let mut l0 = 0.0;
         //
@@ -239,13 +239,19 @@ pub fn blossom_bezier(p: &Vec<Tuple4D>, u0: f64, u1: f64, u2: f64) -> Tuple4D {
     lerp(u2, b0, b1)
 }
 
+pub fn pbrt_cross(v1: &Tuple4D, v2: &Tuple4D) -> Tuple4D {
+    Tuple4D::new_vector((v1.y * v2.z) - (v1.z * v2.y),
+                        (v1.z * v2.x) - (v1.x * v2.z),
+                        (v1.x * v2.y) - (v1.y * v2.x))
+}
+
 pub fn coordinate_system(v: &Tuple4D) -> (Tuple4D, Tuple4D) {
     let v2 = if v.x.abs() > v.y.abs() {
-        Tuple4D::new_vector(-v.z, 0.0, v.x) / (v.x * v.x + v.z * v.z)
+        Tuple4D::new_vector(-v.z, 0.0, v.x) / (v.x * v.x + v.z * v.z).sqrt()
     } else {
-        Tuple4D::new_vector(0.0, v.z, -v.y) / (v.y * v.y + v.z * v.z)
+        Tuple4D::new_vector(0.0, v.z, -v.y) / (v.y * v.y + v.z * v.z).sqrt()
     };
-    let v3 = v * &v2;
+    let v3 = v * &v2; // pbrt_cross(v, &v2);
     (v2, v3)
 }
 
@@ -292,6 +298,125 @@ pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
+    use raytracer_challenge_reference_impl::math::{Tuple, Tuple4D};
+
+    use crate::curve::{blossom_bezier, coordinate_system, lerp, lerp_float};
+
+    const EPSILON: f64 = 0.0000001;
+
+    fn assert_two_float(a: f64, b: f64) -> bool {
+        // println!("float_equal: a = {}, b = {}", a, b);
+        if (a - b).abs() < EPSILON {
+            return true;
+        }
+        false
+    }
+
+    fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
+        assert!(assert_two_float(actual.x, expected.x));
+        assert!(assert_two_float(actual.y, expected.y));
+        assert!(assert_two_float(actual.z, expected.z));
+        assert!(assert_two_float(actual.w, expected.w));
+    }
+
+
     #[test]
-    pub fn test_lerp_f64() {}
+    pub fn test_lerp_f64() {
+        let data = vec![
+            (0.000000, 2.000000, 0.000000, 0.000000),
+            (0.000000, 2.000000, 0.250000, 0.500000),
+            (0.000000, 2.000000, 0.750000, 1.500000),
+            (0.000000, 2.000000, 0.500000, 1.000000),
+            (0.000000, 2.000000, 1.000000, 2.000000),
+            (0.000000, 2.000000, 1.500000, 3.000000),
+            (0.000000, 2.000000, 1.750000, 3.500000),
+            (0.000000, 2.000000, 2.000000, 4.000000),
+        ];
+
+        for d in data {
+            let actual = lerp_float(d.2, d.0, d.1);
+            let expected = d.3;
+            assert_eq!(actual, expected);
+        }
+    }
+
+    #[test]
+    pub fn test_lerp_vec() {
+        let data = vec![
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.000000, Tuple4D::new_vector(1.0, 2.0, 3.0)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.250000, Tuple4D::new_vector(4.25, -2.25, 6.25)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.750000, Tuple4D::new_vector(10.75, -10.75, 12.75)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 0.500000, Tuple4D::new_vector(7.5, -6.5, 9.5)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 1.000000, Tuple4D::new_vector(14.0, -15.0, 16.0)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 1.500000, Tuple4D::new_vector(20.5, -23.5, 22.5)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 1.750000, Tuple4D::new_vector(23.75, -27.75, 25.75)),
+            (Tuple4D::new_vector(1.0, 2.0, 3.0), Tuple4D::new_vector(14.0, -15.0, 16.0), 2.000000, Tuple4D::new_vector(27.0, -32.0, 29.0)),
+        ];
+
+        for d in data {
+            let actual = lerp(d.2, d.0, d.1);
+            let expected = d.3;
+            assert_eq!(actual, expected);
+        }
+    }
+
+
+    #[test]
+    pub fn test_blossom_bezier() {
+        let p = vec![
+            Tuple4D::new_point(0.000000, 1.000000, 1.000000),
+            Tuple4D::new_point(1.000000, 1.000000, 2.000000),
+            Tuple4D::new_point(2.000000, 2.000000, 2.000000),
+            Tuple4D::new_point(3.000000, 3.000000, 3.000000),
+        ];
+
+        let u0 = 0.000000;
+        let u1 = 0.250000;
+        let u2 = 1.000000;
+
+        let data = vec![
+            (blossom_bezier(&p, u0, u0, u0), Tuple4D::new_point(0., 1., 1.)),
+            (blossom_bezier(&p, u0, u0, u1), Tuple4D::new_point(0.25, 1., 1.25)),
+            (blossom_bezier(&p, u1, u1, u2), Tuple4D::new_point(1.5, 1.5, 2.0625)),
+            (blossom_bezier(&p, u2, u2, u2), Tuple4D::new_point(3., 3., 3.)),
+        ];
+
+        for d in data {
+            let actual = d.0;
+            let expected = d.1;
+            println!("actual        {:?}   ", actual);
+            println!("expected      {:?} ", expected);
+            assert_eq!(actual, expected);
+        }
+    }
+
+
+    // TODO this crashes probably due to the coordinate system used in the PBRT and the left handed system from the Math Functions in this raytracer
+    #[test]
+    pub fn test_coordinate_system() {
+        let data = vec![
+            (Tuple4D::new_vector(1.0, 0.0, 0.0), Tuple4D::new_vector(0., 0., 1.), Tuple::new_vector(0., -1., 0.)),
+            (Tuple4D::new_vector(1.0, 1.0, 0.0), Tuple4D::new_vector(0., 0., -1.), Tuple::new_vector(-1., 1., 0.)),
+            (Tuple4D::new_vector(1.0, 0.0, 1.0), Tuple4D::new_vector(-SQRT_2 / 2.0, 0., SQRT_2 / 2.0), Tuple::new_vector(0., -SQRT_2, 0.)),
+            (Tuple4D::new_vector(1.0, 1.0, 1.0), Tuple4D::new_vector(0., SQRT_2 / 2.0, -SQRT_2 / 2.0), Tuple::new_vector(-SQRT_2, SQRT_2 / 2.0, SQRT_2 / 2.0)),
+        ];
+
+
+        for d in data {
+            let (actual1, actual2) = coordinate_system(&d.0);
+            let expected1 = d.1;
+            let expected2 = d.2;
+
+            println!("-------------------------------------");
+            println!("actual1        {:?}   ", actual1);
+            println!("expected1      {:?} ", expected1);
+            println!("actual2        {:?}   ", actual2);
+            println!("expected2      {:?} ", expected2);
+
+            assert_tuple(&actual1, &expected1);
+            assert_tuple(&actual2, &expected2);
+        }
+    }
 }
