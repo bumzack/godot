@@ -161,7 +161,7 @@ fn cube() -> Shape {
 
     let p = Pattern::new(PatternEnum::CubeTextPatternEnum(cube_checker));
 
-    let mut cube = Shape::new(ShapeEnum::CubeEnum(Cube::new()));
+    let mut cube = Shape::new_cube(Cube::new(), "cube".to_string());
     cube.get_material_mut().set_pattern(p);
     cube.get_material_mut().set_ambient(0.2);
     cube.get_material_mut().set_specular(0.0);

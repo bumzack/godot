@@ -145,7 +145,7 @@ mod tests {
     // page 209
     #[test]
     fn test_triangle_normal_at() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let intersection = Intersection::new(1.0, &shape);
         let (t, _, _, _) = setup_triangle();
 
@@ -253,7 +253,7 @@ mod tests {
         let p2_clone = p2.clone();
         let p3_clone = p3.clone();
 
-        let t = Shape::new(ShapeEnum::TriangleEnum(Triangle::new(p1, p2, p3)));
+        let t = Shape::new_triangle(Triangle::new(p1, p2, p3), "Triangle".to_string());
 
         (t, p1_clone, p2_clone, p3_clone)
     }

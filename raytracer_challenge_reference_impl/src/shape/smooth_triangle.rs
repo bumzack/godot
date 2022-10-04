@@ -168,7 +168,7 @@ mod tests {
     #[test]
     fn test_smooth_triangle_intersection_encapsulates_u_and_v() {
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
+        let s = Shape::new_smooth_triangle(t, "smooth_triangle".to_string());
         let is = Intersection::new_u_v(3.5, &s, 0.2, 0.4);
 
         assert_eq!(0.2, is.get_u());
@@ -181,7 +181,7 @@ mod tests {
     fn test_intersection_with_smooth_triangle_intersection_stores_u_and_v() {
         let shapes = vec![];
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
+        let s = Shape::new_smooth_triangle(t, "smooth_triangle".to_string());
         let r = Ray::new(Tuple4D::new_point(-0.2, 0.3, -2.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
 
         let xs = SmoothTriangle::intersect_local(&s, r, &shapes);
@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn test_smooth_triangle_interpolates_normal() {
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
+        let s = Shape::new_smooth_triangle(t, "smooth_triangle".to_string());
         let i = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
 
         let point = Tuple4D::new_point(0.0, 0.0, 0.0);
@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn test_smooth_triangle_prepare_normal() {
         let (t, _, _, _, _, _, _) = setup_smooth_triangle();
-        let s = Shape::new(ShapeEnum::SmoothTriangleEnum(t));
+        let s = Shape::new_smooth_triangle(t, "smooth_triangle".to_string());
         let i = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
         let i2 = Intersection::new_u_v(1.0, &s, 0.45, 0.25);
         let r = Ray::new(Tuple4D::new_point(-0.2, 0.3, -2.0), Tuple4D::new_vector(0.0, 0.0, 1.0));

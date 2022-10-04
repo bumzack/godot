@@ -57,7 +57,6 @@ mod tests {
     use crate::math::tuple4d::Tuple;
     use crate::patterns::Pattern;
     use crate::prelude::PatternEnum::StripePatternEnum;
-    use crate::shape::shape::ShapeEnum;
     use crate::shape::sphere::Sphere;
 
     use super::*;
@@ -141,7 +140,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern_transformation1() {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape.set_transformation(transformation);
 
         let pattern = Pattern::new(StripePatternEnum(StripePattern::new()));
@@ -154,7 +153,7 @@ mod tests {
     // page 131 part2
     #[test]
     fn test_material_with_pattern_transformation2() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
 
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
         let mut pattern = Pattern::new(StripePatternEnum(StripePattern::new()));
@@ -169,7 +168,7 @@ mod tests {
     #[test]
     fn test_material_with_pattern_transformation3() {
         let transformation = Matrix::scale(2.0, 2.0, 2.0);
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape.set_transformation(transformation);
 
         let transformation_pattern = Matrix::translation(0.5, 0.0, 0.0);

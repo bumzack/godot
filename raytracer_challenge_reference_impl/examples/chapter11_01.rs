@@ -53,7 +53,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     let wall_trans = &Matrix::rotate_y(1.5708) * &Matrix::scale(0.25, 0.25, 0.25);
 
     // floor
-    let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());
     floor.set_transformation(Matrix::rotate_y(0.13145));
     let mut checker_pattern = Checker3DPattern::new();
     checker_pattern.set_color_a(Color::new(0.35, 0.35, 0.35));
@@ -65,42 +65,42 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     floor.get_material_mut().set_reflective(0.4);
 
     // ceiling
-    let mut ceiling = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut ceiling = Shape::new_plane(Plane::new(), "plane".to_string());
     ceiling.set_transformation(Matrix::translation(0.0, 5., 0.0));
     ceiling.get_material_mut().set_color(Color::new(0.8, 0.8, 0.8));
     ceiling.get_material_mut().set_ambient(0.3);
     ceiling.get_material_mut().set_specular(0.0);
 
     // west wall
-    let mut west_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut west_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     let trans = &Matrix::rotate_y(1.5708) * &Matrix::rotate_z(1.5708);
     let trans = &trans * &Matrix::translation(-5.0, 0., 0.0);
     west_wall.set_transformation(trans);
     west_wall.set_material(wall_material.clone());
 
     // east wall
-    let mut east_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut east_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     let trans = &Matrix::rotate_y(1.5708) * &Matrix::rotate_z(1.5708);
     let trans = &trans * &Matrix::translation(5.0, 0., 0.0);
     east_wall.set_transformation(trans);
     east_wall.set_material(wall_material.clone());
 
     // north wall
-    let mut north_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut north_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     let trans = Matrix::rotate_x(1.5708);
     let trans = &trans * &Matrix::translation(0.0, 0., 5.0);
     north_wall.set_transformation(trans);
     north_wall.set_material(wall_material.clone());
 
     // south wall
-    let mut south_wall = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut south_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     let trans = Matrix::rotate_x(1.5708);
     let trans = &trans * &Matrix::translation(0.0, 0., -5.0);
     south_wall.set_transformation(trans);
     south_wall.set_material(wall_material.clone());
 
     // bg ball1
-    let mut bg_ball1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut bg_ball1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.4, 0.4, 0.4);
     let trans = &trans * &Matrix::translation(4.6, 0.4, 1.0);
     bg_ball1.set_transformation(trans);
@@ -108,7 +108,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     bg_ball1.get_material_mut().set_shininess(50.0);
 
     // bg ball2
-    let mut bg_ball2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut bg_ball2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.3, 0.3, 0.3);
     let trans = &trans * &Matrix::translation(4.7, 0.3, 0.4);
     bg_ball2.set_transformation(trans);
@@ -116,7 +116,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     bg_ball2.get_material_mut().set_shininess(50.0);
 
     // bg ball3
-    let mut bg_ball3 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut bg_ball3 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.5, 0.5, 0.5);
     let trans = &trans * &Matrix::translation(-1., 0.5, 4.5);
     bg_ball3.set_transformation(trans);
@@ -124,7 +124,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     bg_ball3.get_material_mut().set_shininess(50.0);
 
     // bg ball4
-    let mut bg_ball4 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut bg_ball4 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.3, 0.3, 0.3);
     let trans = &trans * &Matrix::translation(-1.7, 0.3, 4.7);
     bg_ball4.set_transformation(trans);
@@ -132,7 +132,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     bg_ball4.get_material_mut().set_shininess(50.0);
 
     // red sphere
-    let mut red_sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut red_sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     //  let trans  =  Matrix::scale( 0.3,0.3,0.3);
     let trans = Matrix::translation(-0.6, 1., 0.6);
     red_sphere.set_transformation(trans);
@@ -141,7 +141,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     red_sphere.get_material_mut().set_shininess(5.0);
 
     // blue glass  sphere
-    let mut blue_glass_sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut blue_glass_sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.7, 0.7, 0.7);
     let trans = &trans * &Matrix::translation(0.6, 0.7, -0.6);
     blue_glass_sphere.set_transformation(trans);
@@ -155,7 +155,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     blue_glass_sphere.get_material_mut().set_refractive_index(1.5);
 
     // green glass  sphere
-    let mut green_glass_sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut green_glass_sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = Matrix::scale(0.5, 0.5, 0.5);
     let trans = &trans * &Matrix::translation(-0.7, 0.5, -0.8);
     green_glass_sphere.set_transformation(trans);

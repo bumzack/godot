@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         false => "no_AA".to_string(),
     };
     let filename = &format!(
-        "./image_texture_bonus_{}x{}_{}.png",
+        "./bonus_image_texture_{}x{}_{}.png",
         camera.get_hsize(),
         camera.get_vsize(),
         aa
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup_world(width: usize, height: usize) -> (World, Camera) {
-    let mut s = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut s = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     s.get_material_mut().set_diffuse(0.9);
     s.get_material_mut().set_specular(0.1);
     s.get_material_mut().set_ambient(0.1);
@@ -41,22 +41,26 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
 
     let rot_y = Matrix::rotate_y(1.9);
     let translate = Matrix::translation(0.0, 1.1, 0.0);
-    let trans = &rot_y * &translate;
+    let trans = &translate * &rot_y;
     s.set_transformation(trans);
 
-    let mut p = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+    let mut p = Shape::new_plane(Plane::new(), "plane".to_string());
     p.get_material_mut().set_diffuse(0.1);
     p.get_material_mut().set_specular(0.);
     p.get_material_mut().set_ambient(0.);
     p.get_material_mut().set_reflective(0.4);
+    // p.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
 
     let pl = PointLight::new(Tuple4D::new_point(-100.0, 100.0, -100.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
     let image = Canvas::read_png(
-        "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/Earthmap1000x500.jpg",
+        "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/earthmap1k.jpg",
     )
     .expect("loading image linear_gradient.png");
+
+    image.write_png("blupp.png");
+
     let pattern = ImageTexturePattern::new(image);
     let pattern = Pattern::new(ImageTexturePatternEnum(pattern));
     s.get_material_mut().set_pattern(pattern);
@@ -66,7 +70,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     w.add_shape(p);
     w.add_shape(s);
 
-    let mut c = Camera::new(width, height, 0.9);
+    let mut c = Camera::new(width, height, 0.8);
     c.calc_pixel_size();
     c.set_transformation(Matrix::view_transform(
         &Tuple4D::new_point(1.0, 2.0, -10.0),

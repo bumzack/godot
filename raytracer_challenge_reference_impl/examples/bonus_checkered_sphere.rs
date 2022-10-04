@@ -39,7 +39,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
         checker,
     )));
 
-    let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     sphere.get_material_mut().set_pattern(p);
     sphere.get_material_mut().set_ambient(0.1);
     sphere.get_material_mut().set_specular(0.4);

@@ -132,7 +132,7 @@ impl<'a> ShapeOps<'a> for Shape {
     }
 }
 
-impl<'a> Shape {
+impl Shape {
     pub fn new_with_name(shape: ShapeEnum, name: String) -> Shape {
         let mut s = Shape {
             shape,
@@ -150,13 +150,13 @@ impl<'a> Shape {
         s
     }
 
-    pub fn new(shape: ShapeEnum) -> Shape {
+    fn new(shape: ShapeEnum, name: String) -> Shape {
         let mut s = Shape {
             shape,
             casts_shadow: true,
             parent: None,
             part_of_group: false,
-            name: None,
+            name: Some(name),
             bounding_box: None,
             transformation_matrix: Matrix::new_identity_4x4(),
             inverse_transformation_matrix: Matrix::new_identity_4x4(),
@@ -165,6 +165,38 @@ impl<'a> Shape {
         // it makes sad and sick - this has to change
         s.add_bounding_box(&vec![]);
         s
+    }
+
+    pub fn new_sphere(sphere: Sphere, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::SphereEnum(sphere), name)
+    }
+
+    pub fn new_cube(cube: Cube, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::CubeEnum(cube), name)
+    }
+
+    pub fn new_cylinder(cylinder: Cylinder, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::CylinderEnum(cylinder), name)
+    }
+
+    pub fn new_plane(plane: Plane, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::PlaneEnum(plane), name)
+    }
+
+    pub fn new_triangle(t: Triangle, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::TriangleEnum(t), name)
+    }
+
+    pub fn new_smooth_triangle(t: SmoothTriangle, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::SmoothTriangleEnum(t), name)
+    }
+
+    pub fn new_group(group: Group, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::GroupEnum(group), name)
+    }
+
+    pub fn new_csg(csg: Csg, name: String) -> Shape {
+        Self::new_with_name(ShapeEnum::CsgEnum(csg), name)
     }
 
     // pub fn new_part_of_group(shape: Shape , name: String) -> Shape {
@@ -196,7 +228,7 @@ impl<'a> Shape {
         self.casts_shadow = casts_shadow;
     }
 
-    pub fn intersects(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
+    pub fn intersects<'a>(shape: &'a Shape, r: Ray, shapes: &'a ShapeArr) -> IntersectionList<'a> {
         let r = Ray::transform(&r, shape.get_inverse_transformation());
         Self::intersect_local(shape, r, shapes)
     }

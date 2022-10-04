@@ -3,7 +3,6 @@ use std::f64::consts::PI;
 use crate::prelude::patterns::PatternEnum;
 use crate::prelude::test_patterns::TestPattern;
 use crate::prelude::*;
-use crate::shape::ShapeEnum::PlaneEnum;
 use crate::DEBUG;
 
 pub type ShapeIdx = usize;
@@ -223,7 +222,7 @@ impl WorldOps for World {
         let m_translate = Matrix::translation(0.0, -1.0, 0.0);
         let m = m_translate;
 
-        let mut floor = Shape::new(PlaneEnum(Plane::new()));
+        let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());
         floor.set_transformation(m);
 
         floor.get_material_mut().set_ambient(0.1);
@@ -248,7 +247,7 @@ impl WorldOps for World {
         x_axis.set_maximum(1.0);
         x_axis.set_closed(true);
 
-        let mut x_axis = Shape::new(ShapeEnum::CylinderEnum(x_axis));
+        let mut x_axis = Shape::new_cylinder(x_axis, "xaxis".to_string());
 
         x_axis.get_material_mut().set_color(Color::new(1.0, 0.0, 0.0));
         x_axis.get_material_mut().set_ambient(0.3);
@@ -274,7 +273,7 @@ impl WorldOps for World {
         y_axis.set_maximum(1.0);
         y_axis.set_closed(true);
         // y_axis.get_material_mut().set_transparency(0.5);
-        let mut y_axis = Shape::new(ShapeEnum::CylinderEnum(y_axis));
+        let mut y_axis = Shape::new_cylinder(y_axis, "yaxis".to_string());
 
         y_axis.get_material_mut().set_color(Color::new(0.0, 1.0, 0.0));
         y_axis.get_material_mut().set_ambient(0.3);
@@ -299,7 +298,7 @@ impl WorldOps for World {
         z_axis.set_maximum(1.0);
         z_axis.set_closed(true);
         // z_axis.get_material_mut().set_transparency(0.5);
-        let mut z_axis = Shape::new(ShapeEnum::CylinderEnum(z_axis));
+        let mut z_axis = Shape::new_cylinder(z_axis, "zaxis".to_string());
 
         z_axis.get_material_mut().set_color(Color::new(0.0, 0.0, 1.0));
         z_axis.get_material_mut().set_ambient(0.3);
@@ -361,11 +360,11 @@ pub fn default_world() -> World {
     m.set_diffuse(0.7);
     m.set_specular(0.2);
 
-    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     shape1.set_material(m);
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     shape2.set_transformation(m);
 
     w.add_shape(shape1);
@@ -389,11 +388,11 @@ pub fn default_world_soft_shadows() -> World {
     m.set_specular(0.0);
     m.set_color(Color::new(1.0, 1.0, 1.0));
 
-    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     shape1.set_material(m);
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     shape2.set_transformation(m);
 
     w.add_shape(shape1);
@@ -419,11 +418,11 @@ pub fn default_world_refracted_color_page_158() -> World {
     m1.set_ambient(1.0);
     m1.set_pattern(test_pattern);
 
-    let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     shape1.set_material(m1);
 
     let m = Matrix::scale(0.5, 0.5, 0.5);
-    let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     shape2.set_transformation(m);
     shape2.get_material_mut().set_transparency(1.0);
     shape2.get_material_mut().set_refractive_index(1.5);
@@ -565,11 +564,11 @@ mod tests {
         m.set_specular(0.2);
         m.set_ambient(1.0);
 
-        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape1.set_material(m);
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape2.set_transformation(m);
         shape2.get_material_mut().set_ambient(1.0);
 
@@ -596,10 +595,10 @@ mod tests {
         w.add_light(Light::PointLight(pl));
 
         let s1 = Sphere::new();
-        let shape1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let shape1 = Shape::new_sphere(s1, "sphere".to_string());
 
         let m = Matrix::translation(0.0, 0.0, 10.0);
-        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape2.set_transformation(m);
 
         w.add_shape(shape1);
@@ -632,7 +631,7 @@ mod tests {
         let r = Ray::new(origin, direction);
 
         let m = Matrix::translation(0.0, 0.0, 1.0);
-        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape1.set_transformation(m);
 
         let i = Intersection::new(5.0, &shape1);
@@ -748,11 +747,11 @@ mod tests {
         m.set_diffuse(0.7);
         m.set_specular(0.2);
 
-        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape1.set_material(m);
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape2.set_transformation(m);
         shape2.get_material_mut().set_ambient(1.0);
 
@@ -779,7 +778,7 @@ mod tests {
     fn test_material_precomputing_reflection_reflective_material() {
         let mut w: World = default_world();
 
-        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut plane = Shape::new_plane(Plane::new(), "plane".to_string());
         plane.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         plane.set_transformation(m);
@@ -810,7 +809,7 @@ mod tests {
     fn test_material_shade_hit_reflective_material() {
         let mut w: World = default_world();
 
-        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut plane = Shape::new_plane(Plane::new(), "plane".to_string());
         plane.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         plane.set_transformation(m);
@@ -839,12 +838,12 @@ mod tests {
     fn test_material_shade_hit_handle_recursion() {
         let mut w = World::new();
 
-        let mut lower = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut lower = Shape::new_plane(Plane::new(), "plane".to_string());
         let m_lower = Matrix::translation(0.0, -1.0, 0.0);
         lower.set_transformation(m_lower);
         lower.get_material_mut().set_reflective(1.0);
 
-        let mut upper = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut upper = Shape::new_plane(Plane::new(), "plane".to_string());
         let m_upper = Matrix::translation(0.0, 1.0, 0.0);
         upper.set_transformation(m_upper);
         upper.get_material_mut().set_reflective(1.0);
@@ -865,7 +864,7 @@ mod tests {
     fn test_material_shade_hit_reflective_material_max_recursive_depth() {
         let mut w: World = default_world();
 
-        let mut plane = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut plane = Shape::new_plane(Plane::new(), "plane".to_string());
         plane.get_material_mut().set_reflective(0.5);
         let m = Matrix::translation(0.0, -1.0, 0.0);
         plane.set_transformation(m);
@@ -949,11 +948,11 @@ mod tests {
         m.set_transparency(1.0);
         m.set_refractive_index(1.5);
 
-        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape1.set_material(m);
 
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape2.set_transformation(m);
         shape2.get_material_mut().set_ambient(1.0);
 
@@ -1363,10 +1362,10 @@ mod tests {
         m.set_ambient(0.1);
         m.set_diffuse(0.9);
         m.set_specular(0.0);
-        let mut shape1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape1.set_material(m);
         let m = Matrix::scale(0.5, 0.5, 0.5);
-        let mut shape2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape2.set_transformation(m);
         w.add_shape(shape1);
         w.add_shape(shape2);

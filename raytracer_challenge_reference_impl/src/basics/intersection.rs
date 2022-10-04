@@ -277,7 +277,7 @@ mod tests {
     fn test_new_intersection() {
         let s = Sphere::new();
         let t: f64 = 3.5;
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
         let i = Intersection::new(t, &o);
         assert_eq!(i.t, 3.5);
     }
@@ -286,12 +286,12 @@ mod tests {
     fn test_new_intersectionlist() {
         let s1 = Sphere::new();
         let t1: f64 = 3.5;
-        let o1 = Shape::new(ShapeEnum::SphereEnum(s1));
+        let o1 = Shape::new_sphere(s1, "sphere".to_string());
         let i1 = Intersection::new(t1, &o1);
 
         let s2 = Sphere::new();
         let t2: f64 = 4.5;
-        let o2 = Shape::new(ShapeEnum::SphereEnum(s2));
+        let o2 = Shape::new_sphere(s2, "sphere".to_string());
         let i2 = Intersection::new(t2, &o2);
 
         // let i_list = IntersectionList::new();
@@ -307,7 +307,7 @@ mod tests {
     #[test]
     fn test_intersection_hit() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
 
         let t1: f64 = 1.0;
         let i1 = Intersection::new(t1, &o);
@@ -328,7 +328,7 @@ mod tests {
     #[test]
     fn test_intersection_hit_neg() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
 
         let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
@@ -349,7 +349,7 @@ mod tests {
     #[test]
     fn test_intersection_no_hit() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
 
         let t1: f64 = -1.0;
         let i1 = Intersection::new(t1, &o);
@@ -371,7 +371,7 @@ mod tests {
     #[test]
     fn test_intersection_hit_from_list() {
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
 
         let t1: f64 = 5.0;
         let i1 = Intersection::new(t1, &o);
@@ -406,7 +406,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
 
         let i = Intersection::intersect(&o, &r, &shapes);
         let intersections = i.get_intersections();
@@ -421,7 +421,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
 
         let i = Intersection::new(4.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
@@ -444,7 +444,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
         let i = Intersection::new(4.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
@@ -459,7 +459,7 @@ mod tests {
         let r = Ray::new(o, d);
 
         let s = Sphere::new();
-        let o = Shape::new(ShapeEnum::SphereEnum(s));
+        let o = Shape::new_sphere(s, "sphere".to_string());
         let i = Intersection::new(1.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
@@ -540,14 +540,14 @@ mod tests {
         let mut w = default_world();
 
         let m = Matrix::translation(0.0, -1.0, 0.0);
-        let mut floor = Shape::new(ShapeEnum::PlaneEnum(Plane::new()));
+        let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());
         floor.set_transformation(m);
         floor.get_material_mut().set_reflective(0.5);
         floor.get_material_mut().set_transparency(0.5);
         floor.get_material_mut().set_refractive_index(1.5);
 
         let m = Matrix::translation(0.0, -3.5, -0.5);
-        let mut ball = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut ball = Shape::new_sphere(Sphere::new(), "sphere".to_string());
 
         ball.set_transformation(m);
         ball.get_material_mut().set_ambient(0.5);

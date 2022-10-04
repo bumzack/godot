@@ -63,7 +63,7 @@ impl fmt::Debug for Sphere {
 // helper
 // page 151
 pub fn glass_sphere() -> Shape {
-    let mut s = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+    let mut s = Shape::new_sphere(Sphere::new(), "glass_sphere".to_string());
     s.get_material_mut().set_transparency(1.0);
     s.get_material_mut().set_refractive_index(1.5);
     s
@@ -77,7 +77,7 @@ mod tests {
     use crate::material::{Material, MaterialOps};
     use crate::math::{assert_color, assert_float, assert_matrix, assert_tuple, Matrix, MatrixOps, Tuple, Tuple4D};
     use crate::prelude::ShapeEnum::SphereEnum;
-    use crate::prelude::{glass_sphere, Shape, ShapeEnum, ShapeIntersectOps, ShapeOps, Sphere};
+    use crate::prelude::{glass_sphere, Shape, ShapeIntersectOps, ShapeOps, Sphere};
 
     #[test]
     fn test_ray_sphere_intersection() {
@@ -85,7 +85,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let shapes = vec![];
         let is = Shape::intersect_local(&shape, r, &shapes);
 
@@ -113,7 +113,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -127,7 +127,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -143,7 +143,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let shapes = vec![];
         let is = Shape::intersects(&shape, r, &shapes);
 
@@ -155,7 +155,7 @@ mod tests {
     // page 69
     #[test]
     fn test_sphere_new_check_transformation_matrix() {
-        let s = Shape::new(SphereEnum(Sphere::new()));
+        let s = Shape::new_sphere(Sphere::new(), "sphere".to_string());
 
         let m_expected = Matrix::new_identity_4x4();
         let met_m_inv_expected = Matrix::invert(&m_expected).unwrap();
@@ -167,7 +167,7 @@ mod tests {
     // page 69
     #[test]
     fn test_sphere_transformation() {
-        let mut s = Shape::new(SphereEnum(Sphere::new()));
+        let mut s = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let m = Matrix::translation(2.0, 3.0, 4.0);
         s.set_transformation(m);
         let m = Matrix::translation(2.0, 3.0, 4.0);
@@ -183,7 +183,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let mut shape = Shape::new(SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let m = Matrix::scale(2.0, 2.0, 2.0);
         shape.set_transformation(m);
 
@@ -202,7 +202,7 @@ mod tests {
         let d = Tuple4D::new_vector(0.0, 0.0, 1.0);
         let r = Ray::new(o, d);
 
-        let mut shape = Shape::new(SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let m = Matrix::translation(5.0, 0.0, 0.0);
         shape.set_transformation(m);
 
@@ -216,7 +216,7 @@ mod tests {
     // page 78
     #[test]
     fn test_sphere_normal_at() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let intersection = Intersection::new(1.0, &shape);
 
         let p = Tuple4D::new_point(1.0, 0.0, 0.0);
@@ -250,7 +250,7 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_transformed() {
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape.set_transformation(Matrix::translation(0.0, 1.0, 0.0));
 
         let intersection = Intersection::new(1.0, &shape);
@@ -268,7 +268,7 @@ mod tests {
     // page 80
     #[test]
     fn test_sphere_normal_at_scaled_rotated() {
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape.set_transformation(Matrix::scale(1.0, 0.5, 1.0) * Matrix::rotate_z(PI / 5.0));
 
         let intersection = Intersection::new(1.0, &shape);
@@ -340,7 +340,7 @@ mod tests {
     // page 85
     #[test]
     fn test_new_sphere_material() {
-        let shape = Shape::new(SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let m = Material::new();
 
         assert_eq!(shape.get_material(), &m);

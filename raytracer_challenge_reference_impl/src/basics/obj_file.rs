@@ -236,9 +236,11 @@ fn fan_triangulation(
                 let n2 = normals.get(face_idx2.normal_index.unwrap() - 1).unwrap();
                 let n3 = normals.get(face_idx3.normal_index.unwrap() - 1).unwrap();
 
-                let mut t = Shape::new(ShapeEnum::SmoothTriangleEnum(SmoothTriangle::new(
-                    *p1, *p2, *p3, *n1, *n2, *n3,
-                )));
+                let mut t = Shape::new_smooth_triangle(
+                    SmoothTriangle::new(*p1, *p2, *p3, *n1, *n2, *n3),
+                    "smooth_t".to_string(),
+                );
+
                 t.set_part_of_group(true);
                 t
             }
@@ -247,7 +249,7 @@ fn fan_triangulation(
                 let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
                 let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
 
-                let mut t = Shape::new(ShapeEnum::TriangleEnum(Triangle::new(*p1, *p2, *p3)));
+                let mut t = Shape::new_triangle(Triangle::new(*p1, *p2, *p3), "t".to_string());
                 t.set_part_of_group(true);
                 t
             }
@@ -271,9 +273,10 @@ fn fan_triangulation(
                     let n2 = normals.get(face_idx2.normal_index.unwrap() - 1).unwrap();
                     let n3 = normals.get(face_idx3.normal_index.unwrap() - 1).unwrap();
 
-                    let mut t = Shape::new(ShapeEnum::SmoothTriangleEnum(SmoothTriangle::new(
-                        *p1, *p2, *p3, *n1, *n2, *n3,
-                    )));
+                    let mut t = Shape::new_smooth_triangle(
+                        SmoothTriangle::new(*p1, *p2, *p3, *n1, *n2, *n3),
+                        "smooth_triangle".to_string(),
+                    );
                     t.set_part_of_group(true);
                     t
                 }
@@ -281,7 +284,7 @@ fn fan_triangulation(
                     let p1 = vertices.get(face_idx1.vertex_index.unwrap() - 1).unwrap();
                     let p2 = vertices.get(face_idx2.vertex_index.unwrap() - 1).unwrap();
                     let p3 = vertices.get(face_idx3.vertex_index.unwrap() - 1).unwrap();
-                    let mut t = Shape::new(ShapeEnum::TriangleEnum(Triangle::new(*p1, *p2, *p3)));
+                    let mut t = Shape::new_triangle(Triangle::new(*p1, *p2, *p3), "t".to_string());
                     t.set_part_of_group(true);
                     t
                 }

@@ -78,8 +78,7 @@ impl Group {
             shape_idx: idx,
             children: vec![],
         };
-        let g = ShapeEnum::GroupEnum(g);
-        let mut shape = Shape::new(g);
+        let mut shape = Shape::new_group(g, "group".to_string());
         shape.set_part_of_group(true);
         shapes.push(shape);
         assert_eq!(idx, shapes.len() - 1);
@@ -191,7 +190,7 @@ mod tests {
     // A shape has a parent attribute
     #[test]
     fn test_shape_has_empty_parent() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         assert!(shape.get_parent().is_none());
     }
 
@@ -204,7 +203,7 @@ mod tests {
         let group = shapes.get(group_idx).unwrap();
         assert!(group.get_parent().is_none());
 
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let _child_idx = Group::add_child(&mut shapes, group_idx, shape);
         // let child = shapes.get(child_idx).unwrap();
 
@@ -239,7 +238,7 @@ mod tests {
     #[test]
     fn test_intersecting_ray_with_non_empty_group_sphere1_alone() {
         // sphere 1
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
 
         let shapes = vec![];
@@ -253,7 +252,7 @@ mod tests {
     fn test_intersecting_ray_with_non_empty_group_sphere2_alone() {
         // sphere 2
         let translation2 = Matrix::translation(0.0, 0.0, -3.0);
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape.set_transformation(translation2);
 
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
@@ -268,7 +267,7 @@ mod tests {
     fn test_intersecting_ray_with_non_empty_group_sphere3_alone() {
         // sphere 3
         let translation3 = Matrix::translation(5.0, 0.0, 0.0);
-        let mut shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         shape.set_transformation(translation3);
 
         let r = Ray::new(Tuple4D::new_point(0.0, 0.0, -5.0), Tuple4D::new_vector(0.0, 0.0, 1.0));
@@ -284,16 +283,16 @@ mod tests {
     #[test]
     fn test_intersecting_ray_with_non_empty_group() {
         // sphere 1
-        let s1 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let s1 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
 
         // sphere 2
         let translation2 = Matrix::translation(0.0, 0.0, -3.0);
-        let mut s2 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut s2 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         s2.set_transformation(translation2);
 
         // sphere 3
         let translation3 = Matrix::translation(5.0, 0.0, 0.0);
-        let mut s3 = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut s3 = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         s3.set_transformation(translation3);
 
         let mut shapes: ShapeArr = vec![];
@@ -325,7 +324,7 @@ mod tests {
 
         // sphere 1
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         sphere.set_transformation(translation);
 
         let _s1_idx = Group::add_child(&mut shapes, group_idx, sphere);
@@ -363,7 +362,7 @@ mod tests {
 
         // sphere
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         sphere.set_transformation(translation);
 
         // add sphere as child to group2
@@ -398,7 +397,7 @@ mod tests {
 
         // sphere
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         sphere.set_transformation(translation);
 
         // add sphere as child to group2
@@ -417,7 +416,7 @@ mod tests {
     // finding a normal on a child object
     #[test]
     fn test_finding_normal_on_child_object() {
-        let shape = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let shape = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         let intersection = Intersection::new(1.0, &shape);
         let mut shapes: ShapeArr = vec![];
 
@@ -436,7 +435,7 @@ mod tests {
 
         // sphere
         let translation = Matrix::translation(5.0, 0.0, 0.0);
-        let mut sphere = Shape::new(ShapeEnum::SphereEnum(Sphere::new()));
+        let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
         sphere.set_transformation(translation);
 
         // add sphere as child to group2
