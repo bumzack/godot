@@ -133,7 +133,7 @@ fn setup_world(
     // w.add_shape(Shape::new(ShapeEnum::SphereEnum(right)));
 
     let filename =
-        "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
+        "/Users/gsc/stoff/lernen/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
     println!("filename {}", filename);
 
     let teapot = Parser::parse_obj_file(&filename);
