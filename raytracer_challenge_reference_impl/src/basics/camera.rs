@@ -392,11 +392,11 @@ impl CameraOps for Camera {
 
                                 match sender_thread.send(pixels) {
                                     Ok(_) => {
-                                        println!("sent stuff");
+                                        println!("render_multi_core_tile_producer:  sending a tile");
                                         ()
                                     }
                                     Err(_) => {
-                                        println!("error sending stuff ");
+                                        println!("render_multi_core_tile_producer:  error sending a tile ");
                                         ()
                                     }
                                 };

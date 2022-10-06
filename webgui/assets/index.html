@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Warp Chat</title>
+</head>
+<body>
+<h1>Warp chat</h1>
+<div id="chat">
+    <p><em>Connecting...</em></p>
+</div>
+<div>
+    <input type="text" id="text"/>
+    <button type="button" id="send">Send</button>
+    <br/><br/>
+    <button type="start render" id="start_render">Start rendering</button>
+
+    <div>
+        <img id="image" width="1000" height="800">
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+
+    const chat = document.getElementById('chat');
+    const text = document.getElementById('text');
+    const start_render_btn = document.getElementById('start_render');
+
+    start_render_btn.onclick = function () {
+        console.log("clock start render");
+        var req = {"name": "bumzack", "rate": 23};
+
+        var url = "http://localhost:3030/render"
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(req));
+    };
+
+
+    const uri = 'ws://localhost:3030/chat';
+    const ws = new WebSocket(uri);
+
+    function message(data) {
+        console.log("git tiledata ", JSON.stringify(data));
+
+        var canvas = document.getElementById('image');
+        var ctx = canvas.getContext('2d');
+        var imageData = ctx.getImageData(0,0, canvas.width, canvas.height)
+        for (var i=0; i < 10; i += 4) {
+            imgData[i] = imgData[i] - 100;
+            imgData[i+1] = imgData[i+1] - 100;
+            imgData[i+2] = imgData[i+2] - 100;
+        }
+
+    }
+
+    ws.onopen = function () {
+        chat.innerHTML = '<p><em>Connected!</em></p>';
+    };
+
+    ws.onmessage = function (msg) {
+        message(msg.data);
+    };
+
+    ws.onclose = function () {
+        chat.getElementsByTagName('em')[0].innerText = 'Disconnected!';
+    };
+
+    send.onclick = function () {
+        const msg = text.value;
+        ws.send(msg);
+        text.value = '';
+        message('<You>: ' + msg);
+    };
+
+</script>
+</body>
+</html>

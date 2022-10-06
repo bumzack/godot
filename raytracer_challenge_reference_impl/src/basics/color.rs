@@ -10,7 +10,9 @@ pub const CYAN: Color = Color { r: 0.0, g: 1.0, b: 1.0 };
 pub const BLUE: Color = Color { r: 0.0, g: 0.0, b: 1.0 };
 pub const PURPLE: Color = Color { r: 1.0, g: 0.0, b: 1.0 };
 
-#[derive(Clone, Debug, PartialEq, Copy)]
+use serde_derive::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, PartialEq, Copy, Deserialize, Serialize)]
 pub struct Color {
     pub r: f64,
     pub g: f64,

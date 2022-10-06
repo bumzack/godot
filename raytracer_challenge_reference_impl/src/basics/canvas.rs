@@ -1,6 +1,8 @@
+use std::convert::TryFrom;
 use std::fmt;
 
 use crate::basics::{Color, Pixel};
+use serde_derive::{Deserialize, Serialize};
 
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
@@ -192,7 +194,7 @@ impl Iterator for CanvasTile {
     }
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct TileData {
     x: usize,
     y: usize,
@@ -224,6 +226,12 @@ impl fmt::Debug for Tile {
             "idx {}  {}/{} -> {}/{}",
             self.idx, self.x_from, self.y_from, self.x_to, self.y_to
         )
+    }
+}
+
+impl fmt::Debug for TileData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "{}/{} -> ({}/{}/{})", self.x, self.y, self.c.r, self.c.g, self.c.b)
     }
 }
 

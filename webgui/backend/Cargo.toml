@@ -11,9 +11,33 @@ warp = "0.3.3"
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "sync"] }
 pretty_env_logger = "0.4"
 tracing-log = "0.1"
+tokio-stream = "0.1.1"
+futures-util = { version = "0.3", default-features = false, features = ["sink"] }
+async-compression = { version = "0.3.7", features = ["tokio"], optional = true }
+bytes = "1.0"
+futures-channel = { version = "0.3.17", features = ["sink"]}
+headers = "0.3"
+http = "0.2"
+hyper = { version = "0.14", features = ["stream", "server", "http1", "http2", "tcp", "client"] }
+log = "0.4"
+mime = "0.3"
+mime_guess = "2.0.0"
+multipart = { version = "0.18", default-features = false, features = ["server"], optional = true }
+scoped-tls = "1.0"
+serde_urlencoded = "0.7"
+tokio-util = { version = "0.7", features = ["io"] }
+tracing = { version = "0.1.21", default-features = false, features = ["log", "std"] }
+tower-service = "0.3"
+tokio-tungstenite = { version = "0.17", optional = true }
+percent-encoding = "2.1"
+pin-project = "1.0"
+tokio-rustls = { version = "0.23", optional = true }
+rustls-pemfile = "0.2"
+
+
 
 raytracer_challenge_reference_impl = { path = "../../raytracer_challenge_reference_impl" }
 
