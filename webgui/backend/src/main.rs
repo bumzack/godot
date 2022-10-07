@@ -1,40 +1,23 @@
 #![feature(async_closure)]
 
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
-use std::time::{Duration, Instant};
-use std::{thread, time};
+use std::time::Instant;
 
 use crossbeam_channel::unbounded;
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
-use log::info;
+use log::error;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
-use tokio::io::AsyncWriteExt;
-use tokio::sync::{mpsc, RwLock};
-use tokio_stream::wrappers::UnboundedReceiverStream;
-use warp::reply::Json;
 use warp::ws::{Message, WebSocket};
-use warp::{Error, Filter};
+use warp::Filter;
 
 use raytracer_challenge_reference_impl::prelude::TileData;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, CanvasOpsStd};
+use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps};
 
 use crate::index_html::INDEX_HTML;
 use crate::scene::scene;
 
 mod index_html;
 mod scene;
-
-#[derive(Deserialize, Serialize, Debug)]
-struct WorldReq {
-    name: String,
-    rate: u32,
-}
 
 #[tokio::main]
 async fn main() {
@@ -64,13 +47,12 @@ struct WorldScene {
 }
 
 async fn render_scene(ws: WebSocket) {
-    // Split the socket into a sender and receive of messages.
     let (mut websocket_tx, mut websocket_rx) = ws.split();
 
     // wait for a message, which contains infos about the scene
-    let w = websocket_rx.next().await;
+    let w = websocket_rx.next().await.unwrap();
 
-    match w.unwrap() {
+    match w {
         Ok(world_tmp) => {
             let p: WorldScene = serde_json::from_str(world_tmp.to_str().unwrap()).unwrap();
 
@@ -80,40 +62,37 @@ async fn render_scene(ws: WebSocket) {
             let height = p.height;
 
             let (w, c) = scene(width, height);
-            let width = c.get_hsize();
-            let height = c.get_vsize();
             let (s, r) = unbounded::<TileData>();
 
             tokio::task::spawn(async move {
                 let start = Instant::now();
                 Camera::render_multi_core_tile_producer(&c, &w, 5, 5, s);
                 let dur = Instant::now() - start;
-                info!("multi core duration: {:?}", dur);
+                println!("async render_scene  multi core duration: {:?}", dur);
             });
 
             tokio::task::spawn(async move {
                 let mut cnt = 1;
 
-                while let td = r.recv() {
+                loop {
+                    let td = r.recv();
                     match td {
                         Ok(tile_data) => {
                             println!("got  a tile  {}", cnt);
-                            cnt += 1;
-                            let hundred_millis = Duration::from_millis(100);
-                            let now = Instant::now();
 
-                            let tile_data_json = json!(tile_data);
+                            let tile_data_json = json!(tile_data).to_string();
+                            let msg = Message::text(tile_data_json);
 
-                            let msg = Message::text(tile_data_json.to_string());
                             websocket_tx
                                 .send(msg)
                                 .unwrap_or_else(|e| {
-                                    eprintln!("websocket send error: {}", e);
+                                    error!("websocket send error: {}", e);
                                 })
                                 .await;
+                            cnt += 1;
                         }
                         Err(e) => {
-                            eprintln!("no more tiles available: {}", e);
+                            println!("no more tiles available: {}", e);
                             break;
                         }
                     }

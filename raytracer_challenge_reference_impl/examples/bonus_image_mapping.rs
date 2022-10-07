@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 800;
     let height = 400;
 
-    let (w, camera) = setup_world(width, height).expect("could not file");
+    let (w, camera) = setup_world(width, height).expect("could not load file");
 
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &w);

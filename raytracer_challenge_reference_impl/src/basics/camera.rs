@@ -536,12 +536,12 @@ impl Camera {
     fn print_duration(camera: Camera, dur: Duration) {
         if camera.get_antialiasing() {
             println!(
-                "multi core duration: {:?} with AA size = {}",
+                "render_multi_core_tile_producer   multi core duration: {:?} with AA size = {}",
                 dur,
                 camera.get_antialiasing_size()
             );
         } else {
-            println!("multi core duration: {:?}, no AA", dur);
+            println!("render_multi_core_tile_producer  multi core duration: {:?}, no AA", dur);
         }
     }
 }
