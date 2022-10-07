@@ -5,8 +5,8 @@ use std::time::Instant;
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let width = 2180;
-    let height = 1800;
+    let width = 800;
+    let height = 600;
 
     let (w, c) = setup_world(width, height);
 
