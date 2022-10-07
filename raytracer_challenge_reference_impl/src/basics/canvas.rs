@@ -1,8 +1,9 @@
 use std::convert::TryFrom;
 use std::fmt;
 
-use crate::basics::{Color, Pixel};
 use serde_derive::{Deserialize, Serialize};
+
+use crate::basics::{Color, Pixel};
 
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
@@ -141,6 +142,10 @@ impl Tile {
     pub fn y_to(&self) -> usize {
         self.y_to
     }
+
+    pub fn get_idx(&self) -> usize {
+        self.idx
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -196,14 +201,20 @@ impl Iterator for CanvasTile {
 
 #[derive(Deserialize, Serialize)]
 pub struct TileData {
+    idx: usize,
+    points: Vec<TileDataPoint>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct TileDataPoint {
     x: usize,
     y: usize,
     c: Color,
 }
 
-impl TileData {
-    pub fn new(x: usize, y: usize, c: Color) -> TileData {
-        TileData { x, y, c }
+impl TileDataPoint {
+    pub fn new(x: usize, y: usize, c: Color) -> TileDataPoint {
+        TileDataPoint { x, y, c }
     }
 
     pub fn get_x(&self) -> usize {
@@ -219,6 +230,20 @@ impl TileData {
     }
 }
 
+impl TileData {
+    pub fn new(idx: usize, points: Vec<TileDataPoint>) -> TileData {
+        TileData { idx, points }
+    }
+
+    pub fn get_idx(&self) -> usize {
+        self.idx
+    }
+
+    pub fn get_points(&self) -> &Vec<TileDataPoint> {
+        &self.points
+    }
+}
+
 impl fmt::Debug for Tile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
@@ -229,9 +254,15 @@ impl fmt::Debug for Tile {
     }
 }
 
-impl fmt::Debug for TileData {
+impl fmt::Debug for TileDataPoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "{}/{} -> ({}/{}/{})", self.x, self.y, self.c.r, self.c.g, self.c.b)
+    }
+}
+
+impl fmt::Debug for TileData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "idx {} -> points.len {} ", self.idx, self.get_points().len())
     }
 }
 

@@ -1,123 +1,120 @@
-pub static INDEX_HTML: &str = r#"<!DOCTYPE html>
+pub static INDEX_HTML: &str = r###"<!doctype html>
 <html lang="en">
 <head>
-    <title>Warp Chat</title>
-</head>
-<body>
-<h1>Warp chat</h1>
-<div id="chat">
-    <p><em>Connecting...</em></p>
-</div>
-<div>
-    <input type="text" id="text"/>
-    <button type="button" id="send">Send</button>
-    <br/><br/>
-    <button type="start render" id="start_render">Start rendering</button>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <div>
-        <canvas id="canv" width="120" height="80"  style="border: 5px solid blue;" >
-    </div>
-</div>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-<script type="text/javascript">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+    <title>Hello, world!</title>
 
-    const chat = document.getElementById('chat');
-    const text = document.getElementById('text');
-    const start_render_btn = document.getElementById('start_render');
+    <script>
+        $(document).ready(function () {
+            $("#renderscene").click(function () {
+                $("#renderscene").prop("disabled", true);
+                const uri = 'ws://localhost:3030/openwebsocket';
+                const ws = new WebSocket(uri);
 
-    start_render_btn.onclick = function () {
-        // console.log("clock start render");
-        // var req = {"name": "bumzack", "rate": 23};
-        //
-        // var url = "http://localhost:3030/render"
-        // var xhr = new XMLHttpRequest();
-        // xhr.open("POST", url, true);
-        // xhr.setRequestHeader('Content-Type', 'application/json');
-        // xhr.send(JSON.stringify(req));
+                ws.onopen = function () {
+                    $("#statustext").html( "Running!");
+                    let width = parseInt($("#widthInput").val());
+                    let height = parseInt($("#heightInput").val());
 
-          const uri = 'ws://localhost:3030/chat';
-          const ws = new WebSocket(uri);
+                    let world = {
+                        "width": width,
+                        "height": height
+                    };
+                    console.log("sending worldscene ", JSON.stringify(world));
+                    let w = JSON.stringify(world);
+                    ws.send(w);
+                };
 
-            ws.onopen = function () {
-                chat.innerHTML = '<p><em>Connected!</em></p>';
-            };
+                ws.onmessage = function (msg) {
+                    prcoess_message(msg.data);
+                };
 
-            ws.onmessage = function (msg) {
-                message(msg.data);
-            };
-
-            ws.onclose = function () {
-                chat.getElementsByTagName('em')[0].innerText = 'Disconnected!';
-            };
-
-            send.onclick = function () {
-                const msg = text.value;
-                ws.send(msg);
-                text.value = '';
-                message('<You>: ' + msg);
-            };
-
-    };
+                ws.onclose = function () {
+                    console.log("websocket closed");
+                    $("#statustext").html( "finished!");
+                    $("#renderscene").prop("disabled", false);
+                };
+            });
 
 
+            function prcoess_message(msg) {
+                const ctx = $("#canvas")[0].getContext('2d');
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
+                var tile = JSON.parse(msg);
+                var it = 0;
+                console.log(" tile idx ", tile.idx);
+                for (let i = 0; i < tile.points.length; i++) {
+                    const point = tile.points[i];
+                    var idx = parseInt(point.y * canvas.width * 4 + point.x * 4);
 
+                    var r = parseInt(point.c.r * 255);
+                    var g = parseInt(point.c.g * 255);
+                    var b = parseInt(point.c.b * 255);
 
-  //  draw();
-
-    function message(msg) {
-        var canvas = document.getElementById('canv');
-        var ctx = canvas.getContext('2d');
-        var imageData = ctx.getImageData(0,0, canvas.width, canvas.height)
-        var data = imageData.data;
-        console.log(`canvas w x h ${canvas.width}  x  ${canvas.height}  `);
-
-        let arr = JSON.parse(msg);
-        let it = 0;
-        arr.forEach(function(point) {
-            let idx = parseInt(point.y * canvas.width * 4 + point.x*4);
-
-            let r = parseInt(point.c.r * 255) & 0xff;
-            let g =  parseInt(point.c.g * 255)& 0xff;
-            let b =  parseInt(point.c.b * 255)& 0xff;
-            if (it < 20 )  {
-                console.log(`XXXX   YYYY  p  = ${JSON.stringify(point)}   idx = ${idx}   r ${r}  g ${g}   b ${b}`);
+                    imageData.data[idx] = r;
+                    imageData.data[idx + 1] = g;
+                    imageData.data[idx + 2] = b;
+                    imageData.data[idx + 3] = 255;
+                }
+                console.log("putting data back");
+                ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
             }
-            it +=1;
 
-            data[idx] = 127;
-            data[idx+1] = 127;
-            data[idx+2] = 128;
         });
 
-         for (let i = 0; i < 120*80*4; i++) {
-             imageData.data[i] = i % 255;
-        }
 
-        console.log("puttting imagedata back   ", JSON.stringify(imageData.data, null, 4));
-        ctx.putImageData(imageData, 0, 0);
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Hello, world!</h1>
+        </div>
+    </div>
 
-         // draw();
-    }
+    <div class="row">
+        <div class="col-2">
+            <form>
+                <div class="mb-3">
+                    <label for="widthInput" class="form-label">Width</label>
+                    <input type="number" class="form-control" id="widthInput" aria-describedby="emailHelp" value="200">
+                </div>
+                <div class="mb-3">
+                    <label for="heightInput" class="form-label">Height</label>
+                    <input type="number" class="form-control" id="heightInput" aria-describedby="emailHelp" value="160">
+                </div>
+                <!--                <div class="mb-3 form-check">-->
+                <!--                    <input type="checkbox" class="form-check-input" id="exampleCheck1">-->
+                <!--                    <label class="form-check-label" for="exampleCheck1">Check me out</label>-->
+                <!--                </div>-->
+                <button id="renderscene" type="button" class="btn btn-primary">Render scene</button>
+            </form>
 
-    function draw( ) {
-        var canvas = document.getElementById('canv');
-        var ctx = canvas.getContext('2d');
-        var imageData = ctx.getImageData(0,0, canvas.width, canvas.height)
-        console.log(`canvas w x h ${canvas.width}  x  ${canvas.height}  `);
+            <br/>
+            <div ><p id="statustext"></p>
+            </div>
+        </div>
+        <div class="col">
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+crossorigin="anonymous"></script>
 
-         for (let i = 0; i < 120*80*4; i++) {
-             imageData.data[i] = i % 255;
-        }
-
-        ctx.putImageData(imageData, 0, 0);
-    }
-
-
-
-
-</script>
 </body>
 </html>
-"#;
+
+"###;

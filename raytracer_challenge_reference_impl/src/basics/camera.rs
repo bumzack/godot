@@ -13,7 +13,7 @@ use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
-use crate::prelude::TileData;
+use crate::prelude::{TileData, TileDataPoint};
 use crate::world::world::WorldOps;
 use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
@@ -58,14 +58,8 @@ pub trait CameraOps {
     fn render(c: &Camera, w: &World) -> Canvas;
     fn render_multi_core(c: &Camera, w: &World) -> Canvas;
     fn render_multi_core_tiled<'a>(ca: &'a Camera, wo: &'a World, x_tiles: usize, y_tiles: usize) -> Canvas;
-    fn render_multi_core_tile_producer(
-        ca: &Camera,
-        wo: &World,
-        x_tiles: usize,
-        y_tiles: usize,
-        s: Sender<Vec<TileData>>,
-    );
-    fn collect_tiles_to_canvas(r: Receiver<Vec<TileData>>, width: usize, height: usize) -> Canvas;
+    fn render_multi_core_tile_producer(ca: &Camera, wo: &World, x_tiles: usize, y_tiles: usize, s: Sender<TileData>);
+    fn collect_tiles_to_canvas(r: Receiver<TileData>, width: usize, height: usize) -> Canvas;
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas;
 }
 
@@ -305,7 +299,7 @@ impl CameraOps for Camera {
     fn render_multi_core_tiled(c: &Camera, w: &World, x_tiles: usize, y_tiles: usize) -> Canvas {
         let width = c.get_hsize();
         let height = c.get_vsize();
-        let (s, r) = unbounded::<Vec<TileData>>();
+        let (s, r) = unbounded::<TileData>();
 
         let camera = c.clone();
         let world = w.clone();
@@ -329,7 +323,7 @@ impl CameraOps for Camera {
         wo: &World,
         x_tiles: usize,
         y_tiles: usize,
-        sender: Sender<Vec<TileData>>,
+        sender: Sender<TileData>,
     ) {
         let camera = ca.clone();
         let world = wo.clone();
@@ -385,12 +379,14 @@ impl CameraOps for Camera {
                                         // println!("thread_id {:?}   raytracing pixel:  {}/{} ", thread::current().id(), x, y);
                                         let c =
                                             Self::raytrace_pixel(n_samples, &jitter_matrix, &c_clone, &w_clone, x, y);
-                                        let tile_data = TileData::new(x, y, c);
-                                        pixels.push(tile_data);
+                                        let tile_data_point = TileDataPoint::new(x, y, c);
+                                        pixels.push(tile_data_point);
                                     }
                                 }
 
-                                match sender_thread.send(pixels) {
+                                let tile_data = TileData::new(tile.get_idx(), pixels);
+
+                                match sender_thread.send(tile_data) {
                                     Ok(_) => {
                                         println!("render_multi_core_tile_producer:  sending a tile");
                                         ()
@@ -425,12 +421,12 @@ impl CameraOps for Camera {
         .expect("TODO: something went wrong");
     }
 
-    fn collect_tiles_to_canvas(r: Receiver<Vec<TileData>>, width: usize, height: usize) -> Canvas {
+    fn collect_tiles_to_canvas(r: Receiver<TileData>, width: usize, height: usize) -> Canvas {
         let mut canvas = Canvas::new(width, height);
 
         r.iter().for_each(|tile_data| {
             println!("got something");
-            tile_data.iter().for_each(|p| {
+            tile_data.get_points().iter().for_each(|p| {
                 canvas.write_pixel(p.get_x(), p.get_y(), p.get_color());
             })
         });
