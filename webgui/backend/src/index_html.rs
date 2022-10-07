@@ -15,7 +15,7 @@ pub static INDEX_HTML: &str = r#"<!DOCTYPE html>
     <button type="start render" id="start_render">Start rendering</button>
 
     <div>
-        <canvas id="canv" width="120" height="80"  style="border: 5px solid red;" >
+        <canvas id="canv" width="120" height="80"  style="border: 5px solid blue;" >
     </div>
 </div>
 
@@ -66,33 +66,39 @@ pub static INDEX_HTML: &str = r#"<!DOCTYPE html>
 
   //  draw();
 
-    function message(data) {
+    function message(msg) {
         var canvas = document.getElementById('canv');
         var ctx = canvas.getContext('2d');
         var imageData = ctx.getImageData(0,0, canvas.width, canvas.height)
+        var data = imageData.data;
         console.log(`canvas w x h ${canvas.width}  x  ${canvas.height}  `);
 
-        let width = 120;
-        let height = 80;
-        let arr = JSON.parse(data);
+        let arr = JSON.parse(msg);
+        let it = 0;
         arr.forEach(function(point) {
-            let idx = parseInt(point.y * width * 4 + point.x*4);
+            let idx = parseInt(point.y * canvas.width * 4 + point.x*4);
 
-            let r = parseInt(point.c.r * 255);
-            let g =  parseInt(point.c.g * 255);
-            let b =  parseInt(point.c.b * 255);
-            if ((point.x < 10 ) && ( point.y < 2)) {
+            let r = parseInt(point.c.r * 255) & 0xff;
+            let g =  parseInt(point.c.g * 255)& 0xff;
+            let b =  parseInt(point.c.b * 255)& 0xff;
+            if (it < 20 )  {
                 console.log(`XXXX   YYYY  p  = ${JSON.stringify(point)}   idx = ${idx}   r ${r}  g ${g}   b ${b}`);
             }
+            it +=1;
 
-            imageData.data[idx] = r;
-            imageData.data[idx+1] = g;
-            imageData.data[idx+2] = b;
+            data[idx] = 127;
+            data[idx+1] = 127;
+            data[idx+2] = 128;
         });
 
+         for (let i = 0; i < 120*80*4; i++) {
+             imageData.data[i] = i % 255;
+        }
+
+        console.log("puttting imagedata back   ", JSON.stringify(imageData.data, null, 4));
         ctx.putImageData(imageData, 0, 0);
 
-        // draw();
+         // draw();
     }
 
     function draw( ) {
@@ -101,7 +107,7 @@ pub static INDEX_HTML: &str = r#"<!DOCTYPE html>
         var imageData = ctx.getImageData(0,0, canvas.width, canvas.height)
         console.log(`canvas w x h ${canvas.width}  x  ${canvas.height}  `);
 
-         for (let i = 0; i < 300*300*4; i++) {
+         for (let i = 0; i < 120*80*4; i++) {
              imageData.data[i] = i % 255;
         }
 
