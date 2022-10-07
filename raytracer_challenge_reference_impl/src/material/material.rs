@@ -1,4 +1,3 @@
-use crate::prelude::patterns::PatternEnum;
 use crate::prelude::*;
 use crate::DEBUG;
 

@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
-use crate::math::{Matrix, MatrixOps, Tuple4D};
+use crate::math::Tuple4D;
 use crate::prelude::{BoundingBox, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
 #[derive(Clone, PartialEq)]
@@ -170,7 +170,7 @@ mod tests {
 
     use crate::math::common::assert_matrix;
     use crate::math::Tuple;
-    use crate::prelude::{assert_tuple, normal_to_world, world_to_object, Sphere};
+    use crate::prelude::{assert_tuple, normal_to_world, world_to_object, Matrix, MatrixOps, Sphere};
     use crate::shape::shape::{Shape, ShapeEnum};
 
     use super::*;

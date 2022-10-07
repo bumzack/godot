@@ -1,5 +1,6 @@
 extern crate num_cpus;
 
+use image::ImageError;
 use std::error::Error;
 use std::time::Instant;
 
@@ -10,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 800;
     let height = 400;
 
-    let (w, camera) = setup_world(width, height);
+    let (w, camera) = setup_world(width, height).expect("could not load file");
 
     let start = Instant::now();
     let canvas = Camera::render_multi_core(&camera, &w);
@@ -32,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup_world(width: usize, height: usize) -> (World, Camera) {
+fn setup_world(width: usize, height: usize) -> Result<(World, Camera), ImageError> {
     let mut s = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     s.get_material_mut().set_diffuse(0.9);
     s.get_material_mut().set_specular(0.1);
@@ -59,7 +60,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     )
     .expect("loading image linear_gradient.png");
 
-    image.write_png("blupp.png");
+    image.write_png("blupp.png")?;
 
     let pattern = ImageTexturePattern::new(image);
     let pattern = Pattern::new(ImageTexturePatternEnum(pattern));
@@ -77,5 +78,5 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
         &Tuple4D::new_point(0.0, 1.1, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
-    (w, c)
+    Ok((w, c))
 }

@@ -1,4 +1,7 @@
+use std::convert::TryFrom;
 use std::fmt;
+
+use serde_derive::{Deserialize, Serialize};
 
 use crate::basics::{Color, Pixel};
 
@@ -101,7 +104,6 @@ impl CanvasOps for Canvas {
 impl Canvas {
     pub fn tiles(&self, x_tiles: usize, y_tiles: usize) -> CanvasTile {
         let c = CanvasTile {
-            tiles: x_tiles * y_tiles,
             x_inc: self.width / x_tiles,
             y_inc: self.height / y_tiles,
             width: self.width,
@@ -140,11 +142,14 @@ impl Tile {
     pub fn y_to(&self) -> usize {
         self.y_to
     }
+
+    pub fn get_idx(&self) -> usize {
+        self.idx
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct CanvasTile {
-    tiles: usize,
     x: usize,
     y: usize,
     x_inc: usize,
@@ -194,6 +199,51 @@ impl Iterator for CanvasTile {
     }
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct TileData {
+    idx: usize,
+    points: Vec<TileDataPoint>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct TileDataPoint {
+    x: usize,
+    y: usize,
+    c: Color,
+}
+
+impl TileDataPoint {
+    pub fn new(x: usize, y: usize, c: Color) -> TileDataPoint {
+        TileDataPoint { x, y, c }
+    }
+
+    pub fn get_x(&self) -> usize {
+        self.x
+    }
+
+    pub fn get_y(&self) -> usize {
+        self.y
+    }
+
+    pub fn get_color(&self) -> Color {
+        self.c
+    }
+}
+
+impl TileData {
+    pub fn new(idx: usize, points: Vec<TileDataPoint>) -> TileData {
+        TileData { idx, points }
+    }
+
+    pub fn get_idx(&self) -> usize {
+        self.idx
+    }
+
+    pub fn get_points(&self) -> &Vec<TileDataPoint> {
+        &self.points
+    }
+}
+
 impl fmt::Debug for Tile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
@@ -201,6 +251,18 @@ impl fmt::Debug for Tile {
             "idx {}  {}/{} -> {}/{}",
             self.idx, self.x_from, self.y_from, self.x_to, self.y_to
         )
+    }
+}
+
+impl fmt::Debug for TileDataPoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "{}/{} -> ({}/{}/{})", self.x, self.y, self.c.r, self.c.g, self.c.b)
+    }
+}
+
+impl fmt::Debug for TileData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "idx {} -> points.len {} ", self.idx, self.get_points().len())
     }
 }
 

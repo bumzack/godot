@@ -1,27 +1,10 @@
-use std::error::Error;
+use raytracer_challenge_reference_impl::prelude::{
+    Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, PointLight, Shape, ShapeOps, Sphere,
+    Tuple, Tuple4D, World, WorldOps,
+};
 use std::f64::consts::PI;
-use std::time::Instant;
 
-use raytracer_challenge_reference_impl::prelude::*;
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let width = 2180;
-    let height = 1800;
-
-    let (w, c) = setup_world(width, height);
-
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core_tiled(&c, &w, 10, 10);
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
-    canvas.write_png("chapter07_tiled_sender.png")?;
-
-    println!("DONE");
-
-    Ok(())
-}
-
-fn setup_world(width: usize, height: usize) -> (World, Camera) {
+pub fn scene(width: usize, height: usize) -> (World, Camera) {
     let mut floor = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     floor.set_transformation(Matrix::scale(10.0, 0.01, 10.0));
     floor.get_material_mut().set_color(Color::new(1.0, 0.9, 0.9));
@@ -82,5 +65,6 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
         &Tuple4D::new_point(0.0, 1.0, 0.0),
         &Tuple4D::new_vector(0.0, 1.0, 0.0),
     ));
+
     (w, c)
 }
