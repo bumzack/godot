@@ -2,7 +2,6 @@ extern crate num_cpus;
 
 use std::error::Error;
 use std::f64::consts::PI;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -18,12 +17,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("####################");
     Group::print_tree(world.get_shapes(), 0, 0);
 
-    let start = Instant::now();
     // let canvas = Camera::render_debug(&camera, &world, 100, 50 );
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-
-    println!("multi core duration: {:?}", dur);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
 
     let aa = match camera.get_antialiasing() {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),
@@ -42,7 +37,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn hexagon_corner<'a>(idx: usize) -> Shape {
+fn hexagon_corner(idx: usize) -> Shape {
     let mut corner = Shape::new_sphere(Sphere::new(), "sphere".to_string());
     let trans = &Matrix::translation(0.0, 0.0, -1.0) * &Matrix::scale(0.25, 0.25, 0.25);
     corner.set_transformation(trans);
@@ -51,7 +46,7 @@ fn hexagon_corner<'a>(idx: usize) -> Shape {
     corner
 }
 
-fn hexagon_edge<'a>(idx: usize) -> Shape {
+fn hexagon_edge(idx: usize) -> Shape {
     let mut edge = Cylinder::new();
     edge.set_minimum(0.0);
     edge.set_maximum(1.0);
@@ -86,7 +81,7 @@ fn get_color(idx: usize) -> Color {
     }
 }
 
-fn hexagon<'a>(shapes: &mut ShapeArr) -> ShapeIdx {
+fn hexagon(shapes: &mut ShapeArr) -> ShapeIdx {
     let hexagon = Group::new(shapes, "hexagon".to_string());
 
     for i in 0..5 {
@@ -101,7 +96,7 @@ fn hexagon<'a>(shapes: &mut ShapeArr) -> ShapeIdx {
     hexagon
 }
 
-fn setup_world<'a>(width: usize, height: usize) -> (World, Camera) {
+fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut w = World::new();
     let _hexagon = hexagon(w.get_shapes_mut());
 

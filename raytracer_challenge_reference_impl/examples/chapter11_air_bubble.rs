@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::f64::consts::PI;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
@@ -27,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("filename {}", filename);
 
     let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 5, 5);
     let dur = Instant::now() - start;
     println!("multi core duration: {:?}", dur);
 

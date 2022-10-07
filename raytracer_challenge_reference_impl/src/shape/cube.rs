@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Cube {}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

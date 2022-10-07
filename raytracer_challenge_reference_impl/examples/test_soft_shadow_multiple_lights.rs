@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -20,18 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         aa
     );
 
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-    if camera.get_antialiasing() {
-        println!(
-            "multi core duration: {:?} with AA size = {}",
-            dur,
-            camera.get_antialiasing_size()
-        );
-    } else {
-        println!("multi core duration: {:?}, no AA", dur);
-    }
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
     canvas.write_png(filename.as_str())?;
     println!("wrote file {}", filename);
     Ok(())

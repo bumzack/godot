@@ -1,7 +1,6 @@
 extern crate num_cpus;
 
 use std::error::Error;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -13,20 +12,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let arealight_v = 8;
 
     let (world, camera) = setup_world_csg(size_factor, antialiasing, antialiasing_size, arealight_u, arealight_v);
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
     // let canvas = Camera::render_debug(&camera, &world, 308, 254);
-    let dur = Instant::now() - start;
-
-    if camera.get_antialiasing() {
-        println!(
-            "multi core duration: {:?} with AA size = {}",
-            dur,
-            camera.get_antialiasing_size()
-        );
-    } else {
-        println!("multi core duration: {:?}, no AA", dur);
-    }
 
     let aa = match camera.get_antialiasing() {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),

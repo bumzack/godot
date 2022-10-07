@@ -1,6 +1,4 @@
 use std::error::Error;
-use std::f64::consts::PI;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -26,10 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     println!("filename {}", filename);
 
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
 
     canvas.write_png(filename)?;
     println!("wrote file {}", filename);
@@ -50,7 +45,7 @@ fn setup_world(width: i32, height: i32, pov: f64, anitaliasing: bool, anitaliasi
     stripe_pattern.set_color_a(Color::new(0.45, 0.45, 0.45));
     stripe_pattern.set_color_a(Color::new(0.55, 0.55, 0.55));
 
-    let wall_trans = &Matrix::rotate_y(1.5708) * &Matrix::scale(0.25, 0.25, 0.25);
+    // let wall_trans = &Matrix::rotate_y(1.5708) * &Matrix::scale(0.25, 0.25, 0.25);
 
     // floor
     let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());

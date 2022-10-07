@@ -278,7 +278,7 @@ impl Shape {
     }
 
     pub fn get_bounding_box(&self) -> &BoundingBox {
-        &self.bounding_box.as_ref().unwrap()
+        self.bounding_box.as_ref().unwrap()
     }
 
     pub fn get_bounds_of(&self, shapes: &ShapeArr) -> BoundingBox {
@@ -413,14 +413,14 @@ impl fmt::Display for ShapeEnum {
         let mut parent_msg = String::new();
 
         match &self {
-            ShapeEnum::SphereEnum(_sphere) => parent_msg.push_str(format!("sphere ").as_str()),
-            ShapeEnum::PlaneEnum(_plane) => parent_msg.push_str(format!("plane").as_str()),
-            ShapeEnum::CubeEnum(_cube) => parent_msg.push_str(format!("cube").as_str()),
-            ShapeEnum::CylinderEnum(_cylinder) => parent_msg.push_str(format!("cylinder").as_str()),
-            ShapeEnum::TriangleEnum(_triangle) => parent_msg.push_str(format!("triangle").as_str()),
-            ShapeEnum::SmoothTriangleEnum(_triangle) => parent_msg.push_str(format!("smooth triangle").as_str()),
-            ShapeEnum::GroupEnum(_group) => parent_msg.push_str(format!("group").as_str()),
-            ShapeEnum::CsgEnum(_csg) => parent_msg.push_str(format!("CSG").as_str()),
+            ShapeEnum::SphereEnum(_sphere) => parent_msg.push_str("sphere "),
+            ShapeEnum::PlaneEnum(_plane) => parent_msg.push_str("plane"),
+            ShapeEnum::CubeEnum(_cube) => parent_msg.push_str("cube"),
+            ShapeEnum::CylinderEnum(_cylinder) => parent_msg.push_str("cylinder"),
+            ShapeEnum::TriangleEnum(_triangle) => parent_msg.push_str("triangle"),
+            ShapeEnum::SmoothTriangleEnum(_triangle) => parent_msg.push_str("smooth triangle"),
+            ShapeEnum::GroupEnum(_group) => parent_msg.push_str("group"),
+            ShapeEnum::CsgEnum(_csg) => parent_msg.push_str("CSG"),
         }
         write!(f, "ShapeEnum: {}   ", parent_msg)
     }

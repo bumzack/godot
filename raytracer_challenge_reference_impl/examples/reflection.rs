@@ -2,7 +2,6 @@ extern crate num_cpus;
 
 use std::error::Error;
 use std::f64::consts::PI;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::PatternEnum::RingPatternEnum;
 use raytracer_challenge_reference_impl::prelude::*;
@@ -12,10 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let height = 300;
 
     let (world, camera) = setup_world(width, height);
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
 
     let aa = match camera.get_antialiasing() {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),

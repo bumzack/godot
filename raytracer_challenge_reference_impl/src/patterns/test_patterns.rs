@@ -1,7 +1,7 @@
 use crate::basics::color::{Color, ColorOps};
 use crate::math::tuple4d::Tuple4D;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TestPattern {}
 
 impl TestPattern {

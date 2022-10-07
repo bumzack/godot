@@ -3,17 +3,13 @@ extern crate num_cpus;
 use raytracer_challenge_reference_impl::prelude::*;
 use std::error::Error;
 use std::f64::consts::PI;
-use std::time::Instant;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let width = 1280;
     let height = 800;
 
     let (world, camera) = setup_world(width, height);
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
     canvas.write_png("chapter14_multi_core_no_AA.png")?;
 
     Ok(())

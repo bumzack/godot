@@ -11,18 +11,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let antialiasing_size = 3;
 
     let (world, camera) = setup_world_shadow_glamour(size_factor, antialiasing, antialiasing_size);
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-    if camera.get_antialiasing() {
-        println!(
-            "multi core duration: {:?} with AA size = {}",
-            dur,
-            camera.get_antialiasing_size()
-        );
-    } else {
-        println!("multi core duration: {:?}, no AA", dur);
-    }
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
+
     let aa = match camera.get_antialiasing() {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),
         false => "no_AA".to_string(),

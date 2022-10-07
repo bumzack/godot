@@ -58,14 +58,14 @@ impl BoundingBox {
 
     pub fn transform(bb: &BoundingBox, m: &Matrix) -> BoundingBox {
         let points = vec![
-            bb.min.clone(),
+            bb.min,
             Tuple4D::new_point(bb.min.x, bb.min.y, bb.max.z),
             Tuple4D::new_point(bb.min.x, bb.max.y, bb.min.z),
             Tuple4D::new_point(bb.min.x, bb.max.y, bb.max.z),
             Tuple4D::new_point(bb.max.x, bb.min.y, bb.min.z),
             Tuple4D::new_point(bb.max.x, bb.min.y, bb.max.z),
             Tuple4D::new_point(bb.max.x, bb.max.y, bb.min.z),
-            bb.max.clone(),
+            bb.max,
         ];
         let mut bb = BoundingBox::new();
         points.iter().for_each(|p| {
@@ -87,11 +87,11 @@ impl BoundingBox {
             return false;
         }
 
-        if tmin == f64::NAN {
+        if tmin.is_nan() {
             println!("BoundingBox: here we have a NAN tmin is {}", tmin);
         }
 
-        if tmax == f64::NAN {
+        if tmax.is_nan() {
             println!("BoundingBox:  here we have a NAN tmax is {}", tmax);
         }
 

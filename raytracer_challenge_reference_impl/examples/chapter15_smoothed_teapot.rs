@@ -1,6 +1,5 @@
 use std::error::Error;
 use std::f64::consts::PI;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -36,10 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     println!("filename {}", filename);
 
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
-    println!("multi core duration: {:?}", dur);
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
 
     canvas.write_png(filename)?;
     println!("wrote file {}", filename);
@@ -100,15 +96,15 @@ fn setup_world(
     // let pl = PointLight::new(Tuple4D::new_point(-151.0, 100.0, -100.0), Color::new(1.0, 1.0, 1.0));
     // let l = Light::PointLight(pl);
 
-    let corner = Tuple4D::new_point(4.5, 8.0, -9.0);
-    let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
-    let vvec = Tuple4D::new_vector(0.0, 2.0, 0.0);
+    // let corner = Tuple4D::new_point(4.5, 8.0, -9.0);
+    // let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
+    // let vvec = Tuple4D::new_vector(0.0, 2.0, 0.0);
 
     let corner = Tuple4D::new_point(0.0, 4.0, -9.0);
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
     let vvec = Tuple4D::new_vector(0.0, 2.0, -1.5);
 
-    let usteps = 16;
+    //  let usteps = 16;
     let intensity = Color::new(1.0, 1.0, 1.0);
     let area_light = AreaLight::new(
         corner,
@@ -139,7 +135,7 @@ fn setup_world(
 
     let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
     let idx = teapot_group.get(0).unwrap();
-    let mut teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
+    let teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
 
     // let trans = &(&Matrix::rotate_y(-PI/8.0)* &Matrix::rotate_x(-PI/4.0)) * &Matrix::scale(0.4,0.4,0.34) ;
     let trans = &Matrix::rotate_x(-PI / 4.0) * &Matrix::scale(0.4, 0.4, 0.4);

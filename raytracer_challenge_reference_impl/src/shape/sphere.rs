@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::prelude::*;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Sphere {}
 
 impl<'a> ShapeIntersectOps<'a> for Sphere {

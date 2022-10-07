@@ -1,15 +1,12 @@
 use raytracer_challenge_reference_impl::patterns::PatternEnum::RingPatternEnum;
 use std::error::Error;
 use std::f64::consts::PI;
-use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let (world, camera) = setup_world(800, 600);
-    let start = Instant::now();
-    let canvas = Camera::render_multi_core(&camera, &world);
-    let dur = Instant::now() - start;
+    let canvas = Camera::render_multi_core_tiled(&camera, &world, 10, 10);
     let aa = match camera.get_antialiasing() {
         true => format!("with_AA_{}", camera.get_antialiasing_size()),
         false => "no_AA".to_string(),
@@ -46,7 +43,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut checker3dpattern = Checker3DPattern::new();
     checker3dpattern.set_color_a(Color::new(0.1, 0.8, 0.4));
     checker3dpattern.set_color_a(Color::new(0.8, 0.2, 0.2));
-    let mut checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3dpattern));
+    let checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3dpattern));
     let mut right_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     right_wall.set_transformation(
         &(&Matrix::translation(0.0, 0.0, 5.0) * &Matrix::rotate_y(PI / 4.0)) * &Matrix::rotate_x(PI / 2.0),
@@ -78,7 +75,7 @@ fn setup_world(width: usize, height: usize) -> (World, Camera) {
     let mut checker3d_pattern = Checker3DPattern::new();
     checker3d_pattern.set_color_a(Color::new(1.0, 0.0, 1.0));
     checker3d_pattern.set_color_a(Color::new(0.1, 0.1, 1.0));
-    let mut checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3d_pattern));
+    let checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3d_pattern));
     let mut cube = Shape::new_cube(Cube::new(), "cube".to_string());
     let c_trans = Matrix::translation(-2.5, 0.33, -0.75);
     let c_scale = Matrix::scale(2.0, 0.5, 0.25);

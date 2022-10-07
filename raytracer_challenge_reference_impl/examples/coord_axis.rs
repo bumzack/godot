@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let width = 400;
     let height = 300;
 
-    let (mut world, mut camera) = setup_world_coord_axes(width, height, true);
+    let (mut world, camera) = setup_world_coord_axes(width, height, true);
     add_floor(&mut world);
     //  add_borders(&mut world);
 

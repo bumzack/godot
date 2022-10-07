@@ -1,4 +1,3 @@
-use raytracer_challenge_reference_impl::patterns::PatternEnum::Checker3DPatternEnum;
 use std::error::Error;
 use std::f64::consts::PI;
 use std::time::Instant;
@@ -31,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut checker3dpattern = Checker3DPattern::new();
     checker3dpattern.set_color_a(Color::new(0.1, 0.8, 0.4));
     checker3dpattern.set_color_a(Color::new(0.8, 0.2, 0.2));
-    let mut checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3dpattern));
+    let checker_3d = Pattern::new(PatternEnum::Checker3DPatternEnum(checker3dpattern));
 
     let mut right_wall = Shape::new_plane(Plane::new(), "plane".to_string());
     right_wall.set_transformation(

@@ -389,11 +389,9 @@ impl CameraOps for Camera {
                                 match sender_thread.send(tile_data) {
                                     Ok(_) => {
                                         println!("render_multi_core_tile_producer:  sending a tile");
-                                        ()
                                     }
                                     Err(_) => {
                                         println!("render_multi_core_tile_producer:  error sending a tile ");
-                                        ()
                                     }
                                 };
                             }
@@ -477,16 +475,16 @@ impl Camera {
                 let delta_x = jitter_matrix[2 * sample] * c_clone.get_pixel_size();
                 let delta_y = jitter_matrix[2 * sample + 1] * c_clone.get_pixel_size();
 
-                let r = Camera::ray_for_pixel_anti_aliasing(&c_clone, x, y, delta_x, delta_y);
+                let r = Camera::ray_for_pixel_anti_aliasing(c_clone, x, y, delta_x, delta_y);
                 // println!("ray {:?}  @ ({}/{})", &r, x, y);
-                color = color + World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+                color = color + World::color_at(w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
             }
             color = color / n_samples as f64;
             // println!("with AA    color at ({}/{}): {:?}", x, y, color);
         } else {
-            let r = Camera::ray_for_pixel(&c_clone, x, y);
+            let r = Camera::ray_for_pixel(c_clone, x, y);
             // println!("ray {:?}  @ ({}/{})", &r, x, y);
-            color = World::color_at(&w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
+            color = World::color_at(w_clone, &r, MAX_REFLECTION_RECURSION_DEPTH);
             // println!("no AA    color at ({}/{}): {:?}", x, y, color);
         }
         color
