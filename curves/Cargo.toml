@@ -7,4 +7,3 @@ edition = "2021"
 
 [dependencies]
 raytracer_challenge_reference_impl= { path = "../raytracer_challenge_reference_impl" }
-plotters = "0.3.4"

@@ -1,7 +1,5 @@
 // rust impl of https://www.pbr-book.org/3ed-2018/Shapes/Curves
 
-use std::ops::{Add, Mul};
-
 use raytracer_challenge_reference_impl::basics::{IntersectionList, IntersectionListOps, Ray};
 use raytracer_challenge_reference_impl::math::{Matrix, MatrixOps, Tuple, Tuple4D};
 use raytracer_challenge_reference_impl::prelude::BoundingBox;
