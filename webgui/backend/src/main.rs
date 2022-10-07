@@ -42,8 +42,18 @@ async fn main() {
 
 #[derive(Deserialize, Serialize, Debug)]
 struct WorldScene {
-    pub width: usize,
-    pub height: usize,
+      width: usize,
+      height: usize,
+}
+
+impl WorldScene {
+    fn get_width(&self)-> usize {
+        self.width
+    }
+
+    fn get_height(&self)-> usize {
+        self.height
+    }
 }
 
 async fn render_scene(ws: WebSocket) {
@@ -58,8 +68,8 @@ async fn render_scene(ws: WebSocket) {
 
             println!("worldscene {:?}", &p);
 
-            let width = p.width;
-            let height = p.height;
+            let width = p.get_width();
+            let height = p.get_height();
 
             let (w, c) = scene(width, height);
             let (s, r) = unbounded::<TileData>();
