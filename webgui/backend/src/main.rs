@@ -10,8 +10,10 @@ use serde_json::json;
 use warp::ws::{Message, WebSocket};
 use warp::Filter;
 
+use raytracer_challenge_reference_impl::example_scenes::chapter15_smoothed_suzanne::chapter15_smoothed_suzanne;
+use raytracer_challenge_reference_impl::example_scenes::test_soft_shadow_multiple_lights::test_soft_shadow_multiple_lights;
 use raytracer_challenge_reference_impl::prelude::TileData;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps};
+use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Canvas, CanvasOps, CanvasOpsStd};
 
 use crate::index_html::INDEX_HTML;
 use crate::scene::scene;
@@ -42,16 +44,16 @@ async fn main() {
 
 #[derive(Deserialize, Serialize, Debug)]
 struct WorldScene {
-      width: usize,
-      height: usize,
+    width: usize,
+    height: usize,
 }
 
 impl WorldScene {
-    fn get_width(&self)-> usize {
+    fn get_width(&self) -> usize {
         self.width
     }
 
-    fn get_height(&self)-> usize {
+    fn get_height(&self) -> usize {
         self.height
     }
 }
@@ -70,25 +72,36 @@ async fn render_scene(ws: WebSocket) {
 
             let width = p.get_width();
             let height = p.get_height();
+            let wi = p.get_width();
+            let h = p.get_height();
 
-            let (w, c) = scene(width, height);
-            let (s, r) = unbounded::<TileData>();
+            // let (w, c) = scene(width, height);
+
+            //  let (w, c) = chapter15_smoothed_suzanne(width, height, 1.15, false, 3, 4, 4);
+            let (w, c) = test_soft_shadow_multiple_lights(width, height, true, 3);
+            let (s, recv_web_sockets) = unbounded::<TileData>();
+            let recv_canvas = recv_web_sockets.clone();
 
             tokio::task::spawn(async move {
                 let start = Instant::now();
-                Camera::render_multi_core_tile_producer(&c, &w, 5, 5, s);
+                Camera::render_multi_core_tile_producer(&c, &w, 15, 15, s);
                 let dur = Instant::now() - start;
                 println!("async render_scene  multi core duration: {:?}", dur);
             });
 
             tokio::task::spawn(async move {
                 let mut cnt = 1;
+                let mut canvas = Canvas::new(wi, h);
 
                 loop {
-                    let td = r.recv();
+                    let td = recv_web_sockets.recv();
                     match td {
                         Ok(tile_data) => {
-                            println!("got  a tile  {}", cnt);
+                            println!("warp backend got a tile idx {}", tile_data.get_idx());
+
+                            tile_data.get_points().iter().for_each(|p| {
+                                canvas.write_pixel(p.get_x(), p.get_y(), p.get_color());
+                            });
 
                             let tile_data_json = json!(tile_data).to_string();
                             let msg = Message::text(tile_data_json);
@@ -107,7 +120,23 @@ async fn render_scene(ws: WebSocket) {
                         }
                     }
                 }
+
+                let filename = &format!("./webui_test_soft_shadow_multiple_lights_{}x{}.png", width, height,);
+                canvas.write_png(filename).expect("write file");
             });
+
+            // tokio::task::spawn(async move {
+            //     let start = Instant::now();
+            //     let canvas = Camera::collect_tiles_to_canvas(recv_canvas , width, height);
+            //     let dur = Instant::now() - start;
+            //     println!("async collect_tiles_to_canvas      duration: {:?}", dur);
+            //     let filename = &format!(
+            //         "./webui_test_soft_shadow_multiple_lights_{}x{}.png",
+            //         width,
+            //         height,
+            //     );
+            //     canvas.write_png(filename).expect("write file");
+            // });
         }
         _ => {}
     }

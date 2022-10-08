@@ -430,7 +430,6 @@ mod tests {
         }
     }
 
-    // TODO this crashes probably due to the coordinate system used in the PBRT and the left handed system from the Math Functions in this raytracer
     #[test]
     pub fn test_coordinate_system() {
         let data = vec![

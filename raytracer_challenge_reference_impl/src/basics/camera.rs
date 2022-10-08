@@ -423,7 +423,7 @@ impl CameraOps for Camera {
         let mut canvas = Canvas::new(width, height);
 
         r.iter().for_each(|tile_data| {
-            println!("got something");
+            println!("collect_tiles_to_canvas   got a tile idx {}", tile_data.get_idx());
             tile_data.get_points().iter().for_each(|p| {
                 canvas.write_pixel(p.get_x(), p.get_y(), p.get_color());
             })

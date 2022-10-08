@@ -1,6 +1,7 @@
 extern crate core;
 
 pub mod basics;
+pub mod example_scenes;
 pub mod light;
 pub mod material;
 pub mod math;
