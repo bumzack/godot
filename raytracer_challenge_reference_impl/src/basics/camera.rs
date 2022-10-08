@@ -29,6 +29,9 @@ pub struct Camera {
     pixel_size: f64,
     antialiasing: bool,
     antialiasing_size: usize, // 2 or 3
+    from: Tuple4D,
+    up: Tuple4D,
+    to: Tuple4D,
 }
 
 pub trait CameraOps {
@@ -36,11 +39,15 @@ pub trait CameraOps {
 
     fn get_hsize(&self) -> usize;
     fn get_vsize(&self) -> usize;
+    fn set_field_of_view(&mut self, fov: f64);
     fn get_field_of_view(&self) -> f64;
     fn get_transform(&self) -> &Matrix;
     fn get_pixel_size(&self) -> f64;
     fn get_half_width(&self) -> f64;
     fn get_half_height(&self) -> f64;
+
+    fn set_width(&mut self, width: usize);
+    fn set_height(&mut self, height: usize);
 
     fn set_antialiasing(&mut self, aa: bool);
     fn get_antialiasing(&self) -> bool;
@@ -61,6 +68,13 @@ pub trait CameraOps {
     fn render_multi_core_tile_producer(ca: &Camera, wo: &World, x_tiles: usize, y_tiles: usize, s: Sender<TileData>);
     fn collect_tiles_to_canvas(r: Receiver<TileData>, width: usize, height: usize) -> Canvas;
     fn render_debug(c: &Camera, w: &World, x: usize, y: usize) -> Canvas;
+
+    fn set_from(&mut self, from: Tuple4D);
+    fn set_to(&mut self, to: Tuple4D);
+    fn set_up(&mut self, up: Tuple4D);
+    fn get_from(self) -> Tuple4D;
+    fn get_to(self) -> Tuple4D;
+    fn get_up(self) -> Tuple4D;
 }
 
 impl CameraOps for Camera {
@@ -76,6 +90,9 @@ impl CameraOps for Camera {
             pixel_size: 0.0,
             antialiasing: false,
             antialiasing_size: 2,
+            from: Tuple4D::new_point(1.0, 1.0, 1.0),
+            up: Tuple4D::new_vector(0.0, 1.0, 10.0),
+            to: Tuple4D::new_point(0.0, 0.0, 0.0),
         }
     }
 
@@ -333,6 +350,7 @@ impl CameraOps for Camera {
 
         println!("using {} cores", num_cores);
 
+        println!("canvas with size {}x{}", camera.get_hsize(), camera.get_vsize());
         let canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
         let tiles = canvas.tiles(x_tiles, y_tiles);
         let tiles = Arc::new(Mutex::new(tiles));
@@ -457,6 +475,45 @@ impl CameraOps for Camera {
     fn get_antialiasing_size(&self) -> usize {
         self.antialiasing_size
     }
+
+    fn set_from(&mut self, from: Tuple4D) {
+        self.from = from;
+        self.set_transformation(Matrix::view_transform(&self.from, &self.to, &self.up))
+    }
+
+    fn set_to(&mut self, to: Tuple4D) {
+        self.to = to;
+        self.set_transformation(Matrix::view_transform(&self.from, &self.to, &self.up))
+    }
+
+    fn set_up(&mut self, up: Tuple4D) {
+        self.up = up;
+        self.set_transformation(Matrix::view_transform(&self.from, &self.to, &self.up))
+    }
+
+    fn get_from(self) -> Tuple4D {
+        self.from
+    }
+
+    fn get_to(self) -> Tuple4D {
+        self.to
+    }
+
+    fn get_up(self) -> Tuple4D {
+        self.up
+    }
+
+    fn set_field_of_view(&mut self, fov: f64) {
+        self.field_of_view = fov;
+    }
+
+    fn set_width(&mut self, width: usize) {
+        self.hsize = width;
+    }
+
+    fn set_height(&mut self, height: usize) {
+        self.vsize = height;
+    }
 }
 
 impl Camera {
@@ -541,6 +598,12 @@ impl Camera {
         } else {
             println!("render_multi_core_tile_producer  multi core duration: {:?}, no AA", dur);
         }
+    }
+}
+
+impl Default for Camera {
+    fn default() -> Self {
+        Camera::new(0, 0, 1.0)
     }
 }
 

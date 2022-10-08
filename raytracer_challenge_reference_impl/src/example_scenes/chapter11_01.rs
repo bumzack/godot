@@ -167,11 +167,9 @@ pub fn chapter11_01(width: usize, height: usize) -> (World, Camera) {
     c.set_antialiasing(true);
     c.set_antialiasing_size(3);
 
-    c.set_transformation(Matrix::view_transform(
-        //&Tuple4D::new_point(4.0, 4.0, -6.0),
-        &Tuple4D::new_point(-2.6, 1.5, -3.9),
-        &Tuple4D::new_point(-0.6, 1.0, -0.8),
-        &Tuple4D::new_vector(0.0, 1.0, 0.0),
-    ));
+    c.set_from(Tuple4D::new_point(-2.6, 1.5, -3.9));
+    c.set_to(Tuple4D::new_point(-0.6, 1.0, -0.8));
+    c.set_up(Tuple4D::new_vector(0.0, 1.0, 0.0));
+
     (w, c)
 }

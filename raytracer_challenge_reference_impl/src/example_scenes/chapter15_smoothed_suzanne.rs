@@ -112,11 +112,9 @@ pub fn chapter15_smoothed_suzanne(
     c.set_antialiasing(anitaliasing);
     c.set_antialiasing_size(anitaliasing_size);
 
-    c.set_transformation(Matrix::view_transform(
-        //&Tuple4D::new_point(4.0, 4.0, -6.0),
-        &Tuple4D::new_point(3.0, 4.5, -5.0),
-        &Tuple4D::new_point(1.0, 2.1, 0.0),
-        &Tuple4D::new_vector(0.0, 1.0, 0.0),
-    ));
+    c.set_from(Tuple4D::new_point(3.0, 4.5, -5.0));
+    c.set_to(Tuple4D::new_point(1.0, 2.1, 0.0));
+    c.set_up(Tuple4D::new_vector(0.0, 1.0, 0.0));
+
     (w, c)
 }

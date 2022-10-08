@@ -1,7 +1,9 @@
 use std::fmt;
 use std::ops::{Add, BitXor, Div, Mul, Sub};
 
-#[derive(Clone, PartialEq, Copy)]
+use serde_derive::{Deserialize, Serialize};
+
+#[derive(Clone, PartialEq, Copy, Deserialize, Serialize)]
 pub struct Tuple4D {
     pub x: f64,
     pub y: f64,

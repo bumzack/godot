@@ -12,18 +12,29 @@ use warp::Filter;
 
 use raytracer_challenge_reference_impl::example_scenes::chapter15_smoothed_suzanne::chapter15_smoothed_suzanne;
 use raytracer_challenge_reference_impl::example_scenes::test_soft_shadow_multiple_lights::test_soft_shadow_multiple_lights;
+use raytracer_challenge_reference_impl::math::Tuple4D;
 use raytracer_challenge_reference_impl::prelude::TileData;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Canvas, CanvasOps, CanvasOpsStd};
+use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Canvas, CanvasOps, CanvasOpsStd, Tuple, World};
 
 use crate::index_html::INDEX_HTML;
 use crate::scene::scene;
+use crate::structs::{get_scenes_dtos, SceneData};
 
 mod index_html;
 mod scene;
+mod structs;
 
 #[tokio::main]
 async fn main() {
     pretty_env_logger::init();
+
+    let get_scenes = warp::get()
+        .and(warp::path("scenes"))
+        // Only accept bodies smaller than 16kb...
+        .map(|| {
+            let scenes = json!(get_scenes_dtos()).to_string();
+            warp::reply::json(&scenes)
+        });
 
     // GET /chat -> websocket upgrade
     let render = warp::path("openwebsocket")
@@ -37,28 +48,13 @@ async fn main() {
     // GET / -> index html
     let index = warp::path::end().map(|| warp::reply::html(INDEX_HTML));
 
-    let routes = index.or(render);
+    let routes = index.or(render).or(get_scenes);
 
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-struct WorldScene {
-    width: usize,
-    height: usize,
-}
-
-impl WorldScene {
-    fn get_width(&self) -> usize {
-        self.width
-    }
-
-    fn get_height(&self) -> usize {
-        self.height
-    }
-}
-
 async fn render_scene(ws: WebSocket) {
+    let scenes = get_scenes_dtos();
     let (mut websocket_tx, mut websocket_rx) = ws.split();
 
     // wait for a message, which contains infos about the scene
@@ -66,19 +62,39 @@ async fn render_scene(ws: WebSocket) {
 
     match w {
         Ok(world_tmp) => {
-            let p: WorldScene = serde_json::from_str(world_tmp.to_str().unwrap()).unwrap();
+            println!("got a message  {:?}", world_tmp.to_str());
+            let scene_data: SceneData = serde_json::from_str(world_tmp.to_str().unwrap()).unwrap();
 
-            println!("worldscene {:?}", &p);
+            println!("worldscene {:?}", &scene_data);
 
-            let width = p.get_width();
-            let height = p.get_height();
-            let wi = p.get_width();
-            let h = p.get_height();
+            let width = scene_data.get_width();
+            let height = scene_data.get_height();
+            let wi = scene_data.get_width();
+            let h = scene_data.get_height();
 
-            // let (w, c) = scene(width, height);
+            let id = scene_data.get_id();
+            let scene = scenes.get_scenes().iter().find(|s| s.get_id() == id).unwrap();
+            let (w, mut c) = (scene.get_world().clone(), scene.get_camera().clone());
+            c.set_from(Tuple4D::new_point(
+                scene_data.get_from().x,
+                scene_data.get_from().y,
+                scene_data.get_from().z,
+            ));
+            c.set_to(Tuple4D::new_point(
+                scene_data.get_to().x,
+                scene_data.get_to().y,
+                scene_data.get_to().z,
+            ));
+            c.set_up(Tuple4D::new_vector(
+                scene_data.get_up().x,
+                scene_data.get_up().y,
+                scene_data.get_up().z,
+            ));
+            c.set_field_of_view(scene_data.get_fov());
+            c.set_width(scene_data.get_width());
+            c.set_height(scene_data.get_height());
+            c.calc_pixel_size();
 
-            //  let (w, c) = chapter15_smoothed_suzanne(width, height, 1.15, false, 3, 4, 4);
-            let (w, c) = test_soft_shadow_multiple_lights(width, height, true, 3);
             let (s, recv_web_sockets) = unbounded::<TileData>();
             let recv_canvas = recv_web_sockets.clone();
 
@@ -91,6 +107,7 @@ async fn render_scene(ws: WebSocket) {
 
             tokio::task::spawn(async move {
                 let mut cnt = 1;
+                println!("canvas with size {}x{}", wi, h);
                 let mut canvas = Canvas::new(wi, h);
 
                 loop {
@@ -121,7 +138,7 @@ async fn render_scene(ws: WebSocket) {
                     }
                 }
 
-                let filename = &format!("./webui_test_soft_shadow_multiple_lights_{}x{}.png", width, height,);
+                let filename = &format!("./webui_test_soft_shadow_multiple_lights_{}x{}.png", width, height);
                 canvas.write_png(filename).expect("write file");
             });
 

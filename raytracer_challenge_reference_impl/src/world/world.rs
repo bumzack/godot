@@ -445,6 +445,15 @@ pub fn default_world_empty() -> World {
     w
 }
 
+impl Default for World {
+    fn default() -> Self {
+        World {
+            shapes: vec![],
+            lights: vec![],
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;

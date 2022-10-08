@@ -58,11 +58,9 @@ pub fn chapter09(width: usize, height: usize) -> (World, Camera) {
     let mut c = Camera::new(width, height, PI / 3.0);
     c.calc_pixel_size();
 
-    c.set_transformation(Matrix::view_transform(
-        &Tuple4D::new_point(0.0, 1.5, -5.0),
-        &Tuple4D::new_point(0.0, 1.0, 0.0),
-        &Tuple4D::new_vector(0.0, 1.0, 0.0),
-    ));
+    c.set_from(Tuple4D::new_point(0.0, 1.5, -5.0));
+    c.set_to(Tuple4D::new_point(0.0, 1.0, 0.0));
+    c.set_up(Tuple4D::new_vector(0.0, 1.0, 0.0));
 
     (w, c)
 }
