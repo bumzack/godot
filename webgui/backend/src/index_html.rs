@@ -49,10 +49,10 @@ pub static INDEX_HTML: &str = r###"<!doctype html>
                     "width": parseInt($("#widthInput").val()),
                     "height": parseInt($("#heightInput").val()),
                     "fov": parseFloat($("#fovInput").val()),
-                    "antialiasing": 0,
+                    "antialiasing": parseInt($("#antialiasValue").val()),
                     "shadows": true,
                     "name": "ignore",
-                    "size_area_light": 0
+                    "size_area_light":  parseInt($("#arealightsize").val())
                 };
 
                 const ctx = $("#canvas")[0].getContext('2d');

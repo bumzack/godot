@@ -1,5 +1,7 @@
 extern crate rand;
 
+use std::arch::aarch64::vaba_s8;
+
 use crate::basics::color::Color;
 use crate::light::light::LightOps;
 use crate::light::Sequence;
@@ -113,6 +115,14 @@ impl AreaLight {
             intensity,
             jitter_sequence,
         }
+    }
+
+    pub fn set_usteps(&mut self, usteps: usize) {
+        self.usteps = usteps;
+    }
+
+    pub fn set_vsteps(&mut self, vsteps: usize) {
+        self.vsteps = vsteps;
     }
 }
 

@@ -12,9 +12,10 @@ use warp::Filter;
 
 use raytracer_challenge_reference_impl::example_scenes::chapter15_smoothed_suzanne::chapter15_smoothed_suzanne;
 use raytracer_challenge_reference_impl::example_scenes::test_soft_shadow_multiple_lights::test_soft_shadow_multiple_lights;
+use raytracer_challenge_reference_impl::light::Light;
 use raytracer_challenge_reference_impl::math::Tuple4D;
-use raytracer_challenge_reference_impl::prelude::TileData;
 use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Canvas, CanvasOps, CanvasOpsStd, Tuple, World};
+use raytracer_challenge_reference_impl::prelude::{TileData, WorldOps};
 
 use crate::index_html::INDEX_HTML;
 use crate::scene::scene;
@@ -74,7 +75,7 @@ async fn render_scene(ws: WebSocket) {
 
             let id = scene_data.get_id();
             let scene = scenes.get_scenes().iter().find(|s| s.get_id() == id).unwrap();
-            let (w, mut c) = (scene.get_world().clone(), scene.get_camera().clone());
+            let (mut w, mut c) = (scene.get_world().clone(), scene.get_camera().clone());
             c.set_from(Tuple4D::new_point(
                 scene_data.get_from().x,
                 scene_data.get_from().y,
@@ -93,7 +94,18 @@ async fn render_scene(ws: WebSocket) {
             c.set_field_of_view(scene_data.get_fov());
             c.set_width(scene_data.get_width());
             c.set_height(scene_data.get_height());
+            c.set_antialiasing(scene_data.get_antialiasing() > 0);
             c.calc_pixel_size();
+
+            w.get_light_mut().iter_mut().for_each(|l| {
+                match l {
+                    Light::AreaLight(ref mut area_light) => {
+                        area_light.set_usteps(scene_data.get_size_area_light());
+                        area_light.set_vsteps(scene_data.get_size_area_light())
+                    }
+                    _ => (),
+                };
+            });
 
             let (s, recv_web_sockets) = unbounded::<TileData>();
             let recv_canvas = recv_web_sockets.clone();
@@ -107,7 +119,6 @@ async fn render_scene(ws: WebSocket) {
 
             tokio::task::spawn(async move {
                 let mut cnt = 1;
-                println!("canvas with size {}x{}", wi, h);
                 let mut canvas = Canvas::new(wi, h);
 
                 loop {

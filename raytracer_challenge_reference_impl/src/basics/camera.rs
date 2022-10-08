@@ -2,20 +2,20 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crossbeam_channel::{unbounded, Receiver, Sender};
+use crossbeam_channel::{Receiver, Sender, unbounded};
 
+use crate::basics::{CanvasOps, Color};
 use crate::basics::canvas::Canvas;
 use crate::basics::color::BLACK;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
-use crate::basics::{CanvasOps, Color};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::prelude::{TileData, TileDataPoint};
+use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
 use crate::world::world::WorldOps;
-use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -28,7 +28,7 @@ pub struct Camera {
     half_height: f64,
     pixel_size: f64,
     antialiasing: bool,
-    antialiasing_size: usize, // 2 or 3
+    antialiasing_size: usize,
     from: Tuple4D,
     up: Tuple4D,
     to: Tuple4D,
@@ -308,7 +308,7 @@ impl CameraOps for Camera {
 
             data.lock().unwrap()
         })
-        .unwrap();
+            .unwrap();
 
         c.clone()
     }
@@ -348,9 +348,6 @@ impl CameraOps for Camera {
         let start = Instant::now();
         let num_cores = num_cpus::get();
 
-        println!("using {} cores", num_cores);
-
-        println!("canvas with size {}x{}", camera.get_hsize(), camera.get_vsize());
         let canvas = Canvas::new(camera.get_hsize(), camera.get_vsize());
         let tiles = canvas.tiles(x_tiles, y_tiles);
         let tiles = Arc::new(Mutex::new(tiles));
@@ -387,7 +384,7 @@ impl CameraOps for Camera {
                         }
                         match tile_candidate {
                             Some(ref tile) => {
-                                println!("thread   {:?}    processing tile  {}", thread::current().id(), tile);
+                                // println!("thread   {:?}    processing tile  {}", thread::current().id(), tile);
 
                                 let mut pixels = vec![];
 
@@ -403,13 +400,13 @@ impl CameraOps for Camera {
                                 }
 
                                 let tile_data = TileData::new(tile.get_idx(), pixels);
-
+                                let idx = tile_data.get_idx();
                                 match sender_thread.send(tile_data) {
                                     Ok(_) => {
-                                        println!("render_multi_core_tile_producer:  sending a tile");
+                                        println!("render_multi_core_tile_producer:  sending  tile idx {}", idx);
                                     }
-                                    Err(_) => {
-                                        println!("render_multi_core_tile_producer:  error sending a tile ");
+                                    Err(e) => {
+                                        println!("render_multi_core_tile_producer:  error sending a tile    {:?}", e);
                                     }
                                 };
                             }
@@ -434,14 +431,14 @@ impl CameraOps for Camera {
             let dur = Instant::now() - start;
             Self::print_duration(camera, dur);
         })
-        .expect("TODO: something went wrong");
+            .expect("TODO: something went wrong");
     }
 
     fn collect_tiles_to_canvas(r: Receiver<TileData>, width: usize, height: usize) -> Canvas {
         let mut canvas = Canvas::new(width, height);
 
         r.iter().for_each(|tile_data| {
-            println!("collect_tiles_to_canvas   got a tile idx {}", tile_data.get_idx());
+            //  println!("collect_tiles_to_canvas   got a tile idx {}", tile_data.get_idx());
             tile_data.get_points().iter().for_each(|p| {
                 canvas.write_pixel(p.get_x(), p.get_y(), p.get_color());
             })

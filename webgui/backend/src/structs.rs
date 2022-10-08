@@ -51,6 +51,10 @@ impl SceneData {
     pub fn get_id(&self) -> usize {
         self.id
     }
+
+    pub fn get_antialiasing(&self) -> usize {
+        self.antialiasing
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -121,7 +125,7 @@ pub fn get_scenes_dtos() -> AllScenesDTO {
     let mut result = AllScenesDTO::new();
 
     result.scenes.push(get_chapter07(1));
-    // result.scenes.push(get_suzanne_smoothed(2));
+    result.scenes.push(get_suzanne_smoothed(2));
 
     result
 }
@@ -158,7 +162,7 @@ fn get_suzanne_smoothed(id: usize) -> Scene {
     let width = 1280;
     let height = 720;
 
-    let pov = 0.8;
+    let pov = 0.7;
     let antialiasing = true;
     let antialiasing_size = 3;
     let arealight_u = 16;
