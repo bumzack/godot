@@ -2,20 +2,20 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crossbeam_channel::{Receiver, Sender, unbounded};
+use crossbeam_channel::{unbounded, Receiver, Sender};
 
-use crate::basics::{CanvasOps, Color};
 use crate::basics::canvas::Canvas;
 use crate::basics::color::BLACK;
 use crate::basics::ray::Ray;
 use crate::basics::ray::RayOps;
+use crate::basics::{CanvasOps, Color};
 use crate::math::matrix::Matrix;
 use crate::math::matrix::MatrixOps;
 use crate::math::tuple4d::Tuple;
 use crate::math::tuple4d::Tuple4D;
 use crate::prelude::{TileData, TileDataPoint};
-use crate::world::world::{MAX_REFLECTION_RECURSION_DEPTH, World};
 use crate::world::world::WorldOps;
+use crate::world::world::{World, MAX_REFLECTION_RECURSION_DEPTH};
 
 #[derive(Clone, Debug)]
 pub struct Camera {
@@ -308,7 +308,7 @@ impl CameraOps for Camera {
 
             data.lock().unwrap()
         })
-            .unwrap();
+        .unwrap();
 
         c.clone()
     }
@@ -431,7 +431,7 @@ impl CameraOps for Camera {
             let dur = Instant::now() - start;
             Self::print_duration(camera, dur);
         })
-            .expect("TODO: something went wrong");
+        .expect("TODO: something went wrong");
     }
 
     fn collect_tiles_to_canvas(r: Receiver<TileData>, width: usize, height: usize) -> Canvas {
