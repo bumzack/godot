@@ -13,6 +13,7 @@ pub struct Tuple4D {
 
 pub trait Tuple {
     fn magnitude(a: &Tuple4D) -> f64;
+    fn magnitude_squared(a: &Tuple4D) -> f64;
     fn normalize(a: &Tuple4D) -> Self;
 
     fn new_vector(x: f64, y: f64, z: f64) -> Self;
@@ -28,7 +29,11 @@ pub trait Tuple {
 
 impl Tuple for Tuple4D {
     fn magnitude(a: &Tuple4D) -> f64 {
-        (a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w).sqrt()
+        (Self::magnitude_squared(a)).sqrt()
+    }
+
+    fn magnitude_squared(a: &Tuple4D) -> f64 {
+        a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w
     }
 
     fn normalize(a: &Tuple4D) -> Tuple4D {

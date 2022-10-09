@@ -1,8 +1,10 @@
 // rust impl of https://www.pbr-book.org/3ed-2018/Shapes/Curves
 
+use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+
 use raytracer_challenge_reference_impl::basics::{IntersectionList, IntersectionListOps, Ray};
 use raytracer_challenge_reference_impl::math::{Matrix, MatrixOps, Tuple, Tuple4D};
-use raytracer_challenge_reference_impl::prelude::BoundingBox;
+use raytracer_challenge_reference_impl::prelude::{BoundingBox, RayOps};
 
 pub enum CurveType {
     FLAT,
@@ -54,49 +56,6 @@ impl Curve {
         bounding_box1
     }
 
-    pub fn intersect(&self, r: &Ray) -> IntersectionList {
-        // let r = &self.transform * r;
-        //
-        // let (cp_obj0, cp_obj1, cp_obj2.0, cp_obj3) = self.calc_blossom();
-        //
-        // let (dx, dy) = coordinate_system(&r);
-        //
-        // let (object_to_ray, object_to_ray_inv) = look_at(&r.origin, r.origin + r.direction, &dx);
-        //
-        // let cp0 = &object_to_ray * &cp_obj0;
-        // let cp1 = &object_to_ray * &cp_obj0;
-        // let cp2 = &object_to_ray * &cp_obj0;
-        // let cp3 = &object_to_ray * &cp_obj0;
-        //
-        // let cp = vec![cp0, cp1, cp2.0, cp3];
-        //
-        // let mut l0 = 0.0;
-        //
-        // for i in 0..2 {
-        //     let tmp_x = (cp.get(i).unwrap().x - 2 * cp.get(i + 1).unwrap().x + cp.get(i + 2).unwrap().x).abs();
-        //     let tmp_y = (cp.get(i).unwrap().y - 2 * cp.get(i + 1).unwrap().y + cp.get(i + 2).unwrap().y).abs();
-        //     let tmp: f64 = tmp_x.max(tmp_y);
-        //     let tmp_z = (cp.get(i).unwrap().z - 2 * cp.get(i + 1).unwrap().z + cp.get(i + 2).unwrap().z).abs();
-        //     let tmp = tmp.max(tmp_z);
-        //     l0 = l0.max(tmp);
-        // }
-        // let eps = self
-        //     .common
-        //     .width
-        //     .get(0)
-        //     .unwrap()
-        //     .max(*self.common.width.get(1).unwrap())
-        //     * 0.05;
-        //
-        // let fr0 = (1.41421356237 * 12.0 * l0 / (8. * eps)).ln() * 0.7213475108;
-        // let r0 = fr0.round() as i32;
-        // let max_depth = clamp(r0, 0, 10);
-        //
-        // let res = self.recursive_intersect(r, cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth);
-
-        IntersectionList::new()
-    }
-
     fn calc_blossom(&self) -> (Tuple4D, Tuple4D, Tuple4D, Tuple4D) {
         let p0 = blossom_bezier(&self.common.p, self.u_min, self.u_min, self.u_min);
         let p1 = blossom_bezier(&self.common.p, self.u_min, self.u_min, self.u_max);
@@ -105,42 +64,186 @@ impl Curve {
         (p0, p1, p2, p3)
     }
 
+    pub fn intersect(&self, r: &Ray, is: &mut IntersectionList) -> bool {
+        // Transform _Ray_ to object space
+        // TODO how ?
+        //  let r = &self.transform * r;
+
+        // Compute object-space control points for curve segment, _cpObj_
+        let (cp_obj0, cp_obj1, cp_obj2, cp_obj3) = self.calc_blossom();
+
+        let mut dx = r.get_direction() * &(cp_obj3 - cp_obj0);
+        let dx_length_squared = Tuple4D::magnitude_squared(&dx);
+        if dx_length_squared == 0.0 {
+            let (dx_new, _) = coordinate_system(r.get_origin());
+            dx = dx_new;
+        }
+        // let (dx, dy) = coordinate_system(&r.get_origin());
+
+        let (object_to_ray, object_to_ray_inv) = look_at(&r.origin, &(r.get_origin() + r.get_direction()), &dx);
+
+        let cp0 = &object_to_ray * &cp_obj0;
+        let cp1 = &object_to_ray * &cp_obj1;
+        let cp2 = &object_to_ray * &cp_obj2;
+        let cp3 = &object_to_ray * &cp_obj3;
+
+        let cp = vec![cp0, cp1, cp2, cp3];
+
+        let tmp1 = lerp_float(self.u_min, self.common.width[0], self.common.width[1]);
+        let tmp2 = lerp_float(self.u_max, self.common.width[0], self.common.width[1]);
+        let max_width = tmp1.max(tmp2);
+
+        let tmp_y1 = cp0.y.max(cp1.y);
+        let tmp_y2 = cp2.y.max(cp3.y);
+        let y1 = tmp_y1.max(tmp_y2) + 0.5 * max_width;
+        let y2 = tmp_y1.max(tmp_y2) - 0.5 * max_width;
+
+        if y1 < 0.0 || y2 > 0.0 {
+            return false;
+        }
+
+        // Check for non-overlap in x
+        let tmp_x1 = cp0.x.max(cp1.x);
+        let tmp_x2 = cp2.x.max(cp3.x);
+        let x1 = tmp_x1.max(tmp_x2) + 0.5 * max_width;
+        let x2 = tmp_x1.max(tmp_x2) - 0.5 * max_width;
+
+        if x1 < 0.0 || x2 > 0.0 {
+            return false;
+        }
+
+        // Check for non-overlap in z.
+        let ray_length = Tuple4D::magnitude(r.get_direction());
+        // TODO
+        // tmax and stuff
+        let z_max = ray_length;
+
+        let tmp_z1 = cp0.z.max(cp1.z);
+        let tmp_z2 = cp2.z.max(cp3.z);
+        let z1 = tmp_z1.max(tmp_z2) + 0.5 * max_width;
+        let z2 = tmp_z1.max(tmp_z2) - 0.5 * max_width;
+
+        if z1 < 0.0 || z2 > z_max {
+            return false;
+        }
+
+        let mut l0: f64 = 0.0;
+
+        for i in 0..2 {
+            let tmp_x = (cp[i].x - 2.0 * cp[i + 1].x + cp[i + 2].x).abs();
+            let tmp_y = (cp[i].y - 2.0 * cp[i + 1].y + cp[i + 2].y).abs();
+            let tmp: f64 = tmp_x.max(tmp_y);
+            let tmp_z = (cp[i].z - 2.0 * cp[i + 1].z + cp[i + 2].z).abs();
+            let tmp = tmp.max(tmp_z);
+            l0 = l0.max(tmp);
+        }
+        let eps = self.common.width[0].max(self.common.width[1]) * 0.05;
+
+        let r0 = log2((SQRT_2 * 6.0 * l0 / (8.0 * eps)) as f32) / 2;
+        let max_depth = clamp(r0, 0, 10);
+
+        let mut is = IntersectionList::new();
+
+        self.recursive_intersect(r, &cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth, &mut is)
+    }
+
     pub fn recursive_intersect(
         &self,
         r: &Ray,
-        cp: Vec<Tuple4D>,
+        cp: &Vec<Tuple4D>,
         object_to_ray_inv: &Matrix,
         u0: f64,
         u1: f64,
         depth: i32,
-        intersection: &mut IntersectionList,
+        is: &mut IntersectionList,
     ) -> bool {
-        let mut curve_bounds = BoundingBox::new_from_min_max(cp[0], cp[1]);
-        let bb2 = BoundingBox::new_from_min_max(cp[2], cp[3]);
-        curve_bounds.add(&bb2);
-
-        let tmp1 = lerp_float(u0, self.common.width[0], self.common.width[1]);
-        let tmp2 = lerp_float(u1, self.common.width[0], self.common.width[1]);
-        let max_width = tmp1.max(tmp2);
-        expand(&mut curve_bounds, 0.5 * max_width);
-        let ray_length = Tuple4D::magnitude(&r.direction);
-
-        let z_max = ray_length; // there is t in the raytracer impl  ¯\_(ツ)_/¯
-        let ray_bounds =
-            BoundingBox::new_from_min_max(Tuple4D::new_point(0.0, 0.0, 0.0), Tuple4D::new_point(0.0, 0.0, z_max));
-        if !curve_bounds.overlaps(&ray_bounds) {
-            return false;
-        }
+        let ray_length = Tuple4D::magnitude(r.get_direction());
 
         if depth > 0 {
-            // let u_mid = 0.5 * (u0 + u1);
-            // let csplit = subdivide_bezier(cp);
-            // let c = csplit.as_slice().slice(0, 3).to_vec();
-            // let r1 = self.recursive_intersect(r, c, object_to_ray_inv, u0, u_mid, depth - 1, intersection);
-            // let c = csplit.as_slice().slice(3, 7).to_vec();
-            // let r2 = self.recursive_intersect(r, c, object_to_ray_inv, u_mid, u1, depth - 1, intersection);
-            // r1 || r2
-            return false;
+            let csplits = subdivide_bezier(cp);
+
+            let mut hit = false;
+            let u = vec![u0, (u0 + u1) / 2.0, u1];
+
+            let increment = 3;
+            for seg in 0..2 {
+                let from = seg * increment;
+                let to = seg * increment + increment;
+                let cps = &csplits[from..to];
+
+                // loop iteration seg = 0
+                let tmp1 = lerp_float(u[0], self.common.width[0], self.common.width[1]);
+                let tmp2 = lerp_float(u[1], self.common.width[0], self.common.width[1]);
+
+                let max_width = tmp1.max(tmp2);
+
+                // y coord
+                let tmp_y1 = cps[0].y.max(cps[1].y);
+                let tmp_y2 = cps[2].y.max(cps[3].y);
+                let y1 = tmp_y1.max(tmp_y2) + 0.5 * max_width;
+                let y2 = tmp_y1.max(tmp_y2) - 0.5 * max_width;
+
+                if y1 < 0.0 || y2 > 0.0 {
+                    continue;
+                }
+
+                // x coord
+                let tmp_x1 = cps[0].x.max(cps[1].x);
+                let tmp_x2 = cps[2].x.max(cps[3].x);
+                let x1 = tmp_x1.max(tmp_x2) + 0.5 * max_width;
+                let x2 = tmp_x1.max(tmp_x2) - 0.5 * max_width;
+
+                if x1 < 0.0 || x2 > 0.0 {
+                    continue;
+                }
+
+                // z coord
+                // TODO
+                // tmax and stuff
+                let z_max = ray_length;
+
+                let tmp_z1 = cps[0].z.max(cps[1].z);
+                let tmp_z2 = cps[2].z.max(cps[3].z);
+                let z1 = tmp_z1.max(tmp_z2) + 0.5 * max_width;
+                let z2 = tmp_z1.max(tmp_z2) - 0.5 * max_width;
+
+                if z1 < 0.0 || z2 > z_max {
+                    continue;
+                }
+
+                hit = hit | self.recursive_intersect(r, &cp, &object_to_ray_inv, u0, u1, depth, is);
+
+                // TODO
+                // early exit
+            }
+            return hit;
+        } else {
+            let edge = (cp[1].y - cp[0].y) * (-cp[0].y) + (cp[0].x) * (cp[0].x - cp[1].x);
+            if edge < 0.0 {
+                return false;
+            }
+
+            let edge = (cp[2].y - cp[3].y) * (-cp[3].y) + (cp[3].x) * (cp[3].x - cp[2].x);
+            if edge < 0.0 {
+                return false;
+            }
+
+            let segment_direction =
+                Tuple4D::new_point(cp[3].x, cp[3].y, 0.0) - Tuple4D::new_point(cp[0].x, cp[0].y, 0.0);
+            let denom = Tuple4D::magnitude(&segment_direction);
+            if denom == 0.0 {
+                return false;
+            }
+            let p_2d = Tuple4D::new_point(cp[0].x, cp[0].y, 0.0);
+            let w = (&(p_2d * (-1.0)) ^ &segment_direction) / denom;
+            let u = clamp(lerp_float(w, u0, u1), u0, u1);
+            let hit_width = lerp_float(u, self.common.width[0], self.common.width[1]);
+
+            match self.common.curve_type {
+                CurveType::RIBBON => {}
+                CurveType::FLAT => {}
+                CurveType::CYLINDER => {}
+            }
         }
 
         true
@@ -243,13 +346,13 @@ pub fn blossom_bezier(p: &Vec<Tuple4D>, u0: f64, u1: f64, u2: f64) -> Tuple4D {
     lerp(u2, b0, b1)
 }
 
-pub fn pbrt_cross(v1: &Tuple4D, v2: &Tuple4D) -> Tuple4D {
-    Tuple4D::new_vector(
-        (v1.y * v2.z) - (v1.z * v2.y),
-        (v1.z * v2.x) - (v1.x * v2.z),
-        (v1.x * v2.y) - (v1.y * v2.x),
-    )
-}
+// pub fn pbrt_cross(v1: &Tuple4D, v2: &Tuple4D) -> Tuple4D {
+//     Tuple4D::new_vector(
+//         (v1.y * v2.z) - (v1.z * v2.y),
+//         (v1.z * v2.x) - (v1.x * v2.z),
+//         (v1.x * v2.y) - (v1.y * v2.x),
+//     )
+// }
 
 pub fn coordinate_system(v: &Tuple4D) -> (Tuple4D, Tuple4D) {
     let v2 = if v.x.abs() > v.y.abs() {
@@ -290,7 +393,7 @@ pub fn look_at(pos: &Tuple4D, look: &Tuple4D, up: &Tuple4D) -> (Matrix, Matrix) 
     (Matrix::invert(&camera_to_world).unwrap(), camera_to_world.clone())
 }
 
-pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
+pub fn subdivide_bezier(cp: &Vec<Tuple4D>) -> Vec<Tuple4D> {
     let csplit0 = cp[0];
     let csplit1 = (cp[0] + cp[1]) / 2.0;
     let csplit2 = (cp[0] + cp[1] * 2.0 + cp[2]) / 4.0;
@@ -302,6 +405,22 @@ pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
     vec![csplit0, csplit1, csplit2, csplit3, csplit4, csplit5, csplit6]
 }
 
+fn log2(x: f32) -> i32 {
+    if x < 0.0 {
+        0
+    } else {
+        let x_bits = x.to_bits() as i32;
+        let tmp = 1i32 << 22;
+        // println!("  (x_bits >> 23)    {}", (x_bits >> 23));
+        // println!("x_bits & tmp   {}", x_bits & tmp);
+        // println!("(x_bits & tmp)   {}", (x_bits & tmp));
+        let add = if (x_bits & tmp) == 0 { 0 } else { 1 };
+        // println!(" (bits & (1 << 22) ? 1 : 0)   {}", add);
+
+        (x_bits >> 23) - 127 + add
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
@@ -310,7 +429,7 @@ mod tests {
     use raytracer_challenge_reference_impl::prelude::{MatrixOps, Ray, RayOps};
     use raytracer_challenge_reference_impl::shape::BoundingBox;
 
-    use crate::curve::{blossom_bezier, coordinate_system, expand, lerp, lerp_float, look_at};
+    use crate::curve::{blossom_bezier, coordinate_system, expand, lerp, lerp_float, log2, look_at};
 
     const EPSILON: f64 = 0.0000001;
 
@@ -691,5 +810,117 @@ mod tests {
         //
         // assert_tuple(&actual.min, &bb_expected.min);
         // assert_tuple(&actual.max, &bb_expected.max);
+    }
+
+    #[test]
+    pub fn test_log2() {
+        let data: Vec<(f64, i32)> = vec![
+            (7.000000, 3),
+            (19.000000, 4),
+            (16.000000, 4),
+            (79.000000, 6),
+            (1.000000, 0),
+            (83.000000, 6),
+            (22.000000, 4),
+            (76.000000, 6),
+            (71.000000, 6),
+            (58.000000, 6),
+            (31.000000, 5),
+            (71.000000, 6),
+            (3.000000, 2),
+            (55.000000, 6),
+            (73.000000, 6),
+            (100.000000, 7),
+            (46.000000, 5),
+            (94.000000, 6),
+            (47.000000, 5),
+            (76.000000, 6),
+            (70.000000, 6),
+            (31.000000, 5),
+            (60.000000, 6),
+            (55.000000, 6),
+            (49.000000, 6),
+            (1.000000, 0),
+            (86.000000, 6),
+            (32.000000, 5),
+            (51.000000, 6),
+            (31.000000, 5),
+            (30.000000, 5),
+            (59.000000, 6),
+            (10.000000, 3),
+            (87.000000, 6),
+            (29.000000, 5),
+            (8.000000, 3),
+            (27.000000, 5),
+            (7.000000, 3),
+            (85.000000, 6),
+            (46.000000, 5),
+            (26.000000, 5),
+            (85.000000, 6),
+            (41.000000, 5),
+            (87.000000, 6),
+            (6.000000, 3),
+            (67.000000, 6),
+            (83.000000, 6),
+            (95.000000, 6),
+            (47.000000, 5),
+            (82.000000, 6),
+            (10.000000, 3),
+            (60.000000, 6),
+            (54.000000, 6),
+            (85.000000, 6),
+            (35.000000, 5),
+            (77.000000, 6),
+            (61.000000, 6),
+            (49.000000, 6),
+            (16.000000, 4),
+            (92.000000, 6),
+            (23.000000, 4),
+            (34.000000, 5),
+            (41.000000, 5),
+            (15.000000, 4),
+            (5.000000, 2),
+            (100.000000, 7),
+            (22.000000, 4),
+            (94.000000, 6),
+            (14.000000, 4),
+            (70.000000, 6),
+            (41.000000, 5),
+            (88.000000, 6),
+            (85.000000, 6),
+            (21.000000, 4),
+            (21.000000, 4),
+            (22.000000, 4),
+            (92.000000, 6),
+            (68.000000, 6),
+            (84.000000, 6),
+            (75.000000, 6),
+            (23.000000, 4),
+            (100.000000, 7),
+            (97.000000, 7),
+            (7.000000, 3),
+            (65.000000, 6),
+            (54.000000, 6),
+            (46.000000, 5),
+            (19.000000, 4),
+            (40.000000, 5),
+            (5.000000, 2),
+            (68.000000, 6),
+            (90.000000, 6),
+            (61.000000, 6),
+            (67.000000, 6),
+            (64.000000, 6),
+            (53.000000, 6),
+            (10.000000, 3),
+            (91.000000, 6),
+            (84.000000, 6),
+            (68.000000, 6),
+        ];
+
+        for (idx, d) in data.iter().enumerate() {
+            let l2 = log2(d.0 as f32);
+            println!("asserting {}. entry actual {} == {}", idx + 1, l2, d.1);
+            assert_eq!(l2, d.1);
+        }
     }
 }
