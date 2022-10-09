@@ -1,7 +1,5 @@
 extern crate rand;
 
-use std::arch::aarch64::vaba_s8;
-
 use crate::basics::color::Color;
 use crate::light::light::LightOps;
 use crate::light::Sequence;

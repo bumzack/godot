@@ -1,10 +1,8 @@
-use std::error::Error;
 use std::f64::consts::PI;
 
 use crate::prelude::{
-    Camera, CameraOps, CanvasOpsStd, Checker3DPattern, Color, ColorOps, GradientPattern, Light, MaterialOps, Matrix,
-    MatrixOps, Pattern, PatternEnum, Plane, PointLight, RingPattern, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World,
-    WorldOps,
+    Camera, CameraOps, Checker3DPattern, Color, ColorOps, GradientPattern, Light, MaterialOps, Matrix, MatrixOps,
+    Pattern, PatternEnum, Plane, PointLight, RingPattern, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
 
 pub fn chapter10(width: usize, height: usize) -> (World, Camera) {

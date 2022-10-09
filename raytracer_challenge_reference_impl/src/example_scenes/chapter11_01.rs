@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::prelude::{
     Camera, CameraOps, Checker3DPattern, Color, ColorOps, Light, Material, MaterialOps, Matrix, MatrixOps, Pattern,
     PatternEnum, Plane, PointLight, Shape, ShapeOps, Sphere, StripePattern, Tuple, Tuple4D, World, WorldOps,

@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::prelude::{
     AlignCheckTexturePattern, Camera, CameraOps, Color, ColorOps, CubeChecker, Light, MaterialOps, Matrix, MatrixOps,
     Pattern, PatternEnum, Plane, PointLight, Shape, ShapeOps, Tuple, Tuple4D, World, WorldOps,

@@ -2,7 +2,6 @@ use crate::prelude::{
     AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, ObjFileOps, Parser,
     PointLight, Sequence, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
-use std::error::Error;
 use std::f64::consts::PI;
 
 pub fn chapter15_smoothed_suzanne(
@@ -54,7 +53,7 @@ pub fn chapter15_smoothed_suzanne(
     // left.get_material_mut().set_specular(0.3);
 
     let pl = PointLight::new(Tuple4D::new_point(3.0, 4.5, -5.0), Color::new(1.0, 1.0, 1.0));
-    let l = Light::PointLight(pl);
+    let _l = Light::PointLight(pl);
 
     // let corner = Tuple4D::new_point(4.5, 8.0, -9.0);
     // let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
@@ -64,7 +63,6 @@ pub fn chapter15_smoothed_suzanne(
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
     let vvec = Tuple4D::new_vector(0.0, 2.0, -1.5);
 
-    let usteps = 16;
     let intensity = Color::new(1.0, 1.0, 1.0);
     let area_light = AreaLight::new(
         corner,

@@ -76,7 +76,6 @@ mod tests {
     use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray, RayOps};
     use crate::material::{Material, MaterialOps};
     use crate::math::{assert_color, assert_float, assert_matrix, assert_tuple, Matrix, MatrixOps, Tuple, Tuple4D};
-    use crate::prelude::ShapeEnum::SphereEnum;
     use crate::prelude::{glass_sphere, Shape, ShapeIntersectOps, ShapeOps, Sphere};
 
     #[test]

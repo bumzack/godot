@@ -2,7 +2,6 @@ use crate::prelude::{
     Camera, CameraOps, Checker3DPattern, Color, ColorOps, Light, Material, MaterialOps, Matrix, MatrixOps, Pattern,
     PatternEnum, Plane, PointLight, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
-use std::error::Error;
 
 pub fn chapter11_air_bubble(width: usize, height: usize) -> (World, Camera) {
     let mut checker_pattern = Checker3DPattern::new();

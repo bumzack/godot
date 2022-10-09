@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::f64::consts::PI;
 
 use crate::prelude::{
@@ -65,7 +64,6 @@ pub fn chapter15_non_smoothed_teapot(
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
     let vvec = Tuple4D::new_vector(0.0, 2.0, -1.5);
 
-    let usteps = 16;
     let intensity = Color::new(1.0, 1.0, 1.0);
     let area_light = AreaLight::new(
         corner,

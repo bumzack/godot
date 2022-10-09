@@ -4,7 +4,6 @@ use crate::prelude::{
     Camera, CameraOps, Color, ColorOps, Cylinder, Group, Light, MaterialOps, Matrix, MatrixOps, PointLight, Shape,
     ShapeArr, ShapeIdx, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps, BLUE, CYAN, GREEN, PURPLE, RED, YELLOW,
 };
-use std::error::Error;
 use std::f64::consts::PI;
 
 fn hexagon_corner(idx: usize) -> Shape {

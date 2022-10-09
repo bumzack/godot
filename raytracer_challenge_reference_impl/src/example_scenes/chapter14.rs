@@ -3,7 +3,6 @@ use crate::prelude::{
     MatrixOps, Pattern, PatternEnum, Plane, PointLight, RingPattern, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World,
     WorldOps,
 };
-use std::error::Error;
 use std::f64::consts::PI;
 
 pub fn chapter14(width: usize, height: usize) -> (World, Camera) {

@@ -2,7 +2,6 @@ use crate::prelude::{
     uv_checkers, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Pattern, PatternEnum,
     Plane, PlaneTexturePattern, PointLight, Shape, ShapeOps, Tuple, Tuple4D, World, WorldOps,
 };
-use std::error::Error;
 
 pub fn bonus_checkered_plane(width: usize, height: usize) -> (World, Camera) {
     let checker = uv_checkers(2, 2, Color::new(0.0, 0.5, 0.0), Color::new(1.0, 1.0, 1.0));

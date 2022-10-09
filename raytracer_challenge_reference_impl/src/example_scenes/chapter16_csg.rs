@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::prelude::{
     AreaLight, Camera, CameraOps, Color, ColorOps, Csg, CsgOp, Cube, Light, MaterialOps, Matrix, MatrixOps, Plane,
     Sequence, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
@@ -8,7 +6,6 @@ use crate::prelude::{
 pub fn chapter16_csg(
     width: usize,
     height: usize,
-    pov: f64,
     anitaliasing: bool,
     anitaliasing_size: usize,
     arealight_u: usize,

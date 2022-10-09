@@ -1,5 +1,4 @@
 use image::ImageError;
-use std::error::Error;
 
 use crate::prelude::PatternEnum::ImageTexturePatternEnum;
 use crate::prelude::{

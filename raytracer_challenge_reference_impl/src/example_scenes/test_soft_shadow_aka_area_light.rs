@@ -1,8 +1,3 @@
-extern crate num_cpus;
-
-use std::error::Error;
-use std::time::Instant;
-
 use crate::prelude::{
     AreaLight, Camera, CameraOps, Color, ColorOps, Cube, Light, MaterialOps, Matrix, MatrixOps, Plane, Sequence, Shape,
     ShapeOps, Sphere, Tuple, Tuple4D, World,

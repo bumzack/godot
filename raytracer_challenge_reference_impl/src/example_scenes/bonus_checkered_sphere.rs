@@ -1,6 +1,3 @@
-use std::error::Error;
-use std::time::Instant;
-
 use crate::prelude::{
     uv_checkers, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Pattern, PatternEnum,
     PointLight, Shape, ShapeOps, Sphere, SphereTexturePattern, Tuple, Tuple4D, World, WorldOps,

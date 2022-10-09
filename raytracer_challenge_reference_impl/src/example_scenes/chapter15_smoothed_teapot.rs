@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::f64::consts::PI;
 
 use crate::prelude::{

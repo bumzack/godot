@@ -226,6 +226,12 @@ pub fn expand(bb: &mut BoundingBox, delta: f64) {
     bb.max = bb.max + v;
 }
 
+pub fn ray_bounds(bb: &mut BoundingBox, delta: f64) {
+    let v = Tuple4D::new_vector(delta, delta, delta);
+    bb.min = bb.min - v;
+    bb.max = bb.max + v;
+}
+
 pub fn blossom_bezier(p: &Vec<Tuple4D>, u0: f64, u1: f64, u2: f64) -> Tuple4D {
     let a0 = lerp(u0, p[0], p[1]);
     let a1 = lerp(u0, p[1], p[2]);
@@ -281,7 +287,7 @@ pub fn look_at(pos: &Tuple4D, look: &Tuple4D, up: &Tuple4D) -> (Matrix, Matrix) 
     camera_to_world.m[2][2] = dir.z;
     camera_to_world.m[3][2] = 0.0;
 
-    (camera_to_world.clone(), Matrix::invert(&camera_to_world).unwrap())
+    (Matrix::invert(&camera_to_world).unwrap(), camera_to_world.clone())
 }
 
 pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
@@ -300,9 +306,11 @@ pub fn subdivide_bezier(cp: Vec<Tuple4D>) -> Vec<Tuple4D> {
 mod tests {
     use std::f64::consts::SQRT_2;
 
-    use raytracer_challenge_reference_impl::math::{Tuple, Tuple4D};
+    use raytracer_challenge_reference_impl::math::{assert_matrix, Matrix, Tuple, Tuple4D};
+    use raytracer_challenge_reference_impl::prelude::{MatrixOps, Ray, RayOps};
+    use raytracer_challenge_reference_impl::shape::BoundingBox;
 
-    use crate::curve::{blossom_bezier, coordinate_system, lerp, lerp_float};
+    use crate::curve::{blossom_bezier, coordinate_system, expand, lerp, lerp_float, look_at};
 
     const EPSILON: f64 = 0.0000001;
 
@@ -469,5 +477,219 @@ mod tests {
             assert_tuple(&actual1, &expected1);
             assert_tuple(&actual2, &expected2);
         }
+    }
+
+    #[test]
+    pub fn test_look_at() {
+        let pos = Tuple4D::new_point(1.0, 2.0, 3.0);
+        let look = Tuple4D::new_point(5.0, 6.0, 7.0);
+
+        let m_expected1 = Matrix::new_matrix_4x4(
+            2.23517418e-08,
+            -0.707106769,
+            0.707106829,
+            -0.707106769,
+            0.816496551,
+            -0.408248276,
+            -0.408248276,
+            1.2247448,
+            0.577350318,
+            0.577350318,
+            0.577350318,
+            -3.46410179,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        );
+        let m_inv_expected1 = Matrix::new_matrix_4x4(
+            0.0,
+            0.816496551,
+            0.577350259,
+            1.0,
+            -0.707106769,
+            -0.408248276,
+            0.577350259,
+            2.0,
+            0.707106769,
+            -0.408248276,
+            0.577350259,
+            3.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        );
+
+        let m_expected2 = Matrix::new_matrix_4x4(
+            0.707106829,
+            -2.98023224e-08,
+            -0.707106829,
+            1.41421354,
+            -0.408248276,
+            0.816496551,
+            -0.408248246,
+            0.0,
+            0.577350378,
+            0.577350318,
+            0.577350259,
+            -3.46410179,
+            -1.49011612e-08,
+            0.0,
+            0.0,
+            1.0,
+        );
+        let m_inv_expected2 = Matrix::new_matrix_4x4(
+            0.707106769,
+            -0.408248276,
+            0.577350259,
+            1.0,
+            0.0,
+            0.816496551,
+            0.577350259,
+            2.0,
+            -0.707106769,
+            -0.408248276,
+            0.577350259,
+            3.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        );
+
+        let m_expected3 = Matrix::new_matrix_4x4(
+            -0.707106829,
+            0.707106829,
+            -4.47034836e-08,
+            -0.707106769,
+            -0.408248305,
+            -0.408248246,
+            0.816496611,
+            -1.2247448,
+            0.577350318,
+            0.577350318,
+            0.577350318,
+            -3.46410179,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        );
+        let m_inv_expected3 = Matrix::new_matrix_4x4(
+            -0.707106769,
+            -0.408248276,
+            0.577350259,
+            1.0,
+            0.707106769,
+            -0.408248276,
+            0.577350259,
+            2.0,
+            0.0,
+            0.816496551,
+            0.577350259,
+            3.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        );
+
+        let data = vec![
+            (Tuple4D::new_vector(1.0, 0.0, 0.0), m_expected1, m_inv_expected1),
+            (Tuple4D::new_vector(0.0, 1.0, 0.0), m_expected2, m_inv_expected2),
+            (Tuple::new_vector(0.0, 0.0, 1.0), m_expected3, m_inv_expected3),
+        ];
+
+        for d in data {
+            let (m, n) = look_at(&pos, &look, &d.0);
+
+            println!("-------------------------------------");
+            println!("pos           {:?}   ", &pos);
+            println!("look          {:?} ", &look);
+            println!("up            {:?}   ", d);
+
+            println!("m expected            {:?}   ", &d.1);
+            println!("m actual            {:?}   ", &m);
+
+            println!("m_inv expected            {:?}   ", &d.2);
+            println!("m_inv actual            {:?}   ", &n);
+
+            assert_matrix(&m, &d.1);
+            assert_matrix(&n, &d.2);
+        }
+    }
+
+    #[test]
+    pub fn test_union() {
+        let p0 = Tuple4D::new_point(0.0, 0.0, 0.0);
+        let p1 = Tuple4D::new_point(2.0, 3.0, 4.0);
+
+        let p2 = Tuple4D::new_point(0.5, -0.5, -1.5);
+        let p3 = Tuple4D::new_point(1.5, 13.0, 3.0);
+
+        let mut bb1 = BoundingBox::new_from_min_max(p0, p1);
+        let bb2 = BoundingBox::new_from_min_max(p2, p3);
+
+        let union_min = Tuple4D::new_point(0.000000, -0.500000, -1.500000);
+        let union_max = Tuple4D::new_point(2.000000, 13.000000, 4.000000);
+
+        bb1.add(&bb2);
+
+        println!("bb.min            {:?}", &bb1.min);
+        println!("union_min         {:?}", &union_min);
+
+        println!("bb.max            {:?}", &bb1.max);
+        println!("union_max         {:?}", &union_max);
+
+        assert_tuple(&bb1.min, &union_min);
+        assert_tuple(&bb1.max, &union_max);
+    }
+
+    #[test]
+    pub fn test_expand() {
+        let p0 = Tuple4D::new_point(0.000000, 0.000000, 0.000000);
+        let p1 = Tuple4D::new_point(2.000000, 3.000000, 4.000000);
+
+        let p2 = Tuple4D::new_point(-0.750000, -0.750000, -0.750000);
+        let p3 = Tuple4D::new_point(2.750000, 3.750000, 4.750000);
+
+        let mut actual = BoundingBox::new_from_min_max(p0, p1);
+        expand(&mut actual, 0.75);
+
+        let bb_expected = BoundingBox::new_from_min_max(p2, p3);
+
+        println!("actual.min            {:?}", &actual.min);
+        println!("actual.max            {:?}", &actual.max);
+
+        println!("bb_expected.min           {:?}", &bb_expected.min);
+        println!("bb_expected.max           {:?}", &bb_expected.max);
+
+        assert_tuple(&actual.min, &bb_expected.min);
+        assert_tuple(&actual.max, &bb_expected.max);
+    }
+
+    #[test]
+    pub fn test_ray_bounds() {
+        let p = Tuple4D::new_point(1.000000, 2.000000, 3.000000);
+        let d = Tuple4D::new_vector(-2.000000, -2.000000, -1.500000);
+
+        let r = Ray::new(p, d);
+        let p3 = Tuple4D::new_point(2.750000, 3.750000, 4.750000);
+
+        // let mut actual = BoundingBox::new_from_min_max(p0, p1);
+        // expand(&mut actual, 0.75);
+        //
+        // let bb_expected = BoundingBox::new_from_min_max(p2, p3);
+        //
+        //
+        // println!("actual.min            {:?}", &actual.min);
+        // println!("actual.max            {:?}", &actual.max);
+        //
+        // println!("bb_expected.min           {:?}", &bb_expected.min);
+        // println!("bb_expected.max           {:?}", &bb_expected.max);
+        //
+        // assert_tuple(&actual.min, &bb_expected.min);
+        // assert_tuple(&actual.max, &bb_expected.max);
     }
 }

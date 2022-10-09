@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::error::Error;
 
 use crate::prelude::{
     Camera, CameraOps, Color, ColorOps, Cube, CubeChecker, CubeFace, CubeTexturePattern, Light, MaterialOps, Matrix,
