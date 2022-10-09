@@ -26,7 +26,7 @@
                 const scene_id = parseInt($('#sceneSelect').find(":selected").val());
                 console.log("scene id ", scene_id);
 
-                let scene_data = {
+                let scene_config = {
                     "id": parseInt(scene_id),
                     "up": {
                         "x": parseFloat($("#upX").val()),
@@ -66,13 +66,13 @@
                 ws.onopen = function () {
                     $("#statustext").html("Running!");
 
-                    console.log("sending scene_data ", JSON.stringify(scene_data));
-                    let scene_data_string = JSON.stringify(scene_data);
-                    ws.send(scene_data_string);
+                    console.log("sending scene_data ", JSON.stringify(scene_config));
+                    let scene_config_string = JSON.stringify(scene_config);
+                    ws.send(scene_config_string);
                 };
 
                 ws.onmessage = function (msg) {
-                    prcoess_message(msg.data);
+                    process_message(msg.data);
                 };
 
                 ws.onclose = function () {
@@ -82,7 +82,7 @@
                 };
             });
 
-            function prcoess_message(msg) {
+            function process_message(msg) {
                 const ctx = $("#canvas")[0].getContext('2d');
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 

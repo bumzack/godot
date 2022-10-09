@@ -5,7 +5,7 @@ use raytracer_challenge_reference_impl::example_scenes::chapter15_smoothed_suzan
 use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Tuple4D, World};
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct SceneData {
+pub struct SceneConfig {
     id: usize,
     width: usize,
     height: usize,
@@ -19,7 +19,7 @@ pub struct SceneData {
     size_area_light: usize,
 }
 
-impl SceneData {
+impl SceneConfig {
     pub fn get_width(&self) -> usize {
         self.width
     }
@@ -62,7 +62,7 @@ pub struct Scene {
     id: usize,
     filename: String,
     name: String,
-    scene_data: SceneData,
+    scene_data: SceneConfig,
     #[serde(skip_serializing, skip_deserializing)]
     c: Camera,
     #[serde(skip_serializing, skip_deserializing)]
@@ -70,7 +70,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new(id: usize, c: Camera, w: World, filename: String, name: String, scene_data: SceneData) -> Self {
+    pub fn new(id: usize, c: Camera, w: World, filename: String, name: String, scene_data: SceneConfig) -> Self {
         Scene {
             id,
             c,
@@ -133,7 +133,7 @@ pub fn get_scenes_dtos() -> AllScenesDTO {
 fn get_chapter07(id: usize) -> Scene {
     let (w, c) = chapter07(100, 100);
 
-    let scene_data = SceneData {
+    let scene_data = SceneConfig {
         id,
         width: 200,
         height: 160,
@@ -178,7 +178,7 @@ fn get_suzanne_smoothed(id: usize) -> Scene {
         arealight_v,
     );
 
-    let scene_data = SceneData {
+    let scene_data = SceneConfig {
         id,
         width: 200,
         height: 160,

@@ -19,7 +19,7 @@ use raytracer_challenge_reference_impl::prelude::{TileData, WorldOps};
 
 use crate::index_html::INDEX_HTML;
 use crate::scene::scene;
-use crate::structs::{get_scenes_dtos, SceneData};
+use crate::structs::{get_scenes_dtos, SceneConfig};
 
 mod index_html;
 mod scene;
@@ -64,7 +64,7 @@ async fn render_scene(ws: WebSocket) {
     match w {
         Ok(world_tmp) => {
             println!("got a message  {:?}", world_tmp.to_str());
-            let scene_data: SceneData = serde_json::from_str(world_tmp.to_str().unwrap()).unwrap();
+            let scene_data: SceneConfig = serde_json::from_str(world_tmp.to_str().unwrap()).unwrap();
 
             println!("worldscene {:?}", &scene_data);
 
