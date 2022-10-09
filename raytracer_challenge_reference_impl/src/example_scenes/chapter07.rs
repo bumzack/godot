@@ -48,8 +48,16 @@ pub fn chapter07(width: usize, height: usize) -> (World, Camera) {
     let pl = PointLight::new(Tuple4D::new_point(-1.0, 10.0, -10.0), Color::new(1.0, 1.0, 1.0));
     let l = Light::PointLight(pl);
 
+    let pl2 = PointLight::new(Tuple4D::new_point(-1.0, 5.0, -10.0), Color::new(1.0, 1.0, 1.0));
+    let l2 = Light::PointLight(pl2);
+
+    let pl3 = PointLight::new(Tuple4D::new_point(5.0, 2.0, -3.0), Color::new(1.0, 1.0, 1.0));
+    let l3 = Light::PointLight(pl3);
+
     let mut w = World::new();
     w.add_light(l);
+    // w.add_light(l2);
+    // w.add_light(l3);
 
     w.add_shape(floor);
     w.add_shape(left_wall);
