@@ -10,8 +10,6 @@ use serde_json::json;
 use warp::ws::{Message, WebSocket};
 use warp::Filter;
 
-use raytracer_challenge_reference_impl::example_scenes::chapter15_smoothed_suzanne::chapter15_smoothed_suzanne;
-use raytracer_challenge_reference_impl::example_scenes::test_soft_shadow_multiple_lights::test_soft_shadow_multiple_lights;
 use raytracer_challenge_reference_impl::light::Light;
 use raytracer_challenge_reference_impl::math::Tuple4D;
 use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Canvas, CanvasOps, CanvasOpsStd, Tuple, World};

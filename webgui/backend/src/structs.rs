@@ -1,8 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;
-use raytracer_challenge_reference_impl::example_scenes::chapter15_smoothed_suzanne::chapter15_smoothed_suzanne;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Tuple4D, World};
+ use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Tuple4D, World};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct SceneConfig {
@@ -125,7 +124,7 @@ pub fn get_scenes_dtos() -> AllScenesDTO {
     let mut result = AllScenesDTO::new();
 
     result.scenes.push(get_chapter07(1));
-    result.scenes.push(get_suzanne_smoothed(2));
+  //  result.scenes.push(get_suzanne_smoothed(2));
 
     result
 }
@@ -158,47 +157,47 @@ fn get_chapter07(id: usize) -> Scene {
     scene
 }
 
-fn get_suzanne_smoothed(id: usize) -> Scene {
-    let width = 1280;
-    let height = 720;
-
-    let pov = 0.7;
-    let antialiasing = true;
-    let antialiasing_size = 3;
-    let arealight_u = 16;
-    let arealight_v = 16;
-
-    let (w, c) = chapter15_smoothed_suzanne(
-        width,
-        height,
-        pov,
-        antialiasing,
-        antialiasing_size,
-        arealight_u,
-        arealight_v,
-    );
-
-    let scene_data = SceneConfig {
-        id,
-        width: 200,
-        height: 160,
-        from: *&c.clone().get_from(),
-        to: *&c.clone().get_to(),
-        up: *&c.clone().get_up(),
-        antialiasing: 0,
-        shadows: false,
-        fov: c.get_field_of_view(),
-        name: "suzanne_smoothed".to_string(),
-        size_area_light: 16,
-    };
-
-    let scene = Scene {
-        id,
-        filename: "suzanne_smoothed_webui".to_string(),
-        name: "suzanne_smoothed".to_string(),
-        scene_data,
-        c,
-        w,
-    };
-    scene
-}
+// fn get_suzanne_smoothed(id: usize) -> Scene {
+//     let width = 1280;
+//     let height = 720;
+//
+//     let pov = 0.7;
+//     let antialiasing = true;
+//     let antialiasing_size = 3;
+//     let arealight_u = 16;
+//     let arealight_v = 16;
+//
+//     let (w, c) = chapter15_smoothed_suzanne(
+//         width,
+//         height,
+//         pov,
+//         antialiasing,
+//         antialiasing_size,
+//         arealight_u,
+//         arealight_v,
+//     );
+//
+//     let scene_data = SceneConfig {
+//         id,
+//         width: 200,
+//         height: 160,
+//         from: *&c.clone().get_from(),
+//         to: *&c.clone().get_to(),
+//         up: *&c.clone().get_up(),
+//         antialiasing: 0,
+//         shadows: false,
+//         fov: c.get_field_of_view(),
+//         name: "suzanne_smoothed".to_string(),
+//         size_area_light: 16,
+//     };
+//
+//     let scene = Scene {
+//         id,
+//         filename: "suzanne_smoothed_webui".to_string(),
+//         name: "suzanne_smoothed".to_string(),
+//         scene_data,
+//         c,
+//         w,
+//     };
+//     scene
+// }

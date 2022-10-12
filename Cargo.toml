@@ -4,5 +4,6 @@ members = [
     "raytracer_challenge_reference_impl",
     "playground/threadpool_fractal",
     "curves",
-    "webgui/backend"
+    "webgui/backend",
+    "micrograd-rs"
 ]
