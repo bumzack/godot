@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 use std::ops::Mul;
 
 use crate::math::common::assert_two_float;
@@ -53,6 +54,8 @@ pub trait MatrixOps {
     fn rotate_x(rad: f64) -> Self;
     fn rotate_y(rad: f64) -> Self;
     fn rotate_z(rad: f64) -> Self;
+
+    fn rotate_around_axis(theta: f64, axis: &Tuple4D) -> Self;
 
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Self;
 }
@@ -320,6 +323,32 @@ impl MatrixOps for Matrix {
         m
     }
 
+    fn rotate_around_axis(theta: f64, axis: &Tuple4D) -> Matrix {
+        let a = Tuple4D::normalize(axis);
+        let sin_theta = (theta * PI / 180.0).sin();
+        let cos_theta = (theta * PI / 180.0).cos();
+
+        let mut m = Matrix::new_identity_4x4();
+
+        // Compute rotation of first basis vector
+        m.m[0][0] = a.x * a.x + (1 - a.x * a.x) * cos_theta;
+        m.m[0][1] = a.x * a.y * (1 - cos_theta) - a.z * sin_theta;
+        m.m[0][2] = a.x * a.z * (1 - cos_theta) + a.y * sin_theta;
+        m.m[0][3] = 0.0;
+
+        // Compute rotations of second and third basis vectors
+        m.m[1][0] = a.x * a.y * (1 - cos_theta) + a.z * sin_theta;
+        m.m[1][1] = a.y * a.y + (1 - a.y * a.y) * cos_theta;
+        m.m[1][2] = a.y * a.z * (1 - cos_theta) - a.x * sin_theta;
+        m.m[1][3] = 0.0;
+
+        m.m[2][0] = a.x * a.z * (1 - cos_theta) - a.y * sin_theta;
+        m.m[2][1] = a.y * a.z * (1 - cos_theta) + a.x * sin_theta;
+        m.m[2][2] = a.z * a.z + (1 - a.z * a.z) * cos_theta;
+        m.m[2][3] = 0.0;
+        m
+    }
+
     fn view_transform(from: &Tuple4D, to: &Tuple4D, up: &Tuple4D) -> Self {
         assert!(Tuple4D::is_point(from));
         assert!(Tuple4D::is_point(to));
@@ -330,7 +359,7 @@ impl MatrixOps for Matrix {
         let true_up = left * forward;
 
         #[rustfmt::skip]
-        let orientation = Matrix::new_matrix_4x4(
+            let orientation = Matrix::new_matrix_4x4(
             left.x, left.y, left.z, 0.0,
             true_up.x, true_up.y, true_up.z, 0.0,
             -forward.x, -forward.y, -forward.z, 0.0,
@@ -1298,7 +1327,7 @@ mod tests {
 //            0.70710678, 0., 0.70710678, -5.,
 //            0., 0., 0., 1.,
 //        );
-        let m_inv = Matrix::invert(&m).unwrap();
+            let m_inv = Matrix::invert(&m).unwrap();
         // assert_matrix(&m_inv, &m_inv_expected);
         let p = Tuple4D::new_vector(0.0, 0.0, -1.0);
 

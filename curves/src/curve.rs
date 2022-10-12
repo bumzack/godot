@@ -4,7 +4,7 @@ use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
 use raytracer_challenge_reference_impl::basics::{IntersectionList, IntersectionListOps, Ray};
 use raytracer_challenge_reference_impl::math::{Matrix, MatrixOps, Tuple, Tuple4D};
-use raytracer_challenge_reference_impl::prelude::{BoundingBox, RayOps};
+use raytracer_challenge_reference_impl::prelude::{BoundingBox, Intersection, RayOps};
 
 pub enum CurveType {
     FLAT,
@@ -57,10 +57,10 @@ impl Curve {
     }
 
     fn calc_blossom(&self) -> (Tuple4D, Tuple4D, Tuple4D, Tuple4D) {
-        let p0 = blossom_bezier(&self.common.p, self.u_min, self.u_min, self.u_min);
-        let p1 = blossom_bezier(&self.common.p, self.u_min, self.u_min, self.u_max);
-        let p2 = blossom_bezier(&self.common.p, self.u_min, self.u_max, self.u_max);
-        let p3 = blossom_bezier(&self.common.p, self.u_max, self.u_max, self.u_max);
+        let p0 = blossom_bezier(&self.common.cpObj, self.u_min, self.u_min, self.u_min);
+        let p1 = blossom_bezier(&self.common.cpObj, self.u_min, self.u_min, self.u_max);
+        let p2 = blossom_bezier(&self.common.cpObj, self.u_min, self.u_max, self.u_max);
+        let p3 = blossom_bezier(&self.common.cpObj, self.u_max, self.u_max, self.u_max);
         (p0, p1, p2, p3)
     }
 
@@ -150,8 +150,9 @@ impl Curve {
     pub fn recursive_intersect(
         &self,
         r: &Ray,
+        mut t_hit: Option<f64>,
         cp: &Vec<Tuple4D>,
-        object_to_ray_inv: &Matrix,
+        ray_to_object: &Matrix,
         u0: f64,
         u1: f64,
         depth: i32,
@@ -211,7 +212,7 @@ impl Curve {
                     continue;
                 }
 
-                hit = hit | self.recursive_intersect(r, &cp, &object_to_ray_inv, u0, u1, depth, is);
+                hit = hit | self.recursive_intersect(r, &cp, &ray_to_object, u0, u1, depth, is);
 
                 // TODO
                 // early exit
@@ -237,12 +238,66 @@ impl Curve {
             let p_2d = Tuple4D::new_point(cp[0].x, cp[0].y, 0.0);
             let w = (&(p_2d * (-1.0)) ^ &segment_direction) / denom;
             let u = clamp(lerp_float(w, u0, u1), u0, u1);
-            let hit_width = lerp_float(u, self.common.width[0], self.common.width[1]);
+            let mut hit_width = lerp_float(u, self.common.width[0], self.common.width[1]);
 
+            let mut nhit = Tuple4D::empty();
             match self.common.curve_type {
-                CurveType::RIBBON => {}
-                CurveType::FLAT => {}
-                CurveType::CYLINDER => {}
+                CurveType::RIBBON => {
+                    let sin0 = ((1.0 - u) * self.common.normal_angle).sin() * self.common.inv_sin_normal_angle;
+                    let sin1 = (u * self.common.normal_angle).sin() * self.common.inv_sin_normal_angle;
+                    nhit = self.common.n[0] * sin0 + self.common.n[1] * sin1;
+                    hit_width = (&nhit ^ r.get_direction()).abs() * hit_width / ray_length;
+                }
+                _ => {}
+            }
+
+            let (pc, dpcdw) = eval_bezier(&cp, clamp(w, 0.0, 1.0), None);
+
+            let pt_curve_dist2 = pc.x * pc.x + pc.y * pc.y;
+            if pt_curve_dist2 > hit_width * hit_width * 0.25 {
+                return false;
+            }
+            let z_max = f64::INFINITY;
+            if pc.z < 0.0 || pc.z > z_max {
+                return false;
+            }
+            let pt_curve_dst = pt_curve_dist2.sqrt();
+            let edge_func = dpcdw.x * (-pc.y) + pc.x * dpcdw.y;
+            let v = if edge_func > 0.0 {
+                0.5 + pt_curve_dst / hit_width
+            } else {
+                0.5 - pt_curve_dst / hit_width
+            };
+
+            if t_hit.is_some() {
+                t_hit = Some(pc.z / ray_length);
+                let p_error = Tuple4D::new_vector(2.0 * hit_width, 2.0 * hit_width, 2.0 * hit_width);
+                let (_, dpdu) = eval_bezier(&self.common.cpObj, u);
+
+                // TODO CHECK_NE
+
+                let dpdv = match self.common.curve_type {
+                    CurveType::RIBBON => {
+                        Tuple4D::normalize(&n_hit * &dpdu) * hit_width;
+                    }
+                    _ => {
+                        let dpdu_plane = &Matrix::invert(ray_to_object).unwrap() * &dpdu;
+                        let mut dpdv_plane = &Tuple4D::normalize(&Tuple4D::new_vector(-dpdu_plane.y, dpdu_plane.x, 0.0)) * hit_width;
+                        match self.common.curve_type {
+                            CurveType::CYLINDER => {
+                                let theta = lerp_float(v, -90.0, 90.0);
+                                let rot = Matrix::rotate_around_axis(-theta, &dpdu_plane);
+                                dpdv_plane = &rot * &dpdv_plane;
+                            }
+                            _ => {}
+                        }
+                        ray_to_object * dpdv_plane
+                    }
+                };
+
+
+                let is  = Intersection::new()
+
             }
         }
 
@@ -251,7 +306,7 @@ impl Curve {
 }
 
 pub struct CurveCommon {
-    p: Vec<Tuple4D>,
+    cpObj: Vec<Tuple4D>,
     n: Vec<Tuple4D>,
     curve_type: CurveType,
     width: Vec<f64>,
@@ -285,7 +340,7 @@ impl CurveCommon {
         let p = vec![p0, p1, p2, p3];
 
         CurveCommon {
-            p,
+            cpObj: p,
             curve_type,
             n,
             width,
@@ -293,6 +348,28 @@ impl CurveCommon {
             inv_sin_normal_angle,
         }
     }
+}
+
+pub fn eval_bezier(cp: &Vec<Tuple4D>, u: f64) -> (Tuple4D, Tuple4D) {
+    let tmp_p1 = lerp(u, cp[0], cp[1]);
+    let tmp_p2 = lerp(u, cp[1], cp[2]);
+    let tmp_p3 = lerp(u, cp[2], cp[3]);
+    let cp1 = vec![tmp_p1, tmp_p2, tmp_p3];
+
+    let tmp_p1 = lerp(u, cp1[0], cp1[1]);
+    let tmp_p2 = lerp(u, cp1[1], cp1[2]);
+    let cp2 = vec![tmp_p1, tmp_p2];
+
+    let mut d = None;
+    let d = if Tuple4D::magnitude_squared(&(&cp2[1] - &cp2[0])) > 0.0 {
+        (&cp2[1] - &cp2[0]) * 3.0
+    } else {
+        (&cp[3] - &cp[0])
+    };
+
+    let res = lerp(u, cp2[0], cp2[1]);
+
+    (res, d)
 }
 
 pub fn clamp<T: PartialEq + std::cmp::PartialOrd>(val: T, low: T, high: T) -> T {
