@@ -1,7 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;
- use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Tuple4D, World};
+use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, Tuple4D, World};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct SceneConfig {
@@ -124,7 +124,7 @@ pub fn get_scenes_dtos() -> AllScenesDTO {
     let mut result = AllScenesDTO::new();
 
     result.scenes.push(get_chapter07(1));
-  //  result.scenes.push(get_suzanne_smoothed(2));
+    //  result.scenes.push(get_suzanne_smoothed(2));
 
     result
 }
