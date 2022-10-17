@@ -426,12 +426,10 @@ mod tests {
     use std::f64::consts::SQRT_2;
 
     use raytracer_challenge_reference_impl::math::{assert_matrix, Matrix, Tuple, Tuple4D};
-    use raytracer_challenge_reference_impl::prelude::{MatrixOps, Ray, RayOps};
+    use raytracer_challenge_reference_impl::prelude::{MatrixOps, Ray, RayOps, EPSILON};
     use raytracer_challenge_reference_impl::shape::BoundingBox;
 
     use crate::curve::{blossom_bezier, coordinate_system, expand, lerp, lerp_float, log2, look_at};
-
-    const EPSILON: f64 = 0.0000001;
 
     fn assert_two_float(a: f64, b: f64) -> bool {
         // println!("float_equal: a = {}, b = {}", a, b);
