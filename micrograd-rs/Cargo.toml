@@ -10,3 +10,8 @@ graphviz-rust = "*"
 resvg = "*"
 usvg = "*"
 tiny-skia = "*"
+serde_json = "*"
+
+[dependencies.petgraph]
+version = "*"
+features = ["serde-1"]

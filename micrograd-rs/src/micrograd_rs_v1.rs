@@ -233,7 +233,31 @@ impl Display for ValueRefV1<f64> {
 
 #[cfg(test)]
 mod tests {
+    use crate::{ValueRefV1, ValueV1};
+
     fn assert_two_float(a: f64, b: f64) -> bool {
         false
+    }
+
+    #[test]
+    pub fn test_add() {
+        let a = ValueRefV1::new_value(2.0 as f64, "a".to_string());
+        let b = ValueRefV1::new_value(3.0, "b".to_string());
+
+        let mut x = &a + &b;
+        x.set_label("x".to_string());
+
+        assert_two_float(x.borrow().data, 5.0);
+    }
+
+    #[test]
+    pub fn test_mul() {
+        let a = ValueRefV1::new_value(2.0 as f64, "a".to_string());
+        let b = ValueRefV1::new_value(3.0, "b".to_string());
+
+        let mut x = &a * &b;
+        x.set_label("x".to_string());
+
+        assert_two_float(x.borrow().data, 6.0);
     }
 }

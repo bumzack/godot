@@ -49,7 +49,7 @@ fn main() {
         e.borrow().data()
     );
 
-    draw_graph(e);
+    draw_graph(e, "main".to_string());
 
     println!("DONE");
 }
