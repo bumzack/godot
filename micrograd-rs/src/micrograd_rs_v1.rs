@@ -83,6 +83,10 @@ where
         &self.data
     }
 
+    pub fn op(&self) -> &OpEnumV1 {
+        &self.op
+    }
+
     pub fn set_label(&mut self, label: String) {
         self.label = label;
     }
