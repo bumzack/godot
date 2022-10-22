@@ -11,10 +11,7 @@ use petgraph::Graph;
 use crate::micrograd_rs_v2::OpEnumV2;
 use crate::ValueRefV2;
 
-pub fn draw_graph<T>(root: ValueRefV2<T>, filename: String)
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default + Debug,
-{
+pub fn draw_graph(root: ValueRefV2, filename: String) {
     let graph = create_petgraph(root);
 
     let graphviz_graph = parse(&format!("{}", Dot::with_config(&graph, &[Config::EdgeNoLabel]))).unwrap();
@@ -28,10 +25,7 @@ where
     save_svg(graph_svg, filename);
 }
 
-pub fn create_petgraph<T>(root: ValueRefV2<T>) -> Graph<String, String>
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default + Debug,
-{
+pub fn create_petgraph(root: ValueRefV2) -> Graph<String, String> {
     let mut g: petgraph::Graph<String, String> = Graph::new();
     let s = format_value_v2(&root);
     let node_index = g.add_node(s);
@@ -40,14 +34,7 @@ where
     g
 }
 
-fn add_nodes_petgraph<T>(
-    graph: &mut Graph<String, String>,
-    node: &ValueRefV2<T>,
-    parent_index: NodeIndex,
-    op: &OpEnumV2,
-) where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default + Debug,
-{
+fn add_nodes_petgraph(graph: &mut Graph<String, String>, node: &ValueRefV2, parent_index: NodeIndex, op: &OpEnumV2) {
     let p_idx = match op {
         // all operations ...
         OpEnumV2::NONE => parent_index,
@@ -65,12 +52,9 @@ fn add_nodes_petgraph<T>(
     }
 }
 
-fn format_value_v2<T>(root: &ValueRefV2<T>) -> String
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default + Debug,
-{
+fn format_value_v2(root: &ValueRefV2) -> String {
     format!(
-        "{} | data {:?} | grad {:?} ",
+        "{} | data {:.4} | grad {:.4} ",
         root.borrow().label(),
         root.borrow().data(),
         root.borrow().grad(),

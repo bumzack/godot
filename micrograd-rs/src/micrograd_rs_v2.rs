@@ -8,39 +8,31 @@ pub enum OpEnumV2 {
     NONE,
     ADD,
     MUL,
+    TANH,
 }
 
 #[derive(Debug, Clone)]
-pub struct ValueV2<T>
-where
-    T: Clone + Add + Mul,
-{
-    data: T,
-    grad: T,
+pub struct ValueV2 {
+    data: f64,
+    grad: f64,
     op: OpEnumV2,
-    children: Vec<ValueRefV2<T>>,
+    children: Vec<ValueRefV2>,
     label: String,
 }
 
 #[derive(Debug, Clone)]
-pub struct ValueRefV2<T>
-where
-    T: Clone + Add + Mul,
-{
-    r: Rc<RefCell<ValueV2<T>>>,
+pub struct ValueRefV2 {
+    r: Rc<RefCell<ValueV2>>,
 }
 
-impl<T> ValueRefV2<T>
-where
-    T: Clone + Add<Output = T> + Mul<Output = T> + Default,
-{
-    pub fn new(v: ValueV2<T>) -> Self {
+impl ValueRefV2 {
+    pub fn new(v: ValueV2) -> Self {
         ValueRefV2 {
             r: Rc::new(RefCell::new(v)),
         }
     }
 
-    pub fn new_value(v: T, label: String) -> ValueRefV2<T> {
+    pub fn new_value(v: f64, label: String) -> ValueRefV2 {
         let v = ValueV2::new_value(v, label);
         ValueRefV2 {
             r: Rc::new(RefCell::new(v)),
@@ -48,41 +40,53 @@ where
     }
 
     // convenience methods to simplify code, to avoid value.r.borrow()
-    pub fn borrow(&self) -> Ref<ValueV2<T>> {
+    pub fn borrow(&self) -> Ref<ValueV2> {
         self.r.borrow()
     }
 
     pub fn set_label(&mut self, label: String) {
         self.r.borrow_mut().set_label(label);
     }
+
+    pub fn tanh(&self) -> ValueRefV2 {
+        let x = self.r.borrow().data();
+        let y = ((2.0 as f64 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
+
+        let v = ValueV2 {
+            data: y,
+            op: OpEnumV2::TANH,
+            children: vec![self.clone()],
+            label: format!("tanh({})", self.borrow().label),
+            grad: 0.0,
+        };
+
+        ValueRefV2::new(v)
+    }
 }
 
-impl<T> ValueV2<T>
-where
-    T: Clone + Add + Mul + Default,
-{
-    pub fn new(data: T, op: OpEnumV2, label: String) -> Self {
+impl ValueV2 {
+    pub fn new(data: f64, op: OpEnumV2, label: String) -> Self {
         ValueV2 {
             data,
             op,
             children: vec![],
             label,
-            grad: T::default(),
+            grad: 0.0,
         }
     }
 
-    pub fn new_value(data: T, label: String) -> Self {
+    pub fn new_value(data: f64, label: String) -> Self {
         ValueV2 {
             data,
             op: OpEnumV2::NONE,
             children: vec![],
             label,
-            grad: T::default(),
+            grad: 0.0,
         }
     }
 
-    pub fn data(&self) -> &T {
-        &self.data
+    pub fn data(&self) -> f64 {
+        self.data
     }
 
     pub fn op(&self) -> &OpEnumV2 {
@@ -97,32 +101,24 @@ where
         &self.label
     }
 
-    pub fn children(&self) -> &Vec<ValueRefV2<T>> {
+    pub fn children(&self) -> &Vec<ValueRefV2> {
         &self.children
     }
 
-    pub fn grad(&self) -> &T {
+    pub fn grad(&self) -> &f64 {
         &self.grad
     }
 
-    pub fn set_grad(&mut self, grad: T) {
+    pub fn set_grad(&mut self, grad: f64) {
         self.grad = grad;
     }
 }
 
 //
-impl<'a, 'b, T> Add<&'b ValueRefV2<T>> for &'a ValueRefV2<T>
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default,
-    <T as Add>::Output: Clone,
-    <T as Mul>::Output: Clone,
-    <T as Add>::Output: Add,
-    <T as Mul>::Output: Mul,
-    <T as Add>::Output: Mul,
-{
-    type Output = ValueRefV2<T>;
+impl<'a, 'b> Add<&'b ValueRefV2> for &'a ValueRefV2 {
+    type Output = ValueRefV2;
 
-    fn add(self, rhs: &'b ValueRefV2<T>) -> Self::Output {
+    fn add(self, rhs: &'b ValueRefV2) -> Self::Output {
         let x1 = self.r.borrow().clone();
         let x2 = rhs.r.borrow().clone();
         let v = ValueV2 {
@@ -130,24 +126,16 @@ where
             op: OpEnumV2::ADD,
             children: vec![self.clone(), rhs.clone()],
             label: format!("{} + {}", self.borrow().label, rhs.borrow().label).to_string(),
-            grad: T::default(),
+            grad: 0.0,
         };
         ValueRefV2::new(v)
     }
 }
 
-impl<'a, 'b, T> Mul<&'b ValueRefV2<T>> for &'a ValueRefV2<T>
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default,
-    <T as Add>::Output: Clone,
-    <T as Mul>::Output: Clone,
-    <T as Add>::Output: Add,
-    <T as Mul>::Output: Mul,
-    <T as Add>::Output: Mul,
-{
-    type Output = ValueRefV2<T>;
+impl<'a, 'b> Mul<&'b ValueRefV2> for &'a ValueRefV2 {
+    type Output = ValueRefV2;
 
-    fn mul(self, rhs: &'b ValueRefV2<T>) -> Self::Output {
+    fn mul(self, rhs: &'b ValueRefV2) -> Self::Output {
         let x1 = self.r.borrow().clone();
         let x2 = rhs.r.borrow().clone();
         let v = ValueV2 {
@@ -155,7 +143,7 @@ where
             op: OpEnumV2::MUL,
             children: vec![self.clone(), rhs.clone()],
             label: format!("{} * {}", self.borrow().label, rhs.borrow().label).to_string(),
-            grad: T::default(),
+            grad: 0.0,
         };
         ValueRefV2::new(v)
     }
@@ -167,46 +155,31 @@ impl Display for OpEnumV2 {
             OpEnumV2::ADD => write!(f, "+"),
             OpEnumV2::NONE => write!(f, ""),
             OpEnumV2::MUL => write!(f, "*"),
+            OpEnumV2::TANH => write!(f, "tanh"),
         }
     }
 }
 
-impl<T> Default for ValueV2<T>
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default,
-    <T as Add>::Output: Clone,
-    <T as Mul>::Output: Clone,
-    <T as Add>::Output: Add,
-    <T as Mul>::Output: Mul,
-    <T as Add>::Output: Mul,
-{
+impl Default for ValueV2 {
     fn default() -> Self {
         ValueV2 {
-            data: T::default(),
+            data: 0.0,
             op: OpEnumV2::NONE,
             children: vec![],
-            grad: T::default(),
+            grad: 0.0,
             label: "default".to_string(),
         }
     }
 }
 
-impl<T> Default for ValueRefV2<T>
-where
-    T: Clone + Add + Mul + Add<Output = T> + Mul<Output = T> + Default,
-    <T as Add>::Output: Clone,
-    <T as Mul>::Output: Clone,
-    <T as Add>::Output: Add,
-    <T as Mul>::Output: Mul,
-    <T as Add>::Output: Mul,
-{
+impl Default for ValueRefV2 {
     fn default() -> Self {
         ValueRefV2::new(ValueV2::default())
     }
 }
 
 // TODO why is this not working for f64
-// impl<T> Display for ValueV2<T>
+// impl  Display for ValueV2
 //     where
 //         T: Clone + Add + Mul + Add<Output=T> + Mul<Output=T> + Default + Debug,
 //         <T as Add>::Output: Clone,
@@ -221,7 +194,7 @@ where
 // }
 
 // TODO why is this not working for f64
-// impl<T> Display for ValueRefV2<T>
+// impl  Display for ValueRefV2
 //     where
 //         T: Clone + Add + Mul + Add<Output=T> + Mul<Output=T> + Default + Debug,
 //         <T as Add>::Output: Clone,
@@ -235,13 +208,13 @@ where
 //     }
 // }
 
-impl Display for ValueV2<f64> {
+impl Display for ValueV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {}", self.label, self.data)
     }
 }
 
-impl Display for ValueRefV2<f64> {
+impl Display for ValueRefV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.r.borrow().clone())
     }
