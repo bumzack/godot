@@ -1,6 +1,3 @@
-use std::fmt::Debug;
-use std::ops::{Add, Mul};
-
 use graphviz_rust::cmd::{CommandArg, Format};
 use graphviz_rust::printer::PrinterContext;
 use graphviz_rust::{exec, parse};
@@ -36,8 +33,8 @@ pub fn create_petgraph(root: ValueRefV2) -> Graph<String, String> {
 
 fn add_nodes_petgraph(graph: &mut Graph<String, String>, node: &ValueRefV2, parent_index: NodeIndex, op: &OpEnumV2) {
     let p_idx = match op {
-        // all operations ...
         OpEnumV2::NONE => parent_index,
+        // all operations ...
         _ => {
             let i = graph.add_node(format!("{}", op));
             graph.add_edge(i, parent_index, "".to_string());
@@ -95,7 +92,7 @@ mod test {
         let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
         let b = ValueRefV2::new_value(3.0, "b".to_string());
 
-        let mut x = a + b;
+        let mut x = &a + &b;
         x.set_label("x".to_string());
 
         draw_graph(x, "test_add".to_string());
@@ -110,13 +107,13 @@ mod test {
         let c = ValueRefV2::new_value(10.0, "c".to_string());
         let f = ValueRefV2::new_value(-2.0, "f".to_string());
 
-        let mut e = a * b;
+        let mut e = &a * &b;
         e.set_label("e".to_string());
 
-        let mut d = e + c;
+        let mut d = &e + &c;
         d.set_label("d".to_string());
 
-        let mut l = d * f;
+        let mut l = &d * &f;
         l.set_label("L".to_string());
 
         // println!("a {}", &a);
