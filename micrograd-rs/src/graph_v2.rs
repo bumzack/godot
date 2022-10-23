@@ -11,13 +11,10 @@ use petgraph::Graph;
 use crate::micrograd_rs_v2::OpEnumV2;
 use crate::ValueRefV2;
 
-pub fn draw_graph (root: ValueRefV2,                    filename: String) {
+pub fn draw_graph(root: ValueRefV2, filename: String) {
     let graph = create_petgraph(root);
 
     let graphviz_graph = parse(&format!("{}",
-
-
-
 
 
 
@@ -26,12 +23,6 @@ pub fn draw_graph (root: ValueRefV2,                    filename: String) {
     let graph_svg = exec(
         graphviz_graph,
         &mut PrinterContext::default(),
-
-
-
-
-
-
         vec![CommandArg::Format(Format::Svg)],
     )
     .unwrap();
@@ -48,12 +39,12 @@ pub fn create_petgraph(root: ValueRefV2) -> Graph<String, String> {
     g
 }
 
-fn add_nodes_petgraph(graph:                &mut Graph<String, String>, node: &ValueRefV2, parent_index: NodeIndex, op: &OpEnumV2) {
-    let p_idx =                  match op {
+fn add_nodes_petgraph(graph: &mut Graph<String, String>, node: &ValueRefV2, parent_index: NodeIndex, op: &OpEnumV2) {
+    let p_idx = match op {
         // all operations ...
         OpEnumV2::NONE => parent_index,
         _ => {
-            let i =                  graph.add_node(format!("{}", op));
+            let i = graph.add_node(format!("{}", op));
             graph.add_edge(i, parent_index, "".to_string());
             i
         }

@@ -65,9 +65,7 @@ impl ValueRefV2 {
 
     pub fn backward(&mut self) {
         match self.op() {
-            OpEnumV2::ADD => {
-                self.grad
-            }
+            OpEnumV2::ADD => self.grad,
 
             _ => {}
         };
