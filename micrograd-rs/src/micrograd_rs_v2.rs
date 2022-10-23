@@ -3,7 +3,6 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, Mul};
 use std::rc::Rc;
 
-#[derive(Debug, Clone)]
 pub enum OpEnumV2 {
     NONE,
     ADD,
@@ -11,7 +10,6 @@ pub enum OpEnumV2 {
     TANH,
 }
 
-#[derive(Debug, Clone)]
 pub struct ValueV2 {
     data: f64,
     grad: f64,
@@ -20,7 +18,7 @@ pub struct ValueV2 {
     label: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ValueRefV2 {
     r: Rc<RefCell<ValueV2>>,
 }
@@ -64,9 +62,10 @@ impl ValueRefV2 {
     }
 
     pub fn backward(&mut self) {
-        match self.op() {
-            OpEnumV2::ADD => self.grad,
-
+        match self.r.borrow().op() {
+            OpEnumV2::ADD => {
+                println!("backward ADD");
+            }
             _ => {}
         };
     }
@@ -123,10 +122,10 @@ impl ValueV2 {
 }
 
 //
-impl<'a, 'b> Add<&'b ValueRefV2> for &'a ValueRefV2 {
+impl Add<ValueRefV2> for ValueRefV2 {
     type Output = ValueRefV2;
 
-    fn add(self, rhs: &'b ValueRefV2) -> Self::Output {
+    fn add(self, rhs: ValueRefV2) -> Self::Output {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
         let out = ValueV2 {
@@ -140,10 +139,10 @@ impl<'a, 'b> Add<&'b ValueRefV2> for &'a ValueRefV2 {
     }
 }
 
-impl<'a, 'b> Mul<&'b ValueRefV2> for &'a ValueRefV2 {
+impl Mul<ValueRefV2> for ValueRefV2 {
     type Output = ValueRefV2;
 
-    fn mul(self, rhs: &'b ValueRefV2) -> Self::Output {
+    fn mul(self, rhs: ValueRefV2) -> Self::Output {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
         let out = ValueV2 {
@@ -224,7 +223,7 @@ impl Display for ValueV2 {
 
 impl Display for ValueRefV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.r.borrow().clone())
+        write!(f, "{}", self.r.borrow())
     }
 }
 
@@ -236,7 +235,6 @@ pub fn assert_two_float(a: f64, b: f64) {
 
 #[cfg(test)]
 mod tests {
-    use crate::micrograd_rs_V2::assert_two_float;
     use crate::micrograd_rs_v2::assert_two_float;
     use crate::ValueRefV2;
 
@@ -249,22 +247,15 @@ mod tests {
         let c = ValueRefV2::new_value(10.0, "c".to_string());
         let f = ValueRefV2::new_value(-2.0, "f".to_string());
 
-        let mut e = &a * &b;
+        let mut e = a * b;
         e.set_label("e".to_string());
 
-        let mut d = &e + &c;
+        let mut d = e + c;
         d.set_label("d".to_string());
 
-        let mut l = &d * &f;
+        let mut l = d * f;
         l.set_label("L".to_string());
 
-        println!("a {}", a);
-        println!("b {}", b);
-        println!("c {}", c);
-        println!("d {}", d);
-        println!("e {}", e);
-        println!("f {}", f);
-        println!("l {}", l);
         assert_two_float(l.borrow().data, -8.0);
     }
 
@@ -273,7 +264,7 @@ mod tests {
         let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
         let b = ValueRefV2::new_value(3.0, "b".to_string());
 
-        let mut x = &a + &b;
+        let mut x = a + b;
         x.set_label("x".to_string());
 
         assert_two_float(x.borrow().data, 5.0);
@@ -284,7 +275,7 @@ mod tests {
         let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
         let b = ValueRefV2::new_value(3.0, "b".to_string());
 
-        let mut x = &a * &b;
+        let mut x = a * b;
         x.set_label("x".to_string());
 
         assert_two_float(x.borrow().data, 6.0);
