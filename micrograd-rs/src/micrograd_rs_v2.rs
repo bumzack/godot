@@ -266,6 +266,86 @@ impl<'a, 'b> Mul<&'b ValueRefV2> for &'a ValueRefV2 {
     }
 }
 
+impl<'b> Add<f64> for &'b ValueRefV2 {
+    type Output = ValueRefV2;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        let string = "f64 add".to_string();
+        let r = ValueRefV2::new(ValueV2::new(rhs, OpEnumV2::NONE, string.clone()));
+        let x1 = self.r.borrow();
+        let out = ValueV2 {
+            data: x1.data + rhs,
+            op: OpEnumV2::ADD,
+            children: vec![self.clone(), r],
+            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            grad: 0.0,
+            backward: Some(Box::new(BackwardAdd {})),
+        };
+        ValueRefV2::new(out)
+    }
+}
+
+
+impl<'b> Add<&'b ValueRefV2> for f64 {
+    type Output = ValueRefV2;
+
+    fn add(self, rhs: &ValueRefV2) -> Self::Output {
+        let string = "f64 add".to_string();
+        let r = ValueRefV2::new(ValueV2::new(self, OpEnumV2::NONE, string.clone()));
+        let x1 = rhs.r.borrow();
+        let out = ValueV2 {
+            data: x1.data + self,
+            op: OpEnumV2::ADD,
+            children: vec![r, rhs.clone()],
+            label: format!("{} + {}", string, rhs.borrow().label).to_string(),
+            grad: 0.0,
+            backward: Some(Box::new(BackwardAdd {})),
+        };
+        ValueRefV2::new(out)
+    }
+}
+
+
+impl<'b> Mul<f64> for &'b ValueRefV2 {
+    type Output = ValueRefV2;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        let string = "f64 mul".to_string();
+        let r = ValueRefV2::new(ValueV2::new(rhs, OpEnumV2::NONE, string.clone()));
+        let x1 = self.r.borrow();
+        let out = ValueV2 {
+            data: x1.data * rhs,
+            op: OpEnumV2::ADD,
+            children: vec![self.clone(), r],
+            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            grad: 0.0,
+            backward: Some(Box::new(BackwardAdd {})),
+        };
+        ValueRefV2::new(out)
+    }
+}
+
+
+impl<'b> Mul<&'b ValueRefV2> for f64 {
+    type Output = ValueRefV2;
+
+    fn mul(self, rhs: &ValueRefV2) -> Self::Output {
+        let string = "f64 mul".to_string();
+        let r = ValueRefV2::new(ValueV2::new(self, OpEnumV2::NONE, string.clone()));
+        let x1 = rhs.r.borrow();
+        let out = ValueV2 {
+            data: x1.data * self,
+            op: OpEnumV2::ADD,
+            children: vec![r, rhs.clone()],
+            label: format!("{} + {}", string, rhs.borrow().label).to_string(),
+            grad: 0.0,
+            backward: Some(Box::new(BackwardAdd {})),
+        };
+        ValueRefV2::new(out)
+    }
+}
+
+
 impl Display for OpEnumV2 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -322,8 +402,8 @@ pub fn assert_two_float(a: f64, b: f64) {
 
 #[cfg(test)]
 mod tests {
-    use crate::micrograd_rs_v2::{assert_two_float, ValueV2};
     use crate::{draw_graph, ValueRefV2};
+    use crate::micrograd_rs_v2::{assert_two_float, ValueV2};
 
     // before starting to add grad
     // https://youtu.be/VMj-3S1tku0?t=1875
@@ -390,5 +470,43 @@ mod tests {
         draw_graph(b, "test_a_plus_a".to_string());
 
         assert_two_float(a.get_grad(), 2.0);
+    }
+
+    #[test]
+    pub fn test_value_plus_f64_rhs() {
+        let a = ValueRefV2::new_value(3.0, "a".to_string());
+        let mut b = &a + 1.0 as f64;
+        assert_two_float(b.borrow().data, 4.0);
+        b.backward();
+        draw_graph(b, "test_a_plus_f64_rhs".to_string());
+    }
+
+    #[test]
+    pub fn test_value_plus_f64_lhs() {
+        let a = ValueRefV2::new_value(4.0, "a".to_string());
+        let mut b = 23.0 as f64 + &a;
+        b.backward();
+        assert_two_float(b.borrow().data, 27.0);
+
+        draw_graph(b, "test_a_plus_f64_lhs".to_string());
+    }
+
+    #[test]
+    pub fn test_value_mul_f64_rhs() {
+        let a = ValueRefV2::new_value(3.0, "a".to_string());
+        let mut b = &a * 3.0 as f64;
+        assert_two_float(b.borrow().data, 9.0);
+        b.backward();
+        draw_graph(b, "test_a_mul_f64_rhs".to_string());
+    }
+
+    #[test]
+    pub fn test_value_mul_f64_lhs() {
+        let a = ValueRefV2::new_value(4.0, "a".to_string());
+        let mut b = 23.0 as f64* &a;
+        b.backward();
+        assert_two_float(b.borrow().data, 92.0);
+
+        draw_graph(b, "test_a_mul_f64_lhs".to_string());
     }
 }
