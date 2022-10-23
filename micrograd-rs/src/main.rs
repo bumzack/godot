@@ -57,8 +57,12 @@ pub fn nn() {
 
     let mut n = &w1x1_plus_w2x2 + &b;
     n.set_label("n".to_string());
-    let mut o = n.tanh();
-    n.set_label("o".to_string());
+
+    let e = (2.0 * &n).exp();
+    let mut o = &(&e - 1.0) / &(&e + 1.0);
+
+    // let mut o = n.tanh();
+    o.set_label("o".to_string());
 
     draw_graph(o.clone(), "single_neuron_no_backwars".to_string());
 
