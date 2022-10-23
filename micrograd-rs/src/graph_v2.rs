@@ -42,7 +42,7 @@ fn add_nodes_petgraph(graph: &mut Graph<String, String>, node: &ValueRefV2, pare
         }
     };
     for c in node.borrow().children() {
-        let s = format_value_v2(&c);
+        let s = format_value_v2(c);
         let child_index = graph.add_node(s);
         graph.add_edge(child_index, p_idx, "".to_string());
         add_nodes_petgraph(graph, c, child_index, c.borrow().op());

@@ -195,16 +195,16 @@ impl ValueRefV2 {
     }
 
     pub fn get_grad(&self) -> f64 {
-        self.r.borrow().grad().clone()
+        self.r.borrow().grad()
     }
 
     pub fn get_data(&self) -> f64 {
-        self.r.borrow().data().clone()
+        self.r.borrow().data()
     }
 
     pub fn tanh(&self) -> ValueRefV2 {
         let x = self.r.borrow().data();
-        let y = ((2.0 as f64 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
+        let y = ((2.0_f64 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
 
         let v = ValueV2 {
             data: y,
@@ -235,8 +235,8 @@ impl ValueRefV2 {
     }
 
     pub fn pow(&self, f: f64) -> ValueRefV2 {
-        let string = format!("pow");
-        let r = ValueRefV2::new(ValueV2::new(f, OpEnumV2::NONE, string.clone()));
+        let string = "pow".to_string();
+        let r = ValueRefV2::new(ValueV2::new(f, OpEnumV2::NONE, string));
         let x = self.r.borrow().data();
         let y = x.powf(f);
 
@@ -276,7 +276,7 @@ impl ValueRefV2 {
     }
 
     fn build_topo(v: &ValueRefV2, topo: &mut Vec<ValueRefV2>, visited: &mut HashSet<ValueRefV2>) {
-        if !visited.contains(&v) {
+        if !visited.contains(v) {
             visited.insert(v.clone());
             for child in v.borrow().children() {
                 Self::build_topo(child, topo, visited);
@@ -329,8 +329,8 @@ impl ValueV2 {
         &self.children
     }
 
-    pub fn grad(&self) -> &f64 {
-        &self.grad
+    pub fn grad(&self) -> f64 {
+        self.grad
     }
 
     pub fn set_grad(&mut self, grad: f64) {
@@ -348,7 +348,7 @@ impl Add<&ValueRefV2> for &ValueRefV2 {
             data: x1.data + x2.data,
             op: OpEnumV2::ADD,
             children: vec![self.clone(), rhs.clone()],
-            label: format!("{} + {}", self.borrow().label, rhs.borrow().label).to_string(),
+            label: format!("{} + {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardAdd {})),
         };
@@ -366,7 +366,7 @@ impl Add for ValueRefV2 {
             data: x1.data + x2.data,
             op: OpEnumV2::ADD,
             children: vec![self.clone(), rhs.clone()],
-            label: format!("{} + {}", self.borrow().label, rhs.borrow().label).to_string(),
+            label: format!("{} + {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardAdd {})),
         };
@@ -396,7 +396,7 @@ impl Sub for &ValueRefV2 {
             data: x1.data - x2.data,
             op: OpEnumV2::SUB,
             children: vec![self.clone(), rhs.clone()],
-            label: format!("{} - {}", self.borrow().label, rhs.borrow().label).to_string(),
+            label: format!("{} - {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardAdd {})),
         };
@@ -414,7 +414,7 @@ impl Sub for ValueRefV2 {
             data: x1.data - x2.data,
             op: OpEnumV2::SUB,
             children: vec![self.clone(), rhs.clone()],
-            label: format!("{} - {}", self.borrow().label, rhs.borrow().label).to_string(),
+            label: format!("{} - {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardAdd {})),
         };
@@ -432,7 +432,7 @@ impl Mul<&ValueRefV2> for &ValueRefV2 {
             data: x1.data * x2.data,
             op: OpEnumV2::MUL,
             children: vec![self.clone(), rhs.clone()],
-            label: format!("{} * {}", self.borrow().label, rhs.borrow().label).to_string(),
+            label: format!("{} * {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardMul {})),
         };
@@ -459,7 +459,7 @@ impl Add<f64> for &ValueRefV2 {
             data: x1.data + rhs,
             op: OpEnumV2::ADD,
             children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            label: format!("{} + {}", self.borrow().label, string),
             grad: 0.0,
             backward: Some(Box::new(BackwardAdd {})),
         };
@@ -478,7 +478,7 @@ impl Add<&ValueRefV2> for f64 {
             data: x1.data + self,
             op: OpEnumV2::ADD,
             children: vec![r, rhs.clone()],
-            label: format!("{} + {}", string, rhs.borrow().label).to_string(),
+            label: format!("{} + {}", string, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardAdd {})),
         };
@@ -497,7 +497,7 @@ impl Sub<f64> for &ValueRefV2 {
             data: x1.data - rhs,
             op: OpEnumV2::SUB,
             children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            label: format!("{} + {}", self.borrow().label, string),
             grad: 0.0,
             backward: Some(Box::new(BackwardSub {})),
         };
@@ -516,7 +516,7 @@ impl Sub<&ValueRefV2> for f64 {
             data: x1.data - self,
             op: OpEnumV2::SUB,
             children: vec![r, rhs.clone()],
-            label: format!("{} - {}", string, rhs.borrow().label).to_string(),
+            label: format!("{} - {}", string, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardSub {})),
         };
@@ -535,7 +535,7 @@ impl Mul<f64> for &ValueRefV2 {
             data: x1.data * rhs,
             op: OpEnumV2::MUL,
             children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            label: format!("{} + {}", self.borrow().label, string),
             grad: 0.0,
             backward: Some(Box::new(BackwardMul {})),
         };
@@ -554,7 +554,7 @@ impl Mul<f64> for ValueRefV2 {
             data: x1.data * rhs,
             op: OpEnumV2::MUL,
             children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            label: format!("{} + {}", self.borrow().label, string),
             grad: 0.0,
             backward: Some(Box::new(BackwardMul {})),
         };
@@ -573,7 +573,7 @@ impl Mul<&ValueRefV2> for f64 {
             data: x1.data * self,
             op: OpEnumV2::MUL,
             children: vec![r, rhs.clone()],
-            label: format!("{} + {}", string, rhs.borrow().label).to_string(),
+            label: format!("{} + {}", string, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardMul {})),
         };
@@ -592,7 +592,7 @@ impl Div<f64> for ValueRefV2 {
             data: x1.data / rhs,
             op: OpEnumV2::DIV,
             children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            label: format!("{} + {}", self.borrow().label, string),
             grad: 0.0,
             backward: Some(Box::new(BackwardDiv {})),
         };
@@ -611,7 +611,7 @@ impl Div<f64> for &ValueRefV2 {
             data: x1.data / rhs,
             op: OpEnumV2::DIV,
             children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string).to_string(),
+            label: format!("{} + {}", self.borrow().label, string),
             grad: 0.0,
             backward: Some(Box::new(BackwardDiv {})),
         };
@@ -630,7 +630,7 @@ impl Div<ValueRefV2> for f64 {
             data: self / x1.data,
             op: OpEnumV2::DIV,
             children: vec![r, rhs.clone()],
-            label: format!("{} + {}", string, rhs.borrow().label).to_string(),
+            label: format!("{} + {}", string, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardDiv {})),
         };
@@ -649,7 +649,7 @@ impl Div<&ValueRefV2> for f64 {
             data: self / x1.data,
             op: OpEnumV2::DIV,
             children: vec![r, rhs.clone()],
-            label: format!("{} + {}", string, rhs.borrow().label).to_string(),
+            label: format!("{} + {}", string, rhs.borrow().label),
             grad: 0.0,
             backward: Some(Box::new(BackwardDiv {})),
         };
@@ -903,5 +903,16 @@ mod tests {
                               //     g.backward()
                               //     print(f'{a.grad:.4f}') # prints 138.8338, i.e. the numerical value of dg/da
                               // print(f'{b.grad:.4f}') # prints 645.5773, i.e. the numerical value of dg/db
+
+        g.backward();
+
+        let topo = ValueRefV2::traverse(&g);
+
+        println!("Topo");
+        for t in topo.iter() {
+            println!("{}", t);
+        }
+
+        draw_graph(g, "test_all_math_ops_graph".to_string());
     }
 }
