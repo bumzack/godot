@@ -62,6 +62,16 @@ impl ValueRefV2 {
 
         ValueRefV2::new(v)
     }
+
+    pub fn backward(&mut self) {
+        match self.op() {
+            OpEnumV2::ADD => {
+                self.grad
+            }
+
+            _ => {}
+        };
+    }
 }
 
 impl ValueV2 {
@@ -119,16 +129,16 @@ impl<'a, 'b> Add<&'b ValueRefV2> for &'a ValueRefV2 {
     type Output = ValueRefV2;
 
     fn add(self, rhs: &'b ValueRefV2) -> Self::Output {
-        let x1 = self.r.borrow().clone();
-        let x2 = rhs.r.borrow().clone();
-        let v = ValueV2 {
+        let x1 = self.r.borrow();
+        let x2 = rhs.r.borrow();
+        let out = ValueV2 {
             data: x1.data + x2.data,
             op: OpEnumV2::ADD,
             children: vec![self.clone(), rhs.clone()],
             label: format!("{} + {}", self.borrow().label, rhs.borrow().label).to_string(),
             grad: 0.0,
         };
-        ValueRefV2::new(v)
+        ValueRefV2::new(out)
     }
 }
 
@@ -136,16 +146,16 @@ impl<'a, 'b> Mul<&'b ValueRefV2> for &'a ValueRefV2 {
     type Output = ValueRefV2;
 
     fn mul(self, rhs: &'b ValueRefV2) -> Self::Output {
-        let x1 = self.r.borrow().clone();
-        let x2 = rhs.r.borrow().clone();
-        let v = ValueV2 {
+        let x1 = self.r.borrow();
+        let x2 = rhs.r.borrow();
+        let out = ValueV2 {
             data: x1.data * x2.data,
             op: OpEnumV2::MUL,
             children: vec![self.clone(), rhs.clone()],
             label: format!("{} * {}", self.borrow().label, rhs.borrow().label).to_string(),
             grad: 0.0,
         };
-        ValueRefV2::new(v)
+        ValueRefV2::new(out)
     }
 }
 
