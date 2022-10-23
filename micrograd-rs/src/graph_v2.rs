@@ -20,8 +20,6 @@ pub fn draw_graph(root: ValueRefV2, filename: String) {
 
 
 
-
-
                                         Dot::with_config(&graph, &[Config::EdgeNoLabel]))).unwrap();
     let graph_svg = exec(
         graphviz_graph,
