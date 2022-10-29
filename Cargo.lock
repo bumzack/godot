@@ -880,6 +880,7 @@ version = "0.1.0"
 dependencies = [
  "graphviz-rust",
  "petgraph",
+ "rand",
  "resvg",
  "serde_json",
  "tiny-skia",

@@ -5,6 +5,185 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 use std::rc::Rc;
 
+use rand::prelude::*;
+
+pub struct Neuron {
+    weights: Vec<ValueRefV2>,
+    bias: ValueRefV2,
+}
+
+impl Neuron {
+    pub fn new(nin: usize) -> Neuron {
+        let mut rng = rand::thread_rng();
+        let mut weights = vec![];
+        for i in 0..nin {
+            let y: f64 = rng.gen::<f64>() * 2.0 - 1.0;
+            weights.push(ValueRefV2::new_value(y, format!("weight {}", i)));
+        }
+        let bias: f64 = rng.gen::<f64>() * 2.0 - 1.0;
+        let bias = ValueRefV2::new_value(bias, format!("bias"));
+        Neuron { weights, bias }
+    }
+
+    pub fn new_weights_bias(nin: usize, weights: Vec<f64>, bias: f64) -> Neuron {
+        let weights = weights
+            .iter()
+            .map(|w| ValueRefV2::new_value(*w, "w".to_string()))
+            .collect();
+        let bias = ValueRefV2::new_value(bias, "b".to_string());
+        Neuron { weights, bias }
+    }
+
+    pub fn forward(&self, xínp: &Vec<ValueRefV2>) -> ValueRefV2 {
+        assert!(xínp.len() == self.weights.len(), "input size does not match layer size");
+
+        let x_w: Vec<ValueRefV2> = xínp
+            .iter()
+            .zip(self.weights.iter())
+            .into_iter()
+            .map(|(x, w)| x * w)
+            .collect();
+
+        let mut sum = ValueRefV2::new_value(0.0, "sum".to_string());
+        for v in x_w {
+            sum += v;
+        }
+        (&sum + &self.bias).tanh()
+    }
+
+    pub fn parameters(&self) -> Vec<ValueRefV2> {
+        let mut params = vec![];
+        self.weights.iter().for_each(|w| params.push(w.clone()));
+        params.push(self.bias.clone());
+        params
+    }
+}
+
+pub struct Layer {
+    neurons: Vec<Neuron>,
+}
+
+impl Layer {
+    pub fn new(nin: usize, nout: usize) -> Layer {
+        let mut neurons = vec![];
+        for i in 0..nout {
+            neurons.push(Neuron::new(nin));
+        }
+        Layer { neurons }
+    }
+
+    pub fn forward(&self, xínp: &Vec<ValueRefV2>) -> Vec<ValueRefV2> {
+        let mut out = vec![];
+        for n in &self.neurons {
+            out.push(n.forward(xínp))
+        }
+        out
+    }
+
+    pub fn parameters(&self) -> Vec<ValueRefV2> {
+        let mut params = vec![];
+        self.neurons.iter().for_each(|n| params.append(&mut n.parameters()));
+        params
+    }
+}
+
+pub struct MLP {
+    layers: Vec<Layer>,
+}
+
+impl MLP {
+    pub fn new(nin: usize, mut nouts: Vec<usize>) -> MLP {
+        let mut layers = vec![];
+
+        let mut sizes = vec![];
+        sizes.push(nin);
+        sizes.append(&mut nouts);
+
+        for i in 0..sizes.len() - 1 {
+            // println!("new layer nin {} -> nout {}", sizes[i], sizes[i + 1]);
+            layers.push(Layer::new(sizes[i], sizes[i + 1]));
+        }
+        MLP { layers }
+    }
+
+    fn forward_internal<'a>(&'a self, xinp: &Vec<f64>) -> Vec<ValueRefV2> {
+        let mut x = xinp
+            .iter()
+            .map(|x| ValueRefV2::new_value(*x, "x".to_string()))
+            .collect();
+        for (idx, l) in self.layers.iter().enumerate() {
+            // // println!("forward layer idx {}", idx);
+            x = l.forward(&x);
+        }
+        x
+    }
+
+    pub fn parameters(&self) -> Vec<ValueRefV2> {
+        let mut params = vec![];
+        self.layers.iter().for_each(|l| params.append(&mut l.parameters()));
+        params
+    }
+
+
+    pub fn forward(&self, xs: &Vec<Vec<f64>>) -> Vec<ValueRefV2> {
+        let mut y_pred: Vec<ValueRefV2> = vec![];
+        for x in xs.iter() {
+            let y = self.forward_internal(x);
+            y_pred.push(y.get(0).unwrap().clone());
+        }
+
+        // print_predictions(&mut y_pred);
+        y_pred
+    }
+
+    pub fn print_params(&self) {
+        println!("before param update");
+        for p in self.parameters() {
+            println!(
+                "parameter '{}': data {}, grad {}",
+                p.borrow().label(),
+                p.get_data(),
+                p.get_grad()
+            );
+        }
+    }
+
+    pub fn reset_grades(&self) {
+        self.parameters().iter().for_each(|p| p.clone().set_grad(0.0));
+    }
+
+    pub fn update(&self) {
+        for mut p in self.parameters().iter() {
+            let x = p.get_data();
+            let grad = p.get_grad();
+            let mut p = p.clone();
+            p.set_data(x + (-0.1 * grad));
+        }
+    }
+}
+
+pub fn calc_loss(ys: &Vec<f64>, y_pred: &Vec<ValueRefV2>) -> ValueRefV2 {
+    let loss_vec: Vec<ValueRefV2> = y_pred
+        .iter()
+        .zip(ys.iter())
+        .into_iter()
+        .map(|(ypred, ygr)| (ypred - *ygr).pow(2.0))
+        .collect();
+    //loss_vec.iter().for_each(|y| println!("loss_vec = {}", y.get_data()));
+    let mut loss = ValueRefV2::new_value(0.0, "loss".to_string());
+    for l in loss_vec.iter() {
+        // println!("loss {} += l {} ", loss, l.get_data());
+        loss = &loss + l;
+    }
+    loss
+}
+
+
+pub fn print_predictions(y_pred: &mut Vec<ValueRefV2>) {
+    y_pred.iter().for_each(|y| println!("y_pred = {}", y.get_data()));
+}
+
+
 #[derive(PartialEq)]
 pub enum OpEnumV2 {
     NONE,
@@ -26,11 +205,11 @@ struct BackwardAdd {}
 
 impl Backward for BackwardAdd {
     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!(
-            "ADD a {:?},  children [0] {:?}, children[1] {:?}",
-            out, children[0], children[1]
-        );
-        println!("backward add ");
+        // println!(
+        //     "ADD out {:?},  'self' {:?}, 'other' {:?}",
+        //     out, children[0], children[1]
+        // );
+        // println!("backward add ");
         let mut self__ = children[0].clone();
         let mut other = children[1].clone();
 
@@ -43,11 +222,11 @@ struct BackwardSub {}
 
 impl Backward for BackwardSub {
     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!(
-            "SUB a {:?},  children [0] {:?}, children[1] {:?}",
-            out, children[0], children[1]
-        );
-        println!("backward sub ");
+        // println!(
+        //     "SUB out {:?},  'self' {:?}, 'other' {:?}",
+        //     out, children[0], children[1]
+        // );
+        // println!("backward sub ");
         let mut self__ = children[0].clone();
         let mut other = children[1].clone();
 
@@ -60,43 +239,43 @@ struct BackwardMul {}
 
 impl Backward for BackwardMul {
     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!(
-            "MUL a {:?} children [0] {:?}, children[1] {:?}",
-            out, children[0], children[1]
-        );
+        // println!(
+        //     "MUL out {:?},  'self' {:?}, 'other' {:?}",
+        //     out, children[0], children[1]
+        // );
 
         let mut self__ = children[0].clone();
         let mut other = children[1].clone();
 
         self__.set_grad(self__.get_grad() + other.borrow().data() * out.r.borrow().grad());
         other.set_grad(other.get_grad() + self__.borrow().data() * out.r.borrow().grad());
-        println!("backward mul ");
+        // println!("backward mul ");
     }
 }
 
-struct BackwardDiv {}
-
-impl Backward for BackwardDiv {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!(
-            "MUL a {:?} children [0] {:?}, children[1] {:?}",
-            out, children[0], children[1]
-        );
-
-        let mut self__ = children[0].clone();
-        let mut other = children[1].clone();
-
-        self__.set_grad(self__.get_grad() + other.borrow().data() * out.r.borrow().grad());
-        other.set_grad(other.get_grad() + self__.borrow().data() * out.r.borrow().grad());
-        println!("backward div ");
-    }
-}
+// struct BackwardDiv {}
+//
+// impl Backward for BackwardDiv {
+//     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+//         // println!(
+//             "DIV  out {:?},  'self' {:?}, 'other' {:?}",
+//             out, children[0], children[1]
+//         );
+//
+//         let mut self__ = children[0].clone();
+//         let mut other = children[1].clone();
+//
+//         self__.set_grad(self__.get_grad() + (1.0 / other.borrow().data()) * out.r.borrow().grad());
+//         other.set_grad(other.get_grad() + self__.borrow().data() * out.r.borrow().grad());
+//         // println!("backward div ");
+//     }
+// }
 
 struct BackwardTanh {}
 
 impl Backward for BackwardTanh {
     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!("TANH a {:?}children [0] {:?} ", out, children[0]);
+        // println!("TANH out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         let x = out.get_data();
         let y = 1.0 - x * x;
@@ -108,7 +287,7 @@ struct BackwardExp {}
 
 impl Backward for BackwardExp {
     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!("EXP a {:?}, children [0] {:?} ", out, children[0]);
+        // println!("EXP out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         self__.set_grad(self__.get_grad() + out.r.borrow().data() * out.r.borrow().grad());
     }
@@ -118,10 +297,21 @@ struct BackwardPow {}
 
 impl Backward for BackwardPow {
     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-        println!("POW a {:?}, children [0] {:?} ", out, children[0]);
+        // println!("POW out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         let other = children[1].clone().borrow().data;
         let x = other * (self__.borrow().data().powf(other - 1.0)) * out.r.borrow().grad();
+        self__.set_grad(self__.get_grad() + x);
+    }
+}
+
+struct BackwardReLU {}
+
+impl Backward for BackwardReLU {
+    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+        // println!("ReLU out {:?},  'self' {:?} ", out, children[0]);
+        let mut self__ = children[0].clone();
+        let x = if out.get_data() > 0.0 { out.get_grad() } else { 0.0 };
         self__.set_grad(self__.get_grad() + x);
     }
 }
@@ -131,7 +321,7 @@ impl Backward for BackwardPow {
 //
 // impl Backward for BackwardDiv {
 //     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-//         // println!("EXP a {:?}children [0] {:?} ", out, children[0]);
+//         // // println!("EXP a {:?}children [0] {:?} ", out, children[0]);
 //         // let mut self__ = children[0].clone();
 //         // let x = out.get_data();
 //         // let y = 1.0 - x * x;
@@ -194,6 +384,10 @@ impl ValueRefV2 {
         self.r.borrow_mut().set_grad(grad);
     }
 
+    pub fn set_data(&mut self, data: f64) {
+        self.r.borrow_mut().set_data(data);
+    }
+
     pub fn get_grad(&self) -> f64 {
         self.r.borrow().grad()
     }
@@ -247,6 +441,22 @@ impl ValueRefV2 {
             label: format!("{}.pow({})", self.borrow().label, f),
             grad: 0.0,
             backward: Some(Box::new(BackwardPow {})),
+        };
+
+        ValueRefV2::new(v)
+    }
+
+    pub fn relu(&self) -> ValueRefV2 {
+        let x = self.r.borrow().data();
+        let y = if x < 0.0 { 0.0 } else { x };
+
+        let v = ValueV2 {
+            data: y,
+            op: OpEnumV2::POW,
+            children: vec![self.clone()],
+            label: format!("relu({})", self.borrow().label),
+            grad: 0.0,
+            backward: Some(Box::new(BackwardReLU {})),
         };
 
         ValueRefV2::new(v)
@@ -336,6 +546,10 @@ impl ValueV2 {
     pub fn set_grad(&mut self, grad: f64) {
         self.grad = grad;
     }
+
+    pub fn set_data(&mut self, data: f64) {
+        self.data = data;
+    }
 }
 
 impl Add<&ValueRefV2> for &ValueRefV2 {
@@ -398,7 +612,7 @@ impl Sub for &ValueRefV2 {
             children: vec![self.clone(), rhs.clone()],
             label: format!("{} - {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
-            backward: Some(Box::new(BackwardAdd {})),
+            backward: Some(Box::new(BackwardSub {})),
         };
         ValueRefV2::new(out)
     }
@@ -416,7 +630,7 @@ impl Sub for ValueRefV2 {
             children: vec![self.clone(), rhs.clone()],
             label: format!("{} - {}", self.borrow().label, rhs.borrow().label),
             grad: 0.0,
-            backward: Some(Box::new(BackwardAdd {})),
+            backward: Some(Box::new(BackwardSub {})),
         };
         ValueRefV2::new(out)
     }
@@ -585,18 +799,19 @@ impl Div<f64> for ValueRefV2 {
     type Output = ValueRefV2;
 
     fn div(self, rhs: f64) -> Self::Output {
-        let string = "f64 div".to_string();
-        let r = ValueRefV2::new_value(rhs, string.clone());
-        let x1 = self.r.borrow();
-        let out = ValueV2 {
-            data: x1.data / rhs,
-            op: OpEnumV2::DIV,
-            children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string),
-            grad: 0.0,
-            backward: Some(Box::new(BackwardDiv {})),
-        };
-        ValueRefV2::new(out)
+        self * rhs.powf(-1.0)
+        // let string = "f64 div".to_string();
+        // let r = ValueRefV2::new_value(rhs, string.clone());
+        // let x1 = self.r.borrow();
+        // let out = ValueV2 {
+        //     data: x1.data * rhs.powf(-1.0),
+        //     op: OpEnumV2::DIV,
+        //     children: vec![self.clone(), r],
+        //     label: format!("{} / {}", self.borrow().label, string),
+        //     grad: 0.0,
+        //     backward: Some(Box::new(BackwardDiv {})),
+        // };
+        // ValueRefV2::new(out)
     }
 }
 
@@ -604,18 +819,19 @@ impl Div<f64> for &ValueRefV2 {
     type Output = ValueRefV2;
 
     fn div(self, rhs: f64) -> Self::Output {
-        let string = "f64 div".to_string();
-        let r = ValueRefV2::new_value(rhs, string.clone());
-        let x1 = self.r.borrow();
-        let out = ValueV2 {
-            data: x1.data / rhs,
-            op: OpEnumV2::DIV,
-            children: vec![self.clone(), r],
-            label: format!("{} + {}", self.borrow().label, string),
-            grad: 0.0,
-            backward: Some(Box::new(BackwardDiv {})),
-        };
-        ValueRefV2::new(out)
+        self * rhs.powf(-1.0)
+        // let string = "f64 div".to_string();
+        // let r = ValueRefV2::new_value(rhs, string.clone());
+        // let x1 = self.r.borrow();
+        // let out = ValueV2 {
+        //     data: x1.data  * rhs.powf(-1.0),
+        //     op: OpEnumV2::DIV,
+        //     children: vec![self.clone(), r],
+        //     label: format!("{} / {}", self.borrow().label, string),
+        //     grad: 0.0,
+        //     backward: Some(Box::new(BackwardDiv {})),
+        // };
+        // ValueRefV2::new(out)
     }
 }
 
@@ -623,18 +839,19 @@ impl Div<ValueRefV2> for f64 {
     type Output = ValueRefV2;
 
     fn div(self, rhs: ValueRefV2) -> Self::Output {
-        let string = "f64 div".to_string();
-        let r = ValueRefV2::new_value(self, string.clone());
-        let x1 = rhs.r.borrow();
-        let out = ValueV2 {
-            data: self / x1.data,
-            op: OpEnumV2::DIV,
-            children: vec![r, rhs.clone()],
-            label: format!("{} + {}", string, rhs.borrow().label),
-            grad: 0.0,
-            backward: Some(Box::new(BackwardDiv {})),
-        };
-        ValueRefV2::new(out)
+        self * &rhs.pow(-1.0)
+        // let string = "f64 div".to_string();
+        // let r = ValueRefV2::new_value(self, string.clone());
+        // let x1 = rhs.r.borrow();
+        // let out = ValueV2 {
+        //     data: self  * x1.data.powf(-1.0),
+        //     op: OpEnumV2::DIV,
+        //     children: vec![r, rhs.clone()],
+        //     label: format!("{} + {}", string, rhs.borrow().label),
+        //     grad: 0.0,
+        //     backward: Some(Box::new(BackwardDiv {})),
+        // };
+        // ValueRefV2::new(out)
     }
 }
 
@@ -642,18 +859,19 @@ impl Div<&ValueRefV2> for f64 {
     type Output = ValueRefV2;
 
     fn div(self, rhs: &ValueRefV2) -> Self::Output {
-        let string = "f64 div".to_string();
-        let r = ValueRefV2::new_value(self, string.clone());
-        let x1 = rhs.r.borrow();
-        let out = ValueV2 {
-            data: self / x1.data,
-            op: OpEnumV2::DIV,
-            children: vec![r, rhs.clone()],
-            label: format!("{} + {}", string, rhs.borrow().label),
-            grad: 0.0,
-            backward: Some(Box::new(BackwardDiv {})),
-        };
-        ValueRefV2::new(out)
+        self * &rhs.pow(-1.0)
+        // let string = "f64 div".to_string();
+        // let r = ValueRefV2::new_value(self, string.clone());
+        // let x1 = rhs.r.borrow();
+        // let out = ValueV2 {
+        //     data: self * x1.data.powf(-1.0),
+        //     op: OpEnumV2::DIV,
+        //     children: vec![r, rhs.clone()],
+        //     label: format!("{} + {}", string, rhs.borrow().label),
+        //     grad: 0.0,
+        //     backward: Some(Box::new(BackwardDiv {})),
+        // };
+        // ValueRefV2::new(out)
     }
 }
 
@@ -661,7 +879,15 @@ impl Neg for ValueRefV2 {
     type Output = ValueRefV2;
 
     fn neg(self) -> Self::Output {
-        self * 1.0
+        self * (-1.0)
+    }
+}
+
+impl Neg for &ValueRefV2 {
+    type Output = ValueRefV2;
+
+    fn neg(self) -> Self::Output {
+        self * (-1.0)
     }
 }
 
@@ -718,7 +944,7 @@ impl Debug for ValueRefV2 {
     }
 }
 
-pub const EPS: f64 = 0.0000001;
+pub const EPS: f64 = 0.0001;
 
 pub fn assert_two_float(a: f64, b: f64) {
     assert!((a - b).abs() < EPS);
@@ -726,8 +952,10 @@ pub fn assert_two_float(a: f64, b: f64) {
 
 #[cfg(test)]
 mod tests {
-    use crate::micrograd_rs_v2::assert_two_float;
+    use std::f64::consts::SQRT_2;
+
     use crate::{draw_graph, ValueRefV2};
+    use crate::micrograd_rs_v2::{assert_two_float, EPS, Layer, MLP, Neuron};
 
     // before starting to add grad
     // https://youtu.be/VMj-3S1tku0?t=1875
@@ -871,6 +1099,20 @@ mod tests {
     }
 
     #[test]
+    pub fn test_value_relu() {
+        let expected = 4.0 - 23.0;
+        let a = ValueRefV2::new_value(4.0, "a".to_string());
+        let b = ValueRefV2::new_value(23.0, "b".to_string());
+        let mut c = &a - &b;
+        c.set_label("c".to_string());
+
+        c.backward();
+        assert_two_float(c.borrow().data, expected);
+
+        draw_graph(c, "test_sub".to_string());
+    }
+
+    #[test]
     pub fn test_value_sub() {
         let expected = 4.0 - 23.0;
         let a = ValueRefV2::new_value(4.0, "a".to_string());
@@ -892,27 +1134,465 @@ mod tests {
         let mut c = &a + &b; //         c = a + b
         let mut d = &a * &b + b.pow(3.0); //         d = a * b + b**3
         c += &c + 1.0; //         c += c + 1
-        c += 1.0 + &c + (-a); //         c += 1 + c + (-a)
-                              //  d+= &d*2.0  + (&b + &a).relu();                                                 //         d += d * 2 + (b + a).relu()
-                              //       d+=3.0* &d  + (&b - &a).relu();                                            //         d += 3 * d + (b - a).relu()
+        c += (1.0 + &c) + (-&a); //         c += 1 + c + (-a)
+        d += &d * 2.0 + (&b + &a).relu(); //         d += d * 2 + (b + a).relu()
+        d += 3.0 * &d + (&b - &a).relu(); //         d += 3 * d + (b - a).relu()
         let e = &c - &d; //         e = c - d
         let f = &e.pow(2.0); //         f = e**2
         let mut g = f / 2.0 as f64; //         g = f / 2.0
         g += 10.0 as f64 / f; //         g += 10.0 / f
-                              //         print(f'{g.data:.4f}') # prints 24.7041, the outcome of this forward pass
-                              //     g.backward()
-                              //     print(f'{a.grad:.4f}') # prints 138.8338, i.e. the numerical value of dg/da
-                              // print(f'{b.grad:.4f}') # prints 645.5773, i.e. the numerical value of dg/db
 
         g.backward();
 
-        let topo = ValueRefV2::traverse(&g);
+        let a_grad_expected = 138.83381924;
+        let b_grad_expected = 645.57725948;
+        let c_grad_expected = -6.94169096;
+        let d_grad_expected = 6.94169096;
+        let e_grad_expected = -6.94169096;
+        let f_grad_expected = 0.49583507;
 
-        println!("Topo");
-        for t in topo.iter() {
-            println!("{}", t);
-        }
+        let g_value_expected = 24.70408163;
 
-        draw_graph(g, "test_all_math_ops_graph".to_string());
+        println!(
+            "value g expected {}, actual {}    assert {}",
+            g_value_expected,
+            g.get_data(),
+            (g_value_expected - g.get_data()).abs() < EPS
+        );
+        assert_two_float(g_value_expected, g.get_data());
+
+        println!("grad f expected {}, actual {}   ", f_grad_expected, f.get_grad());
+        println!("grad e expected {}, actual {}   ", e_grad_expected, e.get_grad());
+        println!("grad d expected {}, actual {}   ", d_grad_expected, d.get_grad());
+        println!("grad c expected {}, actual {}   ", c_grad_expected, c.get_grad());
+        println!("grad b expected {}, actual {}   ", b_grad_expected, b.get_grad());
+        println!("grad a expected {}, actual {}   ", a_grad_expected, a.get_grad());
+
+        assert_two_float(f_grad_expected, f.get_grad());
+        assert_two_float(e_grad_expected, e.get_grad());
+        assert_two_float(d_grad_expected, d.get_grad());
+        assert_two_float(c_grad_expected, c.get_grad());
+        assert_two_float(b_grad_expected, b.get_grad());
+        assert_two_float(a_grad_expected, a.get_grad());
+
+        // let topo = ValueRefV2::traverse(&g);
+        //
+        // println!("Topo");
+        // for t in topo.iter() {
+        //     println!("{}", t);
+        // }
+        // draw_graph(g, "test_all_math_ops_graph".to_string());
+    }
+
+    #[test]
+    pub fn test_grad_add() {
+        let a = 23.0;
+        let b = 45.0;
+        let expected = a + b;
+
+        let a = ValueRefV2::new_value(a, "a".to_string());
+        let b = ValueRefV2::new_value(b, "b".to_string());
+        let mut c = &a + &b;
+        c.set_label("c".to_string());
+
+        c.backward();
+        assert_two_float(c.borrow().data, expected);
+
+        assert_two_float(a.get_grad(), 1.0);
+        assert_two_float(b.get_grad(), 1.0);
+    }
+
+    #[test]
+    pub fn test_grad_sub() {
+        let a = 23.0;
+        let b = 45.0;
+        let expected = a - b;
+
+        let a = ValueRefV2::new_value(a, "a".to_string());
+        let b = ValueRefV2::new_value(b, "b".to_string());
+        let mut c = &a - &b;
+        c.set_label("c".to_string());
+
+        c.backward();
+
+        println!("c actual  {}  expected {}", c.borrow().data, expected);
+        println!("a.grad  {} ", a.get_grad());
+        println!("b.grad  {} ", b.get_grad());
+        assert_two_float(c.borrow().data, expected);
+
+        assert_two_float(a.get_grad(), 1.0);
+        assert_two_float(b.get_grad(), -1.0);
+    }
+
+    #[test]
+    pub fn test_grad_mul() {
+        let a_f64 = 12.0;
+        let b_f64 = 23.0;
+        let expected = a_f64 * b_f64;
+
+        let a = ValueRefV2::new_value(a_f64, "a".to_string());
+        let b = ValueRefV2::new_value(b_f64, "b".to_string());
+        let mut c = &a * &b;
+        c.set_label("c".to_string());
+
+        c.backward();
+
+        println!("c actual  {}  expected {}", c.borrow().data, expected);
+        println!("a.grad  {} ", a.get_grad());
+        println!("b.grad  {} ", b.get_grad());
+        assert_two_float(c.borrow().data, expected);
+
+        assert_two_float(a.get_grad(), b_f64);
+        assert_two_float(b.get_grad(), a_f64);
+    }
+
+    #[test]
+    pub fn test_grad_div() {
+        let a_f64 = 7.0;
+        let b_f64 = 2.0;
+        let expected = a_f64 / b_f64;
+
+        let a = ValueRefV2::new_value(a_f64, "a".to_string());
+        let b = ValueRefV2::new_value(b_f64, "b".to_string());
+        let mut c = &a / &b;
+        c.set_label("c".to_string());
+
+        c.backward();
+
+        println!("c actual  {}  expected {}", c.borrow().data, expected);
+        println!("a.grad  {} ", a.get_grad());
+        println!("b.grad  {} ", b.get_grad());
+        assert_two_float(c.borrow().data, expected);
+
+        assert_two_float(a.get_grad(), 0.5);
+        assert_two_float(b.get_grad(), -1.75);
+    }
+
+    pub fn test_relu(a_f64: f64, c_expected: f64, a_grad_expected: f64) {
+        let a = ValueRefV2::new_value(a_f64, "a".to_string());
+        let mut c = a.relu();
+        c.set_label("c".to_string());
+
+        c.backward();
+
+        println!("c actual  {}  expected {}", c.borrow().data, c_expected);
+        println!("a.grad  {} ", a.get_grad());
+        assert_two_float(c.borrow().data, c_expected);
+
+        assert_two_float(a.get_grad(), a_grad_expected);
+    }
+
+    #[test]
+    pub fn test_grad_relu_positive() {
+        let a_f64 = 1.0_f64;
+        let expected = a_f64.max(0.0);
+        test_relu(a_f64, expected, 1.0);
+    }
+
+    #[test]
+    pub fn test_grad_relu_zero() {
+        let a_f64 = 0.0_f64;
+        let expected = a_f64.max(0.0);
+        test_relu(a_f64, expected, 0.0);
+    }
+
+    #[test]
+    pub fn test_grad_relu_negative() {
+        let a_f64 = -10.0_f64;
+        let expected = a_f64.max(0.0);
+        test_relu(a_f64, expected, 0.0);
+    }
+
+    pub fn test_pow(a_f64: f64, b: f64, c_expected: f64, a_grad_expected: f64) {
+        let a = ValueRefV2::new_value(a_f64, "a".to_string());
+        let mut c = a.pow(b);
+        c.set_label("c".to_string());
+
+        c.backward();
+
+        println!("c actual  {}  expected {}", c.borrow().data, c_expected);
+        println!("a.grad  {} ", a.get_grad());
+        assert_two_float(c.borrow().data, c_expected);
+        assert_two_float(a.get_grad(), a_grad_expected);
+    }
+
+    #[test]
+    pub fn test_grad_pow_1() {
+        let a_f64 = -1.0_f64;
+        let b = 2.0;
+        let expected = a_f64.powf(b);
+        test_pow(a_f64, b, expected, -2.0);
+    }
+
+    #[test]
+    pub fn test_grad_pow_2() {
+        let a_f64 = 3.0_f64;
+        let b = 3.0;
+        let expected = a_f64.powf(b);
+        test_pow(a_f64, b, expected, 27.0);
+    }
+
+    #[test]
+    pub fn test_grad_pow_3() {
+        let a_f64 = 3.0_f64;
+        let b = 1.5;
+        let expected = a_f64.powf(b);
+        test_pow(a_f64, b, expected, 2.598076211353316);
+    }
+
+    pub fn test_tanh(a_f64: f64, c_expected: f64, a_grad_expected: f64) {
+        let a = ValueRefV2::new_value(a_f64, "a".to_string());
+        let mut c = a.tanh();
+        c.set_label("c".to_string());
+
+        c.backward();
+
+        println!("c actual  {}  expected {}", c.borrow().data, c_expected);
+        println!("a.grad  {} ", a.get_grad());
+        assert_two_float(c.borrow().data, c_expected);
+        assert_two_float(a.get_grad(), a_grad_expected);
+    }
+
+    #[test]
+    pub fn test_grad_tanh_1() {
+        let a_f64 = 2.0_f64;
+        let expected = a_f64.tanh();
+        test_tanh(a_f64, expected, 0.07065082485316443);
+    }
+
+    #[test]
+    pub fn test_grad_tanh_2() {
+        let a_f64 = -1.0_f64;
+        let expected = a_f64.tanh();
+        test_tanh(a_f64, expected, 0.41997434161402614);
+    }
+
+    #[test]
+    pub fn test_grad_tanh_3() {
+        let a_f64 = 0.0_f64;
+        let expected = a_f64.tanh();
+        test_tanh(a_f64, expected, 1.0);
+    }
+
+    #[test]
+    pub fn test_simple_neurons_explizt_tanh() {
+        let x1: ValueRefV2 = ValueRefV2::new_value(2.0, "x1".to_string());
+        let x2 = ValueRefV2::new_value(0.0, "x2".to_string());
+
+        let w1 = ValueRefV2::new_value(-3.0, "w1".to_string());
+        let w2 = ValueRefV2::new_value(1.0, "w2".to_string());
+
+        let b = ValueRefV2::new_value(6.881373587019, "b".to_string());
+
+        let w1x1 = &x1 * &w1;
+        let w2x2 = &x2 * &w2;
+        let w1x1_plus_w2x2 = &w1x1 + &w2x2;
+
+        let mut n = &w1x1_plus_w2x2 + &b;
+        n.set_label("n".to_string());
+
+        let e = (2.0 * &n).exp();
+        let mut o = &(&e - 1.0) / &(&e + 1.0);
+
+        // let mut o = n.tanh();
+        o.set_label("o".to_string());
+
+        o.backward();
+
+        println!("x1 grad  expected {},  actual {}", -1.5, x1.get_grad());
+        println!("w1 grad  expected {},  actual {}", 1.0, w1.get_grad());
+        assert_two_float(x1.get_grad(), -1.5);
+        assert_two_float(w1.get_grad(), 1.0);
+
+        println!("x2 grad  expected {},  actual {}", 0.5, x2.get_grad());
+        println!("w2 grad  expected {},  actual {}", 0.0, w2.get_grad());
+        assert_two_float(x2.get_grad(), 0.5);
+        assert_two_float(w2.get_grad(), 0.0);
+
+        println!("w1x1 data  expected {},  actual {}", -6.0, w1x1.get_data());
+        println!("w2x2 data  expected {},  actual {}", 0.0, w2x2.get_data());
+
+        assert_two_float(w1x1.get_data(), -6.0);
+        assert_two_float(w2x2.get_data(), 0.0);
+
+        println!("w1x1 grad  expected {},  actual {}", 0.5, w1x1.get_grad());
+        println!("w2x2 grad  expected {},  actual {}", 0.5, w2x2.get_grad());
+
+        assert_two_float(w1x1.get_grad(), 0.5);
+        assert_two_float(w2x2.get_grad(), 0.5);
+
+        println!("b  data  expected {},  actual {}", 6.881373587019, b.get_data());
+        println!("b  grad  expected {},  actual {}", 0.5, b.get_grad());
+
+        assert_two_float(b.get_data(), 6.881373587019);
+        assert_two_float(b.get_grad(), 0.5);
+
+        println!(
+            "w1x1_plus_w2x2 data  expected {},  actual {}",
+            -6.,
+            w1x1_plus_w2x2.get_data()
+        );
+        println!(
+            "w1x1_plus_w2x2 grad  expected {},  actual {}",
+            0.5,
+            w1x1_plus_w2x2.get_grad()
+        );
+
+        assert_two_float(w1x1_plus_w2x2.get_data(), -6.0);
+        assert_two_float(w1x1_plus_w2x2.get_grad(), 0.5);
+
+        println!("n data  expected {},  actual {}", 0.8814, n.get_data());
+        println!("n grad  expected {},  actual {}", 0.5, n.get_grad());
+
+        assert_two_float(n.get_data(), 0.8814);
+        assert_two_float(n.get_grad(), 0.5);
+
+        println!("e data  expected {},  actual {}", 5.8284, e.get_data());
+        println!("e grad  expected {},  actual {}", 0.0429, e.get_grad());
+
+        assert_two_float(e.get_data(), 5.8284);
+        assert_two_float(e.get_grad(), 0.0429);
+
+        println!("o data  expected {},  actual {}", SQRT_2 / 2.0, o.get_data());
+        println!("o grad  expected {},  actual {}", 1.0, o.get_grad());
+
+        assert_two_float(o.get_data(), SQRT_2 / 2.0);
+        assert_two_float(o.get_grad(), 1.0);
+    }
+
+    #[test]
+    pub fn test_simple_neurons_simple_tanh() {
+        let x1: ValueRefV2 = ValueRefV2::new_value(2.0, "x1".to_string());
+        let x2 = ValueRefV2::new_value(0.0, "x2".to_string());
+
+        let w1 = ValueRefV2::new_value(-3.0, "w1".to_string());
+        let w2 = ValueRefV2::new_value(1.0, "w2".to_string());
+
+        let b = ValueRefV2::new_value(6.881373587019, "b".to_string());
+
+        let w1x1 = &x1 * &w1;
+        let w2x2 = &x2 * &w2;
+        let w1x1_plus_w2x2 = &w1x1 + &w2x2;
+
+        let mut n = &w1x1_plus_w2x2 + &b;
+        n.set_label("n".to_string());
+
+        let mut o = n.tanh();
+        o.set_label("o".to_string());
+
+        o.backward();
+
+        println!("x1 grad  expected {},  actual {}", -1.5, x1.get_grad());
+        println!("w1 grad  expected {},  actual {}", 1.0, w1.get_grad());
+        assert_two_float(x1.get_grad(), -1.5);
+        assert_two_float(w1.get_grad(), 1.0);
+
+        println!("x2 grad  expected {},  actual {}", 0.5, x2.get_grad());
+        println!("w2 grad  expected {},  actual {}", 0.0, w2.get_grad());
+        assert_two_float(x2.get_grad(), 0.5);
+        assert_two_float(w2.get_grad(), 0.0);
+
+        println!("w1x1 data  expected {},  actual {}", -6.0, w1x1.get_data());
+        println!("w2x2 data  expected {},  actual {}", 0.0, w2x2.get_data());
+
+        assert_two_float(w1x1.get_data(), -6.0);
+        assert_two_float(w2x2.get_data(), 0.0);
+
+        println!("w1x1 grad  expected {},  actual {}", 0.5, w1x1.get_grad());
+        println!("w2x2 grad  expected {},  actual {}", 0.5, w2x2.get_grad());
+
+        assert_two_float(w1x1.get_grad(), 0.5);
+        assert_two_float(w2x2.get_grad(), 0.5);
+
+        println!("b  data  expected {},  actual {}", 6.881373587019, b.get_data());
+        println!("b  grad  expected {},  actual {}", 0.5, b.get_grad());
+
+        assert_two_float(b.get_data(), 6.881373587019);
+        assert_two_float(b.get_grad(), 0.5);
+
+        println!(
+            "w1x1_plus_w2x2 data  expected {},  actual {}",
+            -6.,
+            w1x1_plus_w2x2.get_data()
+        );
+        println!(
+            "w1x1_plus_w2x2 grad  expected {},  actual {}",
+            0.5,
+            w1x1_plus_w2x2.get_grad()
+        );
+
+        assert_two_float(w1x1_plus_w2x2.get_data(), -6.0);
+        assert_two_float(w1x1_plus_w2x2.get_grad(), 0.5);
+
+        println!("n data  expected {},  actual {}", 0.8814, n.get_data());
+        println!("n grad  expected {},  actual {}", 0.5, n.get_grad());
+
+        assert_two_float(n.get_data(), 0.8814);
+        assert_two_float(n.get_grad(), 0.5);
+
+        println!("o data  expected {},  actual {}", SQRT_2 / 2.0, o.get_data());
+        println!("o grad  expected {},  actual {}", 1.0, o.get_grad());
+
+        assert_two_float(o.get_data(), SQRT_2 / 2.0);
+        assert_two_float(o.get_grad(), 1.0);
+    }
+
+    // TODO
+    // add a method to initialize the weights by hand and not randomly
+    #[test]
+    pub fn test_neuron() {
+        let neuron = Neuron::new_weights_bias(2, vec![2.0, 3.0], 2.0);
+        let xinp = vec![
+            ValueRefV2::new_value(11.0_f64, "x1".to_string()),
+            ValueRefV2::new_value(12.0_f64, "x2".to_string()),
+        ];
+        let output = neuron.forward(&xinp);
+
+        println!("output = {}", output.get_data());
+
+        // TODO
+        // check if this is really correct
+        assert_two_float(output.get_data(), 60.0_f64.tanh());
+    }
+
+    #[test]
+    pub fn test_layer() {
+        let layer = Layer::new(2, 3);
+        let xinp = vec![
+            ValueRefV2::new_value(1.0_f64, "x1".to_string()),
+            ValueRefV2::new_value(21.0_f64, "x2".to_string()),
+        ];
+        let output = layer.forward(&xinp);
+
+        output
+            .iter()
+            .enumerate()
+            .for_each(|(idx, o)| println!("output neuron {}= {}", idx, o.get_data()));
+
+        // TODO
+        // how to initialize the layers with specific weights?
+        let expected_values = [1.0, 2.0, 3.0];
+        // output.iter().enumerate().for_each(|(idx, o)| assert_two_float(o.get_data(), expected_values[idx]));
+    }
+
+    #[test]
+    pub fn test_mlp() {
+        let mlp = MLP::new(3, vec![4, 4, 1]);
+        let xinp = vec![
+            ValueRefV2::new_value(1.0_f64, "x1".to_string()),
+            ValueRefV2::new_value(2.0_f64, "x2".to_string()),
+            ValueRefV2::new_value(3.0_f64, "x3".to_string()),
+        ];
+        let output = mlp.forward(&xinp);
+
+        output
+            .iter()
+            .enumerate()
+            .for_each(|(idx, o)| println!("output mlp {}= {}", idx, o.get_data()));
+
+        // TODO
+        // how to initialize the layers with specific weights?
+        let expected_values = [1.0, 2.0, 3.0];
+        // output.iter().enumerate().for_each(|(idx, o)| assert_two_float(o.get_data(), expected_values[idx]));
     }
 }

@@ -1,28 +1,45 @@
-use crate::graph_v2::draw_graph;
-use crate::micrograd_rs_v2::ValueRefV2;
-
-mod graph_v2;
-mod micrograd_rs_v2;
+use micrograd_rs::prelude::{draw_graph, MLP, print_predictions, ValueRefV2};
+use micrograd_rs::prelude::calc_loss;
 
 fn main() {
-    // let a = ValueRefV2::new_value(2.0, "a".to_string());
-    // let b = ValueRefV2::new_value(-3.0, "b".to_string());
-    // let mut c = a * b;
-    // c.set_label("c".to_string());
-    // c.set_grad(1.0);
-    //
-    // c.backward();
-    //
-    // draw_graph(c, "simple_backward".to_string());
+    let mlp = MLP::new(3, vec![4, 4, 1]);
 
-    nn();
+    // input values
+    let xs = vec![
+        vec![2.0, 3.0, -1.0],
+        vec![2.0, -1.0, 0.5],
+        vec![0.5, 1.0, 1.0],
+        vec![1.0, 1.0, -1.0],
+    ];
+
+    // desired targets
+    let ys = vec![1.0, -1.0, -1.0, 1.0];
+    let mut y_pred = vec![];
+
+    for i in 0..2000 {
+        // forward pass
+        y_pred = mlp.forward(&xs);
+
+        // calculate loss
+        let mut loss = calc_loss(&ys, &y_pred);
+
+        // print_params(&mlp);
+        // backward pass consists of 2 steps
+        mlp.reset_grades();
+        loss.backward();
+
+        // update parameters
+        mlp.update();
+
+        // keep track of loss improvement
+        println!("iteration {}   loss {}", i + 1, loss.get_data());
+    }
+
+    print_predictions(&mut y_pred);
+    // print_params(&mlp);
     println!("DONE");
 }
 
-fn main2() {
-    nn();
-    println!("DONE");
-}
 
 pub fn l(h: f64) -> ValueRefV2 {
     let a = ValueRefV2::new_value(2.0 + h, "a".to_string());

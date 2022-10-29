@@ -100,14 +100,14 @@ dot
 dot.render('gout_g2')
 
 
-print(f'{g.data:.4f}')  # prints 24.7041, the outcome of this forward pass
+print(f'{g.data:.8f}')  # prints 24.7041, the outcome of this forward pass
 g.backward()
-print(f'a.grad = {a.grad:.4f}')  # prints 138.8338, i.e. the numerical value of dg/da
-print(f'b.grad = {b.grad:.4f}')  # prints 645.5773, i.e. the numerical value of dg/db
-print(f'c.grad = {c.grad:.4f}')
-print(f'd.grad = {d.grad:.4f}')
-print(f'e.grad = {e.grad:.4f}')
-print(f'f.grad = {f.grad:.4f}')
+print(f'a.grad = {a.grad:.8f}')  # prints 138.8338, i.e. the numerical value of dg/da
+print(f'b.grad = {b.grad:.8f}')  # prints 645.5773, i.e. the numerical value of dg/db
+print(f'c.grad = {c.grad:.8f}')
+print(f'd.grad = {d.grad:.8f}')
+print(f'e.grad = {e.grad:.8f}')
+print(f'f.grad = {f.grad:.8f}')
 
 dot = draw_dot(g)
 dot
