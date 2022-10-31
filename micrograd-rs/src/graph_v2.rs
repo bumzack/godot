@@ -84,8 +84,7 @@ fn save_svg(svg: String, filename: String) {
 }
 
 mod test {
-    use crate::micrograd_rs_v2::assert_two_float;
-    use crate::prelude::{draw_graph, ValueRefV2};
+    use crate::prelude::{assert_two_float, draw_graph, ValueRefV2};
 
     #[test]
     fn test_add() {

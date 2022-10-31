@@ -12,6 +12,8 @@ usvg = "*"
 tiny-skia = "*"
 serde_json = "*"
 rand = "*"
+plotters = "*"
+
 [dependencies.petgraph]
 version = "*"
 features = ["serde-1"]
