@@ -1,7 +1,7 @@
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::micrograd_rs_v2::{ValueRefV2, EPS, EPS2};
+use crate::micrograd_rs_v2::{ValueRefV2,    EPS2};
 
 pub struct Neuron {
     weights: Vec<ValueRefV2>,

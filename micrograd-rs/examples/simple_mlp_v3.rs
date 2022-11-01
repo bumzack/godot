@@ -1,16 +1,26 @@
-use micrograd_rs::prelude::micrograd_rs_engine_v3::{calc_loss_mse, Net};
-use micrograd_rs::prelude::{draw_graph, print_predictions, Net, ValueRefV2, FC, MLP};
+use rand::distributions::Uniform;
+use rand::prelude::StdRng;
+use rand::SeedableRng;
+
+use micrograd_rs::micrograd_rs_engine_v3::{print_predictions, Network, FC, SGD};
 
 fn main() {
-    let mut mlp = Net::new();
-    let l1 = FC::new(3, 4);
-    let l2 = FC::new(4, 4);
-    let l3 = FC::new(4, 1);
+    let mut r = StdRng::seed_from_u64(1337);
+    let normal = Uniform::from(-1.0..1.0);
+
+    let epochs = 100;
+
+    let mut mlp = Network::new();
+    let l1 = FC::new(3, 4, &normal, &mut r);
+    let l2 = FC::new(4, 4, &normal, &mut r);
+    let l3 = FC::new(4, 1, &normal, &mut r);
 
     mlp.add_layer(Box::new(l1));
     mlp.add_layer(Box::new(l2));
     mlp.add_layer(Box::new(l3));
-    mlp.add_layer(Box::new(l4));
+
+    let optimizer = SGD::new(0.9, epochs as f64);
+    mlp.optimizer(Box::new(optimizer));
 
     // input values
     let xs = vec![
@@ -24,12 +34,12 @@ fn main() {
     let ys = vec![1.0, -1.0, -1.0, 1.0];
     let mut y_pred = vec![];
 
-    for i in 0..2000 {
+    for i in 0..200 {
         // forward pass
         y_pred = mlp.forward(&xs);
 
         // calculate loss
-        let mut loss = mlp.calc_loss(&ys, &y_pred);
+        let (mut loss, accuracy) = mlp.calc_loss(&ys, &y_pred, mlp.parameters());
 
         // print_params(&mlp);
         // backward pass consists of 2 steps
@@ -37,10 +47,15 @@ fn main() {
         loss.backward();
 
         // update parameters
-        mlp.update();
+        mlp.update(i);
 
         // keep track of loss improvement
-        println!("iteration {}   loss {}", i + 1, loss.get_data());
+        println!(
+            "iteration {}   loss {}  accuracy {:.2}",
+            i + 1,
+            loss.get_data(),
+            accuracy * 100.0
+        );
     }
 
     print_predictions(y_pred, &ys);

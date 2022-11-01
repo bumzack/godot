@@ -39,11 +39,6 @@ for p in model.parameters()[:50]:
     print(f"param {p.data}")
 
 
-exit(29)
-
-
-
-
 # loss function
 def loss(batch_size=None):
     # inline DataLoader :)
@@ -61,9 +56,11 @@ def loss(batch_size=None):
 
     # forward the model to get scores
     scores = list(map(model, inputs))
+    # print(f"scores[0:20] {scores[0:20]}")
 
     # svm "max-margin" loss
     losses = [(1 + -yi * scorei).relu() for yi, scorei in zip(yb, scores)]
+
     data_loss = sum(losses) * (1.0 / len(losses))
     # L2 regularization
     alpha = 1e-4
@@ -90,6 +87,10 @@ for k in range(100):
     # backward
     model.zero_grad()
     total_loss.backward()
+
+    if k == 0:
+        for p in model.parameters()[:30]:
+            print(f"param.data  {p.data}   grad   {p.grad} ")
 
     # update (sgd)
     learning_rate = 1.0 - 0.9 * k / 100

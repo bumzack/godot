@@ -2,12 +2,12 @@ use std::f64::consts::PI;
 use std::time::Instant;
 
 use plotters::prelude::*;
+use rand::{Rng, SeedableRng, thread_rng};
 use rand::distributions::Uniform;
 use rand::prelude::StdRng;
-use rand::{thread_rng, Rng, SeedableRng};
 use rand_distr::Normal;
 
-use micrograd_rs::micrograd_rs_engine_v3::{MaxMarginLoss, Network, FC, SGD};
+use micrograd_rs::micrograd_rs_engine_v3::{FC, MaxMarginLoss, Network, SGD};
 
 fn main() {
     let mut r = StdRng::seed_from_u64(1337);
@@ -17,7 +17,7 @@ fn main() {
     let use_python_data = true;
 
     let (epochs, network, x, y) = if use_python_data {
-        let epochs = 100;
+        let epochs = 300;
         let (x, y) = moondata_python();
 
         // network config
@@ -78,16 +78,11 @@ fn main() {
     }
 
     let y_pred = network.forward(&x);
-    let (mut loss, accuracy) = network.calc_loss(&y, &y_pred, network.parameters());
+    let loss = network.calc_loss(&y, &y_pred, network.parameters());
 
-    println!(
-        "before training     loss {}, accuracy {:.4}%",
-        loss.get_data(),
-        accuracy * 100.0
-    );
+    println!("before training     loss {} ", loss.get_data(), );
 
     let start = Instant::now();
-    // desired targets
     let mut y_pred = vec![];
 
     for i in 0..epochs {
@@ -95,15 +90,29 @@ fn main() {
         y_pred = network.forward(&x);
 
         // calculate loss
-        let (mut loss, accuracy) = network.calc_loss(&y, &y_pred, network.parameters());
+        let mut loss = network.calc_loss(&y, &y_pred, network.parameters());
 
         // print_params(&mlp);
         // backward pass consists of 2 steps
         network.reset_grades();
         loss.backward();
 
+        if i == 0 {
+            for i in 0..30 {
+                println!("p data {} grad {}", network.parameters()[i].get_data(), network.parameters()[i].get_grad());
+            }
+        }
+
         // update parameters
         network.update(i);
+
+        let accuracies: Vec<bool> = y_pred
+            .iter()
+            .zip(y.iter())
+            .map(|(y_pred_i, y_ground_truth_i)| (y_pred_i.get_data() > 0.0_f64) == (*y_ground_truth_i > 0.0_f64))
+            .collect();
+        let success = accuracies.iter().filter(|&a| *a).count() as f64;
+        let accuracy = success / accuracies.len() as f64;
 
         // keep track of loss improvement
         println!(

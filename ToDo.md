@@ -6,7 +6,10 @@
 - [ ] image texture mapping not working as expected
 - [x] chapter07.rs ¯\_(ツ)_/¯
 - [ ] implement additional test in obj_file.rs (see commented code)
-- [ ] chapter14_hexagon looks wierd, altough complex shapes like teapot and suzanne seem to work fine   ¯\_(ツ)_/¯
+- [ ] chapter14_hexagon looks wierd, although complex shapes like teapot and suzanne seem to work fine   ¯\_(ツ)_/¯
+- [ ] remove accuracy from loss Trait - this is a highly individual computation
+- [ ] the moondata separation example is not working like the python example
+loss function, update parameters,weight inititalization   ¯\_(ツ)_/¯  reg_loss looks resaonably, data_loss is not getting smaller
 
 ## future ToDos
 
