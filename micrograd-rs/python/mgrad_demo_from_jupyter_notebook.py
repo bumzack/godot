@@ -3,13 +3,13 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from micrograd.engine import Value
 from micrograd.nn import MLP
+from sklearn.datasets import make_moons
 
 np.random.seed(1337)
 random.seed(1337)
-
-from sklearn.datasets import make_moons
 
 X, y = make_moons(n_samples=100, noise=0.1)
 
@@ -19,6 +19,8 @@ print(f"y.shape {y.shape}")
 print(f"X[10] {X[0:10]}")
 print(f"y[10] {y[0:10]}")
 
+pd.DataFrame(X).to_csv("X.csv")
+pd.DataFrame(y).to_csv("y.csv")
 
 y = y * 2 - 1  # make y be -1 or 1
 print(f"y[10] {y[0:10]}")
@@ -32,6 +34,9 @@ plt.scatter(X[:, 0], X[:, 1], c=y, s=20, cmap='jet')
 model = MLP(2, [16, 16, 1])  # 2-layer neural network
 print(model)
 print("number of parameters", len(model.parameters()))
+
+# for p in model.parameters():
+#     print(f"param {p.data}")
 
 
 # loss function
@@ -66,7 +71,7 @@ def loss(batch_size=None):
 
 
 total_loss, acc = loss()
-print(total_loss, acc)
+print(f"before training {total_loss}     accuracy {acc * 100}% ")
 
 start = time.time()
 

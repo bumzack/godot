@@ -1,7 +1,7 @@
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::prelude::{ValueRefV2, EPS, EPS2};
+use crate::micrograd_rs_v2::{ValueRefV2, EPS, EPS2};
 
 pub struct Neuron {
     weights: Vec<ValueRefV2>,
@@ -97,7 +97,7 @@ impl MLP {
         sizes.append(&mut nouts);
 
         for i in 0..sizes.len() - 1 {
-            // println!("new layer nin {} -> nout {}", sizes[i], sizes[i + 1]);
+            println!("new layer nin {} -> nout {}", sizes[i], sizes[i + 1]);
             layers.push(Layer::new(sizes[i], sizes[i + 1]));
         }
         MLP { layers }
@@ -157,8 +157,8 @@ impl MLP {
         }
     }
 
-    pub fn update2(&self, k: usize, totol_epachs: usize) {
-        let learning_rate = 1.0 - 0.9 * k as f64 / totol_epachs as f64;
+    pub fn update2(&self, k: usize, totol_epochs: usize) {
+        let learning_rate = 1.0 - 0.9 * k as f64 / totol_epochs as f64;
         println!("learning rate {:.2}", learning_rate);
         for p in self.parameters().iter() {
             let x = p.get_data();

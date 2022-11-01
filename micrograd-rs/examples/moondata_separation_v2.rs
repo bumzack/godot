@@ -6,7 +6,7 @@ use plotters::prelude::*;
 use rand::Rng;
 
 use micrograd_rs::prelude::calc_loss_mse;
-use micrograd_rs::prelude::{draw_graph, print_predictions, ValueRefV2, MLP};
+use micrograd_rs::prelude::{draw_graph, ValueRefV2, MLP};
 
 fn main() {
     // config
@@ -23,60 +23,60 @@ fn main() {
 
     let model = MLP::new(2, vec![16, 16, 1]); // 2-layer neural network
 
-    model.print_params();
-
-    let mut x: Vec<Vec<f64>> = vec![];
-    let mut y: Vec<f64> = vec![];
-
-    // take care, that the x1,y1  resp x2,y2 pairs match the resulting color in y
-    for i in 0..x1.len() {
-        let inp = vec![x1[i], y1[i]];
-        x.push(inp);
-        y.push(y_red[i]);
-        let inp = vec![x2[i], y2[i]];
-        x.push(inp);
-        y.push(y_blue[i]);
-    }
-    println!("number of parameters {}", model.parameters().len());
-    println!("x.len()  {}", x.len());
-    println!("y.len()  {}", y.len());
-
-    let start = Instant::now();
-    // desired targets
-    let mut y_pred = vec![];
-
-    for i in 0..epochs {
-        // forward pass
-        y_pred = model.forward(&x);
-
-        // calculate loss
-        let (mut loss, accuracy) = calc_loss_max_margin(&y, &y_pred, model.parameters());
-
-        // print_params(&mlp);
-        // backward pass consists of 2 steps
-        model.reset_grades();
-        loss.backward();
-
-        // update parameters
-        model.update2(i, epochs);
-
-        // keep track of loss improvement
-        println!(
-            "iteration {}   loss {}, accuracy {:.4}%",
-            i + 1,
-            loss.get_data(),
-            accuracy * 100.0
-        );
-    }
-    println!("y_pred.len()  {}", y_pred.len());
-
-    print_predictions(y_pred, &y);
-    //  model. print_params();
-
-    let duration = start.elapsed();
-    println!("training took {:?}", duration);
-
-    plot_result(&model, &x, &y);
+    // model.print_params();
+    //
+    // let mut x: Vec<Vec<f64>> = vec![];
+    // let mut y: Vec<f64> = vec![];
+    //
+    // // take care, that the x1,y1  resp x2,y2 pairs match the resulting color in y
+    // for i in 0..x1.len() {
+    //     let inp = vec![x1[i], y1[i]];
+    //     x.push(inp);
+    //     y.push(y_red[i]);
+    //     let inp = vec![x2[i], y2[i]];
+    //     x.push(inp);
+    //     y.push(y_blue[i]);
+    // }
+    // println!("number of parameters {}", model.parameters().len());
+    // println!("x.len()  {}", x.len());
+    // println!("y.len()  {}", y.len());
+    //
+    // let start = Instant::now();
+    // // desired targets
+    // let mut y_pred = vec![];
+    //
+    // for i in 0..epochs {
+    //     // forward pass
+    //     y_pred = model.forward(&x);
+    //
+    //     // calculate loss
+    //     let (mut loss, accuracy) = calc_loss_max_margin(&y, &y_pred, model.parameters());
+    //
+    //     // print_params(&mlp);
+    //     // backward pass consists of 2 steps
+    //     model.reset_grades();
+    //     loss.backward();
+    //
+    //     // update parameters
+    //     model.update2(i, epochs);
+    //
+    //     // keep track of loss improvement
+    //     println!(
+    //         "iteration {}   loss {}, accuracy {:.4}%",
+    //         i + 1,
+    //         loss.get_data(),
+    //         accuracy * 100.0
+    //     );
+    // }
+    // println!("y_pred.len()  {}", y_pred.len());
+    //
+    // print_predictions(y_pred, &y);
+    // //  model. print_params();
+    //
+    // let duration = start.elapsed();
+    // println!("training took {:?}", duration);
+    //
+    // plot_result(&model, &x, &y);
     println!("DONE");
 }
 

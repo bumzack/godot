@@ -6,7 +6,7 @@ use petgraph::prelude::*;
 use petgraph::Graph;
 
 use crate::micrograd_rs_v2::OpEnumV2;
-use crate::prelude::ValueRefV2;
+use crate::micrograd_rs_v2::ValueRefV2;
 
 pub fn draw_graph(root: ValueRefV2, filename: String) {
     let graph = create_petgraph(root);
@@ -84,7 +84,8 @@ fn save_svg(svg: String, filename: String) {
 }
 
 mod test {
-    use crate::prelude::{assert_two_float, draw_graph, ValueRefV2};
+    use crate::graph_v2::draw_graph;
+    use crate::micrograd_rs_v2::{assert_two_float, ValueRefV2};
 
     #[test]
     fn test_add() {
