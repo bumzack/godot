@@ -1,7 +1,7 @@
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::micrograd_rs_v3::{EPS2, ValueRefV3};
+use crate::micrograd_rs_v3::{ValueRefV3, EPS2};
 
 pub struct Neuron {
     weights: Vec<ValueRefV3>,
@@ -191,7 +191,7 @@ impl Network {
 
 pub trait Loss {
     fn calc_loss(&self, y_ground_truth: &Vec<f64>, y_pred: &Vec<ValueRefV3>, parameters: Vec<ValueRefV3>)
-                 -> ValueRefV3;
+        -> ValueRefV3;
 }
 
 pub struct MSELoss {}
@@ -283,7 +283,7 @@ pub struct SGD {
 impl Optimizer for SGD {
     fn update(&self, mut parameters: Vec<ValueRefV3>, epoch: usize) {
         let lr = 1.0 - self.learning_rate * epoch as f64 / self.totol_epochs as f64;
-        for    p in parameters.iter_mut() {
+        for p in parameters.iter_mut() {
             let x = p.get_data();
             let grad = p.get_grad();
             p.set_data(x - (lr * grad));
@@ -318,6 +318,4 @@ pub fn print_predictions(y_pred: Vec<ValueRefV3>, y_expected: &Vec<f64>) {
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

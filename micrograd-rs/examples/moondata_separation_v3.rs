@@ -2,12 +2,12 @@ use std::f64::consts::PI;
 use std::time::Instant;
 
 use plotters::prelude::*;
-use rand::{Rng, SeedableRng, thread_rng};
 use rand::distributions::Uniform;
 use rand::prelude::StdRng;
+use rand::{thread_rng, Rng, SeedableRng};
 use rand_distr::Normal;
 
-use micrograd_rs::micrograd_rs_engine_v3::{FC, MaxMarginLoss, Network, SGD};
+use micrograd_rs::micrograd_rs_engine_v3::{MaxMarginLoss, Network, FC, SGD};
 
 fn main() {
     let mut r = StdRng::seed_from_u64(1337);
@@ -80,7 +80,7 @@ fn main() {
     let y_pred = network.forward(&x);
     let loss = network.calc_loss(&y, &y_pred, network.parameters());
 
-    println!("before training     loss {} ", loss.get_data(), );
+    println!("before training     loss {} ", loss.get_data(),);
 
     let start = Instant::now();
     let mut y_pred = vec![];
@@ -99,7 +99,11 @@ fn main() {
 
         if i == 0 {
             for i in 0..30 {
-                println!("p data {} grad {}", network.parameters()[i].get_data(), network.parameters()[i].get_grad());
+                println!(
+                    "p data {} grad {}",
+                    network.parameters()[i].get_data(),
+                    network.parameters()[i].get_grad()
+                );
             }
         }
 

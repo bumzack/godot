@@ -779,7 +779,7 @@ mod tests {
     use std::f64::consts::SQRT_2;
 
     use crate::graph_v2::draw_graph;
-    use crate::micrograd_rs_v2::{assert_two_float, EPS, ValueRefV2};
+    use crate::micrograd_rs_v2::{assert_two_float, ValueRefV2, EPS};
 
     // before starting to add grad
     // https://youtu.be/VMj-3S1tku0?t=1875
