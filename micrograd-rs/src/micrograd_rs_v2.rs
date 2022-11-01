@@ -68,8 +68,10 @@ impl Backward for BackwardMul {
         let mut self__ = children[0].clone();
         let mut other = children[1].clone();
 
-        self__.set_grad(self__.get_grad() + other.borrow().data() * out.r.borrow().grad());
-        other.set_grad(other.get_grad() + self__.borrow().data() * out.r.borrow().grad());
+        let x = other.borrow().data();
+        self__.set_grad(self__.get_grad() + x * out.r.borrow().grad());
+        let x1 = self__.borrow().data();
+        other.set_grad(other.get_grad() + x1 * out.r.borrow().grad());
         // println!("backward mul ");
     }
 }
@@ -774,10 +776,10 @@ pub fn assert_two_float(a: f64, b: f64) {
 
 #[cfg(test)]
 mod tests {
+    use crate::graph_v2::draw_graph;
     use std::f64::consts::SQRT_2;
 
-    use crate::micrograd_rs_v2::{assert_two_float, EPS};
-    use crate::prelude::{draw_graph, ValueRefV2};
+    use crate::micrograd_rs_v2::{assert_two_float, ValueRefV2, EPS};
 
     // before starting to add grad
     // https://youtu.be/VMj-3S1tku0?t=1875
@@ -1366,6 +1368,20 @@ mod tests {
         let a_grad_expected = 2.0;
         let a = ValueRefV2::new_value(-5.0, "a".to_string());
         let mut c = &a + &a;
+        c.backward();
+
+        println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
+        assert_two_float(c.get_data(), expected);
+        assert_two_float(a.get_grad(), a_grad_expected);
+    }
+
+    #[test]
+    pub fn test_mul_same_variable() {
+        let a = -5.0_f64;
+        let expected = a * a;
+        let a_grad_expected = -10.0;
+        let a = ValueRefV2::new_value(a, "a".to_string());
+        let mut c = &a * &a;
         c.backward();
 
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());

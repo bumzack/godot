@@ -200,7 +200,8 @@ pub fn print_predictions(y_pred: Vec<ValueRefV2>, y_expected: &Vec<f64>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::{assert_two_float, Layer, Neuron, ValueRefV2, MLP};
+    use crate::micrograd_rs_engine_v2::{Layer, Neuron, MLP};
+    use crate::micrograd_rs_v2::{assert_two_float, ValueRefV2};
 
     // TODO
     // add a method to initialize the weights by hand and not randomly

@@ -13,6 +13,7 @@ tiny-skia = "*"
 serde_json = "*"
 rand = "*"
 plotters = "*"
+rand_distr = "*"
 
 [dependencies.petgraph]
 version = "*"

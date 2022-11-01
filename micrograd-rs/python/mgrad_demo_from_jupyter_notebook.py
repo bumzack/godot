@@ -35,8 +35,13 @@ model = MLP(2, [16, 16, 1])  # 2-layer neural network
 print(model)
 print("number of parameters", len(model.parameters()))
 
-# for p in model.parameters():
-#     print(f"param {p.data}")
+for p in model.parameters()[:50]:
+    print(f"param {p.data}")
+
+
+exit(29)
+
+
 
 
 # loss function
@@ -64,6 +69,7 @@ def loss(batch_size=None):
     alpha = 1e-4
     reg_loss = alpha * sum((p * p for p in model.parameters()))
     total_loss = data_loss + reg_loss
+    print(f"reg_loss {reg_loss.data}  data_loss {data_loss.data}   total_loss     {total_loss.data}")
 
     # also get accuracy
     accuracy = [(yi > 0) == (scorei.data > 0) for yi, scorei in zip(yb, scores)]
