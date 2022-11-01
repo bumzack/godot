@@ -1,8 +1,6 @@
-use graphviz_rust::print;
+use crate::micrograd_rs_v2::{ValueRefV2, EPS2};
 use rand::distributions::Uniform;
 use rand::prelude::*;
-
-use crate::micrograd_rs_v2::{EPS2, ValueRefV2};
 
 pub struct Neuron {
     weights: Vec<ValueRefV2>,
@@ -16,13 +14,9 @@ impl Neuron {
         let mut weights = vec![];
         for i in 0..nin {
             let y: f64 = between.sample(&mut rng);
-            println!("weight {}", y);
             weights.push(ValueRefV2::new_value(y, format!("weight {}", i)));
         }
-
-
         let bias: f64 = between.sample(&mut rng);
-        println!("bias {}", bias);
         let bias = ValueRefV2::new_value(bias, format!("bias"));
         Neuron { weights, bias }
     }
@@ -105,7 +99,6 @@ pub struct Network {
 impl Network {
     pub fn new() -> Box<Network> {
         let optimizer = Box::new(SGD::new(0.9, 0.0));
-        let loss = Box::new(MSELoss::new());
         let loss = Box::new(MaxMarginLoss::new());
         Box::new(Network {
             layers: vec![],
@@ -114,17 +107,15 @@ impl Network {
         })
     }
 
-    pub fn optimizer(&mut self, optimizer: Box<dyn Optimizer>)  {
+    pub fn optimizer(&mut self, optimizer: Box<dyn Optimizer>) {
         self.optimizer = optimizer;
-     }
+    }
 
-    pub fn loss(&mut self, loss: Box<dyn Loss>)  {
+    pub fn loss(&mut self, loss: Box<dyn Loss>) {
         self.loss = loss;
-     }
+    }
 
     pub fn new_fully_connected(nin: usize, mut nouts: Vec<usize>) -> Box<Network> {
-        let mut layers: Vec<Box<dyn Layer>> = vec![];
-
         let mut sizes = vec![];
         sizes.push(nin);
         sizes.append(&mut nouts);
@@ -165,8 +156,6 @@ impl Network {
             let y = self.forward_internal(x);
             y_pred.push(y.get(0).unwrap().clone());
         }
-
-        // print_predictions(&mut y_pred);
         y_pred
     }
 
@@ -200,7 +189,7 @@ impl Network {
     }
 }
 
-pub trait Loss {
+trait Loss {
     fn calc_loss(
         &self,
         y_ground_truth: &Vec<f64>,
@@ -210,12 +199,6 @@ pub trait Loss {
 }
 
 pub struct MSELoss {}
-
-impl MSELoss {
-    pub fn new() -> MSELoss {
-        MSELoss {}
-    }
-}
 
 impl Loss for MSELoss {
     fn calc_loss(
@@ -243,7 +226,7 @@ impl Loss for MSELoss {
 pub struct MaxMarginLoss {}
 
 impl MaxMarginLoss {
-    pub fn new() -> MaxMarginLoss {
+    fn new() -> MaxMarginLoss {
         MaxMarginLoss {}
     }
 }
@@ -251,15 +234,15 @@ impl MaxMarginLoss {
 impl Loss for MaxMarginLoss {
     fn calc_loss(
         &self,
-        y_ground_truth: &Vec<f64>,          // yb in python
-        y_pred: &Vec<ValueRefV2>,           // scores in python
+        y_ground_truth: &Vec<f64>,
+        y_pred: &Vec<ValueRefV2>,
         parameters: Vec<ValueRefV2>,
     ) -> (ValueRefV2, f64) {
         let loss_vec: Vec<ValueRefV2> = y_pred
             .iter()
             .zip(y_ground_truth.iter())
             .into_iter()
-            .map(|(ypred, ygr)| (1.0_f64 + &((-*ygr) * ypred)).relu())
+            .map(|(ypred, ygr)| (1.0_f64 + &(&(-ypred) * *ygr)).relu())
             .collect();
         //loss_vec.iter().for_each(|y| println!("loss_vec = {}", y.get_data()));
         let mut loss = ValueRefV2::new_value(0.0, "loss".to_string());
@@ -271,7 +254,7 @@ impl Loss for MaxMarginLoss {
         let alpha = 0.0001_f64;
         // let sum_parameters = parameters.iter().map(|p| p * p).collect();
         let mut reg_loss = ValueRefV2::new_value(0.0, "reg_loss".to_string());
-        parameters.iter().for_each(|p| reg_loss = &reg_loss + &(p * p));
+        parameters.iter().for_each(|p| reg_loss = &reg_loss + p);
         reg_loss = &reg_loss * alpha;
         let total_loss = reg_loss + data_loss;
 
@@ -287,44 +270,6 @@ impl Loss for MaxMarginLoss {
         (total_loss, accuracy)
     }
 }
-
-pub  fn calc_loss_max_margin(
-    y_ground_truth: &Vec<f64>,          // yb in python
-    y_pred: &Vec<ValueRefV2>,           // scores in python
-    parameters: Vec<ValueRefV2>,
-) -> (ValueRefV2, f64) {
-    let loss_vec: Vec<ValueRefV2> = y_pred
-        .iter()
-        .zip(y_ground_truth.iter())
-        .into_iter()
-        .map(|(ypred, ygr)| (1.0_f64 + &((-*ygr) * ypred)).relu())
-        .collect();
-    //loss_vec.iter().for_each(|y| println!("loss_vec = {}", y.get_data()));
-    let mut loss = ValueRefV2::new_value(0.0, "loss".to_string());
-    for l in loss_vec.iter() {
-        // println!("loss {} += l {} ", loss, l.get_data());
-        loss = &loss + l;
-    }
-    let data_loss = loss / loss_vec.len() as f64;
-    let alpha = 0.0001_f64;
-    // let sum_parameters = parameters.iter().map(|p| p * p).collect();
-    let mut reg_loss = ValueRefV2::new_value(0.0, "reg_loss".to_string());
-    parameters.iter().for_each(|p| reg_loss = &reg_loss + &(p * p));
-    reg_loss = &reg_loss * alpha;
-    let total_loss = reg_loss + data_loss;
-
-    // accuracy
-    let accuracies: Vec<bool> = y_pred
-        .iter()
-        .zip(y_ground_truth.iter())
-        .map(|(y_pred_i, y_ground_truth_i)| (y_pred_i.get_data() > 0.0_f64) == (*y_ground_truth_i > 0.0_f64))
-        .collect();
-    let success = accuracies.iter().filter(|&a| *a).count() as f64;
-    let accuracy = success / accuracies.len() as f64;
-
-    (total_loss, accuracy)
-}
-
 
 pub trait Optimizer {
     fn update(&self, parameters: Vec<ValueRefV2>, epoch: usize);
@@ -375,7 +320,9 @@ pub fn print_predictions(y_pred: Vec<ValueRefV2>, y_expected: &Vec<f64>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::{assert_two_float, Layer, MLP, Neuron, ValueRefV2};
+    use crate::micrograd_rs_engine_v2::{Layer, Neuron, MLP};
+    use crate::micrograd_rs_v2::{assert_two_float, ValueRefV2};
+    use crate::prelude::{assert_two_float, Layer, Neuron, ValueRefV2, MLP};
 
     // TODO
     // add a method to initialize the weights by hand and not randomly

@@ -4,7 +4,7 @@ use std::time::Instant;
 use plotters::prelude::*;
 use rand::Rng;
 
-use micrograd_rs::micrograd_rs_engine_v3::{calc_loss_max_margin, FC, MaxMarginLoss, Network, SGD};
+use micrograd_rs::micrograd_rs_engine_v3::{Network, FC, SGD};
 
 fn main() {
     // config
@@ -29,10 +29,7 @@ fn main() {
         network.add_layer(Box::new(output_layer));
 
         let optimizer = SGD::new(0.9, epochs as f64);
-
         network.optimizer(Box::new(optimizer));
-        //network.loss(Box::new(loss));
-
         (epochs, network, x, y)
     } else {
         let cnt_samples = 50; // 50 per color -> 100 total like in the jupyter notebook
@@ -54,10 +51,7 @@ fn main() {
         network.add_layer(Box::new(output_layer));
 
         let optimizer = SGD::new(0.9, epochs as f64);
-        let loss = MaxMarginLoss::new();
-
         network.optimizer(Box::new(optimizer));
-        network.loss(Box::new(loss));
 
         (epochs, network, x, y)
     };
@@ -69,25 +63,14 @@ fn main() {
 
     let start = Instant::now();
     // desired targets
-
-    // let y_pred = network.forward(&x);
-    // let (mut loss, accuracy) = network.calc_loss(&y, &y_pred, network.parameters());
-    // println!(
-    //     "before training     loss {}, accuracy {:.4}%",
-    //     loss.get_data(),
-    //     accuracy * 100.0
-    // );
-
     let mut y_pred = vec![];
+
     for i in 0..epochs {
         // forward pass
         y_pred = network.forward(&x);
 
         // calculate loss
-       let (mut loss, accuracy) = network.calc_loss(&y, &y_pred, network.parameters());
-
-        // let (mut loss, accuracy) = calc_loss_max_margin(&y, &y_pred, network.parameters());
-
+        let (mut loss, accuracy) = network.calc_loss(&y, &y_pred, network.parameters());
 
         // print_params(&mlp);
         // backward pass consists of 2 steps
