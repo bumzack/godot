@@ -11,7 +11,8 @@ class Value:
         self._backward = lambda: None
         self._prev = set(_children)
         self._op = _op  # the op that produced this node, for graphviz / debugging / etc
-
+        self.label =""
+        self.topoo = {}
     def __add__(self, other):
         other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data + other.data, (self, other), '+')
@@ -86,6 +87,7 @@ class Value:
 
         # go one variable at a time and apply the chain rule to get its gradient
         print(f"top size {len(topo)}")
+        self.topoo = topo
         self.grad = 1
         for v in reversed(topo):
             v._backward()

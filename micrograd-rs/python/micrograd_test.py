@@ -1,5 +1,5 @@
 from graphviz import Digraph
-from micrograd.engine import Value
+from mgrad.engine import Value
 
 
 def trace(root):
@@ -112,3 +112,12 @@ print(f'f.grad = {f.grad:.8f}')
 dot = draw_dot(g)
 dot
 dot.render('gout_with_grads')
+
+
+
+topo = g.topoo
+
+print("#################################################")
+for t in topo:
+    print(f"{t.label} data {t.data }   grad = {t.grad:.8f}")
+print("#################################################")
