@@ -76,24 +76,6 @@ impl Backward for BackwardMul {
     }
 }
 
-// struct BackwardDiv {}
-//
-// impl Backward for BackwardDiv {
-//     fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
-//         // println!(
-//             "DIV  out {:?},  'self' {:?}, 'other' {:?}",
-//             out, children[0], children[1]
-//         );
-//
-//         let mut self__ = children[0].clone();
-//         let mut other = children[1].clone();
-//
-//         self__.set_grad(self__.get_grad() + (1.0 / other.borrow().data()) * out.r.borrow().grad());
-//         other.set_grad(other.get_grad() + self__.borrow().data() * out.r.borrow().grad());
-//         // println!("backward div ");
-//     }
-// }
-
 struct BackwardTanh {}
 
 impl Backward for BackwardTanh {
@@ -288,7 +270,7 @@ impl ValueRefV2 {
     pub fn backward(&mut self) {
         self.set_grad(1.0);
         let topo = Self::traverse(self);
-        println!("topo size   {} ", topo.len());
+        // println!("topo size   {} ", topo.len());
         for n in topo.iter().rev() {
             match &n.r.borrow().backward {
                 Some(backward) => {
@@ -953,20 +935,42 @@ mod tests {
     // https://github.com/karpathy/micrograd
     #[test]
     pub fn test_grad() {
-        let a = ValueRefV2::new_value(-4.0, "a".to_string()); //         a = Value(-4.0)
-        let b = ValueRefV2::new_value(2.0, "b".to_string()); //         b = Value(2.0)
+        let mut a = ValueRefV2::new_value(-4.0, "a".to_string()); //         a = Value(-4.0)
+        let mut b = ValueRefV2::new_value(2.0, "b".to_string()); //         b = Value(2.0)
         let mut c = &a + &b; //         c = a + b
         let mut d = &a * &b + b.pow(3.0); //         d = a * b + b**3
         c += &c + 1.0; //         c += c + 1
         c += (1.0 + &c) + (-&a); //         c += 1 + c + (-a)
         d += &d * 2.0 + (&b + &a).relu(); //         d += d * 2 + (b + a).relu()
         d += 3.0 * &d + (&b - &a).relu(); //         d += 3 * d + (b - a).relu()
-        let e = &c - &d; //         e = c - d
-        let f = &e.pow(2.0); //         f = e**2
-        let mut g = f / 2.0 as f64; //         g = f / 2.0
-        g += 10.0 as f64 / f; //         g += 10.0 / f
+        let mut e = &c - &d; //         e = c - d
+        let mut f = (&e).pow(2.0); //         f = e**2
+        let mut g = &f / 2.0 as f64; //         g = f / 2.0
+        g += 10.0 as f64 / &f; //         g += 10.0 / f
 
         g.backward();
+
+        a.set_label("a".to_string());
+        b.set_label("b".to_string());
+        c.set_label("c".to_string());
+        d.set_label("d".to_string());
+        e.set_label("e".to_string());
+        f.set_label("f".to_string());
+        g.set_label("g".to_string());
+
+        let topo = ValueRefV2::traverse(&g);
+
+        println!("#################################");
+        println!("Topo");
+        for t in topo.iter() {
+            println!(
+                "{}  data {},  grad  {}",
+                t.r.borrow().label(),
+                t.get_data(),
+                t.get_grad()
+            );
+        }
+        println!("#################################");
 
         let a_grad_expected = 138.83381924;
         let b_grad_expected = 645.57725948;
@@ -1387,5 +1391,100 @@ mod tests {
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
         assert_two_float(c.get_data(), expected);
         assert_two_float(a.get_grad(), a_grad_expected);
+    }
+
+    #[test]
+    pub fn test_neg_grad() {
+        let a = -5.0_f64;
+        let expected = -a;
+        let a_grad_expected = -1.0;
+        let a = ValueRefV2::new_value(a, "a".to_string());
+        let mut c = -&a;
+        c.backward();
+
+        println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
+        assert_two_float(c.get_data(), expected);
+        assert_two_float(a.get_grad(), a_grad_expected);
+    }
+
+    #[test]
+    pub fn test_neg_grad1() {
+        let a = ValueRefV2::new_value(-4.0, "a".to_string()); //         a = Value(-4.0)
+        let b = ValueRefV2::new_value(2.0, "b".to_string()); //         b = Value(2.0)
+        let mut c = &a + &b; //         c = a + b
+        c += &c + 1.0; //         c += c + 1
+        c += (1.0 + &c) + (-&a); //         c += 1 + c + (-a)
+
+        c.backward();
+
+        let a_expected = -4.0;
+        let b_expected = 2.0;
+        let c_expected = -1.0;
+
+        let a_grad_expected = 3.0;
+        let b_grad_expected = 4.0;
+        let c_grad_expected = 1.0;
+
+        println!("a data {}   expected {}", a.get_data(), a_expected);
+        println!("b data {}   expected {}", b.get_data(), b_expected);
+        println!("c data {}   expected {}", c.get_data(), c_expected);
+
+        println!("a grad {}   expected {}", a.get_grad(), a_grad_expected);
+        println!("a grad {}   expected {}", b.get_grad(), b_grad_expected);
+        println!("a grad {}   expected {}", c.get_grad(), c_grad_expected);
+
+        assert_two_float(a.get_data(), a_expected);
+        assert_two_float(b.get_data(), b_expected);
+        assert_two_float(c.get_data(), c_expected);
+
+        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_two_float(b.get_grad(), b_grad_expected);
+        assert_two_float(c.get_grad(), c_grad_expected);
+    }
+
+    #[test]
+    pub fn test_sub_relu_grad() {
+        let a = ValueRefV2::new_value(-4.0, "a".to_string()); //         a = Value(-4.0)
+        let b = ValueRefV2::new_value(2.0, "b".to_string()); //         b = Value(2.0)
+        let mut c = (&b - &a).relu();
+
+        c.backward();
+
+        let topo = ValueRefV2::traverse(&c);
+        println!("#################################");
+        println!("Topo");
+        for t in topo.iter() {
+            println!(
+                "{}  data {},  grad  {}",
+                t.r.borrow().label(),
+                t.get_data(),
+                t.get_grad()
+            );
+        }
+        println!("#################################");
+
+        let a_expected = -4.0;
+        let b_expected = 2.0;
+        let c_expected = 6.0;
+
+        let a_grad_expected = -1.0;
+        let b_grad_expected = 1.0;
+        let c_grad_expected = 1.0;
+
+        println!("a data {}   expected {}", a.get_data(), a_expected);
+        println!("b data {}   expected {}", b.get_data(), b_expected);
+        println!("c data {}   expected {}", c.get_data(), c_expected);
+
+        println!("a grad {}   expected {}", a.get_grad(), a_grad_expected);
+        println!("b grad {}   expected {}", b.get_grad(), b_grad_expected);
+        println!("c grad {}   expected {}", c.get_grad(), c_grad_expected);
+
+        assert_two_float(a.get_data(), a_expected);
+        assert_two_float(b.get_data(), b_expected);
+        assert_two_float(c.get_data(), c_expected);
+
+        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_two_float(b.get_grad(), b_grad_expected);
+        assert_two_float(c.get_grad(), c_grad_expected);
     }
 }

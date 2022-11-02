@@ -166,9 +166,48 @@ print("#########################################")
 
 a = Value(-5)
 c = a*a
-print(f"c = a * a  = {a} * {a}a  = {c}")
+print(f"c = a * a  = {a} * {a} = {c}")
 
 c.backward()
 print(f"a.grad:  {a.grad}  ")
 print("#########################################")
+
+
+
+a = Value(-5)
+c = -a
+print(f"c = -a  = -{a}  = {c}")
+
+c.backward()
+print(f"a.grad:  {a.grad}  ")
+print("#########################################")
+
+
+
+
+a = Value(-4)
+b = Value(2)
+
+c = (b-a).relu()
+print(f"c = -(b-a).relu() = ({b} - {a}).relu() =  {c}")
+
+c.backward()
+print(f"a.grad:  {a.grad}  a.data:  {a.data} ")
+print(f"b.grad:  {b.grad}  b.data:  {b.data} ")
+print(f"c.grad:  {c.grad}  c.data:  {c.data} ")
+
+
+
+topo = c.topoo
+
+print("######## TOPO  #########################################")
+for t in topo:
+    print(f"{t.label} data {t.data }   grad = {t.grad:.8f}")
+print("######## END TOPO  #########################################")
+
+
+
+print("#########################################")
+
+
 

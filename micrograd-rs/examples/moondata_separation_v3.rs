@@ -42,7 +42,7 @@ fn main() {
         (epochs, network, x, y)
     } else {
         let cnt_samples = 50; // 50 per color -> 100 total like in the jupyter notebook
-        let epochs = 400;
+        let epochs = 100;
         let (x, y) = prepare_data(cnt_samples);
 
         // network config
