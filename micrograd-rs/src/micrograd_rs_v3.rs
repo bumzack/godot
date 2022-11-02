@@ -65,7 +65,6 @@ impl Backward for BackwardMul {
         self__.set_grad(self__.get_grad() + x * out.r.borrow().grad());
         let x1 = self__.borrow().data();
         other.set_grad(other.get_grad() + x1 * out.r.borrow().grad());
-        println!("backward mul ");
     }
 }
 
@@ -101,9 +100,7 @@ struct BackwardPow {
 impl Backward for BackwardPow {
     fn apply(&self, out: ValueRefV3) {
         let mut self__ = self.left.clone();
-        let mut other = self.right.clone();
-        println!("self .label {}", self__.r.borrow().label());
-        println!("other .label {}", other.r.borrow().label());
+        let other = self.right.clone();
         let other = other.borrow().data;
         let x = other * (self__.borrow().data().powf(other - 1.0)) * out.r.borrow().grad();
         self__.set_grad(self__.get_grad() + x);
@@ -126,7 +123,7 @@ pub struct ValueV3 {
     data: f64,
     grad: f64,
     op: OpEnumV3,
-    children: HashSet<ValueRefV3>,
+    children: Vec<ValueRefV3>,
     label: String,
     backward: Option<Box<dyn Backward>>,
 }
@@ -193,8 +190,8 @@ impl ValueRefV3 {
         let x = self.r.borrow().data();
         let y = ((2.0_f64 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
+        let mut children = vec![];
+        children.push(self.clone());
         let tanh = BackwardTanh { left: self.clone() };
         let v = ValueV3 {
             data: y,
@@ -212,8 +209,8 @@ impl ValueRefV3 {
         let x = self.r.borrow().data();
         let y = x.exp();
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
+        let mut children = vec![];
+        children.push(self.clone());
 
         let exp = BackwardExp { left: self.clone() };
 
@@ -235,9 +232,9 @@ impl ValueRefV3 {
         let x = self.r.borrow().data();
         let y = x.powf(f);
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(r.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(r.clone());
 
         let pow = BackwardPow {
             left: self.clone(),
@@ -259,8 +256,8 @@ impl ValueRefV3 {
         let x = self.r.borrow().data();
         let y = if x < 0.0 { 0.0 } else { x };
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
+        let mut children = vec![];
+        children.push(self.clone());
 
         let relu = BackwardExp { left: self.clone() };
 
@@ -315,7 +312,7 @@ impl ValueV3 {
         ValueV3 {
             data,
             op,
-            children: HashSet::new(),
+            children: vec![],
             label,
             grad: 0.0,
             backward: None,
@@ -326,7 +323,7 @@ impl ValueV3 {
         ValueV3 {
             data,
             op: OpEnumV3::NONE,
-            children: HashSet::new(),
+            children: vec![],
             label,
             grad: 0.0,
             backward: None,
@@ -349,7 +346,7 @@ impl ValueV3 {
         &self.label
     }
 
-    pub fn children(&self) -> &HashSet<ValueRefV3> {
+    pub fn children(&self) -> &Vec<ValueRefV3> {
         &self.children
     }
 
@@ -373,9 +370,9 @@ impl Add<&ValueRefV3> for &ValueRefV3 {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(rhs.clone());
 
         let add = BackwardAdd {
             left: self.clone(),
@@ -399,9 +396,9 @@ impl Add for ValueRefV3 {
     fn add(self, rhs: ValueRefV3) -> Self::Output {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(rhs.clone());
         let add = BackwardAdd {
             left: self.clone(),
             right: rhs.clone(),
@@ -436,9 +433,9 @@ impl Sub for &ValueRefV3 {
     fn sub(self, rhs: &ValueRefV3) -> Self::Output {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(rhs.clone());
         let sub = BackwardSub {
             left: self.clone(),
             right: rhs.clone(),
@@ -462,9 +459,9 @@ impl Sub for ValueRefV3 {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(rhs.clone());
         let sub = BackwardSub {
             left: self.clone(),
             right: rhs.clone(),
@@ -488,9 +485,9 @@ impl Mul<&ValueRefV3> for &ValueRefV3 {
         let x1 = self.r.borrow();
         let x2 = rhs.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(rhs.clone());
         let mul = BackwardMul {
             left: self.clone(),
             right: rhs.clone(),
@@ -524,9 +521,9 @@ impl Add<f64> for &ValueRefV3 {
         let r = ValueRefV3::new_value(rhs, string.clone());
         let x1 = self.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(r.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(r.clone());
         let add = BackwardAdd {
             left: self.clone(),
             right: r.clone(),
@@ -556,9 +553,9 @@ impl Add<&ValueRefV3> for f64 {
             right: rhs.clone(),
         };
 
-        let mut children = HashSet::new();
-        children.insert(r);
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(r);
+        children.push(rhs.clone());
 
         let out = ValueV3 {
             data: x1.data + self,
@@ -580,9 +577,9 @@ impl Sub<f64> for &ValueRefV3 {
         let r = ValueRefV3::new_value(rhs, string.clone());
         let x1 = self.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(r.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(r.clone());
         let sub = BackwardSub {
             left: self.clone(),
             right: r.clone(),
@@ -608,9 +605,9 @@ impl Sub<&ValueRefV3> for f64 {
         let r = ValueRefV3::new_value(self, string.clone());
         let x1 = rhs.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(r.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(r.clone());
+        children.push(rhs.clone());
         let sub = BackwardSub {
             left: r.clone(),
             right: rhs.clone(),
@@ -635,9 +632,9 @@ impl Mul<f64> for &ValueRefV3 {
         let string = "f64 mul".to_string();
         let r = ValueRefV3::new_value(rhs, string.clone());
         let x1 = self.r.borrow();
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(r.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(r.clone());
         let mul = BackwardMul {
             left: self.clone(),
             right: r.clone(),
@@ -661,9 +658,9 @@ impl Mul<f64> for ValueRefV3 {
         let string = "f64 mul".to_string();
         let r = ValueRefV3::new_value(rhs, string.clone());
         let x1 = self.r.borrow();
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(r.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(r.clone());
         let mul = BackwardMul {
             left: self.clone(),
             right: r.clone(),
@@ -688,9 +685,9 @@ impl Mul<f64> for &mut ValueRefV3 {
         let string = "f64 mul".to_string();
         let r = ValueRefV3::new_value(rhs, string.clone());
         let x1 = self.r.borrow();
-        let mut children = HashSet::new();
-        children.insert(self.clone());
-        children.insert(r.clone());
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(r.clone());
         let mul = BackwardMul {
             left: self.clone(),
             right: r.clone(),
@@ -716,9 +713,9 @@ impl Mul<&ValueRefV3> for f64 {
         let r = ValueRefV3::new_value(self, string.clone());
         let x1 = rhs.r.borrow();
 
-        let mut children = HashSet::new();
-        children.insert(r.clone());
-        children.insert(rhs.clone());
+        let mut children = vec![];
+        children.push(r.clone());
+        children.push(rhs.clone());
         let mul = BackwardMul {
             left: r.clone(),
             right: rhs.clone(),
@@ -821,7 +818,7 @@ impl Default for ValueV3 {
         ValueV3 {
             data: 0.0,
             op: OpEnumV3::NONE,
-            children: HashSet::new(),
+            children: vec![],
             grad: 0.0,
             label: "default".to_string(),
             backward: None,
