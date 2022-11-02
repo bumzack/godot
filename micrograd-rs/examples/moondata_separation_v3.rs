@@ -2,22 +2,20 @@ use std::f64::consts::PI;
 use std::time::Instant;
 
 use plotters::prelude::*;
+use rand::{Rng, SeedableRng, thread_rng};
 use rand::distributions::Uniform;
 use rand::prelude::StdRng;
-use rand::{thread_rng, Rng, SeedableRng};
 use rand_distr::Normal;
 
-use micrograd_rs::micrograd_rs_engine_v3::{MaxMarginLoss, Network, FC, SGD};
+use micrograd_rs::micrograd_rs_engine_v3::{FC, MaxMarginLoss, Network, PythonNumPyRandomValuesInitializer, RandomUniformInitializer, SGD};
 
 fn main() {
-    let mut r = StdRng::seed_from_u64(1337);
-    let normal = Uniform::from(-1.0..1.0);
 
     // config
     let use_python_data = true;
 
     let (epochs, network, x, y) = if use_python_data {
-        let epochs = 300;
+        let epochs = 100;
         let (x, y) = moondata_python();
 
         // network config
@@ -25,9 +23,10 @@ fn main() {
         let n_hidden = 16;
         let nout = 1;
 
-        let input_layer = FC::new(nin, n_hidden, &normal, &mut r);
-        let hidden_layer1 = FC::new(n_hidden, n_hidden, &normal, &mut r);
-        let output_layer = FC::new(n_hidden, nout, &normal, &mut r);
+        let mut initializer = PythonNumPyRandomValuesInitializer::new();
+        let input_layer = FC::new(nin, n_hidden, &mut initializer);
+        let hidden_layer1 = FC::new(n_hidden, n_hidden, &mut initializer);
+        let output_layer = FC::new(n_hidden, nout, &mut initializer);
 
         let mut network = Network::new();
         network.add_layer(Box::new(input_layer));
@@ -50,9 +49,10 @@ fn main() {
         let n_hidden = 16;
         let nout = 1;
 
-        let input_layer = FC::new(nin, n_hidden, &normal, &mut r);
-        let hidden_layer1 = FC::new(n_hidden, n_hidden, &normal, &mut r);
-        let output_layer = FC::new(n_hidden, nout, &normal, &mut r);
+        let mut initializer = RandomUniformInitializer::new();
+        let input_layer = FC::new(nin, n_hidden, &mut initializer);
+        let hidden_layer1 = FC::new(n_hidden, n_hidden, &mut initializer);
+        let output_layer = FC::new(n_hidden, nout, &mut initializer);
 
         let mut network = Network::new();
         network.add_layer(Box::new(input_layer));
@@ -73,14 +73,14 @@ fn main() {
 
     println!("number of parameters {}", network.parameters().len());
 
-    for i in 0..50 {
+    for i in 0..network.parameters().len() {
         println!("parameter {}", network.parameters()[i].get_data());
     }
 
     let y_pred = network.forward(&x);
     let loss = network.calc_loss(&y, &y_pred, network.parameters());
 
-    println!("before training     loss {} ", loss.get_data(),);
+    println!("before training     loss {} ", loss.get_data(), );
 
     let start = Instant::now();
     let mut y_pred = vec![];

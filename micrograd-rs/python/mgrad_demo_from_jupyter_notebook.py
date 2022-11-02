@@ -35,7 +35,7 @@ model = MLP(2, [16, 16, 1])  # 2-layer neural network
 print(model)
 print("number of parameters", len(model.parameters()))
 
-for p in model.parameters()[:50]:
+for p in model.parameters():
     print(f"param {p.data}")
 
 
