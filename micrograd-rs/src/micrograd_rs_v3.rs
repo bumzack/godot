@@ -614,7 +614,7 @@ impl Sub<&ValueRefV3> for f64 {
         };
 
         let out = ValueV3 {
-            data: x1.data - self,
+            data:  self-x1.data,
             op: OpEnumV3::SUB,
             children,
             label: format!("{} - {}", string, rhs.borrow().label),
@@ -1172,7 +1172,7 @@ mod tests {
 
     #[test]
     pub fn test_grad_relu_positive() {
-        let a_f64 = 1.0_f64;
+        let a_f64 = 1.1_f64;
         let expected = a_f64.max(0.0);
         test_relu(a_f64, expected, 1.0);
     }
@@ -1186,7 +1186,7 @@ mod tests {
 
     #[test]
     pub fn test_grad_relu_negative() {
-        let a_f64 = -10.0_f64;
+        let a_f64 = -10.2_f64;
         let expected = a_f64.max(0.0);
         test_relu(a_f64, expected, 0.0);
     }

@@ -86,7 +86,7 @@ class Value:
         build_topo(self)
 
         # go one variable at a time and apply the chain rule to get its gradient
-        print(f"top size {len(topo)}")
+        #print(f"top size {len(topo)}")
         self.topoo = topo
         self.grad = 1
         for v in reversed(topo):

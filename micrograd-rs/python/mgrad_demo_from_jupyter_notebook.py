@@ -13,17 +13,16 @@ random.seed(1337)
 
 X, y = make_moons(n_samples=100, noise=0.1)
 
-print(f"X.shape {X.shape}")
-print(f"y.shape {y.shape}")
+# for i in range(0,100):
+#     print(f"(x {X[i,0]} /  {X[i,1]})    -->   {y[i]} ")
 
-print(f"X[10] {X[0:10]}")
-print(f"y[10] {y[0:10]}")
 
 pd.DataFrame(X).to_csv("X.csv")
 pd.DataFrame(y).to_csv("y.csv")
 
 y = y * 2 - 1  # make y be -1 or 1
-print(f"y[10] {y[0:10]}")
+
+
 
 # visualize in 2D
 plt.figure(figsize=(5, 5))
@@ -35,9 +34,6 @@ model = MLP(2, [16, 16, 1])  # 2-layer neural network
 print(model)
 print("number of parameters", len(model.parameters()))
 
-for p in model.parameters():
-    print(f"param {p.data}")
-
 
 # loss function
 def loss(batch_size=None):
@@ -46,17 +42,15 @@ def loss(batch_size=None):
         Xb, yb = X, y
     else:
         ri = np.random.permutation(X.shape[0])[:batch_size]
-        print(f"ri {ri}")
         Xb, yb = X[ri], y[ri]
-        print(f"Xb.shape  {Xb.shape}   yb.shape  {yb.shape}")
-        print(f"Xb[0:10] {Xb[0:10]}")
-        print(f"yb[0:10] {yb[0:10]}")
 
     inputs = [list(map(Value, xrow)) for xrow in Xb]
+    print(f"inputs.len   {len(inputs)}")
+
+    # print(f"inputs {inputs}")
 
     # forward the model to get scores
     scores = list(map(model, inputs))
-    # print(f"scores[0:20] {scores[0:20]}")
 
     # svm "max-margin" loss
     losses = [(1 + -yi * scorei).relu() for yi, scorei in zip(yb, scores)]
@@ -74,8 +68,7 @@ def loss(batch_size=None):
 
 
 total_loss, acc = loss()
-print(f"before training {total_loss}     accuracy {acc * 100}% ")
-
+print(f"before training {total_loss.data}     accuracy {acc * 100}% ")
 start = time.time()
 
 # optimization
@@ -88,9 +81,12 @@ for k in range(100):
     model.zero_grad()
     total_loss.backward()
 
-    if k == 0:
-        for p in model.parameters()[:30]:
-            print(f"param.data  {p.data}   grad   {p.grad} ")
+    # print("############################################################ ")
+    # print("initial ")
+    # print("############################################################ ")
+    # for p in model.parameters():
+    #     print(f"param.data  {p.data}   grad   {p.grad} ")
+    # print("############################################################ ")
 
     # update (sgd)
     learning_rate = 1.0 - 0.9 * k / 100
@@ -100,10 +96,23 @@ for k in range(100):
     if k % 1 == 0:
         print(f"step {k} loss {total_loss.data}, accuracy {acc * 100}%  learning_rate {learning_rate} ")
 
+    # if k > 1:
+    #     break
+
+# print("############################################################ ")
+# print("updated ")
+# print("############################################################ ")
+#
+# for p in model.parameters()[2]:
+#     print(f"param.data  {p.data}   grad   {p.grad} ")
+#
+# print("############################################################ ")
+
+
 # visualize decision boundary
 
 end = time.time()
-
+#
 print(f"training took {end - start}")
 
 h = 0.25
@@ -122,4 +131,4 @@ plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral, alpha=0.8)
 plt.scatter(X[:, 0], X[:, 1], c=y, s=40, cmap=plt.cm.Spectral)
 plt.xlim(xx.min(), xx.max())
 plt.ylim(yy.min(), yy.max())
-plt.show()
+# plt.show()

@@ -1,4 +1,5 @@
 use std::f64::consts::PI;
+use std::process::{exit, id};
 use std::time::Instant;
 
 use plotters::prelude::*;
@@ -12,52 +13,88 @@ use micrograd_rs::micrograd_rs_engine_v3::{FC, MaxMarginLoss, Network, PythonNum
 fn main() {
 
     // config
-    let use_python_data = true;
+    let use_python_data = false;
 
-    let (epochs, network, x, y) = if use_python_data {
+    let (epochs, network, x, y, y_orig) = if use_python_data {
         let epochs = 100;
-        let (x, y) = moondata_python();
-
+        let (x, y_orig) = moondata_python();
+        let y: Vec<f64> = y_orig.iter().map(|yy| yy * 2.0 - 1.0).collect();
         // network config
         let nin = 2;
         let n_hidden = 16;
         let nout = 1;
 
         let mut initializer = PythonNumPyRandomValuesInitializer::new();
-        let input_layer = FC::new(nin, n_hidden, &mut initializer);
-        let hidden_layer1 = FC::new(n_hidden, n_hidden, &mut initializer);
-        let output_layer = FC::new(n_hidden, nout, &mut initializer);
+        let input_layer = FC::new(nin, n_hidden, true, "input_layer".to_string(), &mut initializer);
+        let hidden_layer1 = FC::new(n_hidden, n_hidden, true, "hidden_layer1".to_string(), &mut initializer);
+        let output_layer = FC::new(n_hidden, nout, false, "output_layer".to_string(), &mut initializer);
 
         let mut network = Network::new();
         network.add_layer(Box::new(input_layer));
         network.add_layer(Box::new(hidden_layer1));
         network.add_layer(Box::new(output_layer));
 
+        // let nin = 2;
+        // let n_hidden1 = 8;
+        // let n_hidden2 = 8;
+        // let nout = 1;
+        //
+        // let input_layer = FC::new(nin, n_hidden1, true, "input_layer".to_string(), &mut initializer);
+        // let hidden_layer1 = FC::new(n_hidden1, n_hidden2, true, "hidden_layer1".to_string(), &mut initializer);
+        // let hidden_layer2 = FC::new(n_hidden2, n_hidden2, true, "hidden_layer2".to_string(), &mut initializer);
+        // let output_layer = FC::new(n_hidden2, nout, false, "output_layer".to_string(), &mut initializer);
+        //
+        // let mut network = Network::new();
+        // network.add_layer(Box::new(input_layer));
+        // network.add_layer(Box::new(hidden_layer1));
+        // network.add_layer(Box::new(hidden_layer2));
+        // network.add_layer(Box::new(output_layer));
+
+
         let optimizer = SGD::new(0.9, epochs as f64);
         let loss = MaxMarginLoss::new();
         network.optimizer(Box::new(optimizer));
         network.loss(Box::new(loss));
 
-        (epochs, network, x, y)
+        (epochs, network, x, y, y_orig)
     } else {
         let cnt_samples = 50; // 50 per color -> 100 total like in the jupyter notebook
-        let epochs = 100;
-        let (x, y) = prepare_data(cnt_samples);
+        let epochs = 200;
+        let (x, y_orig) = prepare_data(cnt_samples);
+        let y: Vec<f64> = y_orig.iter().map(|yy| yy * 2.0 - 1.0).collect();
 
-        // network config
         let nin = 2;
-        let n_hidden = 16;
+        let n_hidden = 20;
         let nout = 1;
 
         let mut initializer = RandomUniformInitializer::new();
-        let input_layer = FC::new(nin, n_hidden, &mut initializer);
-        let hidden_layer1 = FC::new(n_hidden, n_hidden, &mut initializer);
-        let output_layer = FC::new(n_hidden, nout, &mut initializer);
+        let input_layer = FC::new(nin, n_hidden, true, "input_layer".to_string(), &mut initializer);
+        let hidden_layer1 = FC::new(n_hidden, n_hidden, true, "hidden_layer1".to_string(), &mut initializer);
+        let output_layer = FC::new(n_hidden, nout, false, "output_layer".to_string(), &mut initializer);
 
         let mut network = Network::new();
         network.add_layer(Box::new(input_layer));
         network.add_layer(Box::new(hidden_layer1));
         network.add_layer(Box::new(output_layer));
+
+
+        // // network config
+        // let nin = 2;
+        // let n_hidden1 = 8;
+        // let n_hidden2 = 8;
+        // let nout = 1;
+        //
+        // let mut initializer = RandomUniformInitializer::new();
+        // let input_layer = FC::new(nin, n_hidden1, true, "input_layer".to_string(), &mut initializer);
+        // let hidden_layer1 = FC::new(n_hidden1, n_hidden2, true, "hidden_layer1".to_string(), &mut initializer);
+        // let hidden_layer2 = FC::new(n_hidden2, n_hidden2, true, "hidden_layer2".to_string(), &mut initializer);
+        // let output_layer = FC::new(n_hidden2, nout, false, "output_layer".to_string(), &mut initializer);
+        //
+        // let mut network = Network::new();
+        // network.add_layer(Box::new(input_layer));
+        // network.add_layer(Box::new(hidden_layer1));
+        // network.add_layer(Box::new(hidden_layer2));
+        // network.add_layer(Box::new(output_layer));
 
         let optimizer = SGD::new(0.9, epochs as f64);
         let loss = MaxMarginLoss::new();
@@ -65,22 +102,21 @@ fn main() {
         network.optimizer(Box::new(optimizer));
         network.loss(Box::new(loss));
 
-        (epochs, network, x, y)
+        (epochs, network, x, y, y_orig)
     };
-
-    println!("x.len {}", x.len());
-    println!("y.len {}", y.len());
-
     println!("number of parameters {}", network.parameters().len());
 
-    for i in 0..network.parameters().len() {
-        println!("parameter {}", network.parameters()[i].get_data());
-    }
-
+    // for p in network.parameters() {
+    //     println!("parameter {}", p.get_data());
+    // }
     let y_pred = network.forward(&x);
-    let loss = network.calc_loss(&y, &y_pred, network.parameters());
+    // println!(" y_pred      ");
+    // for (idx, y) in y_pred.iter().enumerate() {
+    //     println!("x {:?}   -->  y_pred   data {},  grad {}", x[idx], y.get_data(), y.get_grad());
+    // }
+    let loss1 = network.calc_loss(&y, &y_pred, network.parameters());
 
-    println!("before training     loss {} ", loss.get_data(), );
+    println!("before training     loss {} ", loss1.get_data(), );
 
     let start = Instant::now();
     let mut y_pred = vec![];
@@ -96,16 +132,6 @@ fn main() {
         // backward pass consists of 2 steps
         network.reset_grades();
         loss.backward();
-
-        if i == 0 {
-            for i in 0..30 {
-                println!(
-                    "p data {} grad {}",
-                    network.parameters()[i].get_data(),
-                    network.parameters()[i].get_grad()
-                );
-            }
-        }
 
         // update parameters
         network.update(i);
@@ -125,6 +151,10 @@ fn main() {
             loss.get_data(),
             accuracy * 100.0
         );
+
+        // if i > 1 {
+        //     break;
+        // }
     }
     println!("y_pred.len()  {}", y_pred.len());
 
@@ -134,29 +164,40 @@ fn main() {
     let duration = start.elapsed();
     println!("training took {:?}", duration);
 
-    plot_result(&network, &x, &y, "moondate_own_data_network".to_string());
+    plot_result(&network, &x, &y_orig, "moondate_own_data_network.png".to_string());
     println!("DONE");
 }
 
 fn prepare_data(cnt_samples: usize) -> (Vec<Vec<f64>>, Vec<f64>) {
     // x1, y1 red points
     // x1, y1 blue points
-    let (x1, y1, x2, y2) = create_moondata(cnt_samples, 0.1);
+    let (mut x1, mut y1, mut x2, mut y2) = create_moondata(cnt_samples, 0.1);
 
-    let y_red = vec![1.0; cnt_samples];
-    let y_blue = vec![-1_f64; cnt_samples];
+    x1.append(&mut x2);
+    y1.append(&mut y2);
+    let mut y_red = vec![1.0; cnt_samples];
+    let mut y_blue = vec![0_f64; cnt_samples];
+
+    y_red.append(&mut y_blue);
+
 
     let mut x: Vec<Vec<f64>> = vec![];
     let mut y: Vec<f64> = vec![];
 
+    let mut rng = rand::thread_rng();
+
     // take care, that the x1,y1  resp x2,y2 pairs match the resulting color in y
+    let mut cnt = x1.len();
     for i in 0..x1.len() {
-        let inp = vec![x1[i], y1[i]];
+        let idx = rng.gen_range(0..cnt);
+        let inp = vec![x1[idx], y1[idx]];
         x.push(inp);
-        y.push(y_red[i]);
-        let inp = vec![x2[i], y2[i]];
-        x.push(inp);
-        y.push(y_blue[i]);
+        y.push(y_red[idx]);
+
+        x1.remove(idx);
+        y_red.remove(idx);
+
+        cnt -= 1;
     }
     println!("x.len()  {}", x.len());
     println!("y.len()  {}", y.len());
@@ -170,16 +211,16 @@ fn plot_result(
     filename: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // dont know how to draw a contour plot using plotters -> so just evaluate the model for a lot of (x,y) coordinate pairs and draw a lot og point
-    let x_min = 0.0_f64;
-    let x_max = 2.0_f64;
+    let x_min = -1.5_f64;
+    let x_max = 2.5_f64;
 
-    let y_min = 0.0_f64;
-    let y_max = 2.0_f64;
+    let y_min = -1.0_f64;
+    let y_max = 1.5_f64;
 
     let steps = 75;
 
     let delta_x = (x_max - x_min) / steps as f64;
-    let delta_y = (x_max - x_min) / steps as f64;
+    let delta_y = (y_max - y_min) / steps as f64;
 
     let mut res = vec![];
 
@@ -197,13 +238,19 @@ fn plot_result(
         }
     }
 
+    let x_min = -1.5 as f32;
+    let x_max = 2.5 as f32;
+    let y_min = -1.0 as f32;
+    let y_max = 1.5 as f32;
+
+
     let root = BitMapBackend::new(&filename, (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(30)
-        .build_cartesian_2d(0f32..2f32, 0.0f32..2.0f32)?;
+        .build_cartesian_2d(x_min..x_max, y_min..y_max)?;
 
     chart.configure_mesh().draw()?;
 
@@ -241,7 +288,10 @@ fn plot_result(
         .border_style(&BLACK)
         .draw()?;
 
-    root.present()?;
+    match root.present() {
+        Ok(r) => { println!("ok") }
+        Err(e) => { println!("error writng gfile {:?}", e) }
+    }
 
     println!("wrote file {:?}", &filename);
 
