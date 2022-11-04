@@ -144,7 +144,7 @@ impl Curve {
 
         let mut is = IntersectionList::new();
 
-        self.recursive_intersect(r, &cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth, &mut is)
+        // self.recursive_intersect(r, &cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth, &mut is)
     }
 
     pub fn recursive_intersect(
@@ -212,7 +212,7 @@ impl Curve {
                     continue;
                 }
 
-                hit = hit | self.recursive_intersect(r, &cp, &ray_to_object, u0, u1, depth, is);
+                // hit = hit | self.recursive_intersect(r, &cp, &ray_to_object, u0, u1, depth, is);
 
                 // TODO
                 // early exit
@@ -282,7 +282,8 @@ impl Curve {
                     }
                     _ => {
                         let dpdu_plane = &Matrix::invert(ray_to_object).unwrap() * &dpdu;
-                        let mut dpdv_plane = &Tuple4D::normalize(&Tuple4D::new_vector(-dpdu_plane.y, dpdu_plane.x, 0.0)) * hit_width;
+                        let mut dpdv_plane =
+                            &Tuple4D::normalize(&Tuple4D::new_vector(-dpdu_plane.y, dpdu_plane.x, 0.0)) * hit_width;
                         match self.common.curve_type {
                             CurveType::CYLINDER => {
                                 let theta = lerp_float(v, -90.0, 90.0);
@@ -295,9 +296,7 @@ impl Curve {
                     }
                 };
 
-
-                let is  = Intersection::new()
-
+                // let is  = Intersection::new()
             }
         }
 
