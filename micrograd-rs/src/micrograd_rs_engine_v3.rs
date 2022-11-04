@@ -1,7 +1,8 @@
+use crate::EPS2;
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::micrograd_rs_v3::{ValueRefV3, EPS2};
+use crate::micrograd_rs_v3::ValueRefV3;
 
 pub struct Neuron {
     weights: Vec<ValueRefV3>,
@@ -68,7 +69,6 @@ pub trait Layer {
 pub struct FC {
     neurons: Vec<Neuron>,
     name: String,
-    non_lin: bool,
 }
 
 impl FC {
@@ -77,7 +77,7 @@ impl FC {
         for _i in 0..nout {
             neurons.push(Neuron::new(nin, non_lin, initializer));
         }
-        FC { neurons, name, non_lin }
+        FC { neurons, name }
     }
 }
 
@@ -190,7 +190,7 @@ impl Network {
     }
 
     pub fn reset_grades(&self) {
-        self.parameters().iter_mut().for_each(|mut p| p.set_grad(0.0));
+        self.parameters().iter_mut().for_each(|p| p.set_grad(0.0));
     }
 
     pub fn update(&self, epoch: usize) {
@@ -347,7 +347,7 @@ pub struct RandomUniformInitializer {
 impl Initializer for RandomUniformInitializer {
     fn get_values(&mut self, cnt: usize) -> Vec<f64> {
         let mut res = vec![];
-        for i in 0..cnt {
+        for _i in 0..cnt {
             let y: f64 = self.normal.sample(&mut self.rng);
             res.push(y);
         }
@@ -357,7 +357,7 @@ impl Initializer for RandomUniformInitializer {
 
 impl RandomUniformInitializer {
     pub fn new() -> RandomUniformInitializer {
-        let mut rng = StdRng::seed_from_u64(1337);
+        let rng = StdRng::seed_from_u64(1337);
         let normal = Uniform::from(-1.0..1.0);
         RandomUniformInitializer { normal, rng }
     }
@@ -693,12 +693,11 @@ impl PythonNumPyRandomValuesInitializer {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_float;
     use crate::micrograd_rs_engine_v3::{
         Layer, Loss, MaxMarginLoss, Network, Neuron, PythonNumPyRandomValuesInitializer, FC,
     };
-    use crate::micrograd_rs_v2::assert_two_float;
     use crate::micrograd_rs_v3::ValueRefV3;
-    use graphviz_rust::print;
 
     #[test]
     pub fn max_margin_loss() {
@@ -725,7 +724,7 @@ mod tests {
 
         println!("l expected  {},   actual {}", l_expected, l.get_data());
 
-        assert_two_float(l_expected, l.get_data());
+        assert_float(l_expected, l.get_data());
     }
 
     #[test]
@@ -751,7 +750,7 @@ mod tests {
 
         println!("l expected  {},   actual {}", l_expected, l.get_data());
 
-        assert_two_float(l_expected, l.get_data());
+        assert_float(l_expected, l.get_data());
     }
 
     #[test]
@@ -776,7 +775,7 @@ mod tests {
 
         println!("l expected  {},   actual {}", l_expected, l.get_data());
 
-        assert_two_float(l_expected, l.get_data());
+        assert_float(l_expected, l.get_data());
     }
 
     #[test]
@@ -797,7 +796,6 @@ mod tests {
 
         y.backward();
 
-        let y_expected = 0.6706048694358875;
         let y_expected = 0.6706048694358875;
         let w1_grad_expected = 2.0;
         let w2_grad_expected = 3.0;
@@ -826,12 +824,12 @@ mod tests {
             w2_grad_expected
         );
 
-        assert_two_float(n.parameters()[0].get_data(), w1_expected);
-        assert_two_float(n.parameters()[1].get_data(), w2_expected);
-        assert_two_float(n.parameters()[0].get_grad(), w1_grad_expected);
-        assert_two_float(n.parameters()[1].get_grad(), w2_grad_expected);
+        assert_float(n.parameters()[0].get_data(), w1_expected);
+        assert_float(n.parameters()[1].get_data(), w2_expected);
+        assert_float(n.parameters()[0].get_grad(), w1_grad_expected);
+        assert_float(n.parameters()[1].get_grad(), w2_grad_expected);
 
-        assert_two_float(y_expected, y.get_data());
+        assert_float(y_expected, y.get_data());
     }
 
     #[test]
@@ -879,12 +877,12 @@ mod tests {
             w2_grad_expected
         );
 
-        assert_two_float(l.parameters()[0].get_data(), w1_expected);
-        assert_two_float(l.parameters()[1].get_data(), w2_expected);
-        assert_two_float(l.parameters()[0].get_grad(), w1_grad_expected);
-        assert_two_float(l.parameters()[1].get_grad(), w2_grad_expected);
+        assert_float(l.parameters()[0].get_data(), w1_expected);
+        assert_float(l.parameters()[1].get_data(), w2_expected);
+        assert_float(l.parameters()[0].get_grad(), w1_grad_expected);
+        assert_float(l.parameters()[1].get_grad(), w2_grad_expected);
 
-        assert_two_float(y_expected, y.get_data());
+        assert_float(y_expected, y.get_data());
     }
 
     #[test]
@@ -908,7 +906,6 @@ mod tests {
 
         y.backward();
 
-        let y_expected = 0.6706048694358875;
         let y_expected = 0.6706048694358875;
         let w1_grad_expected = 2.0;
         let w2_grad_expected = 3.0;
@@ -937,12 +934,12 @@ mod tests {
             w2_grad_expected
         );
 
-        assert_two_float(network.parameters()[0].get_data(), w1_expected);
-        assert_two_float(network.parameters()[1].get_data(), w2_expected);
-        assert_two_float(network.parameters()[0].get_grad(), w1_grad_expected);
-        assert_two_float(network.parameters()[1].get_grad(), w2_grad_expected);
+        assert_float(network.parameters()[0].get_data(), w1_expected);
+        assert_float(network.parameters()[1].get_data(), w2_expected);
+        assert_float(network.parameters()[0].get_grad(), w1_grad_expected);
+        assert_float(network.parameters()[1].get_grad(), w2_grad_expected);
 
-        assert_two_float(y_expected, y.get_data());
+        assert_float(y_expected, y.get_data());
     }
 
     #[test]
@@ -966,7 +963,7 @@ mod tests {
 
         println!("res expected {}   res1 actuale {}", res_expected, res1.get_data());
         println!("res expected {}   res2 actuale {}", res_expected, res2.get_data());
-        assert_two_float(res_expected, res1.get_data());
-        assert_two_float(res_expected, res2.get_data());
+        assert_float(res_expected, res1.get_data());
+        assert_float(res_expected, res2.get_data());
     }
 }

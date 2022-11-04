@@ -84,8 +84,9 @@ fn save_svg(svg: String, filename: String) {
 }
 
 mod test {
+    use crate::assert_float;
     use crate::graph_v3::draw_graph;
-    use crate::micrograd_rs_v3::{assert_two_float, ValueRefV3};
+    use crate::micrograd_rs_v3::ValueRefV3;
 
     #[test]
     fn test_add() {
@@ -124,7 +125,7 @@ mod test {
         // println!("f {}", f);
         // println!("l {}", l);
 
-        assert_two_float(l.borrow().data(), -8.0);
+        assert_float(l.borrow().data(), -8.0);
 
         draw_graph(l, "test_video_before_grad".to_string());
     }

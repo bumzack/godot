@@ -1,7 +1,8 @@
+use crate::EPS2;
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::micrograd_rs_v2::{ValueRefV2, EPS2};
+use crate::micrograd_rs_v2::ValueRefV2;
 
 pub struct Neuron {
     weights: Vec<ValueRefV2>,
@@ -200,8 +201,9 @@ pub fn print_predictions(y_pred: Vec<ValueRefV2>, y_expected: &Vec<f64>) {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_float;
     use crate::micrograd_rs_engine_v2::{Layer, Neuron, MLP};
-    use crate::micrograd_rs_v2::{assert_two_float, ValueRefV2};
+    use crate::micrograd_rs_v2::ValueRefV2;
 
     // TODO
     // add a method to initialize the weights by hand and not randomly
@@ -218,7 +220,7 @@ mod tests {
 
         // TODO
         // check if this is really correct
-        assert_two_float(output.get_data(), 60.0_f64.tanh());
+        assert_float(output.get_data(), 60.0_f64.tanh());
     }
 
     #[test]

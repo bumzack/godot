@@ -235,11 +235,7 @@ impl Display for ValueRefV1<f64> {
     }
 }
 
-pub const EPS: f64 = 0.0000001;
 
-pub fn assert_two_float(a: f64, b: f64) {
-    assert!((a - b).abs() < EPS);
-}
 
 #[cfg(test)]
 mod tests {
