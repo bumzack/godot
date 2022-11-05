@@ -22,8 +22,7 @@ impl TensorInternal {
         label: String,
         backward: Option<Box<dyn Backward>>,
     ) -> Self {
-        let mut shape = vec![];
-        t.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = t.shape_copy();
         TensorInternal {
             t,
             op,
@@ -35,8 +34,7 @@ impl TensorInternal {
     }
 
     pub fn from(t: MathTensor, op: OpEnumV4, label: String) -> Self {
-        let mut shape = vec![];
-        t.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = t.shape_copy();
         TensorInternal {
             t,
             grad: MathTensor::zeroes(shape),
@@ -91,6 +89,10 @@ impl TensorInternal {
         &self.t.shape_vec()
     }
 
+    pub fn shape_copy(&self) -> Vec<usize> {
+        self.t.shape_copy()
+    }
+
     pub fn op(&self) -> &OpEnumV4 {
         &self.op
     }
@@ -116,32 +118,24 @@ impl TensorInternal {
     }
 
     pub fn exp(&self) -> TensorInternal {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let exp = self.t().exp();
         let t = TensorInternal::from(exp, OpEnumV4::EXP, "exp".to_string());
         t
     }
 
     pub fn tanh(&self) -> TensorInternal {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let tanh = self.t().tanh();
         let t = TensorInternal::from(tanh, OpEnumV4::TANH, "tanh".to_string());
         t
     }
 
     pub fn relu(&self) -> TensorInternal {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let relu = self.t().relu();
         let t = TensorInternal::from(relu, OpEnumV4::RELU, "relu".to_string());
         t
     }
 
     pub fn pow(&self, n: f64) -> TensorInternal {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let pow = self.t().pow(n);
         let t = TensorInternal::from(pow, OpEnumV4::POW, "pow".to_string());
         t
@@ -152,8 +146,6 @@ impl Add for &TensorInternal {
     type Output = TensorInternal;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let sum = self.t() + rhs.t();
         let t = TensorInternal::from(sum, OpEnumV4::ADD, "add".to_string());
         t
@@ -164,8 +156,6 @@ impl Add<f64> for &TensorInternal {
     type Output = TensorInternal;
 
     fn add(self, rhs: f64) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let sum = self.t() + rhs;
         let t = TensorInternal::from(sum, OpEnumV4::SUB, "add".to_string());
         t
@@ -184,8 +174,6 @@ impl Sub for &TensorInternal {
     type Output = TensorInternal;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let sum = self.t() - rhs.t();
         let t = TensorInternal::from(sum, OpEnumV4::SUB, "sub".to_string());
         t
@@ -196,8 +184,6 @@ impl Sub<f64> for &TensorInternal {
     type Output = TensorInternal;
 
     fn sub(self, rhs: f64) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let sum = self.t() - rhs;
         let t = TensorInternal::from(sum, OpEnumV4::SUB, "sub".to_string());
         t
@@ -216,8 +202,6 @@ impl Neg for &TensorInternal {
     type Output = TensorInternal;
 
     fn neg(self) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let neg = -self.t();
         let t = TensorInternal::from(neg, OpEnumV4::NEG, "sum".to_string());
         t
@@ -228,8 +212,6 @@ impl Mul for &TensorInternal {
     type Output = TensorInternal;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let prod = self.t() * rhs.t();
         let t = TensorInternal::from(prod, OpEnumV4::MUL, "mul".to_string());
         t
@@ -240,8 +222,6 @@ impl Mul<f64> for &TensorInternal {
     type Output = TensorInternal;
 
     fn mul(self, rhs: f64) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let prod = self.t() * rhs;
         let t = TensorInternal::from(prod, OpEnumV4::MUL, "mul".to_string());
         t
@@ -260,8 +240,6 @@ impl BitXor for &TensorInternal {
     type Output = TensorInternal;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
         let prod = self.t() ^ rhs.t();
         let t = TensorInternal::from(prod, OpEnumV4::DOT, "dot".to_string());
         t

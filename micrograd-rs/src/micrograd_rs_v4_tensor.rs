@@ -85,6 +85,10 @@ impl Tensor {
         self.r.borrow().t().shape()
     }
 
+    pub fn shape_copy(&self) -> Vec<usize> {
+        self.r.borrow().shape_copy()
+    }
+
     // convenience methods to simplify code, to avoid value.r.borrow()
     pub fn borrow(&self) -> Ref<TensorInternal> {
         self.r.borrow()
@@ -155,9 +159,7 @@ impl Tensor {
     }
 
     pub fn backward(&mut self) {
-        // TODO
-        let mut shape = vec![];
-        self.r().borrow().shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.r().borrow().shape_copy();
         let grad_1 = MathTensor::ones(shape);
         self.set_grad(grad_1);
         let topo = Self::traverse(self);
@@ -238,8 +240,8 @@ impl Add<f64> for &Tensor {
     type Output = Tensor;
 
     fn add(self, rhs: f64) -> Self::Output {
-        let mut shape = vec![];
-        self.r().borrow().shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
+
         let x1 = self.r.borrow();
         let x1 = x1.t();
         let x2 = MathTensor::value(shape, rhs);
@@ -324,8 +326,7 @@ impl Mul<f64> for &Tensor {
     type Output = Tensor;
 
     fn mul(self, rhs: f64) -> Self::Output {
-        let mut shape = vec![];
-        self.r().borrow().shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let x1 = self.r.borrow();
         let x1 = x1.t();
         let x2 = MathTensor::value(shape, rhs);
@@ -459,8 +460,7 @@ impl Sub<f64> for &Tensor {
     type Output = Tensor;
 
     fn sub(self, rhs: f64) -> Self::Output {
-        let mut shape = vec![];
-        self.r().borrow().shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let x1 = self.r.borrow();
         let x1 = x1.t();
         let x2 = MathTensor::value(shape, rhs);
@@ -1646,7 +1646,6 @@ mod tests {
         c.backward();
 
         let a_grad_expected = vec![a_grad_expected];
-
         let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
 
         let aa = a.r().borrow();

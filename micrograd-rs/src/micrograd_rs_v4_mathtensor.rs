@@ -46,6 +46,11 @@ impl MathTensor {
         &self.shape
     }
 
+    pub fn shape_copy(&self) -> Vec<usize> {
+        let copy: Vec<usize> = self.shape_vec().iter().map(|s| *s).collect();
+        copy
+    }
+
     pub fn set_elem(&mut self, pos: Vec<usize>, data: f64) {
         // TODO multidimensional
         let idx = self.idx(pos);
@@ -64,32 +69,28 @@ impl MathTensor {
 
     pub fn pow(&self, n: f64) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.powf(n)).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
 
     pub fn exp(&self) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.exp()).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
 
     pub fn tanh(&self) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.tanh()).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
 
     pub fn relu(&self) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.max(0.0)).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -101,8 +102,7 @@ impl Add for &MathTensor {
     fn add(self, rhs: Self) -> Self::Output {
         assert_eq!(self.shape, rhs.shape);
         let a: Vec<f64> = self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a + b).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -113,8 +113,7 @@ impl Add<f64> for &MathTensor {
 
     fn add(self, rhs: f64) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| a + rhs).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -134,8 +133,7 @@ impl Sub for &MathTensor {
     fn sub(self, rhs: Self) -> Self::Output {
         assert_eq!(self.shape, rhs.shape);
         let a: Vec<f64> = self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a - b).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -146,8 +144,7 @@ impl Sub<f64> for &MathTensor {
 
     fn sub(self, rhs: f64) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| a - rhs).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -166,8 +163,7 @@ impl Neg for MathTensor {
 
     fn neg(self) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| -a).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -178,8 +174,7 @@ impl Neg for &MathTensor {
 
     fn neg(self) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| -a).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -191,8 +186,7 @@ impl Mul for &MathTensor {
     fn mul(self, rhs: Self) -> Self::Output {
         assert_eq!(self.shape, rhs.shape);
         let a: Vec<f64> = self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a * b).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
@@ -203,8 +197,7 @@ impl Mul<f64> for &MathTensor {
 
     fn mul(self, rhs: f64) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| a * rhs).collect();
-        let mut shape = vec![];
-        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
     }
