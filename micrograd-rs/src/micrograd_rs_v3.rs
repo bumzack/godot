@@ -421,6 +421,12 @@ impl AddAssign for ValueRefV3 {
     }
 }
 
+impl AddAssign<&ValueRefV3> for ValueRefV3 {
+    fn add_assign(&mut self, rhs: &ValueRefV3) {
+        *self = self.clone() + rhs.clone()
+    }
+}
+
 impl SubAssign for ValueRefV3 {
     fn sub_assign(&mut self, rhs: ValueRefV3) {
         *self = self.clone() - rhs
@@ -817,11 +823,11 @@ impl Debug for ValueRefV3 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_float, EPS};
     use std::f64::consts::SQRT_2;
 
     use crate::graph_v3::draw_graph;
     use crate::micrograd_rs_v3::ValueRefV3;
+    use crate::{assert_float, EPS};
 
     // before starting to add grad
     // https://youtu.be/VMj-3S1tku0?t=1875
@@ -990,6 +996,26 @@ mod tests {
         assert_float(c.borrow().data, expected);
 
         draw_graph(c, "test_sub".to_string());
+    }
+
+    #[test]
+    pub fn test_value_addassign() {
+        let expected = 4.0 + 23.0;
+        let a = ValueRefV3::new_value(4.0, "a".to_string());
+        let mut b = ValueRefV3::new_value(23.0, "b".to_string());
+        b += &a + 0.0;
+        b.backward();
+        assert_float(b.borrow().data, expected);
+    }
+
+    #[test]
+    pub fn test_value_addassign2() {
+        let expected = 4.0 + 23.0;
+        let a = ValueRefV3::new_value(4.0, "a".to_string());
+        let mut b = ValueRefV3::new_value(23.0, "b".to_string());
+        b += &a;
+        b.backward();
+        assert_float(b.borrow().data, expected);
     }
 
     // https://github.com/karpathy/micrograd
