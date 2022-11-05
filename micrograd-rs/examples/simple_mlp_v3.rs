@@ -37,7 +37,7 @@ fn main() {
     let ys = vec![1.0, -1.0, -1.0, 1.0];
     let mut y_pred = vec![];
 
-    for i in 0..200 {
+    for i in 0..epochs {
         // forward pass
         y_pred = mlp.forward(&xs);
 

@@ -2,12 +2,10 @@ use std::cell::{Ref, RefCell};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, BitXor, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use std::rc::Rc;
 
-use crate::micrograd_rs_v4_backward::{
-    BackwardAdd, BackwardExp, BackwardMul, BackwardPow, BackwardReLU, BackwardSub, BackwardTanh,
-};
+use crate::micrograd_rs_v4_backward::{BackwardAdd, BackwardDot, BackwardExp, BackwardMul, BackwardPow, BackwardReLU, BackwardSub, BackwardTanh};
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
 
@@ -104,6 +102,17 @@ impl Tensor {
 
     pub fn set_t(&mut self, t: MathTensor) {
         self.r.borrow_mut().set_t(t);
+    }
+
+    pub fn transpose(&self) -> Tensor {
+        // TODO
+        if self.shape_copy().len() != 2 {
+            panic!("cant handle transpose for tensor != dim 2");
+        }
+        let shape = self.r().borrow().shape_vec().iter().rev().map(|s| *s).collect();
+        let data:Vec<f64> = self.r().borrow().t().data().iter().map(|d| *d).collect();
+        let transpose =MathTensor::new(shape, data);
+        Tensor::from(transpose, "transpose".to_string())
     }
 
     pub fn tanh(&self) -> Tensor {
@@ -500,6 +509,28 @@ impl SubAssign<&Tensor> for Tensor {
     }
 }
 
+
+impl BitXor for &Tensor {
+    type Output = Tensor;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        let x1 = self.r.borrow();
+        let x1 = x1.t();
+        let x2 = rhs.r.borrow();
+        let x2 = x2.t();
+
+        let mut children = vec![];
+        children.push(self.clone());
+        children.push(rhs.clone());
+
+        let dot = BackwardDot::new(self.clone(), rhs.clone());
+        let t = x1 ^ x2;
+        let out = TensorInternal::new(t, OpEnumV4::DOT, children, "dot".to_string(), Some(Box::new(dot)));
+        Tensor::new(out)
+    }
+}
+
+
 impl Display for OpEnumV4 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -539,9 +570,9 @@ impl Display for OpEnumV4 {
 
 #[cfg(test)]
 mod tests {
+    use crate::{assert_float, assert_two_float, assert_vec_f64, EPS};
     use crate::micrograd_rs_v4_mathtensor::MathTensor;
     use crate::micrograd_rs_v4_tensor::Tensor;
-    use crate::{assert_float, assert_two_float, assert_vec_f64, EPS};
 
     #[test]
     pub fn test_tensor_internal_new() {
@@ -1150,32 +1181,32 @@ mod tests {
         println!(
             "grad f expected {}, actual {}   ",
             f_grad_expected,
-            ff.t().elem(vec![0, 0])
+            ff.grad().elem(vec![0, 0])
         );
         println!(
             "grad e expected {}, actual {}   ",
             e_grad_expected,
-            ee.t().elem(vec![0, 0])
+            ee.grad().elem(vec![0, 0])
         );
         println!(
             "grad d expected {}, actual {}   ",
             d_grad_expected,
-            dd.t().elem(vec![0, 0])
+            dd.grad().elem(vec![0, 0])
         );
         println!(
             "grad c expected {}, actual {}   ",
             c_grad_expected,
-            cc.t().elem(vec![0, 0])
+            cc.grad().elem(vec![0, 0])
         );
         println!(
             "grad b expected {}, actual {}   ",
             b_grad_expected,
-            bb.t().elem(vec![0, 0])
+            bb.grad().elem(vec![0, 0])
         );
         println!(
             "grad a expected {}, actual {}   ",
             a_grad_expected,
-            aa.t().elem(vec![0, 0])
+            aa.grad().elem(vec![0, 0])
         );
 
         assert_float(f_grad_expected, ff.grad().elem(vec![0, 0]));
@@ -1211,7 +1242,7 @@ mod tests {
         let b = Tensor::from(b, "b".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
-        let c_expected = Tensor::from(c_expected, "b".to_string());
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
         let mut c = &a + &b;
 
@@ -1253,7 +1284,7 @@ mod tests {
         let b = Tensor::from(b, "b".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
-        let c_expected = Tensor::from(c_expected, "b".to_string());
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
         let mut c = &a - &b;
 
@@ -1297,7 +1328,7 @@ mod tests {
         let b = Tensor::from(b, "b".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
-        let c_expected = Tensor::from(c_expected, "b".to_string());
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
         let mut c = &a * &b;
 
@@ -1535,7 +1566,7 @@ mod tests {
         let a = Tensor::from(a, "a".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
-        let c_expected = Tensor::from(c_expected, "b".to_string());
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
         let mut c = &a + &a;
 
@@ -1570,7 +1601,7 @@ mod tests {
         let a = Tensor::from(a, "a".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
-        let c_expected = Tensor::from(c_expected, "b".to_string());
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
         let mut c = &a * &a;
 
@@ -1728,7 +1759,7 @@ mod tests {
         let b = Tensor::from(b, "b".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
-        let c_expected = Tensor::from(c_expected, "b".to_string());
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
         let mut c = &a + &b; //         c = a + b
         c += &c + 1.0; //         c += c + 1
@@ -1841,4 +1872,33 @@ mod tests {
         }
         println!("#################################");
     }
+
+    #[test]
+    pub fn test_transpose() {
+        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+
+        let a = MathTensor::new(vec![2,3], a);
+        let a = Tensor::from(a, "a".to_string());
+
+        let b = a.transpose();
+
+        assert_float(a.elem(vec![0,0])    , 1.0);
+        assert_float(a.elem(vec![0,1])    , 2.0);
+        assert_float(a.elem(vec![0,2])    , 3.0);
+        assert_float(a.elem(vec![1,0])    , 4.0);
+        assert_float(a.elem(vec![1,1])    , 5.0);
+        assert_float(a.elem(vec![1,2])    , 6.0);
+
+        assert_float(b.elem(vec![0,0]), 1.0);
+        assert_float(b.elem(vec![0,1]), 2.0);
+        assert_float(b.elem(vec![1,0]), 3.0);
+        assert_float(b.elem(vec![1,1]), 4.0);
+        assert_float(b.elem(vec![2,0]), 5.0);
+        assert_float(b.elem(vec![2,1]), 6.0);
+
+        let shape_expected = "(3, 2)";
+
+            assert_eq!(shape_expected, b.shape());
+ }
+
 }
