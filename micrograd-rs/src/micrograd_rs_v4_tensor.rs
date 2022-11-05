@@ -539,11 +539,9 @@ impl Display for OpEnumV4 {
 
 #[cfg(test)]
 mod tests {
-    use rand_distr::num_traits::Pow;
-
     use crate::micrograd_rs_v4_mathtensor::MathTensor;
     use crate::micrograd_rs_v4_tensor::Tensor;
-    use crate::{assert_two_float, assert_vec_f64, EPS};
+    use crate::{assert_float, assert_two_float, assert_vec_f64, EPS};
 
     #[test]
     pub fn test_tensor_internal_new() {
@@ -584,7 +582,7 @@ mod tests {
     // use std::f64::consts::SQRT_2;
     //
     // use crate::graph_v3::draw_graph;
-    // use crate::micrograd_rs_v3::{assert_two_float, EPS, ValueRefV3};
+    // use crate::micrograd_rs_v3::{assert_float, EPS, ValueRefV3};
     //
     // // before starting to add grad
     // // https://youtu.be/VMj-3S1tku0?t=1875
@@ -604,7 +602,7 @@ mod tests {
     //     let mut l = &d * &f;
     //     l.set_label("L".to_string());
     //
-    //     assert_two_float(l.borrow().data, -8.0);
+    //     assert_float(l.borrow().data, -8.0);
     // }
     //
     #[test]
@@ -620,12 +618,11 @@ mod tests {
         let mut x = &a + &b;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
     pub fn test_add_3x2() {
-        let a = 2.0_f64;
         let b = 3.0_f64;
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
         let c_expected: Vec<f64> = data.iter().map(|d| d + b).collect();
@@ -649,7 +646,7 @@ mod tests {
         let mut x = &a + b;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -663,7 +660,7 @@ mod tests {
         let mut x = b + &a;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -678,7 +675,7 @@ mod tests {
 
         a += &b;
 
-        assert_two_float(c_expected, a.elem(vec![0, 0]));
+        assert_float(c_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -691,7 +688,7 @@ mod tests {
         a += a.clone();
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -705,7 +702,7 @@ mod tests {
         a += &a + b;
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -720,7 +717,7 @@ mod tests {
 
         let x = &a * &b;
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -734,7 +731,7 @@ mod tests {
         let mut x = &a * b;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -748,7 +745,7 @@ mod tests {
         let mut x = b * &a;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -763,7 +760,7 @@ mod tests {
 
         a *= &b;
 
-        assert_two_float(c_expected, a.elem(vec![0, 0]));
+        assert_float(c_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -776,7 +773,7 @@ mod tests {
         a *= a.clone();
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -790,7 +787,7 @@ mod tests {
         a *= &a * b;
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -804,8 +801,8 @@ mod tests {
 
         let y = -&x;
 
-        assert_two_float(a_expected, y.elem(vec![0, 0]));
-        assert_two_float(b_expected, y.elem(vec![1, 0]));
+        assert_float(a_expected, y.elem(vec![0, 0]));
+        assert_float(b_expected, y.elem(vec![1, 0]));
     }
 
     // https://youtu.be/VMj-3S1tku0?t=4977
@@ -822,16 +819,21 @@ mod tests {
 
         let topo = Tensor::traverse(&b);
         for t in topo.iter() {
-            println!("topo  {:?}", t.shape());
+            println!(
+                "{}  data {},  grad  {}",
+                t.r().borrow().label(),
+                t.r().borrow().t().elem(vec![0, 0]),
+                t.r().borrow().grad().elem(vec![0, 0])
+            );
         }
 
         println!("b {:?}  {}", b.shape(), b.elem(vec![0, 0]));
 
         let a_grad_expected = 2.0;
         let b_expected = 6.0;
-        assert_two_float(b_expected, b.elem(vec![0, 0]));
+        assert_float(b_expected, b.elem(vec![0, 0]));
 
-        assert_two_float(a_grad_expected, a.r().borrow().grad().elem(vec![0, 0]));
+        assert_float(a_grad_expected, a.r().borrow().grad().elem(vec![0, 0]));
     }
 
     #[test]
@@ -844,7 +846,7 @@ mod tests {
 
         let x = a.pow(b);
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -859,7 +861,7 @@ mod tests {
 
         let x = &a / &b;
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -873,21 +875,21 @@ mod tests {
         let mut x = &a / b;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
     pub fn test_div_scalar2() {
         let a = 2.0_f64;
         let b = 3.0_f64;
-        let c_expected = a / b;
+        let c_expected = b / a;
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let a = Tensor::from(a, "a".to_string());
 
         let mut x = b / &a;
         x.set_label("x".to_string());
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -902,7 +904,7 @@ mod tests {
 
         a /= &b;
 
-        assert_two_float(c_expected, a.elem(vec![0, 0]));
+        assert_float(c_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -915,21 +917,23 @@ mod tests {
         a /= a.clone();
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
     pub fn test_divassign2() {
         let a = 2.0_f64;
         let b = 3.0;
-        let a_expected = a / a / b;
+        let mut a_expected = a;
+        a_expected /= a / b;
+
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let mut a = Tensor::from(a, "a".to_string());
 
         a /= &a / b;
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -942,7 +946,7 @@ mod tests {
         let b = a.exp();
 
         println!("b expected   {}   actual {}", b_expected, b.elem(vec![0, 0]));
-        assert_two_float(b_expected, b.elem(vec![0, 0]));
+        assert_float(b_expected, b.elem(vec![0, 0]));
     }
 
     #[test]
@@ -956,7 +960,7 @@ mod tests {
         let b = a.pow(n);
 
         println!("b expected   {}   actual {}", b_expected, b.elem(vec![0, 0]));
-        assert_two_float(b_expected, b.elem(vec![0, 0]));
+        assert_float(b_expected, b.elem(vec![0, 0]));
     }
 
     #[test]
@@ -969,7 +973,7 @@ mod tests {
         let b = a.relu();
 
         println!("b expected   {}   actual {}", b_expected, b.elem(vec![0, 0]));
-        assert_two_float(b_expected, b.elem(vec![0, 0]));
+        assert_float(b_expected, b.elem(vec![0, 0]));
     }
 
     #[test]
@@ -984,7 +988,7 @@ mod tests {
 
         let mut x = &a - &b;
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -1012,7 +1016,7 @@ mod tests {
 
         let x = &a - b;
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -1025,7 +1029,7 @@ mod tests {
 
         let x = b - &a;
 
-        assert_two_float(c_expected, x.elem(vec![0, 0]));
+        assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
@@ -1040,7 +1044,7 @@ mod tests {
 
         a -= &b;
 
-        assert_two_float(c_expected, a.elem(vec![0, 0]));
+        assert_float(c_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
@@ -1053,21 +1057,23 @@ mod tests {
         a -= a.clone();
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     #[test]
     pub fn test_subassign2() {
         let a = 2.0_f64;
         let b = 3.0;
-        let a_expected = a - a - b;
+        let mut a_expected = a;
+        a_expected -= a - b;
+
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let mut a = Tensor::from(a, "a".to_string());
 
         a -= &a - b;
 
         println!("a expected   {}   actual {}", a_expected, a.elem(vec![0, 0]));
-        assert_two_float(a_expected, a.elem(vec![0, 0]));
+        assert_float(a_expected, a.elem(vec![0, 0]));
     }
 
     // https://github.com/karpathy/micrograd
@@ -1110,9 +1116,9 @@ mod tests {
             let x = t.r().borrow();
             println!(
                 "{}  data {},  grad  {}",
-                x.label(),
-                x.t().elem(vec![0, 0]),
-                x.grad().elem(vec![0, 0])
+                t.r().borrow().label(),
+                t.r().borrow().t().elem(vec![0, 0]),
+                t.r().borrow().grad().elem(vec![0, 0])
             );
         }
         println!("#################################");
@@ -1134,7 +1140,7 @@ mod tests {
             gg.t().elem(vec![0, 0]),
             (g_value_expected - gg.t().elem(vec![0, 0])).abs() < EPS
         );
-        assert_two_float(g_value_expected, gg.t().elem(vec![0, 0]));
+        assert_float(g_value_expected, gg.t().elem(vec![0, 0]));
 
         let aa = a.r().borrow();
         let bb = b.r().borrow();
@@ -1174,396 +1180,421 @@ mod tests {
             aa.t().elem(vec![0, 0])
         );
 
-        assert_two_float(f_grad_expected, ff.grad().elem(vec![0, 0]));
-        assert_two_float(e_grad_expected, ee.grad().elem(vec![0, 0]));
-        assert_two_float(d_grad_expected, dd.grad().elem(vec![0, 0]));
-        assert_two_float(c_grad_expected, cc.grad().elem(vec![0, 0]));
-        assert_two_float(b_grad_expected, bb.grad().elem(vec![0, 0]));
-        assert_two_float(a_grad_expected, aa.grad().elem(vec![0, 0]));
+        assert_float(f_grad_expected, ff.grad().elem(vec![0, 0]));
+        assert_float(e_grad_expected, ee.grad().elem(vec![0, 0]));
+        assert_float(d_grad_expected, dd.grad().elem(vec![0, 0]));
+        assert_float(c_grad_expected, cc.grad().elem(vec![0, 0]));
+        assert_float(b_grad_expected, bb.grad().elem(vec![0, 0]));
+        assert_float(a_grad_expected, aa.grad().elem(vec![0, 0]));
 
         // draw_graph(g, "test_all_math_ops_graph".to_string());
     }
-    //
-    // #[test]
-    // pub fn test_grad_add() {
-    //     let a = 23.0;
-    //     let b = 45.0;
-    //     let expected = a + b;
-    //
-    //     let a = ValueRefV3::new_value(a, "a".to_string());
-    //     let b = ValueRefV3::new_value(b, "b".to_string());
-    //     let mut c = &a + &b;
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //     assert_two_float(c.borrow().data, expected);
-    //
-    //     assert_two_float(a.get_grad(), 1.0);
-    //     assert_two_float(b.get_grad(), 1.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_sub() {
-    //     let a = 23.0;
-    //     let b = 45.0;
-    //     let expected = a - b;
-    //
-    //     let a = ValueRefV3::new_value(a, "a".to_string());
-    //     let b = ValueRefV3::new_value(b, "b".to_string());
-    //     let mut c = &a - &b;
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //
-    //     println!("c actual  {}  expected {}", c.borrow().data, expected);
-    //     println!("a.grad  {} ", a.get_grad());
-    //     println!("b.grad  {} ", b.get_grad());
-    //     assert_two_float(c.borrow().data, expected);
-    //
-    //     assert_two_float(a.get_grad(), 1.0);
-    //     assert_two_float(b.get_grad(), -1.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_mul() {
-    //     let a_f64 = 12.0;
-    //     let b_f64 = 23.0;
-    //     let expected = a_f64 * b_f64;
-    //
-    //     let a = ValueRefV3::new_value(a_f64, "a".to_string());
-    //     let b = ValueRefV3::new_value(b_f64, "b".to_string());
-    //     let mut c = &a * &b;
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //
-    //     println!("c actual  {}  expected {}", c.borrow().data, expected);
-    //     println!("a.grad  {} ", a.get_grad());
-    //     println!("b.grad  {} ", b.get_grad());
-    //     assert_two_float(c.borrow().data, expected);
-    //
-    //     assert_two_float(a.get_grad(), b_f64);
-    //     assert_two_float(b.get_grad(), a_f64);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_div() {
-    //     let a_f64 = 7.0;
-    //     let b_f64 = 2.0;
-    //     let expected = a_f64 / b_f64;
-    //
-    //     let a = ValueRefV3::new_value(a_f64, "a".to_string());
-    //     let b = ValueRefV3::new_value(b_f64, "b".to_string());
-    //     let mut c = &a / &b;
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //
-    //     println!("c actual  {}  expected {}", c.borrow().data, expected);
-    //     println!("a.grad  {} ", a.get_grad());
-    //     println!("b.grad  {} ", b.get_grad());
-    //     assert_two_float(c.borrow().data, expected);
-    //
-    //     assert_two_float(a.get_grad(), 0.5);
-    //     assert_two_float(b.get_grad(), -1.75);
-    // }
-    //
-    // pub fn test_relu(a_f64: f64, c_expected: f64, a_grad_expected: f64) {
-    //     let a = ValueRefV3::new_value(a_f64, "a".to_string());
-    //     let mut c = a.relu();
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //
-    //     println!("c actual  {}  expected {}", c.borrow().data, c_expected);
-    //     println!("a.grad  {} ", a.get_grad());
-    //     assert_two_float(c.borrow().data, c_expected);
-    //
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_relu_positive() {
-    //     let a_f64 = 1.1_f64;
-    //     let expected = a_f64.max(0.0);
-    //     test_relu(a_f64, expected, 1.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_relu_zero() {
-    //     let a_f64 = 0.0_f64;
-    //     let expected = a_f64.max(0.0);
-    //     test_relu(a_f64, expected, 0.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_relu_negative() {
-    //     let a_f64 = -10.2_f64;
-    //     let expected = a_f64.max(0.0);
-    //     test_relu(a_f64, expected, 0.0);
-    // }
-    //
-    // pub fn test_pow(a_f64: f64, b: f64, c_expected: f64, a_grad_expected: f64) {
-    //     let a = ValueRefV3::new_value(a_f64, "a".to_string());
-    //     let mut c = a.pow(b);
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //
-    //     println!("c actual  {}  expected {}", c.borrow().data, c_expected);
-    //     println!("a.grad  {} ", a.get_grad());
-    //     assert_two_float(c.get_data(), c_expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_pow_1() {
-    //     let a_f64 = -1.0_f64;
-    //     let b = 2.0;
-    //     let expected = a_f64.powf(b);
-    //     test_pow(a_f64, b, expected, -2.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_pow_2() {
-    //     let a_f64 = 3.0_f64;
-    //     let b = 3.0;
-    //     let expected = a_f64.powf(b);
-    //     test_pow(a_f64, b, expected, 27.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_pow_3() {
-    //     let a_f64 = 3.0_f64;
-    //     let b = 1.5;
-    //     let expected = a_f64.powf(b);
-    //     test_pow(a_f64, b, expected, 2.598076211353316);
-    // }
-    //
-    // pub fn test_tanh(a_f64: f64, c_expected: f64, a_grad_expected: f64) {
-    //     let a = ValueRefV3::new_value(a_f64, "a".to_string());
-    //     let mut c = a.tanh();
-    //     c.set_label("c".to_string());
-    //
-    //     c.backward();
-    //
-    //     println!("c actual  {}  expected {}", c.borrow().data, c_expected);
-    //     println!("a.grad  {} ", a.get_grad());
-    //     assert_two_float(c.borrow().data, c_expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_tanh_1() {
-    //     let a_f64 = 2.0_f64;
-    //     let expected = a_f64.tanh();
-    //     test_tanh(a_f64, expected, 0.07065082485316443);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_tanh_2() {
-    //     let a_f64 = -1.0_f64;
-    //     let expected = a_f64.tanh();
-    //     test_tanh(a_f64, expected, 0.41997434161402614);
-    // }
-    //
-    // #[test]
-    // pub fn test_grad_tanh_3() {
-    //     let a_f64 = 0.0_f64;
-    //     let expected = a_f64.tanh();
-    //     test_tanh(a_f64, expected, 1.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_simple_neurons_explizt_tanh() {
-    //     let x1: ValueRefV3 = ValueRefV3::new_value(2.0, "x1".to_string());
-    //     let x2 = ValueRefV3::new_value(0.0, "x2".to_string());
-    //
-    //     let w1 = ValueRefV3::new_value(-3.0, "w1".to_string());
-    //     let w2 = ValueRefV3::new_value(1.0, "w2".to_string());
-    //
-    //     let b = ValueRefV3::new_value(6.881373587019, "b".to_string());
-    //
-    //     let w1x1 = &x1 * &w1;
-    //     let w2x2 = &x2 * &w2;
-    //     let w1x1_plus_w2x2 = &w1x1 + &w2x2;
-    //
-    //     let mut n = &w1x1_plus_w2x2 + &b;
-    //     n.set_label("n".to_string());
-    //
-    //     let e = (2.0 * &n).exp();
-    //     let mut o = &(&e - 1.0) / &(&e + 1.0);
-    //
-    //     // let mut o = n.tanh();
-    //     o.set_label("o".to_string());
-    //
-    //     o.backward();
-    //
-    //     println!("x1 grad  expected {},  actual {}", -1.5, x1.get_grad());
-    //     println!("w1 grad  expected {},  actual {}", 1.0, w1.get_grad());
-    //     assert_two_float(x1.get_grad(), -1.5);
-    //     assert_two_float(w1.get_grad(), 1.0);
-    //
-    //     println!("x2 grad  expected {},  actual {}", 0.5, x2.get_grad());
-    //     println!("w2 grad  expected {},  actual {}", 0.0, w2.get_grad());
-    //     assert_two_float(x2.get_grad(), 0.5);
-    //     assert_two_float(w2.get_grad(), 0.0);
-    //
-    //     println!("w1x1 data  expected {},  actual {}", -6.0, w1x1.get_data());
-    //     println!("w2x2 data  expected {},  actual {}", 0.0, w2x2.get_data());
-    //
-    //     assert_two_float(w1x1.get_data(), -6.0);
-    //     assert_two_float(w2x2.get_data(), 0.0);
-    //
-    //     println!("w1x1 grad  expected {},  actual {}", 0.5, w1x1.get_grad());
-    //     println!("w2x2 grad  expected {},  actual {}", 0.5, w2x2.get_grad());
-    //
-    //     assert_two_float(w1x1.get_grad(), 0.5);
-    //     assert_two_float(w2x2.get_grad(), 0.5);
-    //
-    //     println!("b  data  expected {},  actual {}", 6.881373587019, b.get_data());
-    //     println!("b  grad  expected {},  actual {}", 0.5, b.get_grad());
-    //
-    //     assert_two_float(b.get_data(), 6.881373587019);
-    //     assert_two_float(b.get_grad(), 0.5);
-    //
-    //     println!(
-    //         "w1x1_plus_w2x2 data  expected {},  actual {}",
-    //         -6.,
-    //         w1x1_plus_w2x2.get_data()
-    //     );
-    //     println!(
-    //         "w1x1_plus_w2x2 grad  expected {},  actual {}",
-    //         0.5,
-    //         w1x1_plus_w2x2.get_grad()
-    //     );
-    //
-    //     assert_two_float(w1x1_plus_w2x2.get_data(), -6.0);
-    //     assert_two_float(w1x1_plus_w2x2.get_grad(), 0.5);
-    //
-    //     println!("n data  expected {},  actual {}", 0.8814, n.get_data());
-    //     println!("n grad  expected {},  actual {}", 0.5, n.get_grad());
-    //
-    //     assert_two_float(n.get_data(), 0.8814);
-    //     assert_two_float(n.get_grad(), 0.5);
-    //
-    //     println!("e data  expected {},  actual {}", 5.8284, e.get_data());
-    //     println!("e grad  expected {},  actual {}", 0.0429, e.get_grad());
-    //
-    //     assert_two_float(e.get_data(), 5.8284);
-    //     assert_two_float(e.get_grad(), 0.0429);
-    //
-    //     println!("o data  expected {},  actual {}", SQRT_2 / 2.0, o.get_data());
-    //     println!("o grad  expected {},  actual {}", 1.0, o.get_grad());
-    //
-    //     assert_two_float(o.get_data(), SQRT_2 / 2.0);
-    //     assert_two_float(o.get_grad(), 1.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_simple_neurons_simple_tanh() {
-    //     let x1: ValueRefV3 = ValueRefV3::new_value(2.0, "x1".to_string());
-    //     let x2 = ValueRefV3::new_value(0.0, "x2".to_string());
-    //
-    //     let w1 = ValueRefV3::new_value(-3.0, "w1".to_string());
-    //     let w2 = ValueRefV3::new_value(1.0, "w2".to_string());
-    //
-    //     let b = ValueRefV3::new_value(6.881373587019, "b".to_string());
-    //
-    //     let w1x1 = &x1 * &w1;
-    //     let w2x2 = &x2 * &w2;
-    //     let w1x1_plus_w2x2 = &w1x1 + &w2x2;
-    //
-    //     let mut n = &w1x1_plus_w2x2 + &b;
-    //     n.set_label("n".to_string());
-    //
-    //     let mut o = n.tanh();
-    //     o.set_label("o".to_string());
-    //
-    //     o.backward();
-    //
-    //     println!("x1 grad  expected {},  actual {}", -1.5, x1.get_grad());
-    //     println!("w1 grad  expected {},  actual {}", 1.0, w1.get_grad());
-    //     assert_two_float(x1.get_grad(), -1.5);
-    //     assert_two_float(w1.get_grad(), 1.0);
-    //
-    //     println!("x2 grad  expected {},  actual {}", 0.5, x2.get_grad());
-    //     println!("w2 grad  expected {},  actual {}", 0.0, w2.get_grad());
-    //     assert_two_float(x2.get_grad(), 0.5);
-    //     assert_two_float(w2.get_grad(), 0.0);
-    //
-    //     println!("w1x1 data  expected {},  actual {}", -6.0, w1x1.get_data());
-    //     println!("w2x2 data  expected {},  actual {}", 0.0, w2x2.get_data());
-    //
-    //     assert_two_float(w1x1.get_data(), -6.0);
-    //     assert_two_float(w2x2.get_data(), 0.0);
-    //
-    //     println!("w1x1 grad  expected {},  actual {}", 0.5, w1x1.get_grad());
-    //     println!("w2x2 grad  expected {},  actual {}", 0.5, w2x2.get_grad());
-    //
-    //     assert_two_float(w1x1.get_grad(), 0.5);
-    //     assert_two_float(w2x2.get_grad(), 0.5);
-    //
-    //     println!("b  data  expected {},  actual {}", 6.881373587019, b.get_data());
-    //     println!("b  grad  expected {},  actual {}", 0.5, b.get_grad());
-    //
-    //     assert_two_float(b.get_data(), 6.881373587019);
-    //     assert_two_float(b.get_grad(), 0.5);
-    //
-    //     println!(
-    //         "w1x1_plus_w2x2 data  expected {},  actual {}",
-    //         -6.,
-    //         w1x1_plus_w2x2.get_data()
-    //     );
-    //     println!(
-    //         "w1x1_plus_w2x2 grad  expected {},  actual {}",
-    //         0.5,
-    //         w1x1_plus_w2x2.get_grad()
-    //     );
-    //
-    //     assert_two_float(w1x1_plus_w2x2.get_data(), -6.0);
-    //     assert_two_float(w1x1_plus_w2x2.get_grad(), 0.5);
-    //
-    //     println!("n data  expected {},  actual {}", 0.8814, n.get_data());
-    //     println!("n grad  expected {},  actual {}", 0.5, n.get_grad());
-    //
-    //     assert_two_float(n.get_data(), 0.8814);
-    //     assert_two_float(n.get_grad(), 0.5);
-    //
-    //     println!("o data  expected {},  actual {}", SQRT_2 / 2.0, o.get_data());
-    //     println!("o grad  expected {},  actual {}", 1.0, o.get_grad());
-    //
-    //     assert_two_float(o.get_data(), SQRT_2 / 2.0);
-    //     assert_two_float(o.get_grad(), 1.0);
-    // }
-    //
-    // #[test]
-    // pub fn test_add_same_variable() {
-    //     let a = -5.0_f64;
-    //     let expected = a + a;
-    //     let a_grad_expected = 2.0;
-    //     let a = ValueRefV3::new_value(-5.0, "a".to_string());
-    //     let mut c = &a + &a;
-    //     c.backward();
-    //
-    //     println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-    //     assert_two_float(c.get_data(), expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_mul_same_variable() {
-    //     let a = -5.0_f64;
-    //     let expected = a * a;
-    //     let a_grad_expected = -10.0;
-    //     let a = ValueRefV3::new_value(a, "a".to_string());
-    //     let mut c = &a * &a;
-    //     c.backward();
-    //
-    //     println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-    //     assert_two_float(c.get_data(), expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
+
+    fn assert_two_math_tensors(expected: &MathTensor, actual: &MathTensor) {
+        assert_eq!(expected.shape(), actual.shape());
+
+        expected.data().iter().zip(actual.data().iter()).for_each(|(a, b)| {
+            if !assert_two_float(*a, *b) {
+                println!("expected {}, actual {} not equal", a, b);
+            }
+            assert_float(*a, *b);
+        });
+    }
+
+    #[test]
+    pub fn test_grad_add() {
+        let a = 23.0;
+        let b = 45.0;
+        let c_expected = a + b;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "b".to_string());
+
+        let mut c = &a + &b;
+
+        c.backward();
+
+        let a_grad_expected = vec![1.0];
+        let b_grad_expected = vec![1.0];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_grad_sub() {
+        let a = 23.0;
+        let b = 45.0;
+        let c_expected = a - b;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "b".to_string());
+
+        let mut c = &a - &b;
+
+        c.backward();
+
+        let a_grad_expected = vec![1.0];
+        let b_grad_expected = vec![-1.0];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_grad_mul() {
+        let a = 12.0;
+        let b = 23.0;
+        let a_grad_expected = b;
+        let b_grad_expected = a;
+        let c_expected = a * b;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "b".to_string());
+
+        let mut c = &a * &b;
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+        let b_grad_expected = vec![b_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_grad_div() {
+        let a = 7.0;
+        let b = 2.0;
+
+        let a_grad_expected = 0.5;
+        let b_grad_expected = -1.75;
+        let c_expected = a / b;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = &a / &b;
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+        let b_grad_expected = vec![b_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    pub fn test_relu(a: f64, c_expected: f64, a_grad_expected: f64) {
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = a.relu();
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_grad_relu_positive() {
+        let a_f64 = 1.1_f64;
+        let expected = a_f64.max(0.0);
+        test_relu(a_f64, expected, 1.0);
+    }
+
+    #[test]
+    pub fn test_grad_relu_zero() {
+        let a_f64 = 0.0_f64;
+        let expected = a_f64.max(0.0);
+        test_relu(a_f64, expected, 0.0);
+    }
+
+    #[test]
+    pub fn test_grad_relu_negative() {
+        let a_f64 = -10.2_f64;
+        let expected = a_f64.max(0.0);
+        test_relu(a_f64, expected, 0.0);
+    }
+
+    pub fn test_pow_grad(a: f64, b: f64, c_expected: f64, a_grad_expected: f64) {
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = a.pow(b);
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_grad_pow_1() {
+        let a_f64 = -1.0_f64;
+        let b = 2.0;
+        let expected = a_f64.powf(b);
+        test_pow_grad(a_f64, b, expected, -2.0);
+    }
+
+    #[test]
+    pub fn test_grad_pow_2() {
+        let a_f64 = 3.0_f64;
+        let b = 3.0;
+        let expected = a_f64.powf(b);
+        test_pow_grad(a_f64, b, expected, 27.0);
+    }
+
+    #[test]
+    pub fn test_grad_pow_3() {
+        let a_f64 = 3.0_f64;
+        let b = 1.5;
+        let expected = a_f64.powf(b);
+        test_pow_grad(a_f64, b, expected, 2.598076211353316);
+    }
+
+    pub fn test_tanh(a: f64, c_expected: f64, a_grad_expected: f64) {
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = a.tanh();
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_grad_tanh_1() {
+        let a_f64 = 2.0_f64;
+        let expected = a_f64.tanh();
+        test_tanh(a_f64, expected, 0.07065082485316443);
+    }
+
+    #[test]
+    pub fn test_grad_tanh_2() {
+        let a_f64 = -1.0_f64;
+        let expected = a_f64.tanh();
+        test_tanh(a_f64, expected, 0.41997434161402614);
+    }
+
+    #[test]
+    pub fn test_grad_tanh_3() {
+        let a_f64 = 0.0_f64;
+        let expected = a_f64.tanh();
+        test_tanh(a_f64, expected, 1.0);
+    }
+
+    #[test]
+    pub fn test_add_same_variable() {
+        let a = -5.0;
+
+        let a_grad_expected = 2.0;
+        let c_expected = a + a;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "b".to_string());
+
+        let mut c = &a + &a;
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_mul_same_variable() {
+        let a = -5.0;
+
+        let a_grad_expected = 2.0 * a;
+        let c_expected = a * a;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "b".to_string());
+
+        let mut c = &a * &a;
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
     //
     // #[test]
     // pub fn test_mul2() {
@@ -1579,130 +1610,250 @@ mod tests {
     //
     //     println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
     //     println!("b.grad   expected {},   actual {}", b_grad_expected, b.get_grad());
-    //     assert_two_float(c.get_data(), expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    //     assert_two_float(b.get_grad(), b_grad_expected);
+    //     assert_float(c.get_data(), expected);
+    //     assert_float(a.get_grad(), a_grad_expected);
+    //     assert_float(b.get_grad(), b_grad_expected);
     //
     //     let topo = ValueRefV3::traverse(&c);
-    //     topo.iter().for_each(|t| println!("topo   {}", t));
+    //     topo.iter().for_each(|t|
+    // {
+    // println!(
+    //                 "{}  data {},  grad  {}",
+    //                 x.label(),
+    //                 x.t().elem(vec![0, 0]),
+    //                 x.grad().elem(vec![0, 0])
+    //             );
+    // });
     //     assert_eq!(topo.len(), 3);
     // }
-    //
-    // // see micrograd_test_topo.py
-    // // he uses a set for the children and in case of an c = a + a
-    // // the variable a is only once in the children set
-    //
-    // #[test]
-    // pub fn test_mul_same_variable_topo() {
-    //     let a = -5.0_f64;
-    //     let expected = a * a;
-    //     let a_grad_expected = -10.0;
-    //     let a = ValueRefV3::new_value(a, "a".to_string());
-    //     let mut c = &a * &a;
-    //     let topo = ValueRefV3::traverse(&c);
-    //     topo.iter().for_each(|t| println!("topo   {}", t));
-    //
-    //     assert_eq!(topo.len(), 2);
-    //
-    //     c.backward();
-    //
-    //     println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-    //     assert_two_float(c.get_data(), expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_neg_grad() {
-    //     let a = -5.0_f64;
-    //     let expected = -a;
-    //     let a_grad_expected = -1.0;
-    //     let a = ValueRefV3::new_value(a, "a".to_string());
-    //     let mut c = -&a;
-    //     c.backward();
-    //
-    //     println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-    //     assert_two_float(c.get_data(), expected);
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_neg_grad1() {
-    //     let a = ValueRefV3::new_value(-4.0, "a".to_string()); //         a = Value(-4.0)
-    //     let b = ValueRefV3::new_value(2.0, "b".to_string()); //         b = Value(2.0)
-    //     let mut c = &a + &b; //         c = a + b
-    //     c += &c + 1.0; //         c += c + 1
-    //     c += (1.0 + &c) + (-&a); //         c += 1 + c + (-a)
-    //
-    //     c.backward();
-    //
-    //     let a_expected = -4.0;
-    //     let b_expected = 2.0;
-    //     let c_expected = -1.0;
-    //
-    //     let a_grad_expected = 3.0;
-    //     let b_grad_expected = 4.0;
-    //     let c_grad_expected = 1.0;
-    //
-    //     println!("a data {}   expected {}", a.get_data(), a_expected);
-    //     println!("b data {}   expected {}", b.get_data(), b_expected);
-    //     println!("c data {}   expected {}", c.get_data(), c_expected);
-    //
-    //     println!("a grad {}   expected {}", a.get_grad(), a_grad_expected);
-    //     println!("a grad {}   expected {}", b.get_grad(), b_grad_expected);
-    //     println!("a grad {}   expected {}", c.get_grad(), c_grad_expected);
-    //
-    //     assert_two_float(a.get_data(), a_expected);
-    //     assert_two_float(b.get_data(), b_expected);
-    //     assert_two_float(c.get_data(), c_expected);
-    //
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    //     assert_two_float(b.get_grad(), b_grad_expected);
-    //     assert_two_float(c.get_grad(), c_grad_expected);
-    // }
-    //
-    // #[test]
-    // pub fn test_sub_relu_grad() {
-    //     let a = ValueRefV3::new_value(-4.0, "a".to_string()); //         a = Value(-4.0)
-    //     let b = ValueRefV3::new_value(2.0, "b".to_string()); //         b = Value(2.0)
-    //     let mut c = (&b - &a).relu();
-    //
-    //     c.backward();
-    //
-    //     let topo = ValueRefV3::traverse(&c);
-    //     println!("#################################");
-    //     println!("Topo");
-    //     for t in topo.iter() {
-    //         println!(
-    //             "{}  data {},  grad  {}",
-    //             t.r.borrow().label(),
-    //             t.get_data(),
-    //             t.get_grad()
-    //         );
-    //     }
-    //     println!("#################################");
-    //
-    //     let a_expected = -4.0;
-    //     let b_expected = 2.0;
-    //     let c_expected = 6.0;
-    //
-    //     let a_grad_expected = -1.0;
-    //     let b_grad_expected = 1.0;
-    //     let c_grad_expected = 1.0;
-    //
-    //     println!("a data {}   expected {}", a.get_data(), a_expected);
-    //     println!("b data {}   expected {}", b.get_data(), b_expected);
-    //     println!("c data {}   expected {}", c.get_data(), c_expected);
-    //
-    //     println!("a grad {}   expected {}", a.get_grad(), a_grad_expected);
-    //     println!("b grad {}   expected {}", b.get_grad(), b_grad_expected);
-    //     println!("c grad {}   expected {}", c.get_grad(), c_grad_expected);
-    //
-    //     assert_two_float(a.get_data(), a_expected);
-    //     assert_two_float(b.get_data(), b_expected);
-    //     assert_two_float(c.get_data(), c_expected);
-    //
-    //     assert_two_float(a.get_grad(), a_grad_expected);
-    //     assert_two_float(b.get_grad(), b_grad_expected);
-    //     assert_two_float(c.get_grad(), c_grad_expected);
-    // }
+
+    // see micrograd_test_topo.py
+    // he uses a set for the children and in case of an c = a + a
+    // the variable a is added only once in the children set
+    #[test]
+    pub fn test_mul_same_variable_topo() {
+        let a = 7.0;
+        let b = 2.0;
+
+        let a_grad_expected = 0.5;
+        let b_grad_expected = -1.75;
+        let c_expected = a / b;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = &a * &b;
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+        let b_grad_expected = vec![b_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+
+        let topo = Tensor::traverse(&c);
+        topo.iter().for_each(|t| {
+            println!(
+                "{}  data {},  grad  {}",
+                t.r().borrow().label(),
+                t.r().borrow().t().elem(vec![0, 0]),
+                t.r().borrow().grad().elem(vec![0, 0])
+            );
+        });
+
+        assert_eq!(topo.len(), 2);
+    }
+
+    #[test]
+    pub fn test_neg_grad() {
+        let a = -5.0_f64;
+        let a_grad_expected = -1.0;
+        let c_expected = -a;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = -(&a);
+
+        c.backward();
+
+        let a_grad_expected = vec![a_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_neg_grad1() {
+        let a = -4.0;
+        let b = 2.0;
+
+        let a_expected = a;
+        let b_expected = b;
+        let mut c_expected = a + b;
+        c_expected += c_expected + 1.0;
+        c_expected += (1.0 + c_expected) + (-a);
+
+        let a_grad_expected = 3.0;
+        let b_grad_expected = 4.0;
+        let c_grad_expected = 1.0;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "b".to_string());
+
+        let mut c = &a + &b; //         c = a + b
+        c += &c + 1.0; //         c += c + 1
+        c += (1.0 + &c) + (-&a); //         c += 1 + c + (-a)
+        c.backward();
+
+        let a_expected = vec![a_expected];
+        let b_expected = vec![b_expected];
+
+        let a_expected = MathTensor::new(vec![1, 1], a_expected);
+        let b_expected = MathTensor::new(vec![1, 1], b_expected);
+
+        let a_grad_expected = vec![a_grad_expected];
+        let b_grad_expected = vec![b_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+        let aa = aa.t();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+        let bb = bb.t();
+
+        assert_two_math_tensors(&a_expected, aa);
+        assert_two_math_tensors(&b_expected, bb);
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+    }
+
+    #[test]
+    pub fn test_sub_relu_grad() {
+        let a = -4.0_f64;
+        let b = 2.0;
+
+        let a_expected = a;
+        let b_expected = b;
+        let c_expected = (b - a).max(0.0);
+
+        let a_grad_expected = 3.0;
+        let b_grad_expected = 4.0;
+        let c_grad_expected = 1.0;
+
+        let a = MathTensor::new(vec![1, 1], vec![a]);
+        let a = Tensor::from(a, "a".to_string());
+        let b = MathTensor::new(vec![1, 1], vec![b]);
+        let b = Tensor::from(b, "b".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
+        let c_expected = Tensor::from(c_expected, "c_expected".to_string());
+
+        let mut c = (&b - &a).relu();
+
+        c.backward();
+
+        let a_expected = vec![a_expected];
+        let b_expected = vec![b_expected];
+
+        let a_expected = MathTensor::new(vec![1, 1], a_expected);
+        let b_expected = MathTensor::new(vec![1, 1], b_expected);
+
+        let a_grad_expected = vec![a_grad_expected];
+        let b_grad_expected = vec![b_grad_expected];
+
+        let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
+        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+        let aa = aa.t();
+
+        let bb = b.r().borrow();
+        let b_grad = bb.grad();
+        let bb = bb.t();
+
+        assert_two_math_tensors(&a_expected, aa);
+        assert_two_math_tensors(&b_expected, bb);
+
+        assert_two_math_tensors(&a_grad_expected, a_grad);
+        assert_two_math_tensors(&b_grad_expected, b_grad);
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        let cc_expected = c_expected.r().borrow();
+        let cc_expected = cc_expected.t();
+
+        assert_two_math_tensors(&cc_expected, cc);
+
+        let topo = Tensor::traverse(&c);
+        println!("#################################");
+        println!("Topo");
+        for t in topo.iter() {
+            println!(
+                "{}  data {},  grad  {}",
+                t.r().borrow().label(),
+                t.r().borrow().t().elem(vec![0, 0]),
+                t.r().borrow().grad().elem(vec![0, 0])
+            );
+        }
+        println!("#################################");
+    }
 }
