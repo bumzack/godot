@@ -986,14 +986,13 @@ mod tests {
         let a = Tensor::from(a, "a".to_string());
         let b = Tensor::from(b, "b".to_string());
 
-        let mut x = &a - &b;
+        let   x = &a - &b;
 
         assert_float(c_expected, x.elem(vec![0, 0]));
     }
 
     #[test]
     pub fn test_sub_3x2() {
-        let a = 2.0_f64;
         let b = 3.0_f64;
         let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
         let c_expected: Vec<f64> = data.iter().map(|d| d - b).collect();
@@ -1113,7 +1112,6 @@ mod tests {
         println!("#################################");
         println!("Topo");
         for t in topo.iter() {
-            let x = t.r().borrow();
             println!(
                 "{}  data {},  grad  {}",
                 t.r().borrow().label(),
@@ -1632,39 +1630,30 @@ mod tests {
     // the variable a is added only once in the children set
     #[test]
     pub fn test_mul_same_variable_topo() {
-        let a = 7.0;
-        let b = 2.0;
+        let a = -5.0;
 
-        let a_grad_expected = 0.5;
-        let b_grad_expected = -1.75;
-        let c_expected = a / b;
+        let a_grad_expected =2.0*a;
+         let c_expected = a * a;
 
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let a = Tensor::from(a, "a".to_string());
-        let b = MathTensor::new(vec![1, 1], vec![b]);
-        let b = Tensor::from(b, "b".to_string());
 
         let c_expected = MathTensor::new(vec![1, 1], vec![c_expected]);
         let c_expected = Tensor::from(c_expected, "c_expected".to_string());
 
-        let mut c = &a * &b;
+        let mut c = &a * &a;
 
         c.backward();
 
         let a_grad_expected = vec![a_grad_expected];
-        let b_grad_expected = vec![b_grad_expected];
 
         let a_grad_expected = MathTensor::new(vec![1, 1], a_grad_expected);
-        let b_grad_expected = MathTensor::new(vec![1, 1], b_grad_expected);
 
         let aa = a.r().borrow();
         let a_grad = aa.grad();
 
-        let bb = b.r().borrow();
-        let b_grad = bb.grad();
 
         assert_two_math_tensors(&a_grad_expected, a_grad);
-        assert_two_math_tensors(&b_grad_expected, b_grad);
 
         let cc = c.r().borrow();
         let cc = cc.t();
@@ -1734,7 +1723,6 @@ mod tests {
 
         let a_grad_expected = 3.0;
         let b_grad_expected = 4.0;
-        let c_grad_expected = 1.0;
 
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let a = Tensor::from(a, "a".to_string());
@@ -1793,9 +1781,8 @@ mod tests {
         let b_expected = b;
         let c_expected = (b - a).max(0.0);
 
-        let a_grad_expected = 3.0;
-        let b_grad_expected = 4.0;
-        let c_grad_expected = 1.0;
+        let a_grad_expected = -1.0;
+        let b_grad_expected = 1.0;
 
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let a = Tensor::from(a, "a".to_string());

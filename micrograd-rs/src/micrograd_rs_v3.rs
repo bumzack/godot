@@ -1499,7 +1499,6 @@ mod tests {
     // see micrograd_test_topo.py
     // he uses a set for the children and in case of an c = a + a
     // the variable a is only once in the children set
-
     #[test]
     pub fn test_mul_same_variable_topo() {
         let a = -5.0_f64;
