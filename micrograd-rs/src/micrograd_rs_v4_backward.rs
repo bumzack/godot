@@ -138,7 +138,6 @@ impl Backward for BackwardTanh {
         let res = Self::helper(out, &self__);
         self__.set_grad(res);
 
-
         // let x = out.get_data();
         // let y = 1.0 - x * x;
         // self__.set_grad(self__.get_grad() + y * out.r.borrow().grad());
@@ -170,7 +169,6 @@ impl Backward for BackwardExp {
         let mut self__ = self.left.clone();
         let x1 = Self::helper(out, &self__);
         self__.set_grad(x1);
-
 
         // let mut self__ = self.left.clone();
         // self__.set_grad(self__.get_grad() + out.r().borrow().data() * out.r.borrow().grad());
@@ -208,17 +206,18 @@ impl BackwardReLU {
         BackwardReLU { left }
     }
 
-    fn helper(out: Tensor, self__: &  Tensor) -> MathTensor {
+    fn helper(out: Tensor, self__: &Tensor) -> MathTensor {
         let x1 = out.r().borrow();
         let t = x1.t();
         let grad = x1.grad();
 
         let shape: Vec<usize> = t.shape_vec().iter().map(|s| *s).collect();
-        let data: Vec<f64> = t.data().iter().enumerate().map(|(idx, d)| {
-            if *d > 0.0 {
-                grad.data()[idx]
-            } else { 0.0 }
-        }).collect();
+        let data: Vec<f64> = t
+            .data()
+            .iter()
+            .enumerate()
+            .map(|(idx, d)| if *d > 0.0 { grad.data()[idx] } else { 0.0 })
+            .collect();
 
         let x = MathTensor::new(shape, data);
         let y = self__.r().borrow();
@@ -232,9 +231,8 @@ impl Backward for BackwardReLU {
     fn apply(&self, out: Tensor) {
         let mut self__ = self.left.clone();
 
-        let res = Self::helper(out, &  self__);
+        let res = Self::helper(out, &self__);
         self__.set_grad(res);
-
 
         // println!("ReLU out {:?},  'self' {:?} ", out, self.left);
         // let mut self__ = self.left.clone();
