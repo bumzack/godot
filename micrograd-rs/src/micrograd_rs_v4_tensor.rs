@@ -986,7 +986,7 @@ mod tests {
         let a = Tensor::from(a, "a".to_string());
         let b = Tensor::from(b, "b".to_string());
 
-        let   x = &a - &b;
+        let x = &a - &b;
 
         assert_float(c_expected, x.elem(vec![0, 0]));
     }
@@ -1632,8 +1632,8 @@ mod tests {
     pub fn test_mul_same_variable_topo() {
         let a = -5.0;
 
-        let a_grad_expected =2.0*a;
-         let c_expected = a * a;
+        let a_grad_expected = 2.0 * a;
+        let c_expected = a * a;
 
         let a = MathTensor::new(vec![1, 1], vec![a]);
         let a = Tensor::from(a, "a".to_string());
@@ -1651,7 +1651,6 @@ mod tests {
 
         let aa = a.r().borrow();
         let a_grad = aa.grad();
-
 
         assert_two_math_tensors(&a_grad_expected, a_grad);
 
