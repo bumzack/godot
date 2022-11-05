@@ -1,5 +1,4 @@
 use std::f64::consts::PI;
-use std::process::exit;
 use std::time::Instant;
 
 use micrograd_rs::micrograd_rs_engine_v2::{print_predictions, MLP};

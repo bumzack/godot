@@ -1,5 +1,4 @@
 use std::f64::consts::PI;
-use std::process::{exit, id};
 use std::time::Instant;
 
 use plotters::prelude::*;

@@ -56,7 +56,7 @@ impl BackwardSub {
     fn helper_sub(out: &Tensor, t: &mut Tensor) -> MathTensor {
         let x = t.r().borrow();
         let grad = x.grad();
-        let tensor = grad + &(1.0 * out.r().borrow().grad());
+        let tensor = grad - &(1.0 * out.r().borrow().grad());
         tensor
     }
 }
