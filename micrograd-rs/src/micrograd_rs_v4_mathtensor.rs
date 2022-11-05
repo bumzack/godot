@@ -1,12 +1,6 @@
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, BitXor, Mul, Neg, Sub};
 
-use crate::micrograd_rs_v4_tensor::{OpEnumV4, Tensor};
-
-pub trait Backward {
-    fn apply(&self, out: Tensor);
-}
-
 pub struct MathTensor {
     data: Vec<f64>,
     shape: Vec<usize>,
@@ -28,6 +22,13 @@ impl MathTensor {
         let mut size = 1;
         shape.iter().for_each(|s| size *= s);
         let data = vec![1_f64; size];
+        MathTensor { data, shape }
+    }
+
+    pub fn value(shape: Vec<usize>, value: f64) -> Self {
+        let mut size = 1;
+        shape.iter().for_each(|s| size *= s);
+        let data = vec![value; size];
         MathTensor { data, shape }
     }
 
@@ -59,6 +60,38 @@ impl MathTensor {
 
     fn idx(&self, pos: Vec<usize>) -> usize {
         self.shape[1] * pos[0] + pos[1]
+    }
+
+    pub fn pow(&self, n: f64) -> MathTensor {
+        let a: Vec<f64> = self.data().iter().map(|a| a.powf(n)).collect();
+        let mut shape = vec![];
+        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let t = MathTensor::new(shape, a);
+        t
+    }
+
+    pub fn exp(&self) -> MathTensor {
+        let a: Vec<f64> = self.data().iter().map(|a| a.exp()).collect();
+        let mut shape = vec![];
+        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let t = MathTensor::new(shape, a);
+        t
+    }
+
+    pub fn tanh(&self) -> MathTensor {
+        let a: Vec<f64> = self.data().iter().map(|a| a.tanh()).collect();
+        let mut shape = vec![];
+        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let t = MathTensor::new(shape, a);
+        t
+    }
+
+    pub fn relu(&self) -> MathTensor {
+        let a: Vec<f64> = self.data().iter().map(|a| a.max(0.0)).collect();
+        let mut shape = vec![];
+        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let t = MathTensor::new(shape, a);
+        t
     }
 }
 
@@ -125,6 +158,18 @@ impl Sub<&MathTensor> for f64 {
 
     fn sub(self, rhs: &MathTensor) -> Self::Output {
         &(-rhs) + self
+    }
+}
+
+impl Neg for MathTensor {
+    type Output = MathTensor;
+
+    fn neg(self) -> Self::Output {
+        let a: Vec<f64> = self.data().iter().map(|a| -a).collect();
+        let mut shape = vec![];
+        self.shape_vec().iter().for_each(|s| shape.push(*s));
+        let t = MathTensor::new(shape, a);
+        t
     }
 }
 
@@ -212,9 +257,8 @@ impl Display for MathTensor {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_vec_f64;
     use crate::micrograd_rs_v4_mathtensor::MathTensor;
-    use crate::micrograd_rs_v4_tensor::OpEnumV4;
-    use crate::{assert_float, assert_two_float};
 
     #[test]
     pub fn test_math_tensor_new() {
@@ -249,16 +293,6 @@ mod tests {
 
         assert_eq!(a.shape(), a_shape_expected);
         assert_eq!(b.shape(), b_shape_expected);
-    }
-
-    fn assert_vec_f64(expected: &Vec<f64>, actual: &Vec<f64>) {
-        assert_eq!(expected.len(), actual.len());
-        expected.iter().zip(actual.iter()).for_each(|(a, b)| {
-            if !assert_two_float(*a, *b) {
-                println!("expected {}  !=  actual {}", a, b);
-            }
-            assert_float(*a, *b);
-        });
     }
 
     #[test]
