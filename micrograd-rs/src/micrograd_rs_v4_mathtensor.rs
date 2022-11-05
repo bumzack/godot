@@ -569,4 +569,120 @@ mod tests {
         assert_eq!(b.shape(), b_shape_expected);
         assert_eq!(c.shape(), c_shape_expected);
     }
+
+    #[test]
+    pub fn test_math_tensor_relu() {
+        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let a = MathTensor::new(vec![2, 3], a);
+
+        let c_shape = vec![a.shape_vec()[0], a.shape_vec()[1]];
+        let mut c_expected = MathTensor::zeroes(c_shape);
+
+        for i in 0..a.shape_vec()[0] {
+            for j in 0..a.shape_vec()[1] {
+                let relu = a.elem(vec![i, j]).max(0.0);
+                c_expected.set_elem(vec![i, j], relu);
+            }
+        }
+
+        let c = a.relu();
+
+        assert_vec_f64(&c_expected.data(), &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 3)".to_string();
+        let c_shape_expected = "(2, 3)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
+
+    #[test]
+    pub fn test_math_tensor_tanh() {
+        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let a = MathTensor::new(vec![2, 3], a);
+
+        let c_shape = vec![a.shape_vec()[0], a.shape_vec()[1]];
+        let mut c_expected = MathTensor::zeroes(c_shape);
+
+        for i in 0..a.shape_vec()[0] {
+            for j in 0..a.shape_vec()[1] {
+                let relu = a.elem(vec![i, j]).tanh();
+                c_expected.set_elem(vec![i, j], relu);
+            }
+        }
+
+        let c = a.tanh();
+
+        assert_vec_f64(&c_expected.data(), &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 3)".to_string();
+        let c_shape_expected = "(2, 3)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
+
+    #[test]
+    pub fn test_math_tensor_exp() {
+        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let a = MathTensor::new(vec![2, 3], a);
+
+        let c_shape = vec![a.shape_vec()[0], a.shape_vec()[1]];
+        let mut c_expected = MathTensor::zeroes(c_shape);
+
+        for i in 0..a.shape_vec()[0] {
+            for j in 0..a.shape_vec()[1] {
+                let relu = a.elem(vec![i, j]).exp();
+                c_expected.set_elem(vec![i, j], relu);
+            }
+        }
+
+        let c = a.exp();
+
+        assert_vec_f64(&c_expected.data(), &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 3)".to_string();
+        let c_shape_expected = "(2, 3)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
+
+    #[test]
+    pub fn test_math_tensor_pow() {
+        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let a = MathTensor::new(vec![2, 3], a);
+        let n = 2.3_f64;
+        let c_shape = vec![a.shape_vec()[0], a.shape_vec()[1]];
+        let mut c_expected = MathTensor::zeroes(c_shape);
+
+        for i in 0..a.shape_vec()[0] {
+            for j in 0..a.shape_vec()[1] {
+                let relu = a.elem(vec![i, j]).powf(n);
+                c_expected.set_elem(vec![i, j], relu);
+            }
+        }
+
+        let c = a.pow(n);
+
+        assert_vec_f64(&c_expected.data(), &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 3)".to_string();
+        let c_shape_expected = "(2, 3)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
 }
