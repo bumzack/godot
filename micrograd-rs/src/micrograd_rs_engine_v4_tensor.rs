@@ -1,98 +1,96 @@
-use crate::EPS2;
+use std::cell::Ref;
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::micrograd_rs_v3::ValueRefV3;
+use crate::EPS2;
+use crate::micrograd_rs_v4_mathtensor::MathTensor;
+use crate::micrograd_rs_v4_tensor::Tensor;
+use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
 
 pub struct Neuron {
-    weights: Vec<ValueRefV3>,
-    bias: ValueRefV3,
-    non_lin: bool,
+    weights: Tensor,
+    bias: Tensor,
 }
 
 impl Neuron {
-    pub fn new(nin: usize, non_lin: bool, initializer: &mut dyn Initializer) -> Neuron {
-        let mut weights = vec![];
+    pub fn new(nin: usize, initializer: &mut dyn Initializer) -> Neuron {
         let init_values = initializer.get_values(nin);
-        for i in 0..nin {
-            weights.push(ValueRefV3::new_value(init_values[i], format!("weight {}", i)));
-        }
-        let bias = ValueRefV3::new_value(0.0, format!("bias"));
-        Neuron { weights, bias, non_lin }
+        let weights = MathTensor::new(vec![nin, 1], init_values);
+        let weights = Tensor::from(weights, format!("weight "));
+
+        let bias = Tensor::zeroes(vec![1, 1], format!("bias"));
+        Neuron { weights, bias }
     }
 
-    pub fn new_weights_bias(weights: Vec<f64>, bias: f64, non_lin: bool) -> Neuron {
-        let weights = weights
-            .iter()
-            .map(|w| ValueRefV3::new_value(*w, "w".to_string()))
-            .collect();
-        let bias = ValueRefV3::new_value(bias, "b".to_string());
-        Neuron { weights, bias, non_lin }
+    pub fn new_weights_bias(weights: Vec<f64>, bias: f64) -> Neuron {
+        let weights = MathTensor::new(vec![weights.len(), 1], weights);
+        let weights = Tensor::from(weights, format!("weight"));
+
+        let bias = MathTensor::new(vec![1, 1], vec![bias]);
+        let bias = Tensor::from(bias, format!("bias"));
+        Neuron { weights, bias }
     }
 
-    pub fn forward(&self, xinp: &Vec<ValueRefV3>) -> ValueRefV3 {
-        assert!(xinp.len() == self.weights.len(), "input size does not match layer size");
+    pub fn forward(&self, xinp: &Tensor) -> Tensor {
+        // assert!(xinp.len() == self.weights.len(), "input size does not match layer size");
+        // let x_w = xinp * &self.weights;
+        // let a = x_w.r().borrow();
+        // let a = a.t();
+        //
+        // let sum = a.data().iter().sum();
+        // let sum = MathTensor::new(vec![1, 1], vec![sum]);
+        //
+        // let out = &sum + &self.bias;
+        // out
 
-        let x_w: Vec<ValueRefV3> = xinp
-            .iter()
-            .zip(self.weights.iter())
-            .into_iter()
-            .map(|(x, w)| x * w)
-            .collect();
-
-        let mut sum = ValueRefV3::new_value(0.0, "sum".to_string());
-        for v in x_w {
-            sum += v;
-        }
-        let out = &sum + &self.bias;
-        if self.non_lin {
-            out.relu()
-        } else {
-            out
-        }
+        Tensor::from(MathTensor::new(vec![1, 1], vec![1.0]), "forward".to_string())
     }
 
-    pub fn parameters(&self) -> Vec<ValueRefV3> {
+    pub fn parameters(&self) -> Vec<Tensor> {
         let mut params = vec![];
-        self.weights.iter().for_each(|w| params.push(w.clone()));
-        params.push(self.bias.clone());
+        // self.weights.iter().for_each(|w| params.push(w.clone()));
+        // params.push(self.bias.clone());
         params
     }
 }
 
 pub trait Layer {
-    fn forward(&self, xinp: &Vec<ValueRefV3>) -> Vec<ValueRefV3>;
-    fn parameters(&self) -> Vec<ValueRefV3>;
+    fn forward(&self, xinp: &Tensor) -> Tensor;
+    fn parameters(&self) -> Vec<Tensor>;
     fn name(&self) -> &String;
 }
 
 pub struct FC {
-    neurons: Vec<Neuron>,
+    weights: Tensor,
+    bias: Tensor,
     name: String,
 }
 
 impl FC {
-    pub fn new(nin: usize, nout: usize, non_lin: bool, name: String, initializer: &mut dyn Initializer) -> FC {
-        let mut neurons = vec![];
-        for _i in 0..nout {
-            neurons.push(Neuron::new(nin, non_lin, initializer));
-        }
-        FC { neurons, name }
+    pub fn new(nin: usize, nout: usize, name: String, initializer: &mut dyn Initializer) -> FC {
+        let weights =  initializer.get_values(nin*nout);
+        let weights = MathTensor::new(vec![nin, nout], weights);
+        let weights = Tensor::from(weights, "weights".to_string());
+
+        let bias =  initializer.get_values( nout);
+        let bias = MathTensor::new(vec![nin, 1], bias);
+        let bias = Tensor::from(bias, "bias".to_string());
+
+        FC { weights, bias, name }
     }
 }
 
 impl Layer for FC {
-    fn forward(&self, xinp: &Vec<ValueRefV3>) -> Vec<ValueRefV3> {
-        let mut out = vec![];
-        for n in &self.neurons {
-            out.push(n.forward(xinp))
-        }
-        out
+    fn forward(&self, xinp: &Tensor) -> Tensor {
+        let y = &(&self.weights ^ xinp) +&self.bias;
+        let y = y.relu();
+        y
     }
 
-    fn parameters(&self) -> Vec<ValueRefV3> {
+    fn parameters(&self) -> Vec<Tensor> {
         let mut params = vec![];
-        self.neurons.iter().for_each(|n| params.append(&mut n.parameters()));
+       params.push(self.weights.clone());
+        params.push(self.bias.clone());
         params
     }
 
@@ -127,28 +125,12 @@ impl Network {
         self.loss = loss;
     }
 
-    // pub fn new_fully_connected(nin: usize, mut nouts: Vec<usize>) -> Box<Network> {
-    //     let mut sizes = vec![];
-    //     sizes.push(nin);
-    //     sizes.append(&mut nouts);
-    //
-    //     let mut network = Network::new();
-    //     for i in 0..sizes.len() - 1 {
-    //         // println!("new layer nin {} -> nout {}", sizes[i], sizes[i + 1]);
-    //         network.add_layer(Box::new(FC::new(sizes[i], sizes[i + 1])));
-    //     }
-    //     network
-    // }
-
     pub fn add_layer(&mut self, l: Box<dyn Layer>) {
         self.layers.push(l);
     }
 
-    fn forward_internal<'a>(&'a self, xinp: &Vec<f64>) -> Vec<ValueRefV3> {
-        let mut x: Vec<ValueRefV3> = xinp
-            .iter()
-            .map(|x| ValueRefV3::new_value(*x, "x".to_string()))
-            .collect();
+    fn forward_internal<'a>(&'a self, xinp: &Tensor) -> Tensor {
+        let mut x = xinp.clone();
         for (_idx, l) in self.layers.iter().enumerate() {
             // println!("forward layer idx {}   name {}", _idx, l.name());
             // println!("input x.len {}    x[0] Ï{:?},   x1 {:?}", x.len(), x[0].get_data(), x[1].get_data());
@@ -160,37 +142,43 @@ impl Network {
         x
     }
 
-    pub fn parameters(&self) -> Vec<ValueRefV3> {
+    pub fn parameters(&self) -> Vec<Tensor> {
         let mut params = vec![];
         self.layers.iter().for_each(|l| params.append(&mut l.parameters()));
         params
     }
 
-    pub fn forward(&self, xs: &Vec<Vec<f64>>) -> Vec<ValueRefV3> {
-        let mut y_pred: Vec<ValueRefV3> = vec![];
-        for x in xs.iter() {
-            let y = self.forward_internal(x);
-            let y = y.get(0).unwrap().clone();
-            // println!("y data {:?}  grad {:?}", y.get_data(), y.get_grad());
-            y_pred.push(y);
-        }
-        y_pred
+    pub fn forward(&self, x: &Tensor) -> Tensor {
+        let y = self.forward_internal(x);
+        y
     }
 
     pub fn print_params(&self) {
         println!("beforeupdate");
-        for p in self.parameters() {
-            println!(
-                "parameter '{}': data {}, grad {}",
-                p.borrow().label(),
-                p.get_data(),
-                p.get_grad()
-            );
-        }
+        // for p in self.parameters() {
+        //     println!(
+        //         "parameter '{}': data {}, grad {}",
+        //         p.borrow().label(),
+        //         p.get_data(),
+        //         p.get_grad()
+        //     );
+        // }
     }
 
     pub fn reset_grades(&self) {
-        self.parameters().iter_mut().for_each(|p| p.set_grad(0.0));
+        self.parameters().iter().for_each(|p| {
+            let p = p.clone();
+
+            let mut grad = p.r().borrow_mut();
+            let grad = grad.grad_mut();
+            grad.set_zero();
+
+
+        });
+    }
+
+    fn helper(mut grad: Ref<TensorInternal>) {
+
     }
 
     pub fn update(&self, epoch: usize) {
@@ -199,17 +187,16 @@ impl Network {
 
     pub fn calc_loss(
         &self,
-        y_ground_truth: &Vec<f64>,
-        y_pred: &Vec<ValueRefV3>,
-        parameters: Vec<ValueRefV3>,
-    ) -> ValueRefV3 {
+        y_ground_truth: &Tensor,
+        y_pred: &Tensor,
+        parameters: Vec<Tensor>,
+    ) -> Tensor {
         self.loss.calc_loss(y_ground_truth, y_pred, parameters)
     }
 }
 
 pub trait Loss {
-    fn calc_loss(&self, y_ground_truth: &Vec<f64>, y_pred: &Vec<ValueRefV3>, parameters: Vec<ValueRefV3>)
-        -> ValueRefV3;
+    fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, parameters: Vec<Tensor>) -> Tensor;
 }
 
 pub struct MSELoss {}
@@ -223,23 +210,25 @@ impl MSELoss {
 impl Loss for MSELoss {
     fn calc_loss(
         &self,
-        y_ground_truth: &Vec<f64>,
-        y_pred: &Vec<ValueRefV3>,
-        _parameters: Vec<ValueRefV3>,
-    ) -> ValueRefV3 {
-        let loss_vec: Vec<ValueRefV3> = y_pred
-            .iter()
-            .zip(y_ground_truth.iter())
-            .into_iter()
-            .map(|(ypred, ygr)| (ypred - *ygr).pow(2.0))
-            .collect();
-        //loss_vec.iter().for_each(|y| println!("loss_vec = {}", y.get_data()));
-        let mut loss = ValueRefV3::new_value(0.0, "loss".to_string());
-        for l in loss_vec.iter() {
-            // println!("loss {} += l {} ", loss, l.get_data());
-            loss = &loss + l;
-        }
-        loss
+        y_ground_truth: &Tensor,
+        y_pred: &Tensor,
+        _parameters: Vec<Tensor>,
+    ) -> Tensor {
+        // let loss_vec: Vec<Tensor> = y_pred
+        //     .iter()
+        //     .zip(y_ground_truth.iter())
+        //     .into_iter()
+        //     .map(|(ypred, ygr)| (ypred - *ygr).pow(2.0))
+        //     .collect();
+        // //loss_vec.iter().for_each(|y| println!("loss_vec = {}", y.get_data()));
+        // let mut loss = Tensor::zeroes(vec![1, 1], "loss".to_string());
+        // for l in loss_vec.iter() {
+        //     // println!("loss {} += l {} ", loss, l.get_data());
+        //     loss = &loss + l;
+        // }
+       //  loss
+
+        Tensor::ones(vec![1,1], "loss".to_string())
     }
 }
 
@@ -254,43 +243,45 @@ impl MaxMarginLoss {
 impl Loss for MaxMarginLoss {
     fn calc_loss(
         &self,
-        y_ground_truth: &Vec<f64>,
-        y_pred: &Vec<ValueRefV3>,
-        parameters: Vec<ValueRefV3>,
-    ) -> ValueRefV3 {
-        let loss_vec: Vec<ValueRefV3> = y_pred
-            .iter()
-            .zip(y_ground_truth.iter())
-            .into_iter()
-            .map(|(ypred, ygr)| (1.0_f64 - &(*ygr * ypred)).relu())
-            .collect();
-        let mut loss = ValueRefV3::new_value(0.0, "loss".to_string());
-        for l in loss_vec.iter() {
-            loss = &loss + l;
-        }
+        y_ground_truth: &Tensor,
+        y_pred: &Tensor,
+        parameters: Vec<Tensor>,
+    ) -> Tensor {
+        // let loss_vec: Vec<Tensor> = y_pred
+        //     .iter()
+        //     .zip(y_ground_truth.iter())
+        //     .into_iter()
+        //     .map(|(ypred, ygr)| (1.0_f64 - &(*ygr * ypred)).relu())
+        //     .collect();
+        // let mut loss = Tensor::zeroes(vec![1, 1], "loss".to_string());
+        // for l in loss_vec.iter() {
+        //     loss = &loss + l;
+        // }
+        //
+        // let data_loss = &loss / (loss_vec.len() as f64);
+        // let alpha = 0.0001_f64;
+        // // let sum_parameters = parameters.iter().map(|p| p * p).collect();
+        // let mut reg_loss = Tensor::zeroes(vec![1, 1], "reg_loss".to_string());
+        // parameters.iter().for_each(|p| reg_loss = &reg_loss + &(p * p));
+        // reg_loss = &reg_loss * alpha;
+        // let total_loss = &reg_loss + &data_loss;
+        // println!(
+        //     "reg_loss {},   data_loss {},   total_loss {}     loss {}",
+        //     reg_loss.r().borrow().t(),
+        //     data_loss.r().borrow().t(),
+        //     total_loss.r().borrow().t(),
+        //     loss.r().borrow().t(),
+        // );
+        // // accuracy
 
-        let data_loss = &loss / (loss_vec.len() as f64);
-        let alpha = 0.0001_f64;
-        // let sum_parameters = parameters.iter().map(|p| p * p).collect();
-        let mut reg_loss = ValueRefV3::new_value(0.0, "reg_loss".to_string());
-        parameters.iter().for_each(|p| reg_loss = &reg_loss + &(p * p));
-        reg_loss = &reg_loss * alpha;
-        let total_loss = &reg_loss + &data_loss;
-        println!(
-            "reg_loss {},   data_loss {},   total_loss {}     loss {}",
-            reg_loss.get_data(),
-            data_loss.get_data(),
-            total_loss.get_data(),
-            loss.get_data()
-        );
-        // accuracy
+       // total_loss
+        Tensor::ones(vec![1,1], "loss".to_string())
 
-        total_loss
     }
 }
 
 pub trait Optimizer {
-    fn update(&self, parameters: Vec<ValueRefV3>, epoch: usize);
+    fn update(&self, parameters: Vec<Tensor>, epoch: usize);
 }
 
 pub struct SGD {
@@ -299,12 +290,13 @@ pub struct SGD {
 }
 
 impl Optimizer for SGD {
-    fn update(&self, mut parameters: Vec<ValueRefV3>, epoch: usize) {
+    fn update(&self, mut parameters: Vec<Tensor>, epoch: usize) {
         let lr = 1.0 - self.learning_rate * epoch as f64 / self.totol_epochs as f64;
         for p in parameters.iter_mut() {
-            let x = p.get_data();
-            let grad = p.get_grad();
-            p.set_data(x - (lr * grad));
+            let mut  p = p.clone();
+            let res = Self::helper(lr, &  p);
+            p.set_t(res);
+
         }
         println!(
             "epoch: {}/{}, learning_rate {}, actual learning_rate {}",
@@ -320,19 +312,27 @@ impl SGD {
             totol_epochs,
         }
     }
+
+    fn helper(lr: f64, p: &  Tensor) -> MathTensor {
+        let p = p.r().borrow();
+        let x =p.t();
+        let grad = p.grad();
+        let res = x - &(lr * grad);
+        res
+    }
 }
 
-pub fn print_predictions(y_pred: Vec<ValueRefV3>, y_expected: &Vec<f64>) {
-    y_pred.iter().enumerate().for_each(|(idx, y)| {
-        let res = (y.get_data() - y_expected[idx]).abs() < EPS2;
-        println!(
-            "y_pred[{}] = {}    expected {}.   pred ok? {}",
-            idx,
-            y.get_data(),
-            y_expected[idx],
-            res
-        );
-    });
+pub fn print_predictions(y_pred:  &Tensor, y_expected: &Tensor) {
+    // y_pred.iter().enumerate().for_each(|(idx, y)| {
+    //     // let res = (y.get_data() - y_expected[idx]).abs() < EPS2;
+    //     // println!(
+    //     //     "y_pred[{}] = {}    expected {}.   pred ok? {}",
+    //     //     idx,
+    //     //     y.get_data(),
+    //     //     y_expected[idx],
+    //     //     res
+    //     // );
+    // });
 }
 
 pub trait Initializer {
@@ -693,277 +693,277 @@ impl PythonNumPyRandomValuesInitializer {
 
 #[cfg(test)]
 mod tests {
-    use crate::assert_float;
-    use crate::micrograd_rs_engine_v3::{
-        Layer, Loss, MaxMarginLoss, Network, Neuron, PythonNumPyRandomValuesInitializer, FC,
-    };
-    use crate::micrograd_rs_v3::ValueRefV3;
-
-    #[test]
-    pub fn max_margin_loss() {
-        let loss = MaxMarginLoss::new();
-
-        let yb = vec![4.7, 5.9, 11.5];
-        let scores = vec![
-            ValueRefV3::new_value(-2.4, "a".to_string()),
-            ValueRefV3::new_value(-4.6, "b".to_string()),
-            ValueRefV3::new_value(9.2, "c".to_string()),
-        ];
-
-        let parameters = vec![
-            ValueRefV3::new_value(1.3, "p1".to_string()),
-            ValueRefV3::new_value(2.3, "p2".to_string()),
-            ValueRefV3::new_value(4.5, "p3".to_string()),
-        ];
-
-        // python  reg_loss 0.002723  data_loss 13.473333333333333   total_loss     13.476056333333332
-
-        let l = loss.calc_loss(&yb, &scores, parameters);
-
-        let l_expected = 13.476056333333332;
-
-        println!("l expected  {},   actual {}", l_expected, l.get_data());
-
-        assert_float(l_expected, l.get_data());
-    }
-
-    #[test]
-    pub fn max_margin_loss2() {
-        let loss = MaxMarginLoss::new();
-
-        let yb = vec![-4.7, -5.9, -11.5];
-        let scores = vec![
-            ValueRefV3::new_value(-2.4, "a".to_string()),
-            ValueRefV3::new_value(-4.6, "b".to_string()),
-            ValueRefV3::new_value(9.2, "c".to_string()),
-        ];
-
-        let parameters = vec![
-            ValueRefV3::new_value(1.3, "p1".to_string()),
-            ValueRefV3::new_value(2.3, "p2".to_string()),
-            ValueRefV3::new_value(4.5, "p3".to_string()),
-        ];
-
-        let l = loss.calc_loss(&yb, &scores, parameters);
-
-        let l_expected = 35.602723;
-
-        println!("l expected  {},   actual {}", l_expected, l.get_data());
-
-        assert_float(l_expected, l.get_data());
-    }
-
-    #[test]
-    pub fn max_margin_loss3() {
-        let loss = MaxMarginLoss::new();
-
-        let yb = vec![-4.7, -5.9, -11.5];
-        let scores = vec![
-            ValueRefV3::new_value(2.4, "a".to_string()),
-            ValueRefV3::new_value(4.6, "b".to_string()),
-            ValueRefV3::new_value(-9.2, "c".to_string()),
-        ];
-
-        let parameters = vec![
-            ValueRefV3::new_value(1.3, "p1".to_string()),
-            ValueRefV3::new_value(2.3, "p2".to_string()),
-            ValueRefV3::new_value(4.5, "p3".to_string()),
-        ];
-
-        let l = loss.calc_loss(&yb, &scores, parameters);
-        let l_expected = 13.476056333333332;
-
-        println!("l expected  {},   actual {}", l_expected, l.get_data());
-
-        assert_float(l_expected, l.get_data());
-    }
-
-    #[test]
-    pub fn test_neuron() {
-        let mut initializer = PythonNumPyRandomValuesInitializer::new();
-        let n = Neuron::new(2, true, &mut initializer);
-
-        let x_inp = [2.0, 3.0];
-
-        let mut x = vec![];
-
-        for i in x_inp {
-            let tmp = ValueRefV3::new_value(i, "w".to_string());
-            x.push(tmp);
-        }
-
-        let mut y = n.forward(&x);
-
-        y.backward();
-
-        let y_expected = 0.6706048694358875;
-        let w1_grad_expected = 2.0;
-        let w2_grad_expected = 3.0;
-        let w1_expected = 0.23550571390294128;
-        let w2_expected = 0.06653114721000164;
-
-        println!("y expected  {},   actual {}", y_expected, y.get_data());
-        println!(
-            "w1 data expected  {},   actual {}",
-            n.parameters()[0].get_data(),
-            w1_expected
-        );
-        println!(
-            "w2 data expected  {},   actual {}",
-            n.parameters()[1].get_data(),
-            w2_expected
-        );
-        println!(
-            "w1 grad expected  {},   actual {}",
-            n.parameters()[0].get_grad(),
-            w1_grad_expected
-        );
-        println!(
-            "w2 grad expected  {},   actual {}",
-            n.parameters()[1].get_grad(),
-            w2_grad_expected
-        );
-
-        assert_float(n.parameters()[0].get_data(), w1_expected);
-        assert_float(n.parameters()[1].get_data(), w2_expected);
-        assert_float(n.parameters()[0].get_grad(), w1_grad_expected);
-        assert_float(n.parameters()[1].get_grad(), w2_grad_expected);
-
-        assert_float(y_expected, y.get_data());
-    }
-
-    #[test]
-    pub fn test_layer() {
-        let mut initializer = PythonNumPyRandomValuesInitializer::new();
-        let l = FC::new(2, 1, true, "testlayer".to_string(), &mut initializer);
-
-        let x_inp = [2.0, 3.0];
-
-        let mut x = vec![];
-
-        for i in x_inp {
-            let tmp = ValueRefV3::new_value(i, "w".to_string());
-            x.push(tmp);
-        }
-
-        let mut y = l.forward(&x)[0].clone();
-        y.backward();
-
-        let y_expected = 0.6706048694358875;
-        let w1_grad_expected = 2.0;
-        let w2_grad_expected = 3.0;
-        let w1_expected = 0.23550571390294128;
-        let w2_expected = 0.06653114721000164;
-
-        println!("y expected  {},   actual {}", y_expected, y.get_data());
-        println!(
-            "w1 data expected  {},   actual {}",
-            l.parameters()[0].get_data(),
-            w1_expected
-        );
-        println!(
-            "w2 data expected  {},   actual {}",
-            l.parameters()[1].get_data(),
-            w2_expected
-        );
-        println!(
-            "w1 grad expected  {},   actual {}",
-            l.parameters()[0].get_grad(),
-            w1_grad_expected
-        );
-        println!(
-            "w2 grad expected  {},   actual {}",
-            l.parameters()[1].get_grad(),
-            w2_grad_expected
-        );
-
-        assert_float(l.parameters()[0].get_data(), w1_expected);
-        assert_float(l.parameters()[1].get_data(), w2_expected);
-        assert_float(l.parameters()[0].get_grad(), w1_grad_expected);
-        assert_float(l.parameters()[1].get_grad(), w2_grad_expected);
-
-        assert_float(y_expected, y.get_data());
-    }
-
-    #[test]
-    pub fn test_network() {
-        let mut initializer = PythonNumPyRandomValuesInitializer::new();
-        let l = FC::new(2, 1, true, "testlayer".to_string(), &mut initializer);
-        let mut network = Network::new();
-        network.add_layer(Box::new(l));
-
-        let x_inp = vec![2.0, 3.0];
-
-        // let mut x = vec![];
-        //
-        // for i in x_inp {
-        //     let tmp = ValueRefV3::new_value(i, "w".to_string());
-        //     x.push(tmp);
-        // }
-
-        let x_inp = vec![x_inp];
-        let mut y = network.forward(&x_inp)[0].clone();
-
-        y.backward();
-
-        let y_expected = 0.6706048694358875;
-        let w1_grad_expected = 2.0;
-        let w2_grad_expected = 3.0;
-        let w1_expected = 0.23550571390294128;
-        let w2_expected = 0.06653114721000164;
-
-        println!("y expected  {},   actual {}", y_expected, y.get_data());
-        println!(
-            "w1 data expected  {},   actual {}",
-            network.parameters()[0].get_data(),
-            w1_expected
-        );
-        println!(
-            "w2 data expected  {},   actual {}",
-            network.parameters()[1].get_data(),
-            w2_expected
-        );
-        println!(
-            "w1 grad expected  {},   actual {}",
-            network.parameters()[0].get_grad(),
-            w1_grad_expected
-        );
-        println!(
-            "w2 grad expected  {},   actual {}",
-            network.parameters()[1].get_grad(),
-            w2_grad_expected
-        );
-
-        assert_float(network.parameters()[0].get_data(), w1_expected);
-        assert_float(network.parameters()[1].get_data(), w2_expected);
-        assert_float(network.parameters()[0].get_grad(), w1_grad_expected);
-        assert_float(network.parameters()[1].get_grad(), w2_grad_expected);
-
-        assert_float(y_expected, y.get_data());
-    }
-
-    #[test]
-    pub fn test_bla() {
-        let ygr = &1.2_f64;
-        let y_pred = &ValueRefV3::new_value(0.5, "y_pred".to_string());
-        let res1 = (1.0_f64 + &(-*ygr * y_pred)).relu();
-        let res2 = (1.0_f64 - &(*ygr * y_pred)).relu();
-        let a = &(-*ygr * y_pred);
-        let b = -&(*ygr * y_pred);
-
-        let c = 1.0_f64 + &(-*ygr * y_pred);
-        let d = 1.0_f64 - &(*ygr * y_pred);
-
-        let res_expected = 0.4;
-
-        println!("a = {}  ", a);
-        println!("b = {}  ", b);
-        println!("c = {}  ", c);
-        println!("d = {}  ", d);
-
-        println!("res expected {}   res1 actuale {}", res_expected, res1.get_data());
-        println!("res expected {}   res2 actuale {}", res_expected, res2.get_data());
-        assert_float(res_expected, res1.get_data());
-        assert_float(res_expected, res2.get_data());
-    }
+    // use crate::assert_float;
+    // use crate::micrograd_rs_engine_v3::{
+    //     FC, Layer, Loss, MaxMarginLoss, Network, Neuron, PythonNumPyRandomValuesInitializer,
+    // };
+    // use crate::micrograd_rs_v4_tensor::Tensor;
+    //
+    // #[test]
+    // pub fn max_margin_loss() {
+    //     let loss = MaxMarginLoss::new();
+    //
+    //     let yb = vec![4.7, 5.9, 11.5];
+    //     let scores = vec![
+    //         Tensor::new_value(-2.4, "a".to_string()),
+    //         Tensor::new_value(-4.6, "b".to_string()),
+    //         Tensor::new_value(9.2, "c".to_string()),
+    //     ];
+    //
+    //     let parameters = vec![
+    //         Tensor::new_value(1.3, "p1".to_string()),
+    //         Tensor::new_value(2.3, "p2".to_string()),
+    //         Tensor::new_value(4.5, "p3".to_string()),
+    //     ];
+    //
+    //     // python  reg_loss 0.002723  data_loss 13.473333333333333   total_loss     13.476056333333332
+    //
+    //     let l = loss.calc_loss(&yb, &scores, parameters);
+    //
+    //     let l_expected = 13.476056333333332;
+    //
+    //     println!("l expected  {},   actual {}", l_expected, l.get_data());
+    //
+    //     assert_float(l_expected, l.get_data());
+    // }
+    //
+    // #[test]
+    // pub fn max_margin_loss2() {
+    //     let loss = MaxMarginLoss::new();
+    //
+    //     let yb = vec![-4.7, -5.9, -11.5];
+    //     let scores = vec![
+    //         Tensor::new_value(-2.4, "a".to_string()),
+    //         Tensor::new_value(-4.6, "b".to_string()),
+    //         Tensor::new_value(9.2, "c".to_string()),
+    //     ];
+    //
+    //     let parameters = vec![
+    //         Tensor::new_value(1.3, "p1".to_string()),
+    //         Tensor::new_value(2.3, "p2".to_string()),
+    //         Tensor::new_value(4.5, "p3".to_string()),
+    //     ];
+    //
+    //     let l = loss.calc_loss(&yb, &scores, parameters);
+    //
+    //     let l_expected = 35.602723;
+    //
+    //     println!("l expected  {},   actual {}", l_expected, l.get_data());
+    //
+    //     assert_float(l_expected, l.get_data());
+    // }
+    //
+    // #[test]
+    // pub fn max_margin_loss3() {
+    //     let loss = MaxMarginLoss::new();
+    //
+    //     let yb = vec![-4.7, -5.9, -11.5];
+    //     let scores = vec![
+    //         Tensor::new_value(2.4, "a".to_string()),
+    //         Tensor::new_value(4.6, "b".to_string()),
+    //         Tensor::new_value(-9.2, "c".to_string()),
+    //     ];
+    //
+    //     let parameters = vec![
+    //         Tensor::new_value(1.3, "p1".to_string()),
+    //         Tensor::new_value(2.3, "p2".to_string()),
+    //         Tensor::new_value(4.5, "p3".to_string()),
+    //     ];
+    //
+    //     let l = loss.calc_loss(&yb, &scores, parameters);
+    //     let l_expected = 13.476056333333332;
+    //
+    //     println!("l expected  {},   actual {}", l_expected, l.get_data());
+    //
+    //     assert_float(l_expected, l.get_data());
+    // }
+    //
+    // #[test]
+    // pub fn test_neuron() {
+    //     let mut initializer = PythonNumPyRandomValuesInitializer::new();
+    //     let n = Neuron::new(2, true, &mut initializer);
+    //
+    //     let x_inp = [2.0, 3.0];
+    //
+    //     let mut x = vec![];
+    //
+    //     for i in x_inp {
+    //         let tmp = Tensor::new_value(i, "w".to_string());
+    //         x.push(tmp);
+    //     }
+    //
+    //     let mut y = n.forward(&x);
+    //
+    //     y.backward();
+    //
+    //     let y_expected = 0.6706048694358875;
+    //     let w1_grad_expected = 2.0;
+    //     let w2_grad_expected = 3.0;
+    //     let w1_expected = 0.23550571390294128;
+    //     let w2_expected = 0.06653114721000164;
+    //
+    //     println!("y expected  {},   actual {}", y_expected, y.get_data());
+    //     println!(
+    //         "w1 data expected  {},   actual {}",
+    //         n.parameters()[0].get_data(),
+    //         w1_expected
+    //     );
+    //     println!(
+    //         "w2 data expected  {},   actual {}",
+    //         n.parameters()[1].get_data(),
+    //         w2_expected
+    //     );
+    //     println!(
+    //         "w1 grad expected  {},   actual {}",
+    //         n.parameters()[0].get_grad(),
+    //         w1_grad_expected
+    //     );
+    //     println!(
+    //         "w2 grad expected  {},   actual {}",
+    //         n.parameters()[1].get_grad(),
+    //         w2_grad_expected
+    //     );
+    //
+    //     assert_float(n.parameters()[0].get_data(), w1_expected);
+    //     assert_float(n.parameters()[1].get_data(), w2_expected);
+    //     assert_float(n.parameters()[0].get_grad(), w1_grad_expected);
+    //     assert_float(n.parameters()[1].get_grad(), w2_grad_expected);
+    //
+    //     assert_float(y_expected, y.get_data());
+    // }
+    //
+    // #[test]
+    // pub fn test_layer() {
+    //     let mut initializer = PythonNumPyRandomValuesInitializer::new();
+    //     let l = FC::new(2, 1, true, "testlayer".to_string(), &mut initializer);
+    //
+    //     let x_inp = [2.0, 3.0];
+    //
+    //     let mut x = vec![];
+    //
+    //     for i in x_inp {
+    //         let tmp = Tensor::new_value(i, "w".to_string());
+    //         x.push(tmp);
+    //     }
+    //
+    //     let mut y = l.forward(&x)[0].clone();
+    //     y.backward();
+    //
+    //     let y_expected = 0.6706048694358875;
+    //     let w1_grad_expected = 2.0;
+    //     let w2_grad_expected = 3.0;
+    //     let w1_expected = 0.23550571390294128;
+    //     let w2_expected = 0.06653114721000164;
+    //
+    //     println!("y expected  {},   actual {}", y_expected, y.get_data());
+    //     println!(
+    //         "w1 data expected  {},   actual {}",
+    //         l.parameters()[0].get_data(),
+    //         w1_expected
+    //     );
+    //     println!(
+    //         "w2 data expected  {},   actual {}",
+    //         l.parameters()[1].get_data(),
+    //         w2_expected
+    //     );
+    //     println!(
+    //         "w1 grad expected  {},   actual {}",
+    //         l.parameters()[0].get_grad(),
+    //         w1_grad_expected
+    //     );
+    //     println!(
+    //         "w2 grad expected  {},   actual {}",
+    //         l.parameters()[1].get_grad(),
+    //         w2_grad_expected
+    //     );
+    //
+    //     assert_float(l.parameters()[0].get_data(), w1_expected);
+    //     assert_float(l.parameters()[1].get_data(), w2_expected);
+    //     assert_float(l.parameters()[0].get_grad(), w1_grad_expected);
+    //     assert_float(l.parameters()[1].get_grad(), w2_grad_expected);
+    //
+    //     assert_float(y_expected, y.get_data());
+    // }
+    //
+    // #[test]
+    // pub fn test_network() {
+    //     let mut initializer = PythonNumPyRandomValuesInitializer::new();
+    //     let l = FC::new(2, 1, true, "testlayer".to_string(), &mut initializer);
+    //     let mut network = Network::new();
+    //     network.add_layer(Box::new(l));
+    //
+    //     let x_inp = vec![2.0, 3.0];
+    //
+    //     // let mut x = vec![];
+    //     //
+    //     // for i in x_inp {
+    //     //     let tmp = Tensor::new_value(i, "w".to_string());
+    //     //     x.push(tmp);
+    //     // }
+    //
+    //     let x_inp = vec![x_inp];
+    //     let mut y = network.forward(&x_inp)[0].clone();
+    //
+    //     y.backward();
+    //
+    //     let y_expected = 0.6706048694358875;
+    //     let w1_grad_expected = 2.0;
+    //     let w2_grad_expected = 3.0;
+    //     let w1_expected = 0.23550571390294128;
+    //     let w2_expected = 0.06653114721000164;
+    //
+    //     println!("y expected  {},   actual {}", y_expected, y.get_data());
+    //     println!(
+    //         "w1 data expected  {},   actual {}",
+    //         network.parameters()[0].get_data(),
+    //         w1_expected
+    //     );
+    //     println!(
+    //         "w2 data expected  {},   actual {}",
+    //         network.parameters()[1].get_data(),
+    //         w2_expected
+    //     );
+    //     println!(
+    //         "w1 grad expected  {},   actual {}",
+    //         network.parameters()[0].get_grad(),
+    //         w1_grad_expected
+    //     );
+    //     println!(
+    //         "w2 grad expected  {},   actual {}",
+    //         network.parameters()[1].get_grad(),
+    //         w2_grad_expected
+    //     );
+    //
+    //     assert_float(network.parameters()[0].get_data(), w1_expected);
+    //     assert_float(network.parameters()[1].get_data(), w2_expected);
+    //     assert_float(network.parameters()[0].get_grad(), w1_grad_expected);
+    //     assert_float(network.parameters()[1].get_grad(), w2_grad_expected);
+    //
+    //     assert_float(y_expected, y.get_data());
+    // }
+    //
+    // #[test]
+    // pub fn test_bla() {
+    //     let ygr = &1.2_f64;
+    //     let y_pred = &Tensor::new_value(0.5, "y_pred".to_string());
+    //     let res1 = (1.0_f64 + &(-*ygr * y_pred)).relu();
+    //     let res2 = (1.0_f64 - &(*ygr * y_pred)).relu();
+    //     let a = &(-*ygr * y_pred);
+    //     let b = -&(*ygr * y_pred);
+    //
+    //     let c = 1.0_f64 + &(-*ygr * y_pred);
+    //     let d = 1.0_f64 - &(*ygr * y_pred);
+    //
+    //     let res_expected = 0.4;
+    //
+    //     println!("a = {}  ", a);
+    //     println!("b = {}  ", b);
+    //     println!("c = {}  ", c);
+    //     println!("d = {}  ", d);
+    //
+    //     println!("res expected {}   res1 actuale {}", res_expected, res1.get_data());
+    //     println!("res expected {}   res2 actuale {}", res_expected, res2.get_data());
+    //     assert_float(res_expected, res1.get_data());
+    //     assert_float(res_expected, res2.get_data());
+    // }
 }

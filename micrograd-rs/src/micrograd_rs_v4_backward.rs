@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::Tensor;
 
@@ -238,5 +239,57 @@ impl Backward for BackwardReLU {
         // let mut self__ = self.left.clone();
         // let x = if out.get_data() > 0.0 { out.get_grad() } else { 0.0 };
         // self__.set_grad(self__.get_grad() + x);
+    }
+}
+
+
+pub struct BackwardDot {
+    w: Tensor,
+    x: Tensor,
+}
+
+impl BackwardDot {
+    pub fn new(w: Tensor, x: Tensor) -> BackwardDot {
+        BackwardDot { w, x }
+    }
+
+    // slide 79 https://dlvu.github.io/slides/dlvu.lecture02.pdf
+    fn helper(out: Tensor, self__: &Tensor, x: &Tensor) -> MathTensor {
+        // w' = k' * x
+        let binding = x.transpose();
+        let x_transpose = binding.borrow();
+        let x_transpose = x_transpose.t();
+        let w_ = out.r().borrow().grad() * x_transpose;
+        let old_grad = self__.r().borrow();
+        let old_grad = old_grad.grad();
+
+        let new_grad = old_grad + &w_;
+        new_grad
+    }
+}
+
+impl Backward for BackwardDot {
+    fn apply(&self, out: Tensor) {
+        // let mut self__ = self.w.clone();
+        //
+        // let mut w = self.w.clone();
+        // let mut x = self.x.clone();
+        //
+        // let new_grad = Self::helper(out, &self__, &x);
+        // let mut self__ = self__.clone();
+        // let mut self__ = self__.r().borrow() ;
+        // let mut self__ = self__.borrow_mut();
+        // self__.set_grad(new_grad);
+        //
+        //
+        //
+        // let mut self__ = self.w.clone();
+        // let other = self.right;
+        // let tensor = self__.r().borrow().t().pow(other - 1.0);
+        // let x = &(other * &tensor) * out.r().borrow().grad();
+        // let res = self__.r().borrow().grad() + &x;
+        // self__.set_grad(res);
+
+
     }
 }

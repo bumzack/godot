@@ -36,6 +36,10 @@ impl MathTensor {
         &self.data
     }
 
+    pub fn data_mut(&mut self) -> &mut Vec<f64> {
+        &mut self.data
+    }
+
     pub fn shape(&self) -> String {
         let shapes: Vec<String> = self.shape.iter().map(|i| i.to_string()).collect();
         let s = format!("({})", shapes.join(", "));
@@ -59,7 +63,9 @@ impl MathTensor {
 
     pub fn elem(&self, pos: Vec<usize>) -> f64 {
         // TODO multidimensional
+        println!("pos {:?}  ", &pos);
         let idx = self.idx(pos);
+        println!("                 -->   idx {:?}  ", idx);
         self.data[idx]
     }
 
@@ -93,6 +99,10 @@ impl MathTensor {
         let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
+    }
+
+    pub(crate) fn set_zero(&mut self) {
+        self.data_mut().iter_mut().for_each(|a| *a = 1.0);
     }
 }
 
@@ -533,17 +543,8 @@ mod tests {
         let b = MathTensor::new(vec![3, 2], b);
 
         let c_shape = vec![a.shape_vec()[0], b.shape_vec()[1]];
-        let mut c_expected = MathTensor::zeroes(c_shape);
-
-        for i in 0..a.shape_vec()[0] {
-            for j in 0..b.shape_vec()[1] {
-                let mut sum = 0_f64;
-                for k in 0..a.shape_vec()[1] {
-                    sum += a.elem(vec![i, k]) * b.elem(vec![k, j]);
-                }
-                c_expected.set_elem(vec![i, j], sum);
-            }
-        }
+        let c_expected = vec![82., 88., 199., 214.];
+        let c_expected = MathTensor::new(c_shape, c_expected);
 
         let c = &a ^ &b;
 

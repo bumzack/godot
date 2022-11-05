@@ -81,6 +81,10 @@ impl TensorInternal {
         &self.grad
     }
 
+    pub fn grad_mut(&mut self) -> &mut MathTensor {
+        &mut self.grad
+    }
+
     pub fn set_grad(&mut self, grad: MathTensor) {
         self.grad = grad;
     }

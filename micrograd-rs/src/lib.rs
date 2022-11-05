@@ -15,10 +15,11 @@ pub mod micrograd_rs_v4_tensorinternal;
 pub const EPS: f64 = 0.0001;
 pub const EPS2: f64 = 0.3;
 
-pub fn assert_two_float(a: f64, b: f64) -> bool {
-    if (a - b).abs() < EPS {
+pub fn assert_two_float(actual: f64, expected: f64) -> bool {
+    if (actual - expected).abs() < EPS {
         return true;
     }
+    println!("actual {} != expected {}", actual, expected);
     false
 }
 
