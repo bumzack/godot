@@ -5,7 +5,9 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Add, AddAssign, BitXor, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use std::rc::Rc;
 
-use crate::micrograd_rs_v4_backward::{BackwardAdd, BackwardDot, BackwardExp, BackwardMul, BackwardPow, BackwardReLU, BackwardSub, BackwardTanh};
+use crate::micrograd_rs_v4_backward::{
+    BackwardAdd, BackwardDot, BackwardExp, BackwardMul, BackwardPow, BackwardReLU, BackwardSub, BackwardTanh,
+};
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
 
@@ -110,8 +112,8 @@ impl Tensor {
             panic!("cant handle transpose for tensor != dim 2");
         }
         let shape = self.r().borrow().shape_vec().iter().rev().map(|s| *s).collect();
-        let data:Vec<f64> = self.r().borrow().t().data().iter().map(|d| *d).collect();
-        let transpose =MathTensor::new(shape, data);
+        let data: Vec<f64> = self.r().borrow().t().data().iter().map(|d| *d).collect();
+        let transpose = MathTensor::new(shape, data);
         Tensor::from(transpose, "transpose".to_string())
     }
 
@@ -509,7 +511,6 @@ impl SubAssign<&Tensor> for Tensor {
     }
 }
 
-
 impl BitXor for &Tensor {
     type Output = Tensor;
 
@@ -529,7 +530,6 @@ impl BitXor for &Tensor {
         Tensor::new(out)
     }
 }
-
 
 impl Display for OpEnumV4 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -570,9 +570,9 @@ impl Display for OpEnumV4 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{assert_float, assert_two_float, assert_vec_f64, EPS};
     use crate::micrograd_rs_v4_mathtensor::MathTensor;
     use crate::micrograd_rs_v4_tensor::Tensor;
+    use crate::{assert_float, assert_two_float, assert_vec_f64, EPS};
 
     #[test]
     pub fn test_tensor_internal_new() {
@@ -1877,28 +1877,27 @@ mod tests {
     pub fn test_transpose() {
         let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
 
-        let a = MathTensor::new(vec![2,3], a);
+        let a = MathTensor::new(vec![2, 3], a);
         let a = Tensor::from(a, "a".to_string());
 
         let b = a.transpose();
 
-        assert_float(a.elem(vec![0,0])    , 1.0);
-        assert_float(a.elem(vec![0,1])    , 2.0);
-        assert_float(a.elem(vec![0,2])    , 3.0);
-        assert_float(a.elem(vec![1,0])    , 4.0);
-        assert_float(a.elem(vec![1,1])    , 5.0);
-        assert_float(a.elem(vec![1,2])    , 6.0);
+        assert_float(a.elem(vec![0, 0]), 1.0);
+        assert_float(a.elem(vec![0, 1]), 2.0);
+        assert_float(a.elem(vec![0, 2]), 3.0);
+        assert_float(a.elem(vec![1, 0]), 4.0);
+        assert_float(a.elem(vec![1, 1]), 5.0);
+        assert_float(a.elem(vec![1, 2]), 6.0);
 
-        assert_float(b.elem(vec![0,0]), 1.0);
-        assert_float(b.elem(vec![0,1]), 2.0);
-        assert_float(b.elem(vec![1,0]), 3.0);
-        assert_float(b.elem(vec![1,1]), 4.0);
-        assert_float(b.elem(vec![2,0]), 5.0);
-        assert_float(b.elem(vec![2,1]), 6.0);
+        assert_float(b.elem(vec![0, 0]), 1.0);
+        assert_float(b.elem(vec![0, 1]), 2.0);
+        assert_float(b.elem(vec![1, 0]), 3.0);
+        assert_float(b.elem(vec![1, 1]), 4.0);
+        assert_float(b.elem(vec![2, 0]), 5.0);
+        assert_float(b.elem(vec![2, 1]), 6.0);
 
         let shape_expected = "(3, 2)";
 
-            assert_eq!(shape_expected, b.shape());
- }
-
+        assert_eq!(shape_expected, b.shape());
+    }
 }

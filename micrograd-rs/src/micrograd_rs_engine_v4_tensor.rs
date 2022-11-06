@@ -1,11 +1,11 @@
-use std::cell::Ref;
 use rand::distributions::Uniform;
 use rand::prelude::*;
+use std::cell::Ref;
 
-use crate::EPS2;
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::Tensor;
 use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
+use crate::EPS2;
 
 pub struct Neuron {
     weights: Tensor,
@@ -68,11 +68,11 @@ pub struct FC {
 
 impl FC {
     pub fn new(nin: usize, nout: usize, name: String, initializer: &mut dyn Initializer) -> FC {
-        let weights =  initializer.get_values(nin*nout);
+        let weights = initializer.get_values(nin * nout);
         let weights = MathTensor::new(vec![nin, nout], weights);
         let weights = Tensor::from(weights, "weights".to_string());
 
-        let bias =  initializer.get_values( nout);
+        let bias = initializer.get_values(nout);
         let bias = MathTensor::new(vec![nin, 1], bias);
         let bias = Tensor::from(bias, "bias".to_string());
 
@@ -82,14 +82,14 @@ impl FC {
 
 impl Layer for FC {
     fn forward(&self, xinp: &Tensor) -> Tensor {
-        let y = &(&self.weights ^ xinp) +&self.bias;
+        let y = &(&self.weights ^ xinp) + &self.bias;
         let y = y.relu();
         y
     }
 
     fn parameters(&self) -> Vec<Tensor> {
         let mut params = vec![];
-       params.push(self.weights.clone());
+        params.push(self.weights.clone());
         params.push(self.bias.clone());
         params
     }
@@ -172,25 +172,16 @@ impl Network {
             let mut grad = p.r().borrow_mut();
             let grad = grad.grad_mut();
             grad.set_zero();
-
-
         });
     }
 
-    fn helper(mut grad: Ref<TensorInternal>) {
-
-    }
+    fn helper(mut grad: Ref<TensorInternal>) {}
 
     pub fn update(&self, epoch: usize) {
         self.optimizer.update(self.parameters(), epoch);
     }
 
-    pub fn calc_loss(
-        &self,
-        y_ground_truth: &Tensor,
-        y_pred: &Tensor,
-        parameters: Vec<Tensor>,
-    ) -> Tensor {
+    pub fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, parameters: Vec<Tensor>) -> Tensor {
         self.loss.calc_loss(y_ground_truth, y_pred, parameters)
     }
 }
@@ -208,12 +199,7 @@ impl MSELoss {
 }
 
 impl Loss for MSELoss {
-    fn calc_loss(
-        &self,
-        y_ground_truth: &Tensor,
-        y_pred: &Tensor,
-        _parameters: Vec<Tensor>,
-    ) -> Tensor {
+    fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, _parameters: Vec<Tensor>) -> Tensor {
         // let loss_vec: Vec<Tensor> = y_pred
         //     .iter()
         //     .zip(y_ground_truth.iter())
@@ -226,9 +212,9 @@ impl Loss for MSELoss {
         //     // println!("loss {} += l {} ", loss, l.get_data());
         //     loss = &loss + l;
         // }
-       //  loss
+        //  loss
 
-        Tensor::ones(vec![1,1], "loss".to_string())
+        Tensor::ones(vec![1, 1], "loss".to_string())
     }
 }
 
@@ -241,12 +227,7 @@ impl MaxMarginLoss {
 }
 
 impl Loss for MaxMarginLoss {
-    fn calc_loss(
-        &self,
-        y_ground_truth: &Tensor,
-        y_pred: &Tensor,
-        parameters: Vec<Tensor>,
-    ) -> Tensor {
+    fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, parameters: Vec<Tensor>) -> Tensor {
         // let loss_vec: Vec<Tensor> = y_pred
         //     .iter()
         //     .zip(y_ground_truth.iter())
@@ -274,9 +255,8 @@ impl Loss for MaxMarginLoss {
         // );
         // // accuracy
 
-       // total_loss
-        Tensor::ones(vec![1,1], "loss".to_string())
-
+        // total_loss
+        Tensor::ones(vec![1, 1], "loss".to_string())
     }
 }
 
@@ -293,10 +273,9 @@ impl Optimizer for SGD {
     fn update(&self, mut parameters: Vec<Tensor>, epoch: usize) {
         let lr = 1.0 - self.learning_rate * epoch as f64 / self.totol_epochs as f64;
         for p in parameters.iter_mut() {
-            let mut  p = p.clone();
-            let res = Self::helper(lr, &  p);
+            let mut p = p.clone();
+            let res = Self::helper(lr, &p);
             p.set_t(res);
-
         }
         println!(
             "epoch: {}/{}, learning_rate {}, actual learning_rate {}",
@@ -313,16 +292,16 @@ impl SGD {
         }
     }
 
-    fn helper(lr: f64, p: &  Tensor) -> MathTensor {
+    fn helper(lr: f64, p: &Tensor) -> MathTensor {
         let p = p.r().borrow();
-        let x =p.t();
+        let x = p.t();
         let grad = p.grad();
         let res = x - &(lr * grad);
         res
     }
 }
 
-pub fn print_predictions(y_pred:  &Tensor, y_expected: &Tensor) {
+pub fn print_predictions(y_pred: &Tensor, y_expected: &Tensor) {
     // y_pred.iter().enumerate().for_each(|(idx, y)| {
     //     // let res = (y.get_data() - y_expected[idx]).abs() < EPS2;
     //     // println!(

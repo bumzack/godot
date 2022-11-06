@@ -1,6 +1,6 @@
-use std::borrow::BorrowMut;
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::Tensor;
+use std::borrow::BorrowMut;
 
 pub trait Backward {
     fn apply(&self, out: Tensor);
@@ -242,7 +242,6 @@ impl Backward for BackwardReLU {
     }
 }
 
-
 pub struct BackwardDot {
     w: Tensor,
     x: Tensor,
@@ -289,7 +288,5 @@ impl Backward for BackwardDot {
         // let x = &(other * &tensor) * out.r().borrow().grad();
         // let res = self__.r().borrow().grad() + &x;
         // self__.set_grad(res);
-
-
     }
 }

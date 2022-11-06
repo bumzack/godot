@@ -1,4 +1,4 @@
-use micrograd_rs::micrograd_rs_engine_v4_tensor::{FC, Network, print_predictions, RandomUniformInitializer, SGD};
+use micrograd_rs::micrograd_rs_engine_v4_tensor::{print_predictions, Network, RandomUniformInitializer, FC, SGD};
 use micrograd_rs::micrograd_rs_v4_mathtensor::MathTensor;
 use micrograd_rs::micrograd_rs_v4_tensor::Tensor;
 
