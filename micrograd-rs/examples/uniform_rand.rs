@@ -7,5 +7,5 @@ fn main() {
     for _ in 0..1000 {
         sum += between.sample(&mut rng);
     }
-    println!("{}", sum);
+    println!("{}    sum / 1000 {}", sum, sum / 1000);
 }
