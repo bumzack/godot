@@ -1,6 +1,7 @@
+use std::cell::Ref;
+
 use rand::distributions::Uniform;
 use rand::prelude::*;
-use std::cell::Ref;
 
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::Tensor;
@@ -73,7 +74,7 @@ impl FC {
         let weights = Tensor::from(weights, "weights".to_string());
 
         let bias = initializer.get_values(nout);
-        let bias = MathTensor::new(vec![nin, 1], bias);
+        let bias = MathTensor::new(vec![1, nout], bias);
         let bias = Tensor::from(bias, "bias".to_string());
 
         FC { weights, bias, name }
@@ -82,8 +83,33 @@ impl FC {
 
 impl Layer for FC {
     fn forward(&self, xinp: &Tensor) -> Tensor {
-        let y = &(&self.weights ^ xinp) + &self.bias;
+        println!(
+            "weights.shape {} ^ xinp.shape() {}   +  bias.shape() {}",
+            self.weights.shape(),
+            xinp.shape(),
+            self.bias.shape()
+        );
+        // or the other way round???
+        let w_t = self.weights.transpose();
+        let y = &w_t ^ xinp;
+        println!(
+            "self.weights.shape {} ^ x_t.shape() {}    -->   {}",
+            &w_t.shape(),
+            xinp.shape(),
+            y.shape()
+        );
+        // TODO impl broadcasting
+        // let y = &tmp + &self.bias;
+        for i in 0..y.shape_copy()[0] {
+            for j in 0..y.shape_copy()[1] {
+                let mut tmp = y.r().borrow_mut();
+                let idx = vec![i, j];
+                let sum = tmp.elem(idx) + self.bias.elem(vec![0, i]);
+                tmp.set_elem(vec![i, j], sum);
+            }
+        }
         let y = y.relu();
+        println!("y.shape {}  ", &y.shape());
         y
     }
 
@@ -154,7 +180,7 @@ impl Network {
     }
 
     pub fn print_params(&self) {
-        println!("beforeupdate");
+        println!("before update");
         // for p in self.parameters() {
         //     println!(
         //         "parameter '{}': data {}, grad {}",
@@ -174,8 +200,6 @@ impl Network {
             grad.set_zero();
         });
     }
-
-    fn helper(mut grad: Ref<TensorInternal>) {}
 
     pub fn update(&self, epoch: usize) {
         self.optimizer.update(self.parameters(), epoch);
@@ -228,13 +252,10 @@ impl MaxMarginLoss {
 
 impl Loss for MaxMarginLoss {
     fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, parameters: Vec<Tensor>) -> Tensor {
-        // let loss_vec: Vec<Tensor> = y_pred
-        //     .iter()
-        //     .zip(y_ground_truth.iter())
-        //     .into_iter()
-        //     .map(|(ypred, ygr)| (1.0_f64 - &(*ygr * ypred)).relu())
-        //     .collect();
-        // let mut loss = Tensor::zeroes(vec![1, 1], "loss".to_string());
+        let loss = (1.0 - &(y_ground_truth * y_pred)).relu();
+
+        let los = loss.sum();
+        let mut loss = Tensor::zeroes(vec![1, 1], "loss".to_string());
         // for l in loss_vec.iter() {
         //     loss = &loss + l;
         // }
@@ -253,7 +274,7 @@ impl Loss for MaxMarginLoss {
         //     total_loss.r().borrow().t(),
         //     loss.r().borrow().t(),
         // );
-        // // accuracy
+        // accuracy
 
         // total_loss
         Tensor::ones(vec![1, 1], "loss".to_string())

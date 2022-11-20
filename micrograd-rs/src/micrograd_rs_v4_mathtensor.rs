@@ -1,5 +1,9 @@
-use std::fmt::{Display, Formatter};
+use std::fmt;
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, BitXor, Mul, Neg, Sub};
+use std::result::Result;
+
+use crate::micrograd_rs_v4_tensor::Tensor;
 
 pub struct MathTensor {
     data: Vec<f64>,
@@ -63,9 +67,9 @@ impl MathTensor {
 
     pub fn elem(&self, pos: Vec<usize>) -> f64 {
         // TODO multidimensional
-        println!("pos {:?}  ", &pos);
+        //  println!("pos {:?}  ", &pos);
         let idx = self.idx(pos);
-        println!("                 -->   idx {:?}  ", idx);
+        // println!("                 -->   idx {:?}  ", idx);
         self.data[idx]
     }
 
@@ -101,17 +105,140 @@ impl MathTensor {
         t
     }
 
+    pub fn sum(&self) -> MathTensor {
+        let sum: f64 = self.data().iter().map(|x| *x).sum();
+        let shape = vec![1, 1];
+        let t = MathTensor::new(shape, vec![sum]);
+        t
+    }
+
     pub(crate) fn set_zero(&mut self) {
         self.data_mut().iter_mut().for_each(|a| *a = 1.0);
     }
+
+    pub fn transpose(&self) -> MathTensor {
+        // TODO
+        if self.shape_copy().len() != 2 {
+            panic!("can't handle transpose for tensor != dim 2");
+        }
+        let shape = self.shape_vec().iter().rev().map(|s| *s).collect();
+        let data: Vec<f64> = self.data().iter().map(|d| *d).collect();
+        MathTensor::new(shape, data)
+    }
+}
+
+#[derive(Debug)]
+struct BroadcastError {
+    details: String,
+}
+
+impl BroadcastError {
+    fn new(msg: &str) -> BroadcastError {
+        BroadcastError {
+            details: msg.to_string(),
+        }
+    }
+}
+
+impl Display for BroadcastError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.details)
+    }
+}
+
+impl std::error::Error for BroadcastError {
+    fn description(&self) -> &str {
+        &self.details
+    }
+}
+
+#[derive(Debug)]
+enum BroadcastType {
+    None,
+    First,
+}
+
+fn fmt_shape(a: &Vec<usize>) -> String {
+    let shapes: Vec<String> = a.iter().map(|i| i.to_string()).collect();
+    let s = format!("({})", shapes.join(", "));
+    s
+}
+
+// simplified rules, only supports non matching dimensions if it is the first one
+// https://pytorch.org/docs/stable/notes/broadcasting.html
+fn broadcast(a: &Vec<usize>, b: &Vec<usize>) -> std::result::Result<BroadcastType, BroadcastError> {
+    if a.len() != b.len() && (b.len() - a.len()) != 1 {
+        return Err(BroadcastError::new(&format!(
+            "can't broadcast a: {:?} b: {:?}",
+            fmt_shape(a),
+            fmt_shape(b)
+        )));
+    }
+    if a.len() == b.len() {
+        let equal = a
+            .iter()
+            .zip(b.iter())
+            .map(|(aa, bb)| *aa == *bb)
+            .fold(true, |acc, x| acc && x);
+        if equal {
+            return Ok(BroadcastType::None);
+        } else {
+            let equal = a
+                .iter()
+                .skip(1)
+                .zip(b.iter().skip(1))
+                .map(|(aa, bb)| *aa == *bb)
+                .fold(true, |acc, x| acc && x);
+            if equal {
+                return Ok(BroadcastType::First);
+            }
+        }
+        return Err(BroadcastError::new(&format!(
+            "can't broadcast a: {:?} b: {:?}",
+            fmt_shape(a),
+            fmt_shape(b)
+        )));
+    }
+    if (b.len() - a.len()) == 1 {
+        let equal = a
+            .iter()
+            .skip(1)
+            .zip(b.iter())
+            .map(|(aa, bb)| *aa == *bb)
+            .fold(true, |acc, x| acc && x);
+        if equal {
+            return Ok(BroadcastType::First);
+        }
+    }
+    Err(BroadcastError::new(&format!(
+        "can't broadcast a: {:?} b: {:?}",
+        fmt_shape(a),
+        fmt_shape(b)
+    )))
 }
 
 impl Add for &MathTensor {
     type Output = MathTensor;
 
     fn add(self, rhs: Self) -> Self::Output {
+        let e = broadcast(self.shape_vec(), rhs.shape_vec());
+        println!(
+            "a + b --> broadcast:  {:?} + {:?} ->  {:?}",
+            self.shape(),
+            rhs.shape(),
+            e
+        );
+        let a: Vec<f64> = match e {
+            Ok(b) => {
+                let res: Vec<f64> = match b {
+                    BroadcastType::None => self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a + b).collect(),
+                    BroadcastType::First => self.data().iter().map(|a| *a + 1.0).collect(),
+                };
+                res
+            }
+            Err(e) => panic!("can't add shapes  {:?} + {:?} ", &self.shape_vec(), &rhs.shape_vec()),
+        };
         assert_eq!(self.shape, rhs.shape);
-        let a: Vec<f64> = self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a + b).collect();
         let shape = self.shape_copy();
         let t = MathTensor::new(shape, a);
         t
@@ -260,8 +387,9 @@ impl Display for MathTensor {
 
 #[cfg(test)]
 mod tests {
-    use crate::assert_vec_f64;
     use crate::micrograd_rs_v4_mathtensor::MathTensor;
+    use crate::micrograd_rs_v4_tensor::Tensor;
+    use crate::{assert_float, assert_vec_f64};
 
     #[test]
     pub fn test_math_tensor_new() {
@@ -299,7 +427,7 @@ mod tests {
     }
 
     #[test]
-    pub fn test_math_tensor_add() {
+    pub fn test_math_tensor() {
         let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
         let b = vec![11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
 
@@ -676,6 +804,110 @@ mod tests {
 
         println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
         println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
+
+    #[test]
+    pub fn test_transpose() {
+        let a = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+
+        let a = MathTensor::new(vec![2, 3], a);
+
+        let b = a.transpose();
+
+        assert_float(a.elem(vec![0, 0]), 1.0);
+        assert_float(a.elem(vec![0, 1]), 2.0);
+        assert_float(a.elem(vec![0, 2]), 3.0);
+        assert_float(a.elem(vec![1, 0]), 4.0);
+        assert_float(a.elem(vec![1, 1]), 5.0);
+        assert_float(a.elem(vec![1, 2]), 6.0);
+
+        assert_float(b.elem(vec![0, 0]), 1.0);
+        assert_float(b.elem(vec![0, 1]), 2.0);
+        assert_float(b.elem(vec![1, 0]), 3.0);
+        assert_float(b.elem(vec![1, 1]), 4.0);
+        assert_float(b.elem(vec![2, 0]), 5.0);
+        assert_float(b.elem(vec![2, 1]), 6.0);
+
+        let shape_expected = "(3, 2)";
+
+        assert_eq!(shape_expected, b.shape());
+    }
+
+    // add (2,2) + (1,2)
+    #[test]
+    pub fn test_math_tensor_add_broadcast() {
+        let a = vec![1.0, 2.0, 3.0, 4.0];
+        let b = vec![11.0, 12.0];
+
+        let c_expected = vec![12.0, 14.0, 14.0, 16.0];
+
+        let a = MathTensor::new(vec![2, 2], a);
+        let b = MathTensor::new(vec![1, 2], b);
+
+        let c = &a + &b;
+
+        assert_vec_f64(&c_expected, &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 2)".to_string();
+        let b_shape_expected = "(1, 2)".to_string();
+        let c_shape_expected = "(2, 2)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("b.shape expected {},   actual {}", b_shape_expected, b.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(b.shape(), b_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
+
+    // sum([1,2,3,4])
+    #[test]
+    pub fn test_math_tensor_sum_1dim() {
+        let a = vec![1.0, 2.0, 3.0, 4.0];
+
+        let c_expected = vec![10.0];
+
+        let a = MathTensor::new(vec![1, 4], a);
+
+        let c = a.sum();
+
+        assert_vec_f64(&c_expected, &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(1, 4)".to_string();
+        let c_shape_expected = "(1, 1)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+    }
+
+    // sum([[1,2],[3,4]])
+    #[test]
+    pub fn test_math_tensor_sum_2dim() {
+        let a = vec![1.0, 2.0, 3.0, 4.0];
+
+        let c_expected = vec![10.0];
+
+        let a = MathTensor::new(vec![2, 2], a);
+
+        let c = a.sum();
+
+        assert_vec_f64(&c_expected, &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 2)".to_string();
+        let c_shape_expected = "(1, 1)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+
         assert_eq!(a.shape(), a_shape_expected);
         assert_eq!(c.shape(), c_shape_expected);
     }
