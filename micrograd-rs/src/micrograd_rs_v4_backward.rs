@@ -1,6 +1,7 @@
+use std::borrow::BorrowMut;
+
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::Tensor;
-use std::borrow::BorrowMut;
 
 pub trait Backward {
     fn apply(&self, out: Tensor);
@@ -242,6 +243,35 @@ impl Backward for BackwardReLU {
     }
 }
 
+pub struct BackwardSum {
+    left: Tensor,
+}
+
+impl BackwardSum {
+    pub fn new(left: Tensor) -> BackwardSum {
+        BackwardSum { left }
+    }
+
+    fn helper(out: Tensor, self__: &Tensor) -> MathTensor {
+        let out = out.r().borrow();
+        let grad = out.grad();
+
+        let x = MathTensor::ones(self__.shape_copy());
+        let res = grad + &x;
+        res
+    }
+}
+
+impl Backward for BackwardSum {
+    fn apply(&self, out: Tensor) {
+        println!("backward sum");
+        let mut self__ = self.left.clone();
+
+        let x = Self::helper(out, &self.left);
+        self__.set_grad(x);
+    }
+}
+
 pub struct BackwardDot {
     w: Tensor,
     x: Tensor,
@@ -252,23 +282,38 @@ impl BackwardDot {
         BackwardDot { w, x }
     }
 
-    // slide 79 https://dlvu.github.io/slides/dlvu.lecture02.pdf
-    fn helper(out: Tensor, self__: &Tensor, x: &Tensor) -> MathTensor {
-        // w' = k' * x
-        let binding = x.transpose();
-        let x_transpose = binding.borrow();
-        let x_transpose = x_transpose.t();
-        let w_ = out.r().borrow().grad() * x_transpose;
-        let old_grad = self__.r().borrow();
-        let old_grad = old_grad.grad();
-
-        let new_grad = old_grad + &w_;
-        new_grad
-    }
+    // // slide 79 https://dlvu.github.io/slides/dlvu.lecture02.pdf
+    // fn helper(out: Tensor, self__: &Tensor, x: &Tensor) -> MathTensor {
+    //     // w' = k' * x
+    //     let binding = x.transpose();
+    //     let x_transpose = binding.borrow();
+    //     let x_transpose = x_transpose.t();
+    //     let w_ = out.r().borrow().grad() * x_transpose;
+    //     let old_grad = self__.r().borrow();
+    //     let old_grad = old_grad.grad();
+    //
+    //     let new_grad = old_grad + &w_;
+    //     new_grad
+    // }
 }
 
 impl Backward for BackwardDot {
     fn apply(&self, out: Tensor) {
+        let x1 = out.r().borrow();
+        let t = x1.t();
+        let grad = x1.grad();
+
+        let w = self.w.clone();
+        let x = self.x.clone();
+
+        let w = w.r().borrow();
+        let w = w.t();
+        let dx = grad ^ &w.transpose();
+
+        let x = x.r().borrow();
+        let x = x.t();
+        let dw = &x.transpose() ^ &x;
+
         // let mut self__ = self.w.clone();
         //
         // let mut w = self.w.clone();

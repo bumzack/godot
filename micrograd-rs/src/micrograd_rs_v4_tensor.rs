@@ -6,7 +6,8 @@ use std::ops::{Add, AddAssign, BitXor, Div, DivAssign, Mul, MulAssign, Neg, Sub,
 use std::rc::Rc;
 
 use crate::micrograd_rs_v4_backward::{
-    BackwardAdd, BackwardDot, BackwardExp, BackwardMul, BackwardPow, BackwardReLU, BackwardSub, BackwardTanh,
+    BackwardAdd, BackwardDot, BackwardExp, BackwardMul, BackwardPow, BackwardReLU, BackwardSub, BackwardSum,
+    BackwardTanh,
 };
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
@@ -24,6 +25,7 @@ pub enum OpEnumV4 {
     POW,
     DOT,
     RELU,
+    SUM,
 }
 
 impl PartialEq for Tensor {
@@ -107,13 +109,7 @@ impl Tensor {
     }
 
     pub fn transpose(&self) -> Tensor {
-        // TODO
-        if self.shape_copy().len() != 2 {
-            panic!("cant handle transpose for tensor != dim 2");
-        }
-        let shape = self.r().borrow().shape_vec().iter().rev().map(|s| *s).collect();
-        let data: Vec<f64> = self.r().borrow().t().data().iter().map(|d| *d).collect();
-        let transpose = MathTensor::new(shape, data);
+        let transpose = self.r().borrow().t().transpose();
         Tensor::from(transpose, "transpose".to_string())
     }
 
@@ -166,6 +162,19 @@ impl Tensor {
         let relu = BackwardReLU::new(self.clone());
         let t = x1.relu();
         let out = TensorInternal::new(t, OpEnumV4::RELU, children, "relu".to_string(), Some(Box::new(relu)));
+        Tensor::new(out)
+    }
+
+    pub fn sum(&self) -> Tensor {
+        let x1 = self.r.borrow();
+        let x1 = x1.t();
+
+        let mut children = vec![];
+        children.push(self.clone());
+
+        let sum = BackwardSum::new(self.clone());
+        let t = x1.sum();
+        let out = TensorInternal::new(t, OpEnumV4::SUM, children, "sum".to_string(), Some(Box::new(sum)));
         Tensor::new(out)
     }
 
@@ -545,6 +554,7 @@ impl Display for OpEnumV4 {
             OpEnumV4::NEG => write!(f, "neg"),
             OpEnumV4::DOT => write!(f, "dot"),
             OpEnumV4::RELU => write!(f, "relu"),
+            OpEnumV4::SUM => write!(f, "sum"),
         }
     }
 }
@@ -1899,5 +1909,72 @@ mod tests {
         let shape_expected = "(3, 2)";
 
         assert_eq!(shape_expected, b.shape());
+    }
+
+    // sum([1,2,3,4])
+    #[test]
+    pub fn test_math_tensor_sum_1dim_backward() {
+        let a = vec![1.0, 2.0, 3.0, 4.0];
+
+        let c_expected = vec![10.0];
+
+        let a = MathTensor::new(vec![1, 4], a);
+        let a = Tensor::from(a, "a".to_string());
+
+        let c_expected = MathTensor::new(vec![1, 4], c_expected);
+
+        let aa = a.r().borrow();
+        let aa = aa.t();
+
+        let mut c = a.sum();
+
+        c.backward();
+
+        let cc = c.r().borrow();
+        let cc = cc.t();
+
+        // assert_two_math_tensors(&a_expected, aa);
+        assert_two_math_tensors(&c_expected, cc);
+
+        // not so trivial assertions
+        let a_shape_expected = "(1, 4)".to_string();
+        let c_shape_expected = "(1, 1)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
+
+        let aa = a.r().borrow();
+        let a_grad = aa.grad();
+
+        let a_grad_expected = MathTensor::ones(vec![1, 4]);
+
+        assert_two_math_tensors(&a_grad_expected, &a_grad);
+    }
+
+    // sum([[1,2],[3,4]])
+    #[test]
+    pub fn test_math_tensor_sum_2dim() {
+        let a = vec![1.0, 2.0, 3.0, 4.0];
+
+        let c_expected = vec![10.0];
+
+        let a = MathTensor::new(vec![2, 2], a);
+
+        let c = a.sum();
+
+        assert_vec_f64(&c_expected, &c.data());
+
+        // not so trivial assertions
+        let a_shape_expected = "(2, 2)".to_string();
+        let c_shape_expected = "(1, 1)".to_string();
+
+        println!("a.shape expected {},   actual {}", a_shape_expected, a.shape());
+        println!("c.shape expected {},   actual {}", c_shape_expected, c.shape());
+
+        assert_eq!(a.shape(), a_shape_expected);
+        assert_eq!(c.shape(), c_shape_expected);
     }
 }

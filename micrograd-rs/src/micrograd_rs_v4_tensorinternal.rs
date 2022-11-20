@@ -5,6 +5,8 @@ use crate::micrograd_rs_v4_backward::Backward;
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::{OpEnumV4, Tensor};
 
+// TODO
+// pub backward is ugly, but Option and borrowing is a pita
 pub struct TensorInternal {
     t: MathTensor,
     grad: MathTensor,
