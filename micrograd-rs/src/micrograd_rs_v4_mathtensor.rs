@@ -1,9 +1,6 @@
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, BitXor, Mul, Neg, Sub};
-use std::result::Result;
-
-use crate::micrograd_rs_v4_tensor::Tensor;
 
 pub struct MathTensor {
     data: Vec<f64>,
@@ -388,7 +385,6 @@ impl Display for MathTensor {
 #[cfg(test)]
 mod tests {
     use crate::micrograd_rs_v4_mathtensor::MathTensor;
-    use crate::micrograd_rs_v4_tensor::Tensor;
     use crate::{assert_float, assert_vec_f64};
 
     #[test]
@@ -836,6 +832,7 @@ mod tests {
     }
 
     // add (2,2) + (1,2)
+    // https://stackoverflow.com/questions/66089318/back-propagation-of-y-x-sumx-dim-0-where-size-of-tensor-x-is-h-w
     #[test]
     pub fn test_math_tensor_add_broadcast() {
         let a = vec![1.0, 2.0, 3.0, 4.0];

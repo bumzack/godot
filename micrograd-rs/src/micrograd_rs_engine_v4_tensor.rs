@@ -1,12 +1,9 @@
-use std::cell::Ref;
 
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensor::Tensor;
-use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
-use crate::EPS2;
 
 pub struct Neuron {
     weights: Tensor,
@@ -48,7 +45,7 @@ impl Neuron {
     }
 
     pub fn parameters(&self) -> Vec<Tensor> {
-        let mut params = vec![];
+        let   params = vec![];
         // self.weights.iter().for_each(|w| params.push(w.clone()));
         // params.push(self.bias.clone());
         params
