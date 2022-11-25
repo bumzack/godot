@@ -3,6 +3,7 @@ import torch as t
 a = t.tensor([1., 2], requires_grad=True)
 b = t.tensor([1.], requires_grad=True)
 
+f = a.add(b)
 c = a + b
 
 print(f"\n  a  shape {a.shape}  {a}")
