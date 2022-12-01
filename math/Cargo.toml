@@ -6,16 +6,11 @@ edition = "2018"
 
 
 [features]
-cuda = [ "rustacuda_core", "rustacuda_derive" ]
 use_serde = [ "serde", "serde_json" , "serde_derive"]
-wasm = [ "libm" ]
 
 [dependencies]
-rustacuda_core = { path = "../../RustaCUDA/rustacuda_core/" , optional = true}
-rustacuda_derive = { path = "../../RustaCUDA/rustacuda_derive/" , optional = true}
 
 serde = { version = "*", features = ["derive"], optional = true }
 serde_json ={  version = "*", optional = true }
 serde_derive ={  version = "*", optional = true }
 
-libm = { version = "*", optional = true }

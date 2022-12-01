@@ -1,11 +1,8 @@
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
-
 use crate::vertex::Vertex;
 use math::{Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+
 pub struct Gradient {
     tex_coord_x: [f32; 3],
     tex_coord_y: [f32; 3],

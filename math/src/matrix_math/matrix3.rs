@@ -1,7 +1,7 @@
 // TODO: thats stupid - everything is a 4x4 Matrix3
 
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
+
+
 
 use core::ops::Add;
 use core::ops::{Index, IndexMut, Mul};
@@ -9,7 +9,6 @@ use core::ops::{Index, IndexMut, Mul};
 use crate::{Tuple3, Tuple3D};
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Matrix3 {
     pub rows: usize,
     pub cols: usize,

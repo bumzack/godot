@@ -1,11 +1,8 @@
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
-
 use crate::gradient::Gradient;
 use crate::vertex::Vertex;
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+
 pub struct Edge {
     x: f32,
     x_step: f32,

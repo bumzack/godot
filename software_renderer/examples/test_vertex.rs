@@ -7,8 +7,7 @@ use std::time::Instant;
 use image::ImageBuffer;
 
 use math::{Matrix, MatrixOps, Quaternion, Transform, Tuple, Tuple4D};
-use raytracer_lib_std::{Canvas, CanvasOps, CanvasOpsStd};
-use software_renderer::prelude::{Camera, Mesh, RenderContext};
+use software_renderer::prelude::{Camera, Canvas, CanvasOps, CanvasOpsStd, Mesh, RenderContext};
 
 use crate::piston_window::EventLoop;
 
@@ -29,13 +28,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let width = 800;
     let height = 600;
 
-    let texture = Canvas::read_bitmap("./res/bricks.jpg")?;
-    let texture2 = Canvas::read_bitmap("./res/bricks2.jpg")?;
+    let texture = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/res/bricks.jpg")?;
+    let texture2 = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/res/bricks2.jpg")?;
 
-    let monkey_mesh = Mesh::read_obj_file("./res/triangle.obj")?;
+    let monkey_mesh = Mesh::read_obj_file("/Users/bumzack/stoff/rust/godot/res/triangle.obj")?;
+    let monkey_mesh = Mesh::read_obj_file("/Users/bumzack/stoff/rust/godot/res/smoothMonkey0.obj")?;
     //    let terrain_mesh = Mesh::read_obj_file("./res/terrain2.obj")?;
 
-    let mut monkey_transform = Transform::new_from_vector(Tuple4D::new_point(2.0, 0.0, 2.0));
+    let mut monkey_transform = Transform::new_from_vector(Tuple4D::new_point(0.0, 0.0, 2.0));
     //    let terrain_transform = Transform::new_from_vector(Tuple4D::new_vector(0.0, -1.0, 0.0));
     println!("monkey_transform original = {:?}", monkey_transform);
 

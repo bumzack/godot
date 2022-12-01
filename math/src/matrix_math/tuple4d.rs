@@ -3,10 +3,9 @@ use core::ops::{Add, BitXor, Div, Mul, Sub};
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::intri_sqrt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Tuple4D {
     pub x: f32,
@@ -48,7 +47,7 @@ pub trait Tuple {
 impl Tuple for Tuple4D {
     #[inline]
     fn magnitude(a: &Tuple4D) -> f32 {
-        intri_sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w)
+        (a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w).sqrt()
     }
     #[inline]
     fn normalize(a: &Tuple4D) -> Tuple4D {

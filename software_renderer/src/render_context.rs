@@ -1,17 +1,13 @@
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
-
+use crate::canvas::{Canvas, CanvasOps};
+use crate::color::{Color, ColorOps};
 use math::{Matrix, MatrixOps};
-use raytracer_lib_std::raytracer_lib_no_std::Color;
-use raytracer_lib_std::raytracer_lib_no_std::ColorOps;
-use raytracer_lib_std::{Canvas, CanvasOps};
 
 use crate::edge::Edge;
 use crate::gradient::Gradient;
 use crate::vertex::Vertex;
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+
 pub struct RenderContext {
     z_buffer: Vec<f32>,
     canvas: Canvas,

@@ -1,12 +1,9 @@
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
-
 use math::Matrix;
 
 use crate::math::{Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+
 pub struct Vertex {
     pos: Tuple4D,
     tex_coords: Tuple4D,

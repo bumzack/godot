@@ -5,7 +5,7 @@ use math::prelude::*;
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
+
 pub struct Camera {
     transform: Transform,
     projection: Matrix,

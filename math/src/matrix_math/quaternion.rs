@@ -3,13 +3,12 @@ use std::ops::{Add, BitXor, Mul, Sub};
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::matrix_math::libm_striped_to_pow::atan2::atan2;
-use crate::{intri_abs, intri_cos, intri_powi, intri_sin, intri_sqrt, Matrix, MatrixOps, Tuple, Tuple4D};
+use std::f32;
+use crate::{Matrix, MatrixOps, Tuple, Tuple4D};
 
 const QUATERNION_EPISLON: f32 = 0.0001;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Quaternion {
     pub x: f32,
@@ -26,8 +25,8 @@ impl Quaternion {
 
     #[inline]
     pub fn new_from_tuple_and_angle(axis: Tuple4D, angle: f32) -> Quaternion {
-        let sin_half_angle = intri_sin(angle / 2.0);
-        let cos_half_angle = intri_cos(angle / 2.0);
+        let sin_half_angle = (angle / 2.0).sin();
+        let cos_half_angle =  (angle / 2.0).cos();
 
         Quaternion {
             x: axis.get_x() * sin_half_angle,
@@ -46,28 +45,28 @@ impl Quaternion {
         let trace = rot[0][0] + rot[1][1] + rot[2][2];
 
         if trace > 0.0 {
-            let s = 0.5 / intri_sqrt(trace + 1.0);
+            let s = 0.5 / (trace + 1.0).sqrt();
             w = 0.25 / s;
             x = (rot[1][2] - rot[2][1]) * s;
             y = (rot[2][0] - rot[0][2]) * s;
             z = (rot[0][1] - rot[1][0]) * s;
         } else {
             if rot[0][0] > rot[1][1] && rot[0][0] > rot[2][2] {
-                let s = 2.0 * intri_sqrt(1.0 + rot[0][0] - rot[1][1] - rot[2][2]);
+                let s = 2.0 *  (1.0 + rot[0][0] - rot[1][1] - rot[2][2]).sqrt();
 
                 w = (rot[1][2] - rot[2][1]) / s;
                 x = 0.25 * s;
                 y = (rot[1][0] - rot[0][1]) / s;
                 z = (rot[2][0] - rot[0][2]) / s;
             } else if rot[1][1] > rot[2][2] {
-                let s = 2.0 * intri_sqrt(1.0 + rot[1][1] - rot[0][0] - rot[2][2]);
+                let s = 2.0 *  (1.0 + rot[1][1] - rot[0][0] - rot[2][2]).sqrt();
 
                 w = (rot[2][0] - rot[0][2]) / s;
                 x = (rot[1][0] - rot[0][1]) / s;
                 y = 0.25 * s;
                 z = (rot[2][1] - rot[1][2]) / s;
             } else {
-                let s = 2.0 * intri_sqrt(1.0 + rot[2][2] - rot[0][0] - rot[1][1]);
+                let s = 2.0 *  (1.0 + rot[2][2] - rot[0][0] - rot[1][1]).sqrt();
                 w = (rot[0][1] - rot[1][0]) / s;
                 x = (rot[2][0] - rot[0][2]) / s;
                 y = (rot[1][2] - rot[2][1]) / s;
@@ -75,7 +74,7 @@ impl Quaternion {
             }
         }
 
-        let length = intri_sqrt(x * x + y * y + z * z + w * w);
+        let length =  (x * x + y * y + z * z + w * w).sqrt();
         x /= length;
         y /= length;
         z /= length;
@@ -84,7 +83,7 @@ impl Quaternion {
     }
 
     pub fn len(&self) -> f32 {
-        intri_sqrt(intri_powi(self.x, 2) + intri_powi(self.y, 2) + intri_powi(self.z, 2) + intri_powi(self.w, 2))
+         ( self.x.powi (2) +  self.y.powi( 2) +  self.z.powi( 2) + self.w.powi( 2)).sqrt()
     }
 
     pub fn normalized(&self) -> Quaternion {
@@ -166,16 +165,16 @@ impl Quaternion {
             cos = -cos;
             corrected_dest = Quaternion::new(-dest.x(), -dest.y(), -dest.z(), -dest.w());
         }
-        if intri_abs(cos) >= 1.0 - QUATERNION_EPISLON {
+        if  (cos).abs() >= 1.0 - QUATERNION_EPISLON {
             return self.n_lerp(&corrected_dest, lerp_factor, false);
         }
 
-        let sin = intri_sqrt(1.0 - cos * cos);
-        let angle = atan2(sin, cos);
+        let sin =  (1.0 - cos * cos).sqrt();
+        let angle = sin.atan2( cos);
         let inv_sin = 1.0 / sin;
 
-        let src_factor = intri_sin((1.0 - lerp_factor) * angle) * inv_sin;
-        let dest_factor = intri_sin(lerp_factor * angle) * inv_sin;
+        let src_factor =  ((1.0 - lerp_factor) * angle).sin() * inv_sin;
+        let dest_factor =  (lerp_factor * angle) .sin()* inv_sin;
 
         self * src_factor + corrected_dest * dest_factor
     }

@@ -1,9 +1,7 @@
 use core::ops::{Add, BitXor, Div, Mul, Sub};
 
-use crate::intri_sqrt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Tuple3D {
     pub x: f32,
     pub y: f32,
@@ -32,7 +30,7 @@ impl Tuple3 for Tuple3D {
 
     #[inline]
     fn magnitude(a: &Tuple3D) -> f32 {
-        intri_sqrt(a.x * a.x + a.y * a.y + a.z * a.z)
+         (a.x * a.x + a.y * a.y + a.z * a.z).sqrt()
     }
 
     #[inline]

@@ -1,19 +1,12 @@
-// TODO: thats stupid - everything is a 4x4 matrix
-
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
-
 use core::ops::Add;
 use core::ops::{Index, IndexMut, Mul};
 
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
+use crate::{EPSILON, Tuple, Tuple4D};
 
-use crate::{intri_abs, intri_cos, intri_sin, intri_tan, Tuple, Tuple4D, EPSILON};
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
-#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
@@ -282,7 +275,7 @@ impl MatrixOps for Matrix {
             cols: m.cols,
             m: [0.0; 16],
         };
-        if intri_abs(Self::determinant(&m)) < EPSILON {
+        if  (Self::determinant(&m)).abs() < EPSILON {
             return None;
         }
 
@@ -327,30 +320,30 @@ impl MatrixOps for Matrix {
 
     fn rotate_x(rad: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
-        m[1][1] = intri_cos(rad);
-        m[1][2] = -intri_sin(rad);
-        m[2][1] = intri_sin(rad);
-        m[2][2] = intri_cos(rad);
+        m[1][1] =  (rad).cos();
+        m[1][2] = - (rad).sin();
+        m[2][1] =  (rad).sin();
+        m[2][2] =  (rad).cos();
 
         m
     }
 
     fn rotate_y(rad: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
-        m[0][0] = intri_cos(rad);
-        m[0][2] = intri_sin(rad);
-        m[2][0] = -intri_sin(rad);
-        m[2][2] = intri_cos(rad);
+        m[0][0] =  (rad).cos();
+        m[0][2] =  (rad).sin();
+        m[2][0] = - (rad).sin();
+        m[2][2] =  (rad).cos();
 
         m
     }
 
     fn rotate_z(rad: f32) -> Matrix {
         let mut m = Self::new_identity_4x4();
-        m[0][0] = intri_cos(rad);
-        m[0][1] = -intri_sin(rad);
-        m[1][0] = intri_sin(rad);
-        m[1][1] = intri_cos(rad);
+        m[0][0] =  (rad).cos();
+        m[0][1] = - (rad).sin();
+        m[1][0] =  (rad).sin();
+        m[1][1] =  (rad).cos();
 
         m
     }
@@ -427,7 +420,7 @@ impl MatrixOps for Matrix {
     }
 
     fn init_perspective(fov: f32, aspect_ratio: f32, z_near: f32, z_far: f32) -> Matrix {
-        let tan_half_fov = intri_tan(fov / 2.0);
+        let tan_half_fov =  (fov / 2.0).tan();
         let z_range = z_near - z_far;
 
         Matrix::new_matrix_4x4(
@@ -464,7 +457,7 @@ impl PartialEq for Matrix {
         // TODO: row col and widht height correct?
         for row in 0..self.cols {
             for col in 0..self.rows {
-                if !(intri_abs(self[col][row] - other[col][row]) < EPSILON) {
+                if !( (self[col][row] - other[col][row]) .abs()< EPSILON) {
                     return false;
                 }
             }

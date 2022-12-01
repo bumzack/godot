@@ -1,8 +1,0 @@
-no AA    (x/y) = (6/5)  world_point = (0.1875/-0.0625)
-no AA    color at (6/5): Color { r: 0.5572463241721862, g: 0.0, b: 0.0 }
-
-with AA    (x/y) = (6/5)    sampling point = (0.15625/0.6875)  ... world_point
-with AA    (x/y) = (6/5)    sampling point = (0.28125/0.2708333333333333)  ... world_point
-with AA    (x/y) = (6/5)    sampling point = (0.09375000000000001/-0.3125)  ... world_point
-with AA    (x/y) = (6/5)    sampling point = (0.21875/-0.8125)  ... world_point
-with AA    color at (6/5): Color { r: 0.02299793240276818, g: 0.02299793240276818, b: 0.44915909278121746 }

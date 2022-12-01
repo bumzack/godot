@@ -23,7 +23,7 @@ pub fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
 pub fn assert_two_float(a: f32, b: f32) -> bool {
     // println!("float_equal: a = {}, b = {}", a, b);
     // println!("float_equal: a = {}, b = {}", a, b);
-    if intri_abs(a - b) < EPSILON {
+    if (a - b).abs() < EPSILON {
         return true;
     }
     false

@@ -1,13 +1,12 @@
-#![feature(core_intrinsics)]
-#![cfg_attr(feature = "cuda", no_std)]
-#![cfg_attr(feature = "wasm", no_std)]
-
-#[cfg(feature = "cuda")]
-#[macro_use]
-extern crate rustacuda_derive;
-
-#[cfg(feature = "wasm")]
-extern crate libm;
+// #![cfg_attr(feature = "cuda", no_std)]
+// #![cfg_attr(feature = "wasm", no_std)]
+//
+//
+// #[macro_use]
+// extern crate rustacuda_derive;
+//
+// #[cfg(feature = "wasm")]
+// extern crate libm;
 
 #[cfg(feature = "use_serde")]
 #[macro_use]

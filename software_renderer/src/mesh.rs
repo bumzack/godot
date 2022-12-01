@@ -1,15 +1,11 @@
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
-
+use crate::canvas::Canvas;
 use math::Matrix;
-use raytracer_lib_std::Canvas;
 use utils::prelude::ObjModel;
 
 use crate::render_context::RenderContext;
 use crate::vertex::Vertex;
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Mesh {
     vertices: Vec<Vertex>,
     indices: Vec<usize>,

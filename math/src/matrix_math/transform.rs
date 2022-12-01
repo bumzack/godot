@@ -1,5 +1,5 @@
-#[cfg(feature = "cuda")]
-extern crate rustacuda_core;
+
+
 
 #[cfg(feature = "use_serde")]
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 use crate::{Matrix, MatrixOps, Quaternion, Tuple, Tuple4D};
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 #[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Transform {
     pos: Tuple4D,
