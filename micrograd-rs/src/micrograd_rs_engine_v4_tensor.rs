@@ -1,4 +1,3 @@
-
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
@@ -45,7 +44,7 @@ impl Neuron {
     }
 
     pub fn parameters(&self) -> Vec<Tensor> {
-        let   params = vec![];
+        let params = vec![];
         // self.weights.iter().for_each(|w| params.push(w.clone()));
         // params.push(self.bias.clone());
         params
