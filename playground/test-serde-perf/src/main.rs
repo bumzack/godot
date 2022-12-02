@@ -62,6 +62,7 @@ fn main2() {
     let dur = Instant::now() - start;
     println!("json serialization took : {:?}", dur);
 
+
     let bytes = w * h * 4;
     let kbytes = bytes as f32 / 1024.0;
     let mb = kbytes / 1024.0;
