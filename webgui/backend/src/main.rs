@@ -128,10 +128,14 @@ async fn render_scene(ws: WebSocket) {
                             tile_data.get_points().iter().for_each(|p| {
                                 canvas.write_pixel(p.get_x(), p.get_y(), p.get_color());
                             });
-
+                            let start = Instant::now();
                             let tile_data_json = json!(tile_data).to_string();
+                            let dur = Instant::now() - start;
+                            println!("serialization took: {:?}", dur);
+                            let start = Instant::now();
                             let msg = Message::text(tile_data_json);
-
+                            let dur = Instant::now() - start;
+                            println!("wrapping in message took: {:?}", dur);
                             websocket_tx
                                 .send(msg)
                                 .unwrap_or_else(|e| {

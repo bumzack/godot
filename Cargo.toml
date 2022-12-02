@@ -5,5 +5,7 @@ members = [
     "playground/threadpool_fractal",
     "curves",
     "webgui/backend",
-    "micrograd-rs"
+    "micrograd-rs",
+    "render_benny",
+    "playground/test-serde-perf"
 ]
