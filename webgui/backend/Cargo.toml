@@ -37,10 +37,9 @@ pin-project = "1.0"
 tokio-rustls = { version = "0.23", optional = true }
 rustls-pemfile = "0.2"
 
-
-
 raytracer_challenge_reference_impl = { path = "../../raytracer_challenge_reference_impl" }
 
 crossbeam-channel = "0.5.6"
 
 [dev-dependencies]
+

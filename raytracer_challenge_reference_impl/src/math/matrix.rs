@@ -331,20 +331,20 @@ impl MatrixOps for Matrix {
         let mut m = Matrix::new_identity_4x4();
 
         // Compute rotation of first basis vector
-        m.m[0][0] = a.x * a.x + (1 - a.x * a.x) * cos_theta;
-        m.m[0][1] = a.x * a.y * (1 - cos_theta) - a.z * sin_theta;
-        m.m[0][2] = a.x * a.z * (1 - cos_theta) + a.y * sin_theta;
+        m.m[0][0] = a.x * a.x + (1.0 - a.x * a.x) * cos_theta;
+        m.m[0][1] = a.x * a.y * (1.0 - cos_theta) - a.z * sin_theta;
+        m.m[0][2] = a.x * a.z * (1.0 - cos_theta) + a.y * sin_theta;
         m.m[0][3] = 0.0;
 
         // Compute rotations of second and third basis vectors
-        m.m[1][0] = a.x * a.y * (1 - cos_theta) + a.z * sin_theta;
-        m.m[1][1] = a.y * a.y + (1 - a.y * a.y) * cos_theta;
-        m.m[1][2] = a.y * a.z * (1 - cos_theta) - a.x * sin_theta;
+        m.m[1][0] = a.x * a.y * (1.0 - cos_theta) + a.z * sin_theta;
+        m.m[1][1] = a.y * a.y + (1.0 - a.y * a.y) * cos_theta;
+        m.m[1][2] = a.y * a.z * (1.0 - cos_theta) - a.x * sin_theta;
         m.m[1][3] = 0.0;
 
-        m.m[2][0] = a.x * a.z * (1 - cos_theta) - a.y * sin_theta;
-        m.m[2][1] = a.y * a.z * (1 - cos_theta) + a.x * sin_theta;
-        m.m[2][2] = a.z * a.z + (1 - a.z * a.z) * cos_theta;
+        m.m[2][0] = a.x * a.z * (1.0 - cos_theta) - a.y * sin_theta;
+        m.m[2][1] = a.y * a.z * (1.0 - cos_theta) + a.x * sin_theta;
+        m.m[2][2] = a.z * a.z + (1.0 - a.z * a.z) * cos_theta;
         m.m[2][3] = 0.0;
         m
     }
