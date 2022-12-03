@@ -4,7 +4,7 @@ use std::f64::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
 
 use raytracer_challenge_reference_impl::basics::{IntersectionList, IntersectionListOps, Ray};
 use raytracer_challenge_reference_impl::math::{Matrix, MatrixOps, Tuple, Tuple4D};
-use raytracer_challenge_reference_impl::prelude::{BoundingBox, Intersection, RayOps};
+use raytracer_challenge_reference_impl::prelude::{BoundingBox, Intersection, IntersectionOps, RayOps};
 
 pub enum CurveType {
     FLAT,
@@ -144,7 +144,9 @@ impl Curve {
 
         let mut is = IntersectionList::new();
 
-        self.recursive_intersect(r, &cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth, &mut is)
+        // self.recursive_intersect(r, &cp, &object_to_ray_inv, self.u_min, self.u_max, max_depth, &mut is)
+
+        false
     }
 
     pub fn recursive_intersect(
@@ -212,7 +214,7 @@ impl Curve {
                     continue;
                 }
 
-                hit = hit | self.recursive_intersect(r, &cp, &ray_to_object, u0, u1, depth, is);
+                //  hit = hit | self.recursive_intersect(r, &cp, &ray_to_object, u0, u1, depth, is);
 
                 // TODO
                 // early exit
@@ -251,7 +253,7 @@ impl Curve {
                 _ => {}
             }
 
-            let (pc, dpcdw) = eval_bezier(&cp, clamp(w, 0.0, 1.0), None);
+            let (pc, dpcdw) = eval_bezier(&cp, clamp(w, 0.0, 1.0));
 
             let pt_curve_dist2 = pc.x * pc.x + pc.y * pc.y;
             if pt_curve_dist2 > hit_width * hit_width * 0.25 {
@@ -276,28 +278,26 @@ impl Curve {
 
                 // TODO CHECK_NE
 
-                let dpdv = match self.common.curve_type {
-                    CurveType::RIBBON => {
-                        Tuple4D::normalize(&n_hit * &dpdu) * hit_width;
-                    }
-                    _ => {
-                        let dpdu_plane = &Matrix::invert(ray_to_object).unwrap() * &dpdu;
-                        let mut dpdv_plane = &Tuple4D::normalize(&Tuple4D::new_vector(-dpdu_plane.y, dpdu_plane.x, 0.0)) * hit_width;
-                        match self.common.curve_type {
-                            CurveType::CYLINDER => {
-                                let theta = lerp_float(v, -90.0, 90.0);
-                                let rot = Matrix::rotate_around_axis(-theta, &dpdu_plane);
-                                dpdv_plane = &rot * &dpdv_plane;
-                            }
-                            _ => {}
-                        }
-                        ray_to_object * dpdv_plane
-                    }
-                };
+                // let dpdv = match self.common.curve_type {
+                //     CurveType::RIBBON => {
+                //         Tuple4D::normalize(&(&nhit * &dpdu)) * hit_width;
+                //     }
+                //     _ => {
+                //         let dpdu_plane = &Matrix::invert(ray_to_object).unwrap() * &dpdu;
+                //         let mut dpdv_plane = &Tuple4D::normalize(&Tuple4D::new_vector(-dpdu_plane.y, dpdu_plane.x, 0.0)) * hit_width;
+                //         match self.common.curve_type {
+                //             CurveType::CYLINDER => {
+                //                 let theta = lerp_float(v, -90.0, 90.0);
+                //                 let rot = Matrix::rotate_around_axis(-theta, &dpdu_plane);
+                //                 dpdv_plane = &rot * &dpdv_plane;
+                //             }
+                //             _ => {}
+                //         }
+                //         ray_to_object * &dpdv_plane
+                //     }
+                // };
 
-
-                let is  = Intersection::new()
-
+                // let is  = Intersection::new()
             }
         }
 
@@ -360,7 +360,7 @@ pub fn eval_bezier(cp: &Vec<Tuple4D>, u: f64) -> (Tuple4D, Tuple4D) {
     let tmp_p2 = lerp(u, cp1[1], cp1[2]);
     let cp2 = vec![tmp_p1, tmp_p2];
 
-    let mut d = None;
+    //  let mut d = None;
     let d = if Tuple4D::magnitude_squared(&(&cp2[1] - &cp2[0])) > 0.0 {
         (&cp2[1] - &cp2[0]) * 3.0
     } else {
