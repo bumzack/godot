@@ -1,5 +1,3 @@
-#![feature(async_closure)]
-
 use std::time::Instant;
 
 use crossbeam_channel::unbounded;

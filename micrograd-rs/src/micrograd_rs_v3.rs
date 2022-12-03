@@ -614,7 +614,7 @@ impl Sub<&ValueRefV3> for f64 {
         };
 
         let out = ValueV3 {
-            data:  self-x1.data,
+            data: self - x1.data,
             op: OpEnumV3::SUB,
             children,
             label: format!("{} - {}", string, rhs.borrow().label),

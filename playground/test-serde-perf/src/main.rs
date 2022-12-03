@@ -21,23 +21,28 @@ fn main() {
     let dur = Instant::now() - start;
     println!("json serialization took : {:?}", dur);
 
-
     let bytes = w * h * 4;
     let kbytes = bytes as f32 / 1024.0;
     let mb = kbytes / 1024.0;
     let perf_mb_per_s = 200_f32;
 
     let expected = mb as f32 / perf_mb_per_s;
-    let actual = dur.as_secs()  as f32 * mb  * 1000.0;
+    let actual = dur.as_secs() as f32 * mb * 1000.0;
 
     println!("bytes {},  kb {} MB {} ", bytes, kbytes, mb);
 
-    println!("expected performance {} ms, actual perf {:?} ms", expected/1000.0, dur.as_millis());
+    println!(
+        "expected performance {} ms, actual perf {:?} ms",
+        expected / 1000.0,
+        dur.as_millis()
+    );
 
     main2();
-    println!("expected performance {} MB/sec duration, actual perf {} MB/s ", perf_mb_per_s, actual);
+    println!(
+        "expected performance {} MB/sec duration, actual perf {} MB/s ",
+        perf_mb_per_s, actual
+    );
 }
-
 
 fn main2() {
     let start = Instant::now();
@@ -45,7 +50,7 @@ fn main2() {
     let w = 800;
     let h = 600;
     let color = 127;
-    let pixels = vec![127_u8; w * h*4];
+    let pixels = vec![127_u8; w * h * 4];
     let mut image = ImageVec::new(w, h);
     image.set_pixels(pixels);
 
@@ -57,19 +62,25 @@ fn main2() {
     let dur = Instant::now() - start;
     println!("json serialization took : {:?}", dur);
 
-
     let bytes = w * h * 4;
     let kbytes = bytes as f32 / 1024.0;
     let mb = kbytes / 1024.0;
     let perf_mb_per_s = 200_f32;
 
     let expected = mb as f32 / perf_mb_per_s;
-    let actual = dur.as_secs()  as f32 * mb  * 1000.0;
+    let actual = dur.as_secs() as f32 * mb * 1000.0;
 
     println!("bytes {},  kb {} MB {} ", bytes, kbytes, mb);
 
-    println!("expected performance {} ms, actual perf {:?} ms", expected/1000.0, dur.as_millis());
-    println!("expected performance {} MB/sec duration, actual perf {} MB/s ", perf_mb_per_s, actual);
+    println!(
+        "expected performance {} ms, actual perf {:?} ms",
+        expected / 1000.0,
+        dur.as_millis()
+    );
+    println!(
+        "expected performance {} MB/sec duration, actual perf {} MB/s ",
+        perf_mb_per_s, actual
+    );
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -82,12 +93,7 @@ pub struct Pixel {
 
 impl Pixel {
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Pixel {
-        Pixel {
-            r,
-            g,
-            b,
-            a,
-        }
+        Pixel { r, g, b, a }
     }
 }
 
@@ -112,7 +118,6 @@ impl Image {
     }
 }
 
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ImageVec {
     width: usize,
@@ -133,4 +138,3 @@ impl ImageVec {
         self.pixels = pixels;
     }
 }
-
