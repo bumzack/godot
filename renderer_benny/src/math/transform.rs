@@ -54,10 +54,10 @@ impl Transform {
         let rotation_matrix = self.rot.to_rotation_matrix();
         let scale_matrix = Matrix::init_scale(self.scale.get_x(), self.scale.get_y(), self.scale.get_z());
 
-        println!("m                     = {}", self);
-        println!("translation_matrix    = {}", translation_matrix);
-        println!("rotation_matrix       = {}", rotation_matrix);
-        println!("scale_matrix          = {}", scale_matrix);
+        // println!("m                     = {}", self);
+        // println!("translation_matrix    = {}", translation_matrix);
+        // println!("rotation_matrix       = {}", rotation_matrix);
+        // println!("scale_matrix          = {}", scale_matrix);
 
         translation_matrix * (rotation_matrix * scale_matrix)
     }

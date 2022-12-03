@@ -944,8 +944,8 @@ mod tests {
             0.105871, -0.0847458, -0.0498649, -0.0125276, 0.116188, 0.0508475, -0.0454434,
         );
 
-        println!("m_inv = {:#?}", m_inv);
-        println!("m_expected = {:#?}", m_expected);
+        // println!("m_inv = {:#?}", m_inv);
+        // println!("m_expected = {:#?}", m_expected);
 
         assert_matrix(&m_inv, &m_expected);
     }
@@ -1295,8 +1295,8 @@ mod tests {
         let half_expected = Tuple4D::new_point(-sqrt2_half, sqrt2_half, 0.0);
         assert_tuple(&half, &half_expected);
 
-        println!("tuple half_expected = {:?}", half_expected);
-        println!("tuple half = {:?}", half);
+        // println!("tuple half_expected = {:?}", half_expected);
+        // println!("tuple half = {:?}", half);
 
         assert_float(half.x, -sqrt2_half);
         assert_float(half.y, sqrt2_half);
@@ -1311,8 +1311,8 @@ mod tests {
         assert_float(full.z, 0.0);
         assert!(Tuple4D::is_point(&full));
 
-        println!("tuple full_expected = {:?}", full_expected);
-        println!("tuple full = {:?}", full);
+        // println!("tuple full_expected = {:?}", full_expected);
+        // println!("tuple full = {:?}", full);
     }
 
     #[test]
@@ -1383,24 +1383,24 @@ mod tests {
         let p3 = &b * &p2;
         let p4 = &c * &p3;
 
-        println!("tuple p2 = {:?}", p2);
-        println!("tuple expected x = {:?}, y = {}, z = {}", 1.0, -1.0, 0.0);
+        // println!("tuple p2 = {:?}", p2);
+        // println!("tuple expected x = {:?}, y = {}, z = {}", 1.0, -1.0, 0.0);
 
         assert_float(p2.x, 1.0);
         assert_float(p2.y, -1.0);
         assert_float(p2.z, 0.0);
         assert!(Tuple4D::is_point(&p2));
 
-        println!("tuple p3 = {:?}", p3);
-        println!("tuple expected x = {:?}, y = {}, z = {}", 5.0, -5.0, 0.0);
+        // println!("tuple p3 = {:?}", p3);
+        // println!("tuple expected x = {:?}, y = {}, z = {}", 5.0, -5.0, 0.0);
 
         assert_float(p3.x, 5.0);
         assert_float(p3.y, -5.0);
         assert_float(p3.z, 0.0);
         assert!(Tuple4D::is_point(&p3));
 
-        println!("tuple p4 = {:?}", p4);
-        println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
+        // println!("tuple p4 = {:?}", p4);
+        // println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
 
         assert_float(p4.x, 15.0);
         assert_float(p4.y, 0.0);
@@ -1419,8 +1419,8 @@ mod tests {
 
         let p2 = &t * &p;
 
-        println!("tuple p2 = {:?}", p2);
-        println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
+        // println!("tuple p2 = {:?}", p2);
+        // println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
 
         assert_float(p2.x, 15.0);
         assert_float(p2.y, 0.0);
@@ -1505,14 +1505,14 @@ mod tests {
         // assert_matrix(&m_inv, &m_inv_expected);
         let p = Tuple4D::new_vector(0.0, 0.0, -1.0);
 
-        println!("m_inv = {:?}", m_inv);
-        println!("p = {:?}", p);
+        // println!("m_inv = {:?}", m_inv);
+        // println!("p = {:?}", p);
 
         let res = &m_inv * &p;
         let res_expected = Tuple4D::new_vector(0.70710678, 0.0, -0.70710678);
 
-        println!("expected   res = {:?} ", res_expected);
-        println!("actual    res = {:?} ", res);
+        // println!("expected   res = {:?} ", res_expected);
+        // println!("actual    res = {:?} ", res);
 
         assert_tuple(&res, &res_expected);
     }
