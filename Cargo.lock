@@ -1797,18 +1797,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nativegui"
-version = "0.1.0"
-dependencies = [
- "crossbeam",
- "crossbeam-channel",
- "image",
- "piston",
- "piston_window",
- "raytracer_challenge_reference_impl",
-]
-
-[[package]]
 name = "ndk"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2619,24 +2607,6 @@ dependencies = [
  "log",
  "piston",
  "piston_window",
- "pretty_env_logger",
- "rand",
- "serde",
- "serde_derive",
- "serde_json",
- "tokio",
- "tracing-log",
- "warp",
-]
-
-[[package]]
-name = "render_benny"
-version = "0.1.0"
-dependencies = [
- "crossbeam",
- "crossbeam-channel",
- "futures-util",
- "log",
  "pretty_env_logger",
  "rand",
  "serde",

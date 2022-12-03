@@ -14,7 +14,7 @@ pub struct Matrix {
 }
 
 pub trait MatrixOps {
-    fn new(row: usize, col: usize) -> Self;
+    fn new(row: usize, col: usize) -> Matrix;
 
     fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix;
 
@@ -71,11 +71,12 @@ pub trait MatrixOps {
 
 impl MatrixOps for Matrix {
     fn new(row: usize, col: usize) -> Matrix {
-        Matrix {
+        let m = Matrix {
             rows: row,
             cols: col,
             m: [0.0; 16],
-        }
+        };
+        m
     }
 
     fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix {
@@ -215,7 +216,7 @@ impl MatrixOps for Matrix {
         }
         let mut det = 0.0;
         for col in 0..m.cols {
-            det += m[0][col] * Self::cofactor(m, 0, col);
+            det += m[0][col] * Self::cofactor(&m, 0, col);
         }
         det
     }
@@ -274,14 +275,14 @@ impl MatrixOps for Matrix {
             cols: m.cols,
             m: [0.0; 16],
         };
-        if (Self::determinant(m)).abs() < EPSILON {
+        if (Self::determinant(&m)).abs() < EPSILON {
             return None;
         }
 
-        let det = Self::determinant(m);
+        let det = Self::determinant(&m);
         for row in 0..m.rows {
             for col in 0..m.cols {
-                let c = Self::cofactor(m, row, col);
+                let c = Self::cofactor(&m, row, col);
                 inv[col][row] = c / det;
             }
         }
@@ -353,8 +354,8 @@ impl MatrixOps for Matrix {
         assert!(Tuple4D::is_vector(up));
 
         let forward = Tuple4D::normalize(&(to - from));
-        let left = forward * Tuple4D::normalize(up);
-        let true_up = left * forward;
+        let left = &forward * &Tuple4D::normalize(up);
+        let true_up = &left * &forward;
 
         #[rustfmt::skip]
             let orientation = Matrix::new_matrix_4x4(
@@ -391,8 +392,8 @@ impl MatrixOps for Matrix {
         let f = Tuple4D::normalize(&forward);
         let r = Tuple4D::normalize(&up);
 
-        let cross = r * f;
-        let u = f * cross;
+        let cross = &r * &f;
+        let u = &f * &cross;
 
         Matrix::init_rotation(f, u, r)
     }
@@ -626,11 +627,11 @@ impl core::fmt::Display for Matrix {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         for y in 0..self.rows {
             for x in 0..self.cols {
-                write!(f, "{}, ", self.m[y * self.cols + x]).unwrap();
+                write!(f, "{}, ", self.m[y * self.cols + x]);
             }
-            writeln!(f).unwrap();
+            write!(f, "\n");
         }
-        writeln!(f)
+        write!(f, "\n")
     }
 }
 
@@ -638,7 +639,6 @@ impl core::fmt::Display for Matrix {
 mod tests {
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
     use core::f32::consts::{PI, SQRT_2};
-    use std::f32::consts::FRAC_1_SQRT_2;
 
     use super::*;
 
@@ -944,8 +944,8 @@ mod tests {
             0.105871, -0.0847458, -0.0498649, -0.0125276, 0.116188, 0.0508475, -0.0454434,
         );
 
-        // println!("m_inv = {:#?}", m_inv);
-        // println!("m_expected = {:#?}", m_expected);
+        println!("m_inv = {:#?}", m_inv);
+        println!("m_expected = {:#?}", m_expected);
 
         assert_matrix(&m_inv, &m_expected);
     }
@@ -1295,8 +1295,8 @@ mod tests {
         let half_expected = Tuple4D::new_point(-sqrt2_half, sqrt2_half, 0.0);
         assert_tuple(&half, &half_expected);
 
-        // println!("tuple half_expected = {:?}", half_expected);
-        // println!("tuple half = {:?}", half);
+        println!("tuple half_expected = {:?}", half_expected);
+        println!("tuple half = {:?}", half);
 
         assert_float(half.x, -sqrt2_half);
         assert_float(half.y, sqrt2_half);
@@ -1311,8 +1311,8 @@ mod tests {
         assert_float(full.z, 0.0);
         assert!(Tuple4D::is_point(&full));
 
-        // println!("tuple full_expected = {:?}", full_expected);
-        // println!("tuple full = {:?}", full);
+        println!("tuple full_expected = {:?}", full_expected);
+        println!("tuple full = {:?}", full);
     }
 
     #[test]
@@ -1383,24 +1383,24 @@ mod tests {
         let p3 = &b * &p2;
         let p4 = &c * &p3;
 
-        // println!("tuple p2 = {:?}", p2);
-        // println!("tuple expected x = {:?}, y = {}, z = {}", 1.0, -1.0, 0.0);
+        println!("tuple p2 = {:?}", p2);
+        println!("tuple expected x = {:?}, y = {}, z = {}", 1.0, -1.0, 0.0);
 
         assert_float(p2.x, 1.0);
         assert_float(p2.y, -1.0);
         assert_float(p2.z, 0.0);
         assert!(Tuple4D::is_point(&p2));
 
-        // println!("tuple p3 = {:?}", p3);
-        // println!("tuple expected x = {:?}, y = {}, z = {}", 5.0, -5.0, 0.0);
+        println!("tuple p3 = {:?}", p3);
+        println!("tuple expected x = {:?}, y = {}, z = {}", 5.0, -5.0, 0.0);
 
         assert_float(p3.x, 5.0);
         assert_float(p3.y, -5.0);
         assert_float(p3.z, 0.0);
         assert!(Tuple4D::is_point(&p3));
 
-        // println!("tuple p4 = {:?}", p4);
-        // println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
+        println!("tuple p4 = {:?}", p4);
+        println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
 
         assert_float(p4.x, 15.0);
         assert_float(p4.y, 0.0);
@@ -1419,8 +1419,8 @@ mod tests {
 
         let p2 = &t * &p;
 
-        // println!("tuple p2 = {:?}", p2);
-        // println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
+        println!("tuple p2 = {:?}", p2);
+        println!("tuple expected x = {:?}, y = {}, z = {}", 15.0, 0.0, 7.0);
 
         assert_float(p2.x, 15.0);
         assert_float(p2.y, 0.0);
@@ -1488,31 +1488,31 @@ mod tests {
     fn test_matrix_mul_tuple() {
         #[rustfmt::skip]
             let m = Matrix::new_matrix_4x4(
-            FRAC_1_SQRT_2, 0., FRAC_1_SQRT_2, 3.53553391,
+            0.70710678, 0., 0.70710678, 3.53553391,
             0., 1., 0., -2.,
-            -FRAC_1_SQRT_2, 0., FRAC_1_SQRT_2, 3.5355339,
+            -0.70710678, 0., 0.70710678, 3.5355339,
             0., 0., 0., 1.,
         );
 
         #[rustfmt::skip]
 //         let m_inv_expected = Matrix::new_matrix_4x4(
-//            FRAC_1_SQRT_2, 0., -FRAC_1_SQRT_2, 0.,
+//            0.70710678, 0., -0.70710678, 0.,
 //            0., 1., 0., 2.,
-//            FRAC_1_SQRT_2, 0., FRAC_1_SQRT_2, -5.,
+//            0.70710678, 0., 0.70710678, -5.,
 //            0., 0., 0., 1.,
 //        );
             let m_inv = Matrix::invert(&m).unwrap();
         // assert_matrix(&m_inv, &m_inv_expected);
         let p = Tuple4D::new_vector(0.0, 0.0, -1.0);
 
-        // println!("m_inv = {:?}", m_inv);
-        // println!("p = {:?}", p);
+        println!("m_inv = {:?}", m_inv);
+        println!("p = {:?}", p);
 
         let res = &m_inv * &p;
-        let res_expected = Tuple4D::new_vector(FRAC_1_SQRT_2, 0.0, -FRAC_1_SQRT_2);
+        let res_expected = Tuple4D::new_vector(0.70710678, 0.0, -0.70710678);
 
-        // println!("expected   res = {:?} ", res_expected);
-        // println!("actual    res = {:?} ", res);
+        println!("expected   res = {:?} ", res_expected);
+        println!("actual    res = {:?} ", res);
 
         assert_tuple(&res, &res_expected);
     }

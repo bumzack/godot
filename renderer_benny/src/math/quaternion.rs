@@ -123,10 +123,10 @@ impl Quaternion {
             2.0 * (self.x * self.z + self.w * self.y),
         );
 
-        // println!("");
-        // println!("forward = {}", forward);
-        // println!("up = {}", up);
-        // println!("right = {}", right);
+        println!("");
+        println!("forward = {}", forward);
+        println!("up = {}", up);
+        println!("right = {}", right);
 
         Matrix::new_matrix_4x4(
             right.get_x(),

@@ -7,6 +7,5 @@ members = [
     "webgui/backend",
     "micrograd-rs",
     "renderer_benny",
-    "playground/test-serde-perf",
-    "nativegui"
+    "playground/test-serde-perf"
 ]

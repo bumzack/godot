@@ -30,7 +30,7 @@ impl Transform {
     }
 
     pub fn rotate(&self, r: Quaternion) -> Transform {
-        let rot1 = r * self.rot;
+        let rot1 = (r * self.rot);
         let rot2 = rot1.normalized();
         Transform {
             pos: self.pos,
@@ -54,10 +54,10 @@ impl Transform {
         let rotation_matrix = self.rot.to_rotation_matrix();
         let scale_matrix = Matrix::init_scale(self.scale.get_x(), self.scale.get_y(), self.scale.get_z());
 
-        // println!("m                     = {}", self);
-        // println!("translation_matrix    = {}", translation_matrix);
-        // println!("rotation_matrix       = {}", rotation_matrix);
-        // println!("scale_matrix          = {}", scale_matrix);
+        println!("m                     = {}", self);
+        println!("translation_matrix    = {}", translation_matrix);
+        println!("rotation_matrix       = {}", rotation_matrix);
+        println!("scale_matrix          = {}", scale_matrix);
 
         translation_matrix * (rotation_matrix * scale_matrix)
     }
@@ -81,9 +81,9 @@ impl Transform {
 
 impl core::fmt::Display for Transform {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        writeln!(f, "Quaternion: ").unwrap();
-        writeln!(f, "     pos:    {}  ", self.pos).unwrap();
-        writeln!(f, "     scale:  {}  ", self.scale).unwrap();
-        writeln!(f, "     rot:    {}  ", self.rot)
+        write!(f, "Quaternion: \n");
+        write!(f, "     pos:    {} \n ", self.pos);
+        write!(f, "     scale:  {} \n ", self.scale);
+        write!(f, "     rot:    {} \n ", self.rot)
     }
 }

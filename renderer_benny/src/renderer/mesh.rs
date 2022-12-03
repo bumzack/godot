@@ -40,10 +40,10 @@ impl Mesh {
     }
 
     pub fn draw(&self, context: &mut RenderContext, view_projection: &Matrix, transform: &Matrix, texture: &Canvas) {
-        //println!("view_projection  {}", view_projection);
-        //println!("transform  {}", transform);
+        println!("view_projection  {}", view_projection);
+        println!("transform  {}", transform);
         let mvp = view_projection * transform;
-        //println!("mvp  {}", mvp);
+        println!("mvp  {}", mvp);
         for i in (0..self.indices.len() - 3).step_by(3) {
             // println!("draw_traingle:   i = {}, self.vertices.len() = {}", i, self.vertices.len());
             let idx1 = self.indices.get(i).unwrap();

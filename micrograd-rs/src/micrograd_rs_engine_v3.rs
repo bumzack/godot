@@ -16,7 +16,7 @@ impl Neuron {
         for i in 0..nin {
             weights.push(ValueRefV3::new_value(init_values[i], format!("weight {}", i)));
         }
-        let bias = ValueRefV3::new_value(0.0, "bias".to_string());
+        let bias = ValueRefV3::new_value(0.0, format!("bias"));
         Neuron { weights, bias, non_lin }
     }
 
@@ -29,7 +29,7 @@ impl Neuron {
         Neuron { weights, bias, non_lin }
     }
 
-    pub fn forward(&self, xinp: &[ValueRefV3]) -> ValueRefV3 {
+    pub fn forward(&self, xinp: &Vec<ValueRefV3>) -> ValueRefV3 {
         assert!(xinp.len() == self.weights.len(), "input size does not match layer size");
 
         let x_w: Vec<ValueRefV3> = xinp
@@ -60,7 +60,7 @@ impl Neuron {
 }
 
 pub trait Layer {
-    fn forward(&self, xinp: &[ValueRefV3]) -> Vec<ValueRefV3>;
+    fn forward(&self, xinp: &Vec<ValueRefV3>) -> Vec<ValueRefV3>;
     fn parameters(&self) -> Vec<ValueRefV3>;
     fn name(&self) -> &String;
 }
@@ -82,7 +82,7 @@ impl FC {
 }
 
 impl Layer for FC {
-    fn forward(&self, xinp: &[ValueRefV3]) -> Vec<ValueRefV3> {
+    fn forward(&self, xinp: &Vec<ValueRefV3>) -> Vec<ValueRefV3> {
         let mut out = vec![];
         for n in &self.neurons {
             out.push(n.forward(xinp))
@@ -111,7 +111,7 @@ impl Network {
     pub fn new() -> Box<Network> {
         //TODO fix total_epochs = 0 mess
         let optimizer = Box::new(SGD::new(0.9, 0.0));
-        let loss = Box::new(MaxMarginLoss::default());
+        let loss = Box::new(MaxMarginLoss::new());
         Box::new(Network {
             layers: vec![],
             loss,
@@ -144,7 +144,7 @@ impl Network {
         self.layers.push(l);
     }
 
-    fn forward_internal(&self, xinp: &[f64]) -> Vec<ValueRefV3> {
+    fn forward_internal<'a>(&'a self, xinp: &Vec<f64>) -> Vec<ValueRefV3> {
         let mut x: Vec<ValueRefV3> = xinp
             .iter()
             .map(|x| ValueRefV3::new_value(*x, "x".to_string()))
@@ -166,7 +166,7 @@ impl Network {
         params
     }
 
-    pub fn forward(&self, xs: &[Vec<f64>]) -> Vec<ValueRefV3> {
+    pub fn forward(&self, xs: &Vec<Vec<f64>>) -> Vec<ValueRefV3> {
         let mut y_pred: Vec<ValueRefV3> = vec![];
         for x in xs.iter() {
             let y = self.forward_internal(x);
@@ -190,27 +190,43 @@ impl Network {
     }
 
     pub fn reset_grades(&self) {
-        self.parameters().iter_mut().for_each(|p| p.set_grad(0.0));
+        self.parameters().iter_mut().for_each(|mut p| p.set_grad(0.0));
     }
 
     pub fn update(&self, epoch: usize) {
         self.optimizer.update(self.parameters(), epoch);
     }
 
-    pub fn calc_loss(&self, y_ground_truth: &[f64], y_pred: &[ValueRefV3], parameters: Vec<ValueRefV3>) -> ValueRefV3 {
+    pub fn calc_loss(
+        &self,
+        y_ground_truth: &Vec<f64>,
+        y_pred: &Vec<ValueRefV3>,
+        parameters: Vec<ValueRefV3>,
+    ) -> ValueRefV3 {
         self.loss.calc_loss(y_ground_truth, y_pred, parameters)
     }
 }
 
 pub trait Loss {
-    fn calc_loss(&self, y_ground_truth: &[f64], y_pred: &[ValueRefV3], parameters: Vec<ValueRefV3>) -> ValueRefV3;
+    fn calc_loss(&self, y_ground_truth: &Vec<f64>, y_pred: &Vec<ValueRefV3>, parameters: Vec<ValueRefV3>)
+        -> ValueRefV3;
 }
 
-#[derive(Default)]
 pub struct MSELoss {}
 
+impl MSELoss {
+    pub fn new() -> MSELoss {
+        MSELoss {}
+    }
+}
+
 impl Loss for MSELoss {
-    fn calc_loss(&self, y_ground_truth: &[f64], y_pred: &[ValueRefV3], _parameters: Vec<ValueRefV3>) -> ValueRefV3 {
+    fn calc_loss(
+        &self,
+        y_ground_truth: &Vec<f64>,
+        y_pred: &Vec<ValueRefV3>,
+        _parameters: Vec<ValueRefV3>,
+    ) -> ValueRefV3 {
         let loss_vec: Vec<ValueRefV3> = y_pred
             .iter()
             .zip(y_ground_truth.iter())
@@ -227,11 +243,21 @@ impl Loss for MSELoss {
     }
 }
 
-#[derive(Default)]
 pub struct MaxMarginLoss {}
 
+impl MaxMarginLoss {
+    pub fn new() -> MaxMarginLoss {
+        MaxMarginLoss {}
+    }
+}
+
 impl Loss for MaxMarginLoss {
-    fn calc_loss(&self, y_ground_truth: &[f64], y_pred: &[ValueRefV3], parameters: Vec<ValueRefV3>) -> ValueRefV3 {
+    fn calc_loss(
+        &self,
+        y_ground_truth: &Vec<f64>,
+        y_pred: &Vec<ValueRefV3>,
+        parameters: Vec<ValueRefV3>,
+    ) -> ValueRefV3 {
         let loss_vec: Vec<ValueRefV3> = y_pred
             .iter()
             .zip(y_ground_truth.iter())
@@ -296,7 +322,7 @@ impl SGD {
     }
 }
 
-pub fn print_predictions(y_pred: Vec<ValueRefV3>, y_expected: &[f64]) {
+pub fn print_predictions(y_pred: Vec<ValueRefV3>, y_expected: &Vec<f64>) {
     y_pred.iter().enumerate().for_each(|(idx, y)| {
         let res = (y.get_data() - y_expected[idx]).abs() < EPS2;
         println!(
@@ -321,7 +347,7 @@ pub struct RandomUniformInitializer {
 impl Initializer for RandomUniformInitializer {
     fn get_values(&mut self, cnt: usize) -> Vec<f64> {
         let mut res = vec![];
-        for _i in 0..cnt {
+        for i in 0..cnt {
             let y: f64 = self.normal.sample(&mut self.rng);
             res.push(y);
         }
@@ -331,7 +357,7 @@ impl Initializer for RandomUniformInitializer {
 
 impl RandomUniformInitializer {
     pub fn new() -> RandomUniformInitializer {
-        let rng = StdRng::seed_from_u64(1337);
+        let mut rng = StdRng::seed_from_u64(1337);
         let normal = Uniform::from(-1.0..1.0);
         RandomUniformInitializer { normal, rng }
     }
@@ -672,10 +698,11 @@ mod tests {
     };
     use crate::micrograd_rs_v2::assert_two_float;
     use crate::micrograd_rs_v3::ValueRefV3;
+    use graphviz_rust::print;
 
     #[test]
     pub fn max_margin_loss() {
-        let loss = MaxMarginLoss::default();
+        let loss = MaxMarginLoss::new();
 
         let yb = vec![4.7, 5.9, 11.5];
         let scores = vec![
@@ -703,7 +730,7 @@ mod tests {
 
     #[test]
     pub fn max_margin_loss2() {
-        let loss = MaxMarginLoss::default();
+        let loss = MaxMarginLoss::new();
 
         let yb = vec![-4.7, -5.9, -11.5];
         let scores = vec![
@@ -729,7 +756,7 @@ mod tests {
 
     #[test]
     pub fn max_margin_loss3() {
-        let loss = MaxMarginLoss::default();
+        let loss = MaxMarginLoss::new();
 
         let yb = vec![-4.7, -5.9, -11.5];
         let scores = vec![
@@ -770,6 +797,7 @@ mod tests {
 
         y.backward();
 
+        let y_expected = 0.6706048694358875;
         let y_expected = 0.6706048694358875;
         let w1_grad_expected = 2.0;
         let w2_grad_expected = 3.0;
@@ -880,6 +908,7 @@ mod tests {
 
         y.backward();
 
+        let y_expected = 0.6706048694358875;
         let y_expected = 0.6706048694358875;
         let w1_grad_expected = 2.0;
         let w2_grad_expected = 3.0;

@@ -59,7 +59,7 @@ impl ObjModel {
     }
 
     pub fn read_file(filename: &str) -> Result<ObjModel, Box<dyn std::error::Error>> {
-        // println!("read_file {}", filename);
+        println!("read_file {}", filename);
         let mut obj_model = ObjModel::new();
 
         let file = File::open(filename)?;
@@ -68,10 +68,10 @@ impl ObjModel {
         for line in reader.lines() {
             let l = line?;
 
-            let tokens: Vec<&str> = l.split(' ').collect();
+            let tokens: Vec<&str> = l.split(" ").collect();
             let tokens: Vec<String> = tokens.iter().map(|t| t.to_string()).filter(|t| !t.is_empty()).collect();
 
-            if tokens.is_empty() || tokens[0].eq("#") {
+            if tokens.len() == 0 || tokens[0].eq("#") {
                 continue;
             } else if tokens[0].eq("v") {
                 obj_model.positions.push(Tuple4D::new(
@@ -114,16 +114,16 @@ impl ObjModel {
         let mut normal_index_map: HashMap<usize, usize> = HashMap::new();
         let mut index_map: HashMap<usize, usize> = HashMap::new();
 
-        // println!("to_indexed_model      self.indices.len() = {}", self.indices.len());
-        // println!(
-        //     "to_indexed_model      self.tex_coords.len() = {}",
-        //     self.tex_coords.len()
-        // );
-        // println!("to_indexed_model      self.normals.len() = {}", self.normals.len());
-        // println!("to_indexed_model      self.positions.len() = {}", self.positions.len());
+        println!("to_indexed_model      self.indices.len() = {}", self.indices.len());
+        println!(
+            "to_indexed_model      self.tex_coords.len() = {}",
+            self.tex_coords.len()
+        );
+        println!("to_indexed_model      self.normals.len() = {}", self.normals.len());
+        println!("to_indexed_model      self.positions.len() = {}", self.positions.len());
 
         for i in 0..self.indices.len() {
-            let current_index = self.indices.get(i).unwrap();
+            let current_index = self.indices.get(i).unwrap().clone();
             let current_position = self.positions.get(current_index.vertex_index).unwrap();
             let current_tex_coord;
             let current_normal;
@@ -144,7 +144,7 @@ impl ObjModel {
 
             if !result_index_map.contains_key(&current_index) {
                 model_vertex_index = result.positions().len();
-                result_index_map.insert(*current_index, model_vertex_index);
+                result_index_map.insert(current_index, model_vertex_index);
 
                 result.positions_mut().push(*current_position);
                 result.tex_coords_mut().push(current_tex_coord);
@@ -188,37 +188,37 @@ impl ObjModel {
             result.tangents_mut().push(*t);
         }
 
-        // // println!("positions");
-        // result.positions().iter().for_each(|p| // println!("p = {:?}", p));
-        // // println!("normals");
-        // result.normals().iter().for_each(|p| // println!("p = {:?}", p));
-        // // println!("indices");
-        // result.indices_borrow().iter().for_each(|p| // println!("p = {:?}", p));
-        // // println!("tangents");
-        // result.tangents().iter().for_each(|p| // println!("p = {:?}", p));
-        // // println!("tex_coords");
-        // result.tex_coords().iter().for_each(|p| // println!("p = {:?}", p));
+        println!("positions");
+        result.positions().iter().for_each(|p| println!("p = {:?}", p));
+        println!("normals");
+        result.normals().iter().for_each(|p| println!("p = {:?}", p));
+        println!("indices");
+        result.indices_borrow().iter().for_each(|p| println!("p = {:?}", p));
+        println!("tangents");
+        result.tangents().iter().for_each(|p| println!("p = {:?}", p));
+        println!("tex_coords");
+        result.tex_coords().iter().for_each(|p| println!("p = {:?}", p));
 
-        // // println!(
-        //     "to_indexed_model      result.positions.len() = {}",
-        //     &result.positions().len()
-        // );
-        // // println!(
-        //     "to_indexed_model      result.normals.len() = {}",
-        //     &result.normals().len()
-        // );
-        // // println!(
-        //     "to_indexed_model      result.indices.len() = {}",
-        //     &result.indices_borrow().len()
-        // );
-        // // println!(
-        //     "to_indexed_model      result.tangents.len() = {}",
-        //     result.tangents().len()
-        // );
-        // // println!(
-        //     "to_indexed_model      result.tex_coords.len() = {}",
-        //     &result.tex_coords().len()
-        // );
+        println!(
+            "to_indexed_model      result.positions.len() = {}",
+            &result.positions().len()
+        );
+        println!(
+            "to_indexed_model      result.normals.len() = {}",
+            &result.normals().len()
+        );
+        println!(
+            "to_indexed_model      result.indices.len() = {}",
+            &result.indices_borrow().len()
+        );
+        println!(
+            "to_indexed_model      result.tangents.len() = {}",
+            result.tangents().len()
+        );
+        println!(
+            "to_indexed_model      result.tex_coords.len() = {}",
+            &result.tex_coords().len()
+        );
 
         result
     }

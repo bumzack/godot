@@ -1,5 +1,6 @@
 use crate::math::matrix::Matrix;
 use crate::math::tuple4d::Tuple4D;
+use crate::prelude::*;
 
 pub const EPSILON: f32 = 0.00001;
 pub const EPSILON_OVER_UNDER: f32 = 0.005;
@@ -22,8 +23,8 @@ pub fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
 }
 
 pub fn assert_two_float(a: f32, b: f32) -> bool {
-    // // println!("float_equal: a = {}, b = {}", a, b);
-    // // println!("float_equal: a = {}, b = {}", a, b);
+    // println!("float_equal: a = {}, b = {}", a, b);
+    // println!("float_equal: a = {}, b = {}", a, b);
     if (a - b).abs() < EPSILON {
         return true;
     }

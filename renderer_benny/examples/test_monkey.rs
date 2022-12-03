@@ -4,7 +4,6 @@ use std::f32::consts::PI;
 use std::time::Instant;
 
 use image::ImageBuffer;
-
 use render_benny::prelude::{
     Camera, Canvas, CanvasOps, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quaternion, RenderContext, Transform, Tuple,
     Tuple4D,
@@ -84,14 +83,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         frame += 1;
     }
 
-    // let mut cnt = 0;
-    // target.canvas().get_pixels().iter().for_each(|p| {
-    //     if p.color.r != 0.0 || p.color.b != 0.0 || p.color.g != 0.0 {
-    //         println!("x={}, y ={}, color = {:?}", p.x, p.y, p.color);
-    //         cnt += 1;
-    //     }
-    // });
-    // println!("cnt = {}", cnt);
+    let mut cnt = 0;
+    target.canvas().get_pixels().iter().for_each(|p| {
+        if p.color.r != 0.0 || p.color.b != 0.0 || p.color.g != 0.0 {
+            println!("x={}, y ={}, color = {:?}", p.x, p.y, p.color);
+            cnt += 1;
+        }
+    });
+    println!("cnt = {}", cnt);
     show_bitmap(&target.canvas());
 
     Ok(())
@@ -99,19 +98,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn show_bitmap(c: &Canvas) {
     let opengl = piston_window::OpenGL::V3_2;
-    let window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [800, 600])
+    let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [800, 600])
         .exit_on_esc(true)
         .graphics_api(opengl)
         .build()
         .unwrap();
 
-    let mut window = window.max_fps(60);
+    let mut buffer: Vec<u8> = vec![];
 
-    let mut buffer: Vec<u8> = vec![0; c.get_width() * c.get_height() * 4];
-
-    for (i, p) in c.get_pixels().iter().enumerate() {
-        buffer[i] = (p * 255.0) as u8;
-    }
+    c.get_pixels().iter().for_each(|p| {
+        buffer.push((p.color.r * 255.0) as u8);
+        buffer.push((p.color.g * 255.0) as u8);
+        buffer.push((p.color.b * 255.0) as u8);
+        buffer.push(255);
+    });
 
     let img = ImageBuffer::from_raw(c.get_width() as u32, c.get_height() as u32, buffer).unwrap();
 
@@ -122,24 +122,11 @@ fn show_bitmap(c: &Canvas) {
     )
     .unwrap();
 
-    // window.set_lazy(true);
-    let mut frame = 0;
+    window.set_lazy(true);
     while let Some(e) = window.next() {
         window.draw_2d(&e, |c, g, _| {
             piston_window::clear([1.0; 4], g);
-            // piston_window::image(&t, c.transform, g);
+            piston_window::image(&t, c.transform, g);
         });
-
-        // let new = Instant::now();
-        // let duration = new - previous;
-        // println!(
-        //     "frame {},  got an event.  duration {} ms      ({} us)",
-        //     frame,
-        //     duration.as_millis(),
-        //     duration.as_micros()
-        // );
-        // previous = new;
-        frame += 1;
-        println!("frsame {}", frame);
     }
 }

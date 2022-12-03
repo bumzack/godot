@@ -49,7 +49,7 @@ fn main2() {
 
     let w = 800;
     let h = 600;
-    // let color = 127;
+    let color = 127;
     let pixels = vec![127_u8; w * h * 4];
     let mut image = ImageVec::new(w, h);
     image.set_pixels(pixels);
@@ -61,7 +61,6 @@ fn main2() {
     let _ = serde_json::to_string(&image).unwrap();
     let dur = Instant::now() - start;
     println!("json serialization took : {:?}", dur);
-
 
     let bytes = w * h * 4;
     let kbytes = bytes as f32 / 1024.0;

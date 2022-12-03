@@ -11,14 +11,14 @@ pub trait Tuple3 {
     fn normalize(a: &Tuple3D) -> Tuple3D;
     fn magnitude(a: &Tuple3D) -> f32;
 
-    fn new_vector(x: f32, y: f32, z: f32) -> Self;
-    fn new(x: f32, y: f32, z: f32) -> Self;
-    fn empty() -> Self;
+    fn new_vector(x: f32, y: f32, z: f32) -> Tuple3D;
+    fn new(x: f32, y: f32, z: f32) -> Tuple3D;
+    fn empty() -> Tuple3D;
 }
 
 impl Tuple3 for Tuple3D {
     #[inline]
-    fn normalize(a: &Tuple3D) -> Self {
+    fn normalize(a: &Tuple3D) -> Tuple3D {
         let m = Tuple3D::magnitude(a);
         Tuple3D {
             x: a.x / m,
@@ -33,12 +33,12 @@ impl Tuple3 for Tuple3D {
     }
 
     #[inline]
-    fn new_vector(x: f32, y: f32, z: f32) -> Self {
+    fn new_vector(x: f32, y: f32, z: f32) -> Tuple3D {
         Tuple3D { x, y, z }
     }
 
     #[inline]
-    fn new(x: f32, y: f32, z: f32) -> Self {
+    fn new(x: f32, y: f32, z: f32) -> Tuple3D {
         Tuple3D { x, y, z }
     }
 

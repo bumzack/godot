@@ -12,18 +12,19 @@ pub struct Matrix3 {
 }
 
 pub trait Matrix3Ops {
-    fn new() -> Self;
-    fn new_matrix3_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Self;
-    fn new_identity_3x3() -> Self;
+    fn new() -> Matrix3;
+    fn new_matrix3_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix3;
+    fn new_identity_3x3() -> Matrix3;
 }
 
 impl Matrix3Ops for Matrix3 {
     fn new() -> Matrix3 {
-        Matrix3 {
+        let m = Matrix3 {
             rows: 3,
             cols: 3,
             m: [0.0; 9],
-        }
+        };
+        m
     }
 
     fn new_matrix3_3x3(a1: f32, b1: f32, c1: f32, a2: f32, b2: f32, c2: f32, a3: f32, b3: f32, c3: f32) -> Matrix3 {
