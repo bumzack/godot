@@ -3,6 +3,7 @@ use crate::renderer::pixel::Pixel;
 use image::{GenericImage, GenericImageView, ImageBuffer, ImageError, RgbImage};
 use std::fs::File;
 use std::io::{Error, Write};
+
 pub type ColorVec = Vec<Color>;
 pub type PixelVec = Vec<Pixel>;
 
@@ -11,7 +12,7 @@ pub type PixelVec = Vec<Pixel>;
 pub struct Canvas {
     width: usize,
     height: usize,
-    pixel: PixelVec,
+    pub pixel: PixelVec,
 }
 
 pub trait CanvasOps {

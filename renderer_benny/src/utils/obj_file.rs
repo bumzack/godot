@@ -59,7 +59,7 @@ impl ObjModel {
     }
 
     pub fn read_file(filename: &str) -> Result<ObjModel, Box<dyn std::error::Error>> {
-        println!("read_file {}", filename);
+        // println!("read_file {}", filename);
         let mut obj_model = ObjModel::new();
 
         let file = File::open(filename)?;
@@ -114,13 +114,13 @@ impl ObjModel {
         let mut normal_index_map: HashMap<usize, usize> = HashMap::new();
         let mut index_map: HashMap<usize, usize> = HashMap::new();
 
-        println!("to_indexed_model      self.indices.len() = {}", self.indices.len());
-        println!(
-            "to_indexed_model      self.tex_coords.len() = {}",
-            self.tex_coords.len()
-        );
-        println!("to_indexed_model      self.normals.len() = {}", self.normals.len());
-        println!("to_indexed_model      self.positions.len() = {}", self.positions.len());
+        // println!("to_indexed_model      self.indices.len() = {}", self.indices.len());
+        // println!(
+        //     "to_indexed_model      self.tex_coords.len() = {}",
+        //     self.tex_coords.len()
+        // );
+        // println!("to_indexed_model      self.normals.len() = {}", self.normals.len());
+        // println!("to_indexed_model      self.positions.len() = {}", self.positions.len());
 
         for i in 0..self.indices.len() {
             let current_index = self.indices.get(i).unwrap().clone();
@@ -188,37 +188,37 @@ impl ObjModel {
             result.tangents_mut().push(*t);
         }
 
-        println!("positions");
-        result.positions().iter().for_each(|p| println!("p = {:?}", p));
-        println!("normals");
-        result.normals().iter().for_each(|p| println!("p = {:?}", p));
-        println!("indices");
-        result.indices_borrow().iter().for_each(|p| println!("p = {:?}", p));
-        println!("tangents");
-        result.tangents().iter().for_each(|p| println!("p = {:?}", p));
-        println!("tex_coords");
-        result.tex_coords().iter().for_each(|p| println!("p = {:?}", p));
+        // // println!("positions");
+        // result.positions().iter().for_each(|p| // println!("p = {:?}", p));
+        // // println!("normals");
+        // result.normals().iter().for_each(|p| // println!("p = {:?}", p));
+        // // println!("indices");
+        // result.indices_borrow().iter().for_each(|p| // println!("p = {:?}", p));
+        // // println!("tangents");
+        // result.tangents().iter().for_each(|p| // println!("p = {:?}", p));
+        // // println!("tex_coords");
+        // result.tex_coords().iter().for_each(|p| // println!("p = {:?}", p));
 
-        println!(
-            "to_indexed_model      result.positions.len() = {}",
-            &result.positions().len()
-        );
-        println!(
-            "to_indexed_model      result.normals.len() = {}",
-            &result.normals().len()
-        );
-        println!(
-            "to_indexed_model      result.indices.len() = {}",
-            &result.indices_borrow().len()
-        );
-        println!(
-            "to_indexed_model      result.tangents.len() = {}",
-            result.tangents().len()
-        );
-        println!(
-            "to_indexed_model      result.tex_coords.len() = {}",
-            &result.tex_coords().len()
-        );
+        // // println!(
+        //     "to_indexed_model      result.positions.len() = {}",
+        //     &result.positions().len()
+        // );
+        // // println!(
+        //     "to_indexed_model      result.normals.len() = {}",
+        //     &result.normals().len()
+        // );
+        // // println!(
+        //     "to_indexed_model      result.indices.len() = {}",
+        //     &result.indices_borrow().len()
+        // );
+        // // println!(
+        //     "to_indexed_model      result.tangents.len() = {}",
+        //     result.tangents().len()
+        // );
+        // // println!(
+        //     "to_indexed_model      result.tex_coords.len() = {}",
+        //     &result.tex_coords().len()
+        // );
 
         result
     }

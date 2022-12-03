@@ -45,21 +45,21 @@ impl IndexedModel {
     }
 
     pub fn calc_tangents(&mut self) {
-        // self.indices.iter().for_each(|index| println!("index = {:?}", index));
-        // self.positions.iter().for_each(|pos| println!("position = {:?}", pos));
+        // self.indices.iter().for_each(|index| // println!("index = {:?}", index));
+        // self.positions.iter().for_each(|pos| // println!("position = {:?}", pos));
 
-        println!(
-            "indices.len() = {}, positions.len() = {} ",
-            self.indices.len(),
-            self.positions.len()
-        );
+        // println!(
+        //     "indices.len() = {}, positions.len() = {} ",
+        //     self.indices.len(),
+        //     self.positions.len()
+        // );
 
         for x in (0..self.indices.len() - 3).step_by(3) {
             let i0 = *self.indices.get(x).unwrap();
             let i1 = *self.indices.get(x + 1).unwrap();
             let i2 = *self.indices.get(x + 2).unwrap();
 
-            //            println!(
+            //            // println!(
             //                "i0 = {}, i1 = {}, i2 = {},    x = {},   positions.len() = {}",
             //                i0,
             //                i1,

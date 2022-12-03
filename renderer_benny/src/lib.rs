@@ -1,5 +1,6 @@
 extern crate image;
 
+mod game;
 mod math;
 mod renderer;
 mod utils;
@@ -15,6 +16,7 @@ pub mod prelude {
     pub use super::renderer::edge::*;
     pub use super::renderer::gradient::*;
     pub use super::renderer::mesh::*;
+    pub use super::renderer::pixel::*;
     pub use super::renderer::render_context::*;
     pub use super::renderer::vertex::*;
 }
