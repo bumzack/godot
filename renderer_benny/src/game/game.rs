@@ -17,7 +17,7 @@ use crate::prelude::{
 pub trait Game {
     fn start(&mut self);
     fn stop(&mut self);
-    fn update(&mut self, delta: f32, ctx: &mut G2dTextureContext)->  G2dTexture;
+    fn update(&mut self, delta: f32, ctx: &mut G2dTextureContext) -> G2dTexture;
 }
 
 pub struct MonkeyDisplay {
@@ -43,7 +43,7 @@ impl Game for MonkeyDisplay {
         self.running = false;
     }
 
-    fn update(&mut self, frame: f32, ctx: &mut G2dTextureContext) ->  G2dTexture{
+    fn update(&mut self, frame: f32, ctx: &mut G2dTextureContext) -> G2dTexture {
         self.camera.update(frame);
         let vp = self.camera.get_view_projection();
 
@@ -54,7 +54,7 @@ impl Game for MonkeyDisplay {
             frame / 20.0,
         ));
         let dur = Instant::now() - start;
-        println!("      frame {}  duration rotate {:?}",frame, dur);
+        //  println!("      frame {}  duration rotate {:?}",frame, dur);
         let start = Instant::now();
 
         let mut target = RenderContext::new(self.width, self.height);
@@ -63,7 +63,7 @@ impl Game for MonkeyDisplay {
             .draw(&mut target, &vp, &self.transform.get_transformation(), &self.texture);
 
         let dur = Instant::now() - start;
-        println!("      frame {}    draw mesh rotation {:?}",frame, dur);
+        //println!("      frame {}    draw mesh rotation {:?}",frame, dur);
         let start = Instant::now();
         let mut buffer: Vec<u8> = vec![0; self.width * self.height * 4];
 
@@ -73,7 +73,7 @@ impl Game for MonkeyDisplay {
         }
 
         let dur = Instant::now() - start;
-        println!("      frame {}   copy canvas to u8 Vec buffer {:?}",frame, dur);
+        // println!("      frame {}   copy canvas to u8 Vec buffer {:?}",frame, dur);
         let start = Instant::now();
 
         let img = ImageBuffer::from_raw(self.width as u32, self.height as u32, buffer).unwrap();
@@ -86,31 +86,26 @@ impl Game for MonkeyDisplay {
         //     .build()
         //     .unwrap();
 
-        let t: piston_window::G2dTexture = piston_window::Texture::from_image(
-            ctx,
-            &img,
-            &piston_window::TextureSettings::new(),
-        )
-            .unwrap();
+        let t: piston_window::G2dTexture =
+            piston_window::Texture::from_image(ctx, &img, &piston_window::TextureSettings::new()).unwrap();
 
         let dur = Instant::now() - start;
-        println!("      frame {}   creating piston image buffer {:?}",frame, dur);
+        // println!("      frame {}   creating piston image buffer {:?}",frame, dur);
         t
     }
 }
 
 impl MonkeyDisplay {
     // pub fn init(ctx: TextureContext<Factory, Resources, CommandBuffer>) -> MonkeyDisplay {
-    pub fn init( ) -> MonkeyDisplay {
+    pub fn init() -> MonkeyDisplay {
         let assets = PathBuf::from("/Users/bumzack/stoff/rust/godot/renderer_benny/res/");
         println!("      {:?}", assets);
 
         let width = 1280;
         let height = 720;
 
-        let width = 320;
-        let height = 200;
-
+        // let width = 320;
+        // let height = 200;
 
         let texture = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/renderer_benny/res/bricks2.jpg")
             .expect("could not find asset file");
