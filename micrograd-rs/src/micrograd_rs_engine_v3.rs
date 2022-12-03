@@ -1,7 +1,7 @@
 use rand::distributions::Uniform;
 use rand::prelude::*;
 
-use crate::micrograd_rs_v3::{EPS2, ValueRefV3};
+use crate::micrograd_rs_v3::{ValueRefV3, EPS2};
 
 pub struct Neuron {
     weights: Vec<ValueRefV3>,
@@ -209,7 +209,7 @@ impl Network {
 
 pub trait Loss {
     fn calc_loss(&self, y_ground_truth: &Vec<f64>, y_pred: &Vec<ValueRefV3>, parameters: Vec<ValueRefV3>)
-                 -> ValueRefV3;
+        -> ValueRefV3;
 }
 
 pub struct MSELoss {}
@@ -262,7 +262,7 @@ impl Loss for MaxMarginLoss {
             .iter()
             .zip(y_ground_truth.iter())
             .into_iter()
-            .map(|(ypred, ygr)| (1.0_f64 -&(*ygr * ypred)).relu())
+            .map(|(ypred, ygr)| (1.0_f64 - &(*ygr * ypred)).relu())
             .collect();
         let mut loss = ValueRefV3::new_value(0.0, "loss".to_string());
         for l in loss_vec.iter() {
@@ -339,7 +339,6 @@ pub trait Initializer {
     fn get_values(&mut self, cnt: usize) -> Vec<f64>;
 }
 
-
 pub struct RandomUniformInitializer {
     normal: Uniform<f64>,
     rng: StdRng,
@@ -360,13 +359,9 @@ impl RandomUniformInitializer {
     pub fn new() -> RandomUniformInitializer {
         let mut rng = StdRng::seed_from_u64(1337);
         let normal = Uniform::from(-1.0..1.0);
-        RandomUniformInitializer {
-            normal,
-            rng,
-        }
+        RandomUniformInitializer { normal, rng }
     }
 }
-
 
 pub struct PythonNumPyRandomValuesInitializer {
     values: [f64; 304],
@@ -692,19 +687,18 @@ impl PythonNumPyRandomValuesInitializer {
             -0.3223491002609964,
             -0.2532524374373504,
         ];
-        PythonNumPyRandomValuesInitializer {
-            values,
-            idx: 0,
-        }
+        PythonNumPyRandomValuesInitializer { values, idx: 0 }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use graphviz_rust::print;
-    use crate::micrograd_rs_engine_v3::{FC, Layer, Loss, MaxMarginLoss, Network, Neuron, PythonNumPyRandomValuesInitializer};
+    use crate::micrograd_rs_engine_v3::{
+        Layer, Loss, MaxMarginLoss, Network, Neuron, PythonNumPyRandomValuesInitializer, FC,
+    };
     use crate::micrograd_rs_v2::assert_two_float;
     use crate::micrograd_rs_v3::ValueRefV3;
+    use graphviz_rust::print;
 
     #[test]
     pub fn max_margin_loss() {
@@ -811,10 +805,26 @@ mod tests {
         let w2_expected = 0.06653114721000164;
 
         println!("y expected  {},   actual {}", y_expected, y.get_data());
-        println!("w1 data expected  {},   actual {}", n.parameters()[0].get_data(), w1_expected);
-        println!("w2 data expected  {},   actual {}", n.parameters()[1].get_data(), w2_expected);
-        println!("w1 grad expected  {},   actual {}", n.parameters()[0].get_grad(), w1_grad_expected);
-        println!("w2 grad expected  {},   actual {}", n.parameters()[1].get_grad(), w2_grad_expected);
+        println!(
+            "w1 data expected  {},   actual {}",
+            n.parameters()[0].get_data(),
+            w1_expected
+        );
+        println!(
+            "w2 data expected  {},   actual {}",
+            n.parameters()[1].get_data(),
+            w2_expected
+        );
+        println!(
+            "w1 grad expected  {},   actual {}",
+            n.parameters()[0].get_grad(),
+            w1_grad_expected
+        );
+        println!(
+            "w2 grad expected  {},   actual {}",
+            n.parameters()[1].get_grad(),
+            w2_grad_expected
+        );
 
         assert_two_float(n.parameters()[0].get_data(), w1_expected);
         assert_two_float(n.parameters()[1].get_data(), w2_expected);
@@ -848,10 +858,26 @@ mod tests {
         let w2_expected = 0.06653114721000164;
 
         println!("y expected  {},   actual {}", y_expected, y.get_data());
-        println!("w1 data expected  {},   actual {}", l.parameters()[0].get_data(), w1_expected);
-        println!("w2 data expected  {},   actual {}", l.parameters()[1].get_data(), w2_expected);
-        println!("w1 grad expected  {},   actual {}", l.parameters()[0].get_grad(), w1_grad_expected);
-        println!("w2 grad expected  {},   actual {}", l.parameters()[1].get_grad(), w2_grad_expected);
+        println!(
+            "w1 data expected  {},   actual {}",
+            l.parameters()[0].get_data(),
+            w1_expected
+        );
+        println!(
+            "w2 data expected  {},   actual {}",
+            l.parameters()[1].get_data(),
+            w2_expected
+        );
+        println!(
+            "w1 grad expected  {},   actual {}",
+            l.parameters()[0].get_grad(),
+            w1_grad_expected
+        );
+        println!(
+            "w2 grad expected  {},   actual {}",
+            l.parameters()[1].get_grad(),
+            w2_grad_expected
+        );
 
         assert_two_float(l.parameters()[0].get_data(), w1_expected);
         assert_two_float(l.parameters()[1].get_data(), w2_expected);
@@ -890,10 +916,26 @@ mod tests {
         let w2_expected = 0.06653114721000164;
 
         println!("y expected  {},   actual {}", y_expected, y.get_data());
-        println!("w1 data expected  {},   actual {}", network.parameters()[0].get_data(), w1_expected);
-        println!("w2 data expected  {},   actual {}", network.parameters()[1].get_data(), w2_expected);
-        println!("w1 grad expected  {},   actual {}", network.parameters()[0].get_grad(), w1_grad_expected);
-        println!("w2 grad expected  {},   actual {}", network.parameters()[1].get_grad(), w2_grad_expected);
+        println!(
+            "w1 data expected  {},   actual {}",
+            network.parameters()[0].get_data(),
+            w1_expected
+        );
+        println!(
+            "w2 data expected  {},   actual {}",
+            network.parameters()[1].get_data(),
+            w2_expected
+        );
+        println!(
+            "w1 grad expected  {},   actual {}",
+            network.parameters()[0].get_grad(),
+            w1_grad_expected
+        );
+        println!(
+            "w2 grad expected  {},   actual {}",
+            network.parameters()[1].get_grad(),
+            w2_grad_expected
+        );
 
         assert_two_float(network.parameters()[0].get_data(), w1_expected);
         assert_two_float(network.parameters()[1].get_data(), w2_expected);
@@ -912,15 +954,15 @@ mod tests {
         let a = &(-*ygr * y_pred);
         let b = -&(*ygr * y_pred);
 
-        let c =1.0_f64 + &(-*ygr * y_pred);
-        let d = 1.0_f64 -&(*ygr * y_pred);
+        let c = 1.0_f64 + &(-*ygr * y_pred);
+        let d = 1.0_f64 - &(*ygr * y_pred);
 
         let res_expected = 0.4;
 
-        println!("a = {}  ", a );
-        println!("b = {}  ", b );
-        println!("c = {}  ", c );
-        println!("d = {}  ",d);
+        println!("a = {}  ", a);
+        println!("b = {}  ", b);
+        println!("c = {}  ", c);
+        println!("d = {}  ", d);
 
         println!("res expected {}   res1 actuale {}", res_expected, res1.get_data());
         println!("res expected {}   res2 actuale {}", res_expected, res2.get_data());

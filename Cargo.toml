@@ -6,6 +6,6 @@ members = [
     "curves",
     "webgui/backend",
     "micrograd-rs",
-    "render_benny",
+    "renderer_benny",
     "playground/test-serde-perf"
 ]

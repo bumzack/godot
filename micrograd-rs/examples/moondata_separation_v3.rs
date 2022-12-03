@@ -3,15 +3,16 @@ use std::process::{exit, id};
 use std::time::Instant;
 
 use plotters::prelude::*;
-use rand::{Rng, SeedableRng, thread_rng};
 use rand::distributions::Uniform;
 use rand::prelude::StdRng;
+use rand::{thread_rng, Rng, SeedableRng};
 use rand_distr::Normal;
 
-use micrograd_rs::micrograd_rs_engine_v3::{FC, MaxMarginLoss, Network, PythonNumPyRandomValuesInitializer, RandomUniformInitializer, SGD};
+use micrograd_rs::micrograd_rs_engine_v3::{
+    MaxMarginLoss, Network, PythonNumPyRandomValuesInitializer, RandomUniformInitializer, FC, SGD,
+};
 
 fn main() {
-
     // config
     let use_python_data = false;
 
@@ -50,7 +51,6 @@ fn main() {
         // network.add_layer(Box::new(hidden_layer2));
         // network.add_layer(Box::new(output_layer));
 
-
         let optimizer = SGD::new(0.9, epochs as f64);
         let loss = MaxMarginLoss::new();
         network.optimizer(Box::new(optimizer));
@@ -76,7 +76,6 @@ fn main() {
         network.add_layer(Box::new(input_layer));
         network.add_layer(Box::new(hidden_layer1));
         network.add_layer(Box::new(output_layer));
-
 
         // // network config
         // let nin = 2;
@@ -116,7 +115,7 @@ fn main() {
     // }
     let loss1 = network.calc_loss(&y, &y_pred, network.parameters());
 
-    println!("before training     loss {} ", loss1.get_data(), );
+    println!("before training     loss {} ", loss1.get_data(),);
 
     let start = Instant::now();
     let mut y_pred = vec![];
@@ -180,7 +179,6 @@ fn prepare_data(cnt_samples: usize) -> (Vec<Vec<f64>>, Vec<f64>) {
 
     y_red.append(&mut y_blue);
 
-
     let mut x: Vec<Vec<f64>> = vec![];
     let mut y: Vec<f64> = vec![];
 
@@ -243,7 +241,6 @@ fn plot_result(
     let y_min = -1.0 as f32;
     let y_max = 1.5 as f32;
 
-
     let root = BitMapBackend::new(&filename, (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
@@ -289,8 +286,12 @@ fn plot_result(
         .draw()?;
 
     match root.present() {
-        Ok(r) => { println!("ok") }
-        Err(e) => { println!("error writng gfile {:?}", e) }
+        Ok(r) => {
+            println!("ok")
+        }
+        Err(e) => {
+            println!("error writng gfile {:?}", e)
+        }
     }
 
     println!("wrote file {:?}", &filename);

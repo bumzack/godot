@@ -1,5 +1,6 @@
+use micrograd_rs::micrograd_rs_engine_v2::{print_predictions, MLP};
 use micrograd_rs::prelude::calc_loss_mse;
-use micrograd_rs::prelude::{draw_graph, print_predictions, ValueRefV2, MLP};
+use micrograd_rs::prelude::draw_graph;
 
 fn main() {
     let mlp = MLP::new(3, vec![4, 4, 1]);
