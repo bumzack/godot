@@ -6,6 +6,7 @@ mod renderer;
 mod utils;
 
 pub mod prelude {
+    pub use super::game::game::*;
     pub use super::math::matrix::*;
     pub use super::math::quaternion::*;
     pub use super::math::transform::*;
