@@ -111,7 +111,7 @@ fn show_bitmap(c: &Canvas) {
 
     for (i, p) in c.get_pixels().iter().enumerate() {
         buffer[i] = (p * 255.0) as u8;
-    };
+    }
 
     let img = ImageBuffer::from_raw(c.get_width() as u32, c.get_height() as u32, buffer).unwrap();
 
@@ -120,9 +120,9 @@ fn show_bitmap(c: &Canvas) {
         &img,
         &piston_window::TextureSettings::new(),
     )
-        .unwrap();
+    .unwrap();
 
-   // window.set_lazy(true);
+    // window.set_lazy(true);
     let mut previous = Instant::now();
     let mut frame = 0;
     while let Some(e) = window.next() {
@@ -141,6 +141,6 @@ fn show_bitmap(c: &Canvas) {
         // );
         // previous = new;
         frame += 1;
-        println!("frsame {}",frame);
+        println!("frsame {}", frame);
     }
 }
