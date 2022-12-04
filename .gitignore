@@ -10,7 +10,7 @@ raytracer_challenge_reference_impl/downloaded_obj_files/*.jpg
 raytracer_challenge_reference_impl/examples/*.jpg
 micrograd-rs/python/venv
 micrograd-rs/python/gout*
-
+micrograd-rs/src/*.png
 renderer_benny/res
 
 
