@@ -3,13 +3,16 @@ extern crate image;
 extern crate piston_window;
 
 use std::path::PathBuf;
+use std::process::exit;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crossbeam_channel::unbounded;
-use piston_window::{clear, text, Button, Key, PressEvent, TextureContext};
+use crossbeam_channel::{unbounded, Receiver, Sender};
+use piston_window::image::Image;
+use piston_window::math::mul;
+use piston_window::{clear, text, Button, Key, PistonWindow, PressEvent, TextureContext, WindowSettings};
 
-use raytracer_challenge_reference_impl::basics::TileData;
+use raytracer_challenge_reference_impl::basics::{Canvas, TileData};
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;
 use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, CanvasOps};
 
@@ -24,8 +27,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let render_thread = thread::spawn(move || {
         println!("starting renderer thread");
+
         let (world, camera) = chapter07(scene_width, scene_height);
+
         Camera::render_multi_core_tile_producer(&camera, &world, 5, 5, sender);
+
         thread::current().id()
     });
 
@@ -80,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             window.draw_2d(&e, |c, g, device| {
                 let mut buffer: Vec<u8> = vec![0; scene_width * scene_height * 4];
 
-                let updated = match recv.try_recv() {
+                let a = match recv.try_recv() {
                     Ok(tile) => {
                         println!("got a tile  tile.idx {}", tile.get_idx());
 
@@ -92,17 +98,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             buffer_all[idx + 3] = 255;
                         });
 
+                        for i in 0..scene_width * scene_height {
+                            buffer[i] = buffer_all[i];
+                        }
                         true
                     }
-                    Err(_e) => {
+                    Err(e) => {
                         // println!("no tile available")
                         false
                     }
                 };
-
-                for i in 0..scene_width * scene_height * 4 {
-                    buffer[i] = buffer_all[i];
-                }
 
                 let transform_text = c.transform.trans(10.0, (win_height - 30) as f64);
 
@@ -126,16 +131,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 // Update glyphs before rendering.
                 glyphs.factory.encoder.flush(device);
 
-                let img_transform = c.transform.trans(20.0, 20.0);
-                let img = image::ImageBuffer::from_raw(scene_width as u32, scene_height as u32, buffer).unwrap();
-                let t: piston_window::G2dTexture = piston_window::Texture::from_image(
-                    &mut texture_context,
-                    &img,
-                    &piston_window::TextureSettings::new(),
-                )
-                .unwrap();
+                if a {
+                    let img_transform = c.transform.trans(20.0, 20.0);
+                    let img = image::ImageBuffer::from_raw(scene_width as u32, scene_height as u32, buffer).unwrap();
+                    let t: piston_window::G2dTexture = piston_window::Texture::from_image(
+                        &mut texture_context,
+                        &img,
+                        &piston_window::TextureSettings::new(),
+                    )
+                    .unwrap();
 
-                piston_window::image(&t, img_transform, g);
+                    piston_window::image(&t, img_transform, g);
+                }
 
                 let dur = Instant::now() - start;
                 println!("drawing image in piston window {:?}", dur);
