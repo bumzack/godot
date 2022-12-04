@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(e) = window.next() {
         let elapsed = Instant::now() - previous;
         println!(
-            "elapsed {},  frame duraion {} ",
+            "elapsed {},  frame duration {} ",
             elapsed.as_millis(),
             fps_dur.as_millis()
         );

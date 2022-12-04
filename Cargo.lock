@@ -1797,6 +1797,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nativegui"
+version = "0.1.0"
+dependencies = [
+ "crossbeam",
+ "crossbeam-channel",
+ "image",
+ "piston",
+ "piston_window",
+ "raytracer_challenge_reference_impl",
+]
+
+[[package]]
 name = "ndk"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

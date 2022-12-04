@@ -9,5 +9,8 @@ edition = "2021"
 piston = "0.53.2"
 piston_window = "0.127.0"
 
+crossbeam = "0.8.2"
 crossbeam-channel = "0.5.6"
 raytracer_challenge_reference_impl = { path = "../raytracer_challenge_reference_impl" }
+
+image = "0.24.5"
