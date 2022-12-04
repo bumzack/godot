@@ -98,9 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             buffer_all[idx + 3] = 255;
                         });
 
-                        for i in 0..scene_width * scene_height {
-                            buffer[i] = buffer_all[i];
-                        }
+
                         true
                     }
                     Err(e) => {
@@ -108,6 +106,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         false
                     }
                 };
+
+                for i in 0..scene_width * scene_height *4{
+                    buffer[i] = buffer_all[i];
+                }
 
                 let transform_text = c.transform.trans(10.0, (win_height - 30) as f64);
 
@@ -131,7 +133,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 // Update glyphs before rendering.
                 glyphs.factory.encoder.flush(device);
 
-                if a {
+
                     let img_transform = c.transform.trans(20.0, 20.0);
                     let img = image::ImageBuffer::from_raw(scene_width as u32, scene_height as u32, buffer).unwrap();
                     let t: piston_window::G2dTexture = piston_window::Texture::from_image(
@@ -142,7 +144,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .unwrap();
 
                     piston_window::image(&t, img_transform, g);
-                }
+
 
                 let dur = Instant::now() - start;
                 println!("drawing image in piston window {:?}", dur);
