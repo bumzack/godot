@@ -2,9 +2,7 @@ use rand::distributions::Uniform;
 use rand::prelude::StdRng;
 use rand::SeedableRng;
 
-use micrograd_rs::micrograd_rs_engine_v3::{
-    print_predictions, Network, PythonNumPyRandomValuesInitializer, RandomUniformInitializer, FC, SGD,
-};
+use micrograd_rs::micrograd_rs_engine_v3::{print_predictions, Network, RandomUniformInitializer, FC, SGD};
 
 fn main() {
     let mut r = StdRng::seed_from_u64(1337);

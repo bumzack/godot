@@ -51,7 +51,7 @@ fn main() {
         // network.add_layer(Box::new(output_layer));
 
         let optimizer = SGD::new(0.9, epochs as f64);
-        let loss = MaxMarginLoss::new();
+        let loss = MaxMarginLoss::default();
         network.optimizer(Box::new(optimizer));
         network.loss(Box::new(loss));
 
@@ -95,7 +95,7 @@ fn main() {
         // network.add_layer(Box::new(output_layer));
 
         let optimizer = SGD::new(0.9, epochs as f64);
-        let loss = MaxMarginLoss::new();
+        let loss = MaxMarginLoss::default();
 
         network.optimizer(Box::new(optimizer));
         network.loss(Box::new(loss));
