@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 
 use crate::prelude::{
-    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Sequence, Shape,
+    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Parser, Sequence, Shape,
     ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
 

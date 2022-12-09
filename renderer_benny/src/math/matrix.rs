@@ -14,7 +14,7 @@ pub struct Matrix {
 }
 
 pub trait MatrixOps {
-    fn new(row: usize, col: usize) -> Matrix;
+    fn new(row: usize, col: usize) -> Self;
 
     fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix;
 
@@ -71,12 +71,11 @@ pub trait MatrixOps {
 
 impl MatrixOps for Matrix {
     fn new(row: usize, col: usize) -> Matrix {
-        let m = Matrix {
+        Matrix {
             rows: row,
             cols: col,
             m: [0.0; 16],
-        };
-        m
+        }
     }
 
     fn new_matrix_2x2(a1: f32, b1: f32, a2: f32, b2: f32) -> Matrix {
@@ -216,7 +215,7 @@ impl MatrixOps for Matrix {
         }
         let mut det = 0.0;
         for col in 0..m.cols {
-            det += m[0][col] * Self::cofactor(&m, 0, col);
+            det += m[0][col] * Self::cofactor(m, 0, col);
         }
         det
     }
@@ -275,14 +274,14 @@ impl MatrixOps for Matrix {
             cols: m.cols,
             m: [0.0; 16],
         };
-        if (Self::determinant(&m)).abs() < EPSILON {
+        if (Self::determinant(m)).abs() < EPSILON {
             return None;
         }
 
-        let det = Self::determinant(&m);
+        let det = Self::determinant(m);
         for row in 0..m.rows {
             for col in 0..m.cols {
-                let c = Self::cofactor(&m, row, col);
+                let c = Self::cofactor(m, row, col);
                 inv[col][row] = c / det;
             }
         }
@@ -354,8 +353,8 @@ impl MatrixOps for Matrix {
         assert!(Tuple4D::is_vector(up));
 
         let forward = Tuple4D::normalize(&(to - from));
-        let left = &forward * &Tuple4D::normalize(up);
-        let true_up = &left * &forward;
+        let left = forward * Tuple4D::normalize(up);
+        let true_up = left * forward;
 
         #[rustfmt::skip]
             let orientation = Matrix::new_matrix_4x4(
@@ -392,8 +391,8 @@ impl MatrixOps for Matrix {
         let f = Tuple4D::normalize(&forward);
         let r = Tuple4D::normalize(&up);
 
-        let cross = &r * &f;
-        let u = &f * &cross;
+        let cross = r * f;
+        let u = f * cross;
 
         Matrix::init_rotation(f, u, r)
     }
@@ -627,11 +626,11 @@ impl core::fmt::Display for Matrix {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         for y in 0..self.rows {
             for x in 0..self.cols {
-                write!(f, "{}, ", self.m[y * self.cols + x]);
+                write!(f, "{}, ", self.m[y * self.cols + x]).unwrap();
             }
-            write!(f, "\n");
+            writeln!(f).unwrap();
         }
-        write!(f, "\n")
+        writeln!(f)
     }
 }
 
@@ -639,6 +638,7 @@ impl core::fmt::Display for Matrix {
 mod tests {
     use crate::math::common::{assert_float, assert_matrix, assert_tuple};
     use core::f32::consts::{PI, SQRT_2};
+    use std::f32::consts::FRAC_1_SQRT_2;
 
     use super::*;
 
@@ -1488,17 +1488,17 @@ mod tests {
     fn test_matrix_mul_tuple() {
         #[rustfmt::skip]
             let m = Matrix::new_matrix_4x4(
-            0.70710678, 0., 0.70710678, 3.53553391,
+            FRAC_1_SQRT_2, 0., FRAC_1_SQRT_2, 3.53553391,
             0., 1., 0., -2.,
-            -0.70710678, 0., 0.70710678, 3.5355339,
+            -FRAC_1_SQRT_2, 0., FRAC_1_SQRT_2, 3.5355339,
             0., 0., 0., 1.,
         );
 
         #[rustfmt::skip]
 //         let m_inv_expected = Matrix::new_matrix_4x4(
-//            0.70710678, 0., -0.70710678, 0.,
+//            FRAC_1_SQRT_2, 0., -FRAC_1_SQRT_2, 0.,
 //            0., 1., 0., 2.,
-//            0.70710678, 0., 0.70710678, -5.,
+//            FRAC_1_SQRT_2, 0., FRAC_1_SQRT_2, -5.,
 //            0., 0., 0., 1.,
 //        );
             let m_inv = Matrix::invert(&m).unwrap();
@@ -1509,7 +1509,7 @@ mod tests {
         // println!("p = {:?}", p);
 
         let res = &m_inv * &p;
-        let res_expected = Tuple4D::new_vector(0.70710678, 0.0, -0.70710678);
+        let res_expected = Tuple4D::new_vector(FRAC_1_SQRT_2, 0.0, -FRAC_1_SQRT_2);
 
         // println!("expected   res = {:?} ", res_expected);
         // println!("actual    res = {:?} ", res);

@@ -1,13 +1,9 @@
-use std::cmp::Ordering;
 use std::f32::consts::PI;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
-use crossbeam::thread;
-use crossbeam_channel::{Receiver, Sender};
-use image::{ImageBuffer, Pixel};
-use piston_window::{G2dTexture, G2dTextureContext, TextureContext};
+use image::ImageBuffer;
+use piston_window::{G2dTexture, G2dTextureContext};
 
 use crate::prelude::{
     Camera, Canvas, CanvasOps, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quaternion, RenderContext, Transform, Tuple,
@@ -53,7 +49,7 @@ impl Game for MonkeyDisplay {
             // delta.as_secs_f32(),
             frame / 20.0,
         ));
-        let dur = Instant::now() - start;
+        let _dur = Instant::now() - start;
         //  println!("      frame {}  duration rotate {:?}",frame, dur);
         let start = Instant::now();
 
@@ -62,7 +58,7 @@ impl Game for MonkeyDisplay {
         self.mesh
             .draw(&mut target, &vp, &self.transform.get_transformation(), &self.texture);
 
-        let dur = Instant::now() - start;
+        let _dur = Instant::now() - start;
         //println!("      frame {}    draw mesh rotation {:?}",frame, dur);
         let start = Instant::now();
         let mut buffer: Vec<u8> = vec![0; self.width * self.height * 4];
@@ -72,7 +68,7 @@ impl Game for MonkeyDisplay {
             buffer[i] = (p * 255.0) as u8;
         }
 
-        let dur = Instant::now() - start;
+        let _dur = Instant::now() - start;
         // println!("      frame {}   copy canvas to u8 Vec buffer {:?}",frame, dur);
         let start = Instant::now();
 
@@ -89,7 +85,7 @@ impl Game for MonkeyDisplay {
         let t: piston_window::G2dTexture =
             piston_window::Texture::from_image(ctx, &img, &piston_window::TextureSettings::new()).unwrap();
 
-        let dur = Instant::now() - start;
+        let _dur = Instant::now() - start;
         // println!("      frame {}   creating piston image buffer {:?}",frame, dur);
         t
     }
@@ -127,8 +123,8 @@ impl MonkeyDisplay {
             running: false,
             mesh: monkey_mesh,
             transform,
-            width: width,
-            height: height,
+            width,
+            height,
             texture,
             // sender_buffer,
             // recv_delta,
