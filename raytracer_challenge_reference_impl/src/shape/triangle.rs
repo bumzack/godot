@@ -249,9 +249,9 @@ mod tests {
         let p2 = Tuple4D::new_point(-1.0, 0.0, 0.0);
         let p3 = Tuple4D::new_point(1.0, 0.0, 0.0);
 
-        let p1_clone = p1.clone();
-        let p2_clone = p2.clone();
-        let p3_clone = p3.clone();
+        let p1_clone = p1;
+        let p2_clone = p2;
+        let p3_clone = p3;
 
         let t = Shape::new_triangle(Triangle::new(p1, p2, p3), "Triangle".to_string());
 

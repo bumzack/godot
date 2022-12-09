@@ -1,7 +1,8 @@
 use crate::prelude::{
-    AreaLight, Camera, CameraOps, Color, ColorOps, Csg, CsgOp, Cube, Light, MaterialOps, Matrix, MatrixOps, Plane,
-    Sequence, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
+    AreaLight, Camera, CameraOps, Color, ColorOps, Cube, Light, MaterialOps, Matrix, MatrixOps, Plane, Sequence, Shape,
+    ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
+use std::f64::consts::FRAC_PI_4;
 
 pub fn chapter16_csg(
     width: usize,
@@ -84,8 +85,8 @@ pub fn chapter16_csg(
     sphere2.set_transformation(m);
 
     let mut w = World::new();
-    let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::DIFFERENCE);
-    Csg::add_child(w.get_shapes_mut(), csg, sphere1, sphere2);
+    // let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::DIFFERENCE);
+    // Csg::add_child(w.get_shapes_mut(), csg, sphere1, sphere2);
 
     w.add_light(area_light);
     w.add_shape(cube);
@@ -93,7 +94,7 @@ pub fn chapter16_csg(
     // w.add_shape(sphere1);
     // w.add_shape(sphere2);
 
-    let mut c = Camera::new(width, height, 0.78540);
+    let mut c = Camera::new(width, height, FRAC_PI_4);
     c.set_antialiasing(anitaliasing);
     c.set_antialiasing_size(anitaliasing_size);
 

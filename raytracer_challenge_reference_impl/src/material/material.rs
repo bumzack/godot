@@ -250,7 +250,7 @@ impl MaterialOps for Material {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::SQRT_2;
+    use std::f64::consts::{FRAC_1_SQRT_2, SQRT_2};
 
     use crate::prelude::stripe_patterns::StripePattern;
 
@@ -387,7 +387,7 @@ mod tests {
         let position = Tuple4D::new_point(0.0, 0.0, -10.0);
         let intensity = Color::new(1.0, 1.0, 1.0);
         let l = PointLight::new(position, intensity);
-        let mut light = Light::PointLight(l).clone();
+        let mut light = Light::PointLight(l);
         let in_shadow = 0.0;
 
         let result = Material::lightning(&material, &object, &mut light, &point, &eye, &normal_v, in_shadow);
@@ -496,7 +496,7 @@ mod tests {
         sphere.get_material_mut().set_color(Color::new(1.0, 1.0, 1.0));
 
         let eye = Tuple4D::new_point(0.0, 0.0, -5.0);
-        let eye_vec = Tuple4D::normalize(&(&eye - &point));
+        let eye_vec = Tuple4D::normalize(&(eye - point));
         let normal_v = Tuple4D::new_vector(point.x, point.y, point.z);
 
         let result = Material::lightning(
@@ -522,7 +522,7 @@ mod tests {
         let color = Color::new(0.99650484, 0.99650484, 0.99650484);
         test_area_lights_lightning_samples_area_light_helper(point, color);
 
-        let point = Tuple4D::new_point(0.0, 0.7071, -0.7071);
+        let point = Tuple4D::new_point(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2);
         let color = Color::new(0.62318283, 0.62318283, 0.62318283);
         test_area_lights_lightning_samples_area_light_helper(point, color);
     }

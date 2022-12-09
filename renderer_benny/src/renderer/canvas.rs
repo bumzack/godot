@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{Error, Write};
 
-use image::{GenericImage, GenericImageView, ImageBuffer, ImageError, RgbImage};
+use image::{ImageBuffer, ImageError, RgbImage};
 
 use crate::prelude::{Color, ColorOps};
 use crate::renderer::pixel::Pixel;
@@ -17,7 +17,7 @@ pub struct Canvas {
 }
 
 pub trait CanvasOps {
-    fn new(width: usize, height: usize) -> Canvas;
+    fn new(width: usize, height: usize) -> Self;
     fn write_pixel(&mut self, x: usize, y: usize, c: Color);
     fn pixel_at(&self, x: usize, y: usize) -> Pixel;
 
@@ -31,13 +31,12 @@ pub trait CanvasOps {
 }
 
 impl CanvasOps for Canvas {
-    fn new(width: usize, height: usize) -> Canvas {
-        let mut c = Canvas {
+    fn new(width: usize, height: usize) -> Self {
+        Canvas {
             width,
             height,
             pixels: vec![0.0; width * height * 4],
-        };
-        c
+        }
     }
 
     fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
@@ -132,10 +131,10 @@ impl CanvasOpsStd for Canvas {
     }
 
     fn write_png(&self, filename: &str) -> Result<(), ImageError> {
-        let mut x = 0;
-        let mut y = 0;
-        let mut idx = 0;
-        let mut image: RgbImage = ImageBuffer::new(self.get_width() as u32, self.get_height() as u32);
+        let _x = 0;
+        let _y = 0;
+        let _idx = 0;
+        let image: RgbImage = ImageBuffer::new(self.get_width() as u32, self.get_height() as u32);
 
         // for p in self.get_pixels().iter() {
         //     let pixel = image::Rgb([

@@ -2,6 +2,7 @@ use crate::prelude::{
     Camera, CameraOps, Checker3DPattern, Color, ColorOps, Light, Material, MaterialOps, Matrix, MatrixOps, Pattern,
     PatternEnum, Plane, PointLight, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
+use std::f64::consts::FRAC_PI_2;
 
 pub fn chapter11_air_bubble(width: usize, height: usize) -> (World, Camera) {
     let mut checker_pattern = Checker3DPattern::new();
@@ -14,7 +15,7 @@ pub fn chapter11_air_bubble(width: usize, height: usize) -> (World, Camera) {
     wall_material.set_diffuse(0.2);
     wall_material.set_specular(0.0);
 
-    let wall_trans = &Matrix::rotate_x(1.5708) * &Matrix::translation(0., 0., 10.);
+    let wall_trans = &Matrix::rotate_x(FRAC_PI_2) * &Matrix::translation(0., 0., 10.);
 
     // wall
     let mut wall = Shape::new_plane(Plane::new(), "plane".to_string());

@@ -116,7 +116,7 @@ impl Canvas {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub struct Tile {
     x_from: usize,
     x_to: usize,

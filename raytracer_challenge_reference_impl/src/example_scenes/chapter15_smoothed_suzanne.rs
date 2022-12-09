@@ -1,6 +1,6 @@
 use crate::prelude::{
-    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, ObjFileOps, Parser,
-    PointLight, Sequence, Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
+    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, PointLight, Sequence, Shape,
+    ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
 use std::f64::consts::PI;
 
@@ -93,17 +93,17 @@ pub fn chapter15_smoothed_suzanne(
         "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/suzanne.obj";
     println!("filename {}", filename);
 
-    let teapot = Parser::parse_obj_file(&filename);
+    // let teapot = Parser::parse_obj_file(filename);
 
-    let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
-    let idx = teapot_group.get(0).unwrap();
-    let teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
-
-    let trans = &Matrix::translation(1.5, 1.0, 0.9) * &Matrix::rotate_y(-PI / 2.0);
-
-    teapot.set_transformation(trans);
-
-    println!("teapot_group index {}", teapot_group.get(0).unwrap());
+    // let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
+    // let idx = teapot_group.get(0).unwrap();
+    // let teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
+    //
+    // let trans = &Matrix::translation(1.5, 1.0, 0.9) * &Matrix::rotate_y(-PI / 2.0);
+    //
+    // teapot.set_transformation(trans);
+    //
+    // println!("teapot_group index {}", teapot_group.get(0).unwrap());
 
     let mut c = Camera::new(width as usize, height as usize, pov);
     c.calc_pixel_size();

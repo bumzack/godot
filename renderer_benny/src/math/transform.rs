@@ -30,7 +30,7 @@ impl Transform {
     }
 
     pub fn rotate(&self, r: Quaternion) -> Transform {
-        let rot1 = (r * self.rot);
+        let rot1 = r * self.rot;
         let rot2 = rot1.normalized();
         Transform {
             pos: self.pos,
@@ -81,9 +81,9 @@ impl Transform {
 
 impl core::fmt::Display for Transform {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Quaternion: \n");
-        write!(f, "     pos:    {} \n ", self.pos);
-        write!(f, "     scale:  {} \n ", self.scale);
-        write!(f, "     rot:    {} \n ", self.rot)
+        writeln!(f, "Quaternion: ").unwrap();
+        writeln!(f, "     pos:    {}  ", self.pos).unwrap();
+        writeln!(f, "     scale:  {}  ", self.scale).unwrap();
+        writeln!(f, "     rot:    {}  ", self.rot)
     }
 }

@@ -89,7 +89,7 @@ mod test {
 
     #[test]
     fn test_add() {
-        let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
+        let a = ValueRefV2::new_value(2.0, "a".to_string());
         let b = ValueRefV2::new_value(3.0, "b".to_string());
 
         let mut x = &a + &b;
@@ -102,7 +102,7 @@ mod test {
     // https://youtu.be/VMj-3S1tku0?t=1875
     #[test]
     pub fn test_video() {
-        let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
+        let a = ValueRefV2::new_value(2.0, "a".to_string());
         let b = ValueRefV2::new_value(-3.0, "b".to_string());
         let c = ValueRefV2::new_value(10.0, "c".to_string());
         let f = ValueRefV2::new_value(-2.0, "f".to_string());

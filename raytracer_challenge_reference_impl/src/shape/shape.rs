@@ -235,35 +235,35 @@ impl Shape {
     // only relevant for CSG
     pub fn get_left(&self) -> ShapeIdx {
         match self.shape {
-            ShapeEnum::CsgEnum(ref csg) => csg.get_left(),
+            ShapeEnum::CsgEnum(ref _csg) => 1, // TODO  csg.get_left(),
             _ => unreachable!("this should never be called"),
         }
     }
 
     pub fn get_right(&self) -> ShapeIdx {
         match self.shape {
-            ShapeEnum::CsgEnum(ref csg) => csg.get_right(),
+            ShapeEnum::CsgEnum(ref _csg) => 1, // TODO csg.get_right(),
             _ => unreachable!("this should never be called"),
         }
     }
 
-    pub fn set_left(&mut self, idx: ShapeIdx) {
+    pub fn set_left(&mut self, _idx: ShapeIdx) {
         match self.shape {
-            ShapeEnum::CsgEnum(ref mut csg) => csg.set_left(idx),
+            ShapeEnum::CsgEnum(ref mut _csg) => {} // csg.set_left(idx),
             _ => unreachable!("Jhis should never be called"),
         }
     }
 
-    pub fn set_right(&mut self, idx: ShapeIdx) {
+    pub fn set_right(&mut self, _idx: ShapeIdx) {
         match self.shape {
-            ShapeEnum::CsgEnum(ref mut csg) => csg.set_right(idx),
+            ShapeEnum::CsgEnum(ref mut _csg) => {} // csg.set_right(idx),
             _ => unreachable!("this should never be called"),
         }
     }
 
     pub fn get_op(&self) -> &CsgOp {
         match self.shape {
-            ShapeEnum::CsgEnum(ref csg) => csg.get_op(),
+            ShapeEnum::CsgEnum(ref _csg) => &CsgOp::DIFFERENCE, //TODO  csg.get_op(),
             _ => unreachable!("this should never be called"),
         }
     }
@@ -290,7 +290,7 @@ impl Shape {
             ShapeEnum::TriangleEnum(ref triangle) => triangle.get_bounds_of(),
             ShapeEnum::SmoothTriangleEnum(ref triangle) => triangle.get_bounds_of(),
             ShapeEnum::GroupEnum(ref group) => group.get_bounds_of(shapes),
-            ShapeEnum::CsgEnum(ref csg) => csg.get_bounds_of(shapes),
+            ShapeEnum::CsgEnum(ref _csg) => BoundingBox::new(), //TODO csg.get_bounds_of(shapes),
         }
     }
 }

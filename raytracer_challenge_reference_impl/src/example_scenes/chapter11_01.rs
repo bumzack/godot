@@ -2,6 +2,7 @@ use crate::prelude::{
     Camera, CameraOps, Checker3DPattern, Color, ColorOps, Light, Material, MaterialOps, Matrix, MatrixOps, Pattern,
     PatternEnum, Plane, PointLight, Shape, ShapeOps, Sphere, StripePattern, Tuple, Tuple4D, World, WorldOps,
 };
+use std::f64::consts::FRAC_PI_2;
 
 pub fn chapter11_01(width: usize, height: usize) -> (World, Camera) {
     let mut wall_material = Material::new();
@@ -14,7 +15,7 @@ pub fn chapter11_01(width: usize, height: usize) -> (World, Camera) {
     stripe_pattern.set_color_a(Color::new(0.45, 0.45, 0.45));
     stripe_pattern.set_color_a(Color::new(0.55, 0.55, 0.55));
 
-    // let wall_trans = &Matrix::rotate_y(1.5708) * &Matrix::scale(0.25, 0.25, 0.25);
+    // let wall_trans = &Matrix::rotate_y(FRAC_PI_2) * &Matrix::scale(0.25, 0.25, 0.25);
 
     // floor
     let mut floor = Shape::new_plane(Plane::new(), "plane".to_string());
@@ -37,28 +38,28 @@ pub fn chapter11_01(width: usize, height: usize) -> (World, Camera) {
 
     // west wall
     let mut west_wall = Shape::new_plane(Plane::new(), "plane".to_string());
-    let trans = &Matrix::rotate_y(1.5708) * &Matrix::rotate_z(1.5708);
+    let trans = &Matrix::rotate_y(FRAC_PI_2) * &Matrix::rotate_z(FRAC_PI_2);
     let trans = &trans * &Matrix::translation(-5.0, 0., 0.0);
     west_wall.set_transformation(trans);
     west_wall.set_material(wall_material.clone());
 
     // east wall
     let mut east_wall = Shape::new_plane(Plane::new(), "plane".to_string());
-    let trans = &Matrix::rotate_y(1.5708) * &Matrix::rotate_z(1.5708);
+    let trans = &Matrix::rotate_y(FRAC_PI_2) * &Matrix::rotate_z(FRAC_PI_2);
     let trans = &trans * &Matrix::translation(5.0, 0., 0.0);
     east_wall.set_transformation(trans);
     east_wall.set_material(wall_material.clone());
 
     // north wall
     let mut north_wall = Shape::new_plane(Plane::new(), "plane".to_string());
-    let trans = Matrix::rotate_x(1.5708);
+    let trans = Matrix::rotate_x(FRAC_PI_2);
     let trans = &trans * &Matrix::translation(0.0, 0., 5.0);
     north_wall.set_transformation(trans);
     north_wall.set_material(wall_material.clone());
 
     // south wall
     let mut south_wall = Shape::new_plane(Plane::new(), "plane".to_string());
-    let trans = Matrix::rotate_x(1.5708);
+    let trans = Matrix::rotate_x(FRAC_PI_2);
     let trans = &trans * &Matrix::translation(0.0, 0., -5.0);
     south_wall.set_transformation(trans);
     south_wall.set_material(wall_material.clone());

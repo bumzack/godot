@@ -9,7 +9,7 @@ pub type ShapeIdx = usize;
 pub type ShapeArr = Vec<Shape>;
 pub type LightArr = Vec<Light>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct World {
     shapes: ShapeArr,
     lights: LightArr,
@@ -445,15 +445,6 @@ pub fn default_world_empty() -> World {
     w
 }
 
-impl Default for World {
-    fn default() -> Self {
-        World {
-            shapes: vec![],
-            lights: vec![],
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
@@ -489,7 +480,7 @@ mod tests {
 
         let shapes = w.get_shapes();
         let shape = shapes.get(0).unwrap();
-        let i = Intersection::new(4.0, &shape);
+        let i = Intersection::new(4.0, shape);
 
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
@@ -517,7 +508,7 @@ mod tests {
 
         let shapes = w.get_shapes();
         let shape = shapes.get(1).unwrap();
-        let i = Intersection::new(0.5, &shape);
+        let i = Intersection::new(0.5, shape);
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
@@ -620,7 +611,7 @@ mod tests {
         let shapes = w.get_shapes();
         let shape = shapes.get(1).unwrap();
 
-        let i = Intersection::new(4.0, &shape);
+        let i = Intersection::new(4.0, shape);
 
         let comps = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
         let c = World::shade_hit(&w, &comps, MAX_REFLECTION_RECURSION_DEPTH);
@@ -930,7 +921,7 @@ mod tests {
         let s = &w.get_shapes()[0];
 
         let i1 = Intersection::new(4.0, s);
-        let i2 = Intersection::new(6.0, &s);
+        let i2 = Intersection::new(6.0, s);
 
         let mut xs = IntersectionList::new();
         xs.add(i1);

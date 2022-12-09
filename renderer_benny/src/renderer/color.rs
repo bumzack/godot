@@ -18,19 +18,19 @@ pub struct Color {
 }
 
 pub trait ColorOps {
-    fn new(r: f32, g: f32, b: f32) -> Color;
-    fn from_color(c: &Color) -> Color;
+    fn new(r: f32, g: f32, b: f32) -> Self;
+    fn from_color(c: &Color) -> Self;
     fn fix_nan(&mut self);
     fn clamp_color(&mut self);
     fn replace_inf_with_max(&mut self);
 }
 
 impl ColorOps for Color {
-    fn new(r: f32, g: f32, b: f32) -> Color {
+    fn new(r: f32, g: f32, b: f32) -> Self {
         Color { r, g, b }
     }
 
-    fn from_color(c: &Color) -> Color {
+    fn from_color(c: &Color) -> Self {
         Color { r: c.r, g: c.g, b: c.b }
     }
 

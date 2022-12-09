@@ -160,12 +160,12 @@ impl Default for BoundingBox {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::PI;
+    use std::f64::consts::{PI, SQRT_2};
 
     use crate::basics::{Ray, RayOps};
     use crate::math::{assert_tuple, Matrix, MatrixOps, Tuple};
-    use crate::prelude::{Csg, Cylinder, Shape, ShapeOps, Sphere};
-    use crate::shape::{CsgOp, Cube, Group, Plane, SmoothTriangle, Triangle};
+    use crate::prelude::{Cylinder, Shape, ShapeOps, Sphere};
+    use crate::shape::{Cube, Plane, SmoothTriangle, Triangle};
 
     use super::*;
 
@@ -192,8 +192,8 @@ mod tests {
     fn test_creating_bounding_box_with_volume() {
         let min = Tuple4D::new_point(-1.0, -2.0, -3.0);
         let max = Tuple4D::new_point(1.0, 2.0, 3.0);
-        let min_c = min.clone();
-        let max_c = max.clone();
+        let min_c = min;
+        let max_c = max;
 
         let bb = BoundingBox::new_from_min_max(min, max);
 
@@ -403,7 +403,7 @@ mod tests {
 
         let n = Tuple4D::new_vector(1.0, 1.0, 1.0);
 
-        let triangle = SmoothTriangle::new(p1, p2, p3, n.clone(), n.clone(), n);
+        let triangle = SmoothTriangle::new(p1, p2, p3, n, n, n);
         let shape = Shape::new_smooth_triangle(triangle, "smooth triangle".to_string());
 
         let shapes = vec![];
@@ -494,7 +494,7 @@ mod tests {
 
         data.iter().for_each(|d| {
             println!("comparing {:?}  / {:?}   ==>   {}", &d.0, d.1, d.2);
-            let box2 = BoundingBox::new_from_min_max(d.0.clone(), d.1.clone());
+            let box2 = BoundingBox::new_from_min_max(d.0, d.1);
             let x = b.contains_box(&box2);
             println!("x = {}", x);
             assert_eq!(x, d.2)
@@ -512,8 +512,8 @@ mod tests {
         let matrix = &Matrix::rotate_x(PI / 4.0) * &Matrix::rotate_y(PI / 4.0);
         let b2 = BoundingBox::transform(&b, &matrix);
 
-        let min = Tuple4D::new_point(-1.414213562373095, -1.7071067811865475, -1.7071067811865475);
-        let max = Tuple4D::new_point(1.414213562373095, 1.7071067811865475, 1.7071067811865475);
+        let min = Tuple4D::new_point(-SQRT_2, -1.7071067811865475, -1.7071067811865475);
+        let max = Tuple4D::new_point(SQRT_2, 1.7071067811865475, 1.7071067811865475);
 
         assert_eq!(b2.get_min().x, min.x);
         assert_eq!(b2.get_min().y, min.y);
@@ -548,69 +548,69 @@ mod tests {
 
     // bonus bounding box
     // A group has a bounding box that contains its children
-    #[test]
-    fn test_bounding_box_that_contains_its_children() {
-        let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
-        let trans = &Matrix::translation(2.0, 5.0, -3.0) * &Matrix::scale(2.0, 2.0, 2.0);
-        sphere.set_transformation(trans);
-
-        let mut cylinder = Cylinder::new();
-        cylinder.set_minimum(-2.0);
-        cylinder.set_maximum(2.0);
-        let mut cylinder = Shape::new_cylinder(cylinder, "cylinder".to_string());
-        let trans = &Matrix::translation(-4.0, -1.0, 4.0) * &Matrix::scale(0.5, 1.0, 0.5);
-        cylinder.set_transformation(trans);
-
-        let mut shapes = vec![];
-        let group_idx = Group::new(&mut shapes, "group".to_string());
-
-        let _child1_idx = Group::add_child(&mut shapes, group_idx, sphere);
-        let _child2_idx = Group::add_child(&mut shapes, group_idx, cylinder);
-        let group = shapes.get(group_idx as usize).unwrap();
-
-        let bb = group.get_bounds_of(&shapes);
-
-        let min = Tuple4D::new_point(-4.5, -3.0, -5.0);
-        let max = Tuple4D::new_point(4., 7.0, 4.5);
-
-        assert_eq!(bb.get_min().x, min.x);
-        assert_eq!(bb.get_min().y, min.y);
-        assert_eq!(bb.get_min().z, min.z);
-
-        assert_eq!(bb.get_max().x, max.x);
-        assert_eq!(bb.get_max().y, max.y);
-        assert_eq!(bb.get_max().z, max.z);
-    }
+    // #[test]
+    // fn test_bounding_box_that_contains_its_children() {
+    //     let mut sphere = Shape::new_sphere(Sphere::new(), "sphere".to_string());
+    //     let trans = &Matrix::translation(2.0, 5.0, -3.0) * &Matrix::scale(2.0, 2.0, 2.0);
+    //     sphere.set_transformation(trans);
+    //
+    //     let mut cylinder = Cylinder::new();
+    //     cylinder.set_minimum(-2.0);
+    //     cylinder.set_maximum(2.0);
+    //     let mut cylinder = Shape::new_cylinder(cylinder, "cylinder".to_string());
+    //     let trans = &Matrix::translation(-4.0, -1.0, 4.0) * &Matrix::scale(0.5, 1.0, 0.5);
+    //     cylinder.set_transformation(trans);
+    //
+    //     let mut shapes = vec![];
+    //     let group_idx = Group::new(&mut shapes, "group".to_string());
+    //
+    //     let _child1_idx = Group::add_child(&mut shapes, group_idx, sphere);
+    //     let _child2_idx = Group::add_child(&mut shapes, group_idx, cylinder);
+    //     let group = shapes.get(group_idx as usize).unwrap();
+    //
+    //     let bb = group.get_bounds_of(&shapes);
+    //
+    //     let min = Tuple4D::new_point(-4.5, -3.0, -5.0);
+    //     let max = Tuple4D::new_point(4., 7.0, 4.5);
+    //
+    //     assert_eq!(bb.get_min().x, min.x);
+    //     assert_eq!(bb.get_min().y, min.y);
+    //     assert_eq!(bb.get_min().z, min.z);
+    //
+    //     assert_eq!(bb.get_max().x, max.x);
+    //     assert_eq!(bb.get_max().y, max.y);
+    //     assert_eq!(bb.get_max().z, max.z);
+    // }
 
     // bonus bounding box
     // A CSG shape  has a bounding box that contains its children
-    #[test]
-    fn test_bounding_csg_that_contains_its_children() {
-        let mut left = Shape::new_sphere(Sphere::new(), "sphere".to_string());
-        let trans = Matrix::translation(2.0, 3.0, 4.0);
-        left.set_transformation(trans);
-
-        let right = Shape::new_sphere(Sphere::new(), "sphere".to_string());
-
-        let mut shapes = vec![];
-        let csg = Csg::new(&mut shapes, "csg".to_string(), CsgOp::DIFFERENCE);
-        Csg::add_child(&mut shapes, csg, left, right);
-
-        let csg = shapes.get(csg as usize).unwrap();
-
-        let bb = csg.get_bounds_of(&shapes);
-
-        let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
-        let max = Tuple4D::new_point(3.0, 4.0, 5.0);
-
-        assert_eq!(bb.get_min().x, min.x);
-        assert_eq!(bb.get_min().y, min.y);
-        assert_eq!(bb.get_min().z, min.z);
-
-        assert_eq!(bb.get_max().x, max.x);
-        assert_eq!(bb.get_max().y, max.y);
-        assert_eq!(bb.get_max().z, max.z);
-    }
+    // #[test]
+    // fn test_bounding_csg_that_contains_its_children() {
+    //     let mut left = Shape::new_sphere(Sphere::new(), "sphere".to_string());
+    //     let trans = Matrix::translation(2.0, 3.0, 4.0);
+    //     left.set_transformation(trans);
+    //
+    //     let right = Shape::new_sphere(Sphere::new(), "sphere".to_string());
+    //
+    //     let mut shapes = vec![];
+    //     let csg = Csg::new(&mut shapes, "csg".to_string(), CsgOp::DIFFERENCE);
+    //     Csg::add_child(&mut shapes, csg, left, right);
+    //
+    //     let csg = shapes.get(csg as usize).unwrap();
+    //
+    //     let bb = csg.get_bounds_of(&shapes);
+    //
+    //     let min = Tuple4D::new_point(-1.0, -1.0, -1.0);
+    //     let max = Tuple4D::new_point(3.0, 4.0, 5.0);
+    //
+    //     assert_eq!(bb.get_min().x, min.x);
+    //     assert_eq!(bb.get_min().y, min.y);
+    //     assert_eq!(bb.get_min().z, min.z);
+    //
+    //     assert_eq!(bb.get_max().x, max.x);
+    //     assert_eq!(bb.get_max().y, max.y);
+    //     assert_eq!(bb.get_max().z, max.z);
+    // }
 
     // bonus bounding box
     // Intersecting  a bounding box with a ray at the origin
