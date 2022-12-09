@@ -1,4 +1,4 @@
-use crate::prelude::{BLACK, Color};
+use crate::prelude::{Color, BLACK};
 
 #[derive(Clone, Debug)]
 pub struct Pixel {

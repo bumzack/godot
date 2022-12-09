@@ -1,8 +1,8 @@
 use std::fmt;
 
 use crate::basics::{Intersection, IntersectionList, IntersectionListOps, IntersectionOps, Ray};
-use crate::math::{ MatrixOps, Tuple4D};
-use crate::prelude::{Shape, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
+use crate::math::{MatrixOps, Tuple4D};
+use crate::prelude::{Matrix, Shape, ShapeArr, ShapeEnum, ShapeIdx, ShapeIntersectOps, ShapeOps};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum CsgOp {
