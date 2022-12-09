@@ -18,7 +18,7 @@ impl Neuron {
             weights.push(ValueRefV2::new_value(y, format!("weight {}", i)));
         }
         let bias: f64 = between.sample(&mut rng);
-        let bias = ValueRefV2::new_value(bias, format!("bias"));
+        let bias = ValueRefV2::new_value(bias, "bias".to_string());
         Neuron { weights, bias }
     }
 
@@ -103,7 +103,7 @@ impl MLP {
         MLP { layers }
     }
 
-    fn forward_internal<'a>(&'a self, xinp: &Vec<f64>) -> Vec<ValueRefV2> {
+    fn forward_internal(&self, xinp: &[f64]) -> Vec<ValueRefV2> {
         let mut x = xinp
             .iter()
             .map(|x| ValueRefV2::new_value(*x, "x".to_string()))
@@ -121,7 +121,7 @@ impl MLP {
         params
     }
 
-    pub fn forward(&self, xs: &Vec<Vec<f64>>) -> Vec<ValueRefV2> {
+    pub fn forward(&self, xs: &[Vec<f64>]) -> Vec<ValueRefV2> {
         let mut y_pred: Vec<ValueRefV2> = vec![];
         for x in xs.iter() {
             let y = self.forward_internal(x);
@@ -169,7 +169,7 @@ impl MLP {
     }
 }
 
-pub fn calc_loss_mse(ys: &Vec<f64>, y_pred: &Vec<ValueRefV2>) -> ValueRefV2 {
+pub fn calc_loss_mse(ys: &[f64], y_pred: &[ValueRefV2]) -> ValueRefV2 {
     let loss_vec: Vec<ValueRefV2> = y_pred
         .iter()
         .zip(ys.iter())
@@ -185,7 +185,7 @@ pub fn calc_loss_mse(ys: &Vec<f64>, y_pred: &Vec<ValueRefV2>) -> ValueRefV2 {
     loss
 }
 
-pub fn print_predictions(y_pred: Vec<ValueRefV2>, y_expected: &Vec<f64>) {
+pub fn print_predictions(y_pred: Vec<ValueRefV2>, y_expected: &[f64]) {
     y_pred.iter().enumerate().for_each(|(idx, y)| {
         let res = (y.get_data() - y_expected[idx]).abs() < EPS2;
         println!(

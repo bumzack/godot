@@ -48,7 +48,7 @@ impl Vertex {
 
     pub fn transform(&self, transform_matrix: &Matrix, normal_transform_matrix: &Matrix) -> Vertex {
         let pos_transformed = transform_matrix * &self.pos;
-        let tex_coords = self.tex_coords.clone();
+        let tex_coords = self.tex_coords;
         let normal_transformed = normal_transform_matrix * &self.normal;
 
         Vertex::new(pos_transformed, tex_coords, normal_transformed)
@@ -57,8 +57,8 @@ impl Vertex {
     pub fn perspective_divide(&self) -> Vertex {
         Vertex::new(
             Tuple4D::new(self.x() / self.w(), self.y() / self.w(), self.z() / self.w(), self.w()),
-            self.tex_coords.clone(),
-            self.normal.clone(),
+            self.tex_coords,
+            self.normal,
         )
     }
 
@@ -97,9 +97,9 @@ impl Vertex {
 
 impl core::fmt::Display for Vertex {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Vertex\n");
-        write!(f, "     pos             = {}\n", self.pos);
-        write!(f, "     tex_coords      = {}\n", self.tex_coords);
-        write!(f, "     normal          = {}\n", self.normal)
+        writeln!(f, "Vertex").unwrap();
+        writeln!(f, "     pos             = {} ", self.pos).unwrap();
+        writeln!(f, "     tex_coords      = {} ", self.tex_coords).unwrap();
+        writeln!(f, "     normal          = {} ", self.normal)
     }
 }

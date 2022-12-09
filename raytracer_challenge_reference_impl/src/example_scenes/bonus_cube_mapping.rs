@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::f64::consts::FRAC_PI_4;
 
 use crate::prelude::{
     Camera, CameraOps, Color, ColorOps, Cube, CubeChecker, CubeFace, CubeTexturePattern, Light, MaterialOps, Matrix,
@@ -26,8 +27,8 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
 
     // cube 1
     let trans = Matrix::translation(-6.0, 2., 0.0);
-    let rot_x = Matrix::rotate_x(0.7854);
-    let rot_y = Matrix::rotate_y(0.7854);
+    let rot_x = Matrix::rotate_x(FRAC_PI_4);
+    let rot_y = Matrix::rotate_y(FRAC_PI_4);
     let transform = &(&trans * &rot_x) * &rot_y;
 
     let mut cube1 = cube();
@@ -36,7 +37,7 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
 
     // cube 2
     let trans = Matrix::translation(-2.0, 2.0, 0.0);
-    let rot_x = Matrix::rotate_x(0.7854);
+    let rot_x = Matrix::rotate_x(FRAC_PI_4);
     let rot_y = Matrix::rotate_y(2.356);
     let transform = &(&trans * &rot_x) * &rot_y;
 
@@ -46,7 +47,7 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
 
     // cube 3
     let trans = Matrix::translation(2.0, 2.0, 0.0);
-    let rot_x = Matrix::rotate_x(0.7854);
+    let rot_x = Matrix::rotate_x(FRAC_PI_4);
     let rot_y = Matrix::rotate_y(3.927);
     let transform = &(&trans * &rot_x) * &rot_y;
     let mut cube3 = cube();
@@ -55,7 +56,7 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
 
     // cube 4
     let trans = Matrix::translation(6.0, 2.0, 0.0);
-    let rot_x = Matrix::rotate_x(0.7854);
+    let rot_x = Matrix::rotate_x(FRAC_PI_4);
     let rot_y = Matrix::rotate_y(5.4978);
     let transform = &(&trans * &rot_x) * &rot_y;
     let mut cube4 = cube();
@@ -63,15 +64,15 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
     w.add_shape(cube4);
 
     let trans = Matrix::translation(-6.0, -2., 0.0);
-    let rot_x = Matrix::rotate_x(-0.7854);
-    let rot_y = Matrix::rotate_y(0.7854);
+    let rot_x = Matrix::rotate_x(-FRAC_PI_4);
+    let rot_y = Matrix::rotate_y(FRAC_PI_4);
     let transform = &(&trans * &rot_x) * &rot_y;
     let mut cube5 = cube();
     cube5.set_transformation(transform);
     w.add_shape(cube5);
 
     let trans = Matrix::translation(-2.0, -2., 0.0);
-    let rot_x = Matrix::rotate_x(-0.7854);
+    let rot_x = Matrix::rotate_x(-FRAC_PI_4);
     let rot_y = Matrix::rotate_y(2.3562);
     let transform = &(&trans * &rot_x) * &rot_y;
     let mut cube6 = cube();
@@ -79,7 +80,7 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
     w.add_shape(cube6);
 
     let trans = Matrix::translation(2.0, -2., 0.0);
-    let rot_x = Matrix::rotate_x(-0.7854);
+    let rot_x = Matrix::rotate_x(-FRAC_PI_4);
     let rot_y = Matrix::rotate_y(3.927);
     let transform = &(&trans * &rot_x) * &rot_y;
     let mut cube7 = cube();
@@ -87,7 +88,7 @@ fn bonus_cube_mapping(width: usize, height: usize) -> (World, Camera) {
     w.add_shape(cube7);
 
     let trans = Matrix::translation(6.0, -2., 0.0);
-    let rot_x = Matrix::rotate_x(-0.7854);
+    let rot_x = Matrix::rotate_x(-FRAC_PI_4);
     let rot_y = Matrix::rotate_y(5.4978);
     let transform = &(&trans * &rot_x) * &rot_y;
     let mut cube8 = cube();

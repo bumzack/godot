@@ -1,6 +1,7 @@
 extern crate num_cpus;
 
 use std::error::Error;
+use std::f64::consts::FRAC_PI_4;
 use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::*;
@@ -99,7 +100,7 @@ fn setup_world_shadow_glamour<'a>(size_factor: f64, antialiasing: bool, antialia
     w.add_shape(sphere1);
     w.add_shape(sphere2);
 
-    let mut c = Camera::new(width, height, 0.78540);
+    let mut c = Camera::new(width, height, FRAC_PI_4);
     c.set_antialiasing(antialiasing);
     c.set_antialiasing_size(antialiasing_size);
 

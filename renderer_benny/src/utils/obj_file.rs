@@ -68,10 +68,10 @@ impl ObjModel {
         for line in reader.lines() {
             let l = line?;
 
-            let tokens: Vec<&str> = l.split(" ").collect();
+            let tokens: Vec<&str> = l.split(' ').collect();
             let tokens: Vec<String> = tokens.iter().map(|t| t.to_string()).filter(|t| !t.is_empty()).collect();
 
-            if tokens.len() == 0 || tokens[0].eq("#") {
+            if tokens.is_empty() || tokens[0].eq("#") {
                 continue;
             } else if tokens[0].eq("v") {
                 obj_model.positions.push(Tuple4D::new(
@@ -123,7 +123,7 @@ impl ObjModel {
         // println!("to_indexed_model      self.positions.len() = {}", self.positions.len());
 
         for i in 0..self.indices.len() {
-            let current_index = self.indices.get(i).unwrap().clone();
+            let current_index = self.indices.get(i).unwrap();
             let current_position = self.positions.get(current_index.vertex_index).unwrap();
             let current_tex_coord;
             let current_normal;
@@ -144,7 +144,7 @@ impl ObjModel {
 
             if !result_index_map.contains_key(&current_index) {
                 model_vertex_index = result.positions().len();
-                result_index_map.insert(current_index, model_vertex_index);
+                result_index_map.insert(*current_index, model_vertex_index);
 
                 result.positions_mut().push(*current_position);
                 result.tex_coords_mut().push(current_tex_coord);

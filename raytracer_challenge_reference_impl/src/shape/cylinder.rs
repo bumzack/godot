@@ -186,7 +186,7 @@ mod tests {
     // page 180
     fn test_ray_cylinder_intersection_intersection_helper(origin: Tuple4D, mut direction: Tuple4D, t1: f64, t2: f64) {
         direction = Tuple4D::normalize(&direction);
-        let r = Ray::new(origin.clone(), direction.clone());
+        let r = Ray::new(origin, direction);
 
         let shape = Shape::new_cylinder(Cylinder::new(), "cylinder".to_string());
         let shapes = vec![];
@@ -291,7 +291,7 @@ mod tests {
         cylinder.set_maximum(2.0);
         direction = Tuple4D::normalize(&direction);
 
-        let r = Ray::new(point.clone(), direction.clone());
+        let r = Ray::new(point, direction);
 
         let shape = Shape::new_cylinder(cylinder, "cylinder".to_string());
         let shapes = vec![];
@@ -350,7 +350,7 @@ mod tests {
         cylinder.set_closed(true);
         direction = Tuple4D::normalize(&direction);
 
-        let r = Ray::new(point.clone(), direction.clone());
+        let r = Ray::new(point, direction);
 
         let shape = Shape::new_cylinder(cylinder, "cylinder".to_string());
         let shapes = vec![];

@@ -6,10 +6,10 @@ use crate::basics::ray::RayOps;
 use crate::material::material::MaterialOps;
 use crate::math::common::EPSILON_OVER_UNDER;
 use crate::math::tuple4d::{Tuple, Tuple4D};
-use crate::prelude::{Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, Triangle};
+use crate::prelude::{Csg, Cylinder, Group, Plane, ShapeArr, ShapeIntersectOps, ShapeOps, Triangle};
 use crate::shape::shape::{Shape, ShapeEnum};
 use crate::shape::sphere::Sphere;
-use crate::shape::{Csg, Cube};
+use crate::shape::Cube;
 use crate::world::world::World;
 use crate::world::world::WorldOps;
 
@@ -24,7 +24,7 @@ pub struct Intersection<'a> {
 }
 
 pub trait IntersectionOps<'a> {
-    fn new(t: f64, shape: &'a Shape) -> Intersection<'a>;
+    fn new(t: f64, shape: &'a Shape) -> Self;
     fn new_u_v(t: f64, shape: &'a Shape, u: f64, v: f64) -> Intersection<'a>;
     fn intersect(shape: &'a Shape, r: &'a Ray, shapes: &'a ShapeArr) -> IntersectionList<'a>;
     fn intersect_world(w: &'a World, r: &'a Ray) -> IntersectionList<'a>;
@@ -215,7 +215,7 @@ pub struct IntersectionList<'a> {
 }
 
 pub trait IntersectionListOps<'a> {
-    fn new() -> IntersectionList<'a>;
+    fn new() -> Self;
     fn add(&mut self, i: Intersection<'a>);
 
     fn hit(&self) -> Option<&Intersection<'a>>;
