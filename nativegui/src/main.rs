@@ -36,8 +36,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         thread::current().id()
     });
 
-    let win_width = (scene_width+100)as u32;
-    let win_height = (scene_height+200)as u32;
+    let win_width = (scene_width + 100) as u32;
+    let win_height = (scene_height + 200) as u32;
     let opengl = piston_window::OpenGL::V4_5;
     let mut window: piston_window::PistonWindow =
         piston_window::WindowSettings::new("piston: image", [win_width, win_height])
