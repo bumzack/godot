@@ -131,17 +131,17 @@ fn setup_world(
     let filename = "/Users/gsc/stoff/lernen/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot01.obj";
     println!("filename {}", filename);
 
-    let teapot = Parser::parse_obj_file(&filename);
-
-    let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
-    let idx = teapot_group.get(0).unwrap();
-    let teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
-
-    // let trans = &(&Matrix::rotate_y(-PI/8.0)* &Matrix::rotate_x(-PI/4.0)) * &Matrix::scale(0.4,0.4,0.34) ;
-    let trans = &Matrix::rotate_x(-PI / 4.0) * &Matrix::scale(0.4, 0.4, 0.4);
-    teapot.set_transformation(trans);
-
-    println!("teapot_group index {}", teapot_group.get(0).unwrap());
+    // let teapot = Parser::parse_obj_file(&filename);
+    //
+    // let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
+    // let idx = teapot_group.get(0).unwrap();
+    // let teapot = w.get_shapes_mut().get_mut(*idx as usize).unwrap();
+    //
+    // // let trans = &(&Matrix::rotate_y(-PI/8.0)* &Matrix::rotate_x(-PI/4.0)) * &Matrix::scale(0.4,0.4,0.34) ;
+    // let trans = &Matrix::rotate_x(-PI / 4.0) * &Matrix::scale(0.4, 0.4, 0.4);
+    // teapot.set_transformation(trans);
+    //
+    // println!("teapot_group index {}", teapot_group.get(0).unwrap());
 
     let mut c = Camera::new(width as usize, height as usize, pov);
     c.calc_pixel_size();

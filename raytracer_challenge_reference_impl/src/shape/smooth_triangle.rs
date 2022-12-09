@@ -224,7 +224,7 @@ mod tests {
 
         let n_expected = Tuple4D::new_vector(-0.5547, 0.83205, 0.0);
 
-        assert_tuple(&n, &n_expected);
+        assert_tuple(n, &n_expected);
     }
 
     fn setup_smooth_triangle() -> (SmoothTriangle, Tuple4D, Tuple4D, Tuple4D, Tuple4D, Tuple4D, Tuple4D) {
@@ -236,13 +236,13 @@ mod tests {
         let n2 = Tuple4D::new_vector(-1.0, 0.0, 0.0);
         let n3 = Tuple4D::new_vector(1.0, 0.0, 0.0);
 
-        let p1_clone = p1.clone();
-        let p2_clone = p2.clone();
-        let p3_clone = p3.clone();
+        let p1_clone = p1;
+        let p2_clone = p2;
+        let p3_clone = p3;
 
-        let n1_clone = n1.clone();
-        let n2_clone = n2.clone();
-        let n3_clone = n3.clone();
+        let n1_clone = n1;
+        let n2_clone = n2;
+        let n3_clone = n3;
 
         let t = SmoothTriangle::new(p1, p2, p3, n1, n2, n3);
 

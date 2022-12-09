@@ -1,18 +1,11 @@
 extern crate piston_window;
 
-use std::f32::consts::PI;
-use std::path::PathBuf;
-use std::process::exit;
-use std::thread;
-use std::time::{Duration, Instant};
-
-use piston_window::math::mul;
-use piston_window::{clear, text, Button, Key, PistonWindow, PressEvent, TextureContext, WindowSettings};
-
-use render_benny::prelude::{Game, MonkeyDisplay};
-
 use crate::piston_window::EventLoop;
 use crate::piston_window::Transformed;
+use piston_window::{clear, text, Button, Key, PressEvent, WindowSettings};
+use render_benny::prelude::{Game, MonkeyDisplay};
+use std::path::PathBuf;
+use std::time::{Duration, Instant};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let win_width = 1600;
@@ -95,7 +88,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let img_transform = c.transform.trans(0.0, 0.0);
 
                 piston_window::image(&t, img_transform, g);
-                let dur = Instant::now() - start;
+                //           let dur = Instant::now() - start;
                 // println!("drawing image in piston window {:?}", dur);
             });
 

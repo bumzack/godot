@@ -1,5 +1,4 @@
 use std::f64::consts::PI;
-use std::process::exit;
 use std::time::Instant;
 
 use micrograd_rs::micrograd_rs_engine_v2::{print_predictions, MLP};
@@ -75,11 +74,11 @@ fn main() {
     let duration = start.elapsed();
     println!("training took {:?}", duration);
 
-    plot_result(&model, &x, &y);
+    plot_result(&model, &x, &y).unwrap();
     println!("DONE");
 }
 
-fn plot_result(model: &MLP, x: &Vec<Vec<f64>>, y: &Vec<f64>) -> Result<(), Box<dyn std::error::Error>> {
+fn plot_result(model: &MLP, x: &Vec<Vec<f64>>, y: &[f64]) -> Result<(), Box<dyn std::error::Error>> {
     // dont know how to draw a contour plot using plotters -> so just evaluate the model for a lot of (x,y) coordinate pairs and draw a lot og point
     let x_min = 0.0_f64;
     let x_max = 2.0_f64;
@@ -90,7 +89,7 @@ fn plot_result(model: &MLP, x: &Vec<Vec<f64>>, y: &Vec<f64>) -> Result<(), Box<d
     let steps = 75;
 
     let delta_x = (x_max - x_min) / steps as f64;
-    let delta_y = (x_max - x_min) / steps as f64;
+    let delta_y = (y_max - y_min) / steps as f64;
 
     let mut res = vec![];
 
@@ -162,8 +161,8 @@ fn plot_result(model: &MLP, x: &Vec<Vec<f64>>, y: &Vec<f64>) -> Result<(), Box<d
 }
 
 pub fn calc_loss_max_margin(
-    y_ground_truth: &Vec<f64>,
-    y_pred: &Vec<ValueRefV2>,
+    y_ground_truth: &[f64],
+    y_pred: &[ValueRefV2],
     parameters: Vec<ValueRefV2>,
 ) -> (ValueRefV2, f64) {
     let loss_vec: Vec<ValueRefV2> = y_pred
@@ -205,7 +204,7 @@ fn create_moondata(n: usize, noise: f64) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<f
     let (x1, y1) = create_half_cirle(center_x, center_y, n, true, noise);
     let (x2, y2) = create_half_cirle(center_x + 0.5, center_y + 0.25, n, false, noise);
 
-    draw_chart("moondata.png".to_string(), &x1, &y1, RED, &x2, &y2, BLUE);
+    draw_chart("moondata.png".to_string(), &x1, &y1, RED, &x2, &y2, BLUE).unwrap();
     (x1, y1, x2, y2)
 }
 
@@ -234,11 +233,11 @@ fn create_half_cirle(center_x: f64, center_y: f64, n: usize, upper_half: bool, n
 
 fn draw_chart(
     filename: String,
-    x1: &Vec<f64>,
-    y1: &Vec<f64>,
+    x1: &[f64],
+    y1: &[f64],
     color1: RGBColor,
-    x2: &Vec<f64>,
-    y2: &Vec<f64>,
+    x2: &[f64],
+    y2: &[f64],
     color2: RGBColor,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(&filename, (800, 600)).into_drawing_area();

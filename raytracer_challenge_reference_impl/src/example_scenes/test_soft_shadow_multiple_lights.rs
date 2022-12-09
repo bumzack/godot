@@ -3,6 +3,7 @@ use crate::prelude::{
     Sequence, Shape, ShapeOps, Sphere, Tuple, Tuple4D, WorldOps,
 };
 use crate::world::World;
+use std::f64::consts::FRAC_PI_4;
 
 pub fn test_soft_shadow_multiple_lights(
     width: usize,
@@ -112,7 +113,7 @@ pub fn test_soft_shadow_multiple_lights(
     w.add_shape(sphere1);
     w.add_shape(sphere2);
 
-    let mut c = Camera::new(width, height, 0.78540);
+    let mut c = Camera::new(width, height, FRAC_PI_4);
     c.set_antialiasing(antialiasing);
     c.set_antialiasing_size(antialiasing_size);
 

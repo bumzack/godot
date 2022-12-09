@@ -15,11 +15,10 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(projection: Matrix) -> Camera {
-        let c = Camera {
+        Camera {
             transform: Transform::new(),
-            projection: projection,
-        };
-        c
+            projection,
+        }
     }
 
     pub fn view_projection(&self) -> &Matrix {

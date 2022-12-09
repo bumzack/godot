@@ -516,7 +516,7 @@ impl CameraOps for Camera {
 impl Camera {
     fn raytrace_pixel(
         n_samples: usize,
-        jitter_matrix: &Vec<f64>,
+        jitter_matrix: &[f64],
         c_clone: &Camera,
         w_clone: &World,
         x: usize,
@@ -655,8 +655,8 @@ mod tests {
         let origin_expected = Tuple4D::new_point(0.0, 0.0, 0.0);
         let direction_expected = Tuple4D::new_vector(0.0, 0.0, -1.0);
 
-        assert_tuple(&r.get_origin(), &origin_expected);
-        assert_tuple(&r.get_direction(), &direction_expected);
+        assert_tuple(r.get_origin(), &origin_expected);
+        assert_tuple(r.get_direction(), &direction_expected);
     }
 
     // page 103 part 2
@@ -675,8 +675,8 @@ mod tests {
         println!("direction             = {:?}", &r.get_direction());
         println!("direction_expected    = {:?}", direction_expected);
 
-        assert_tuple(&r.get_origin(), &origin_expected);
-        assert_tuple(&r.get_direction(), &direction_expected);
+        assert_tuple(r.get_origin(), &origin_expected);
+        assert_tuple(r.get_direction(), &direction_expected);
     }
 
     // page 103 part 3
@@ -695,8 +695,8 @@ mod tests {
         let expected_origin = Tuple4D::new_point(0.0, 2.0, -5.0);
         let expected_direction = Tuple4D::new_vector(SQRT_2 / 2.0, 0.0, -SQRT_2 / 2.0);
 
-        assert_tuple(&r.get_origin(), &expected_origin);
-        assert_tuple(&r.get_direction(), &expected_direction);
+        assert_tuple(r.get_origin(), &expected_origin);
+        assert_tuple(r.get_direction(), &expected_direction);
     }
 
     // page 104

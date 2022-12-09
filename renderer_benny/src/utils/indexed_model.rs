@@ -29,7 +29,7 @@ impl IndexedModel {
             let v1 = self.positions.get(i1).unwrap() - self.positions.get(i0).unwrap();
             let v2 = self.positions.get(i2).unwrap() - self.positions.get(i0).unwrap();
 
-            let normal = Tuple4D::normalize(&(&v1 * &v2));
+            let normal = Tuple4D::normalize(&(v1 * v2));
 
             let n = self.normals.get(i0).unwrap() + &normal;
             self.normals[i0] = n;

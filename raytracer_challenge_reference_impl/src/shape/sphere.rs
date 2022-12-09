@@ -159,8 +159,8 @@ mod tests {
         let m_expected = Matrix::new_identity_4x4();
         let met_m_inv_expected = Matrix::invert(&m_expected).unwrap();
 
-        assert_matrix(&s.get_transformation(), &m_expected);
-        assert_matrix(&s.get_inverse_transformation(), &met_m_inv_expected);
+        assert_matrix(s.get_transformation(), &m_expected);
+        assert_matrix(s.get_inverse_transformation(), &met_m_inv_expected);
     }
 
     // page 69
@@ -171,8 +171,8 @@ mod tests {
         s.set_transformation(m);
         let m = Matrix::translation(2.0, 3.0, 4.0);
         let m_inv = Matrix::invert(&m).unwrap();
-        assert_matrix(&s.get_transformation(), &m);
-        assert_matrix(&s.get_inverse_transformation(), &m_inv);
+        assert_matrix(s.get_transformation(), &m);
+        assert_matrix(s.get_inverse_transformation(), &m_inv);
     }
 
     // page 69 bottom

@@ -72,22 +72,22 @@ mod tests {
 
         let (u, v) = (0.5, 0.5);
         let c = uv_align_check_pattern_at(&pattern, u, v);
-        assert_color(&c, &main);
+        assert_color(c, &main);
 
         let (u, v) = (0.1, 0.9);
         let c = uv_align_check_pattern_at(&pattern, u, v);
-        assert_color(&c, &ul);
+        assert_color(c, &ul);
 
         let (u, v) = (0.9, 0.9);
         let c = uv_align_check_pattern_at(&pattern, u, v);
-        assert_color(&c, &ur);
+        assert_color(c, &ur);
 
         let (u, v) = (0.1, 0.1);
         let c = uv_align_check_pattern_at(&pattern, u, v);
-        assert_color(&c, &bl);
+        assert_color(c, &bl);
 
         let (u, v) = (0.9, 0.1);
         let c = uv_align_check_pattern_at(&pattern, u, v);
-        assert_color(&c, &br);
+        assert_color(c, &br);
     }
 }

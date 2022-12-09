@@ -1,8 +1,8 @@
 use std::f64::consts::PI;
 
 use crate::prelude::{
-    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, ObjFileOps, Parser, Sequence,
-    Shape, ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
+    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Parser, Sequence, Shape,
+    ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
 };
 
 pub fn chapter15_non_smoothed_teapot(
@@ -89,10 +89,10 @@ pub fn chapter15_non_smoothed_teapot(
     let filename = "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot.obj";
     println!("filename {}", filename);
 
-    let teapot = Parser::parse_obj_file(&filename);
-
-    let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
-    println!("teapot_group index {}", teapot_group.get(0).unwrap());
+    //let teapot = Parser::parse_obj_file(filename);
+    //
+    // let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
+    // println!("teapot_group index {}", teapot_group.get(0).unwrap());
 
     let mut c = Camera::new(width as usize, height as usize, pov);
     c.calc_pixel_size();

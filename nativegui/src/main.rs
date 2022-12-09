@@ -7,10 +7,10 @@ use std::process::exit;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crossbeam_channel::{Receiver, Sender, unbounded};
-use piston_window::{Button, clear, Key, PistonWindow, PressEvent, text, TextureContext, WindowSettings};
+use crossbeam_channel::{unbounded, Receiver, Sender};
 use piston_window::image::Image;
 use piston_window::math::mul;
+use piston_window::{clear, text, Button, Key, PistonWindow, PressEvent, TextureContext, WindowSettings};
 
 use raytracer_challenge_reference_impl::basics::{Canvas, TileData};
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;
@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let render_thread = thread::spawn(move || {
         println!("starting renderer thread");
 
-        let (world, camera) = test_soft_shadow_multiple_lights(scene_width, scene_height,false,3);
+        let (world, camera) = test_soft_shadow_multiple_lights(scene_width, scene_height, false, 3);
 
         Camera::render_multi_core_tile_producer(&camera, &world, 5, 5, sender);
 
@@ -99,7 +99,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             buffer_all[idx + 3] = 255;
                         });
 
-
                         true
                     }
                     Err(e) => {
@@ -141,7 +140,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     &img,
                     &piston_window::TextureSettings::new(),
                 )
-                    .unwrap();
+                .unwrap();
 
                 piston_window::image(&t, img_transform, g);
 

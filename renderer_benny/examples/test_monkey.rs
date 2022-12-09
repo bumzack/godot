@@ -99,7 +99,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn show_bitmap(c: &Canvas) {
     let opengl = piston_window::OpenGL::V3_2;
-    let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [800, 600])
+    let window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [800, 600])
         .exit_on_esc(true)
         .graphics_api(opengl)
         .build()
@@ -123,7 +123,6 @@ fn show_bitmap(c: &Canvas) {
     .unwrap();
 
     // window.set_lazy(true);
-    let mut previous = Instant::now();
     let mut frame = 0;
     while let Some(e) = window.next() {
         window.draw_2d(&e, |c, g, _| {

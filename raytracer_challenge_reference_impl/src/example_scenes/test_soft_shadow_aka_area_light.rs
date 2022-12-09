@@ -3,14 +3,15 @@ use crate::prelude::{
     ShapeOps, Sphere, Tuple, Tuple4D, World,
 };
 use crate::world::WorldOps;
+use std::f64::consts::FRAC_PI_4;
 
-pub fn test_soft_shadow_aka_area_light<'a>(
+pub fn test_soft_shadow_aka_area_light(
     size_factor: f64,
     antialiasing: bool,
     antialiasing_size: usize,
 ) -> (World, Camera) {
-    let width = (400 as f64 * size_factor) as usize;
-    let height = (160 as f64 * size_factor) as usize;
+    let width = (400.0 * size_factor) as usize;
+    let height = (160.0 * size_factor) as usize;
 
     let corner = Tuple4D::new_point(-1.0, 2.0, 4.0);
     let uvec = Tuple4D::new_vector(2.0, 0.0, 0.0);
@@ -77,7 +78,7 @@ pub fn test_soft_shadow_aka_area_light<'a>(
     w.add_shape(sphere1);
     w.add_shape(sphere2);
 
-    let mut c = Camera::new(width, height, 0.78540);
+    let mut c = Camera::new(width, height, FRAC_PI_4);
     c.set_antialiasing(antialiasing);
     c.set_antialiasing_size(antialiasing_size);
 

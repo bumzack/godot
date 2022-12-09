@@ -130,10 +130,10 @@ fn setup_world(
     let filename = "/Users/bumzack/stoff/rust/godot/raytracer_challenge_reference_impl/downloaded_obj_files/teapot.obj";
     println!("filename {}", filename);
 
-    let teapot = Parser::parse_obj_file(&filename);
-
-    let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
-    println!("teapot_group index {}", teapot_group.get(0).unwrap());
+    // let teapot = Parser::parse_obj_file(&filename);
+    //
+    // let teapot_group = teapot.get_groups("teapot".to_string(), w.get_shapes_mut());
+    // println!("teapot_group index {}", teapot_group.get(0).unwrap());
 
     let mut c = Camera::new(width as usize, height as usize, pov);
     c.calc_pixel_size();

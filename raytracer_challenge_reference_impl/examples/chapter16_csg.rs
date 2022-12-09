@@ -1,6 +1,7 @@
 extern crate num_cpus;
 
 use std::error::Error;
+use std::f64::consts::FRAC_PI_4;
 
 use raytracer_challenge_reference_impl::prelude::*;
 
@@ -109,8 +110,10 @@ fn setup_world_csg<'a>(
     sphere2.set_transformation(m);
 
     let mut w = World::new();
-    let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::DIFFERENCE);
-    Csg::add_child(w.get_shapes_mut(), csg, sphere1, sphere2);
+
+    // TODO
+    // let csg = Csg::new(w.get_shapes_mut(), "first_csg".to_string(), CsgOp::DIFFERENCE);
+    // Csg::add_child(w.get_shapes_mut(), csg, sphere1, sphere2);
 
     w.add_light(area_light);
     w.add_shape(cube);
@@ -118,7 +121,7 @@ fn setup_world_csg<'a>(
     // w.add_shape(sphere1);
     // w.add_shape(sphere2);
 
-    let mut c = Camera::new(width, height, 0.78540);
+    let mut c = Camera::new(width, height, FRAC_PI_4);
     c.set_antialiasing(antialiasing);
     c.set_antialiasing_size(antialiasing_size);
 

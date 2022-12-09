@@ -20,7 +20,7 @@ pub trait Tuple {
     fn new_vector_from(v: &Tuple4D) -> Tuple4D;
     fn new_point(x: f32, y: f32, z: f32) -> Tuple4D;
     fn new_point_from(v: &Tuple4D) -> Tuple4D;
-    fn new(x: f32, y: f32, z: f32, w: f32) -> Tuple4D;
+    fn new(x: f32, y: f32, z: f32, w: f32) -> Self;
     fn empty() -> Tuple4D;
 
     fn is_point(a: &Tuple4D) -> bool;
@@ -58,13 +58,8 @@ impl Tuple for Tuple4D {
         }
     }
     #[inline]
-    fn new_vector(x: f32, y: f32, z: f32) -> Tuple4D {
-        Tuple4D {
-            x: x,
-            y: y,
-            z: z,
-            w: 0.0,
-        }
+    fn new_vector(x: f32, y: f32, z: f32) -> Self {
+        Tuple4D { x, y, z, w: 0.0 }
     }
     #[inline]
     fn new_vector_from(v: &Tuple4D) -> Tuple4D {
