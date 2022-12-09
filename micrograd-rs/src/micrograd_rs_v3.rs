@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 use std::rc::Rc;
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq)]
 pub enum OpEnumV3 {
     NONE,
     ADD,
@@ -421,6 +421,12 @@ impl AddAssign for ValueRefV3 {
     }
 }
 
+impl AddAssign<&ValueRefV3> for ValueRefV3 {
+    fn add_assign(&mut self, rhs: &ValueRefV3) {
+        *self = self.clone() + rhs.clone()
+    }
+}
+
 impl SubAssign for ValueRefV3 {
     fn sub_assign(&mut self, rhs: ValueRefV3) {
         *self = self.clone() - rhs
@@ -815,25 +821,19 @@ impl Debug for ValueRefV3 {
     }
 }
 
-pub const EPS: f64 = 0.0001;
-pub const EPS2: f64 = 0.3;
-
-pub fn assert_two_float(a: f64, b: f64) {
-    assert!((a - b).abs() < EPS);
-}
-
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
 
     use crate::graph_v3::draw_graph;
-    use crate::micrograd_rs_v3::{assert_two_float, ValueRefV3, EPS};
+    use crate::micrograd_rs_v3::ValueRefV3;
+    use crate::{assert_float, EPS};
 
     // before starting to add grad
     // https://youtu.be/VMj-3S1tku0?t=1875
     #[test]
     pub fn test_video() {
-        let a = ValueRefV3::new_value(2.0, "a".to_string());
+        let a = ValueRefV3::new_value(2.0 as f64, "a".to_string());
         let b = ValueRefV3::new_value(-3.0, "b".to_string());
         let c = ValueRefV3::new_value(10.0, "c".to_string());
         let f = ValueRefV3::new_value(-2.0, "f".to_string());
@@ -847,29 +847,29 @@ mod tests {
         let mut l = &d * &f;
         l.set_label("L".to_string());
 
-        assert_two_float(l.borrow().data, -8.0);
+        assert_float(l.borrow().data, -8.0);
     }
 
     #[test]
     pub fn test_add() {
-        let a = ValueRefV3::new_value(2.0, "a".to_string());
+        let a = ValueRefV3::new_value(2.0 as f64, "a".to_string());
         let b = ValueRefV3::new_value(3.0, "b".to_string());
 
         let mut x = &a + &b;
         x.set_label("x".to_string());
 
-        assert_two_float(x.borrow().data, 5.0);
+        assert_float(x.borrow().data, 5.0);
     }
 
     #[test]
     pub fn test_mul() {
-        let a = ValueRefV3::new_value(2.0, "a".to_string());
+        let a = ValueRefV3::new_value(2.0 as f64, "a".to_string());
         let b = ValueRefV3::new_value(3.0, "b".to_string());
 
         let mut x = &a * &b;
         x.set_label("x".to_string());
 
-        assert_two_float(x.borrow().data, 6.0);
+        assert_float(x.borrow().data, 6.0);
     }
 
     // https://youtu.be/VMj-3S1tku0?t=4977
@@ -889,18 +889,18 @@ mod tests {
 
         println!("b {}", b);
 
-        assert_two_float(b.borrow().data, 6.0);
+        assert_float(b.borrow().data, 6.0);
 
         draw_graph(b, "test_a_plus_a".to_string());
 
-        assert_two_float(a.get_grad(), 2.0);
+        assert_float(a.get_grad(), 2.0);
     }
 
     #[test]
     pub fn test_value_plus_f64_rhs() {
         let a = ValueRefV3::new_value(3.0, "a".to_string());
-        let mut b = &a + 1.0;
-        assert_two_float(b.borrow().data, 4.0);
+        let mut b = &a + 1.0 as f64;
+        assert_float(b.borrow().data, 4.0);
         b.backward();
         draw_graph(b, "test_a_plus_f64_rhs".to_string());
     }
@@ -908,9 +908,9 @@ mod tests {
     #[test]
     pub fn test_value_plus_f64_lhs() {
         let a = ValueRefV3::new_value(4.0, "a".to_string());
-        let mut b = 23.0 + &a;
+        let mut b = 23.0 as f64 + &a;
         b.backward();
-        assert_two_float(b.borrow().data, 27.0);
+        assert_float(b.borrow().data, 27.0);
 
         draw_graph(b, "test_a_plus_f64_lhs".to_string());
     }
@@ -918,8 +918,8 @@ mod tests {
     #[test]
     pub fn test_value_mul_f64_rhs() {
         let a = ValueRefV3::new_value(3.0, "a".to_string());
-        let mut b = &a * 3.0;
-        assert_two_float(b.borrow().data, 9.0);
+        let mut b = &a * 3.0 as f64;
+        assert_float(b.borrow().data, 9.0);
         b.backward();
         draw_graph(b, "test_a_mul_f64_rhs".to_string());
     }
@@ -927,9 +927,9 @@ mod tests {
     #[test]
     pub fn test_value_mul_f64_lhs() {
         let a = ValueRefV3::new_value(4.0, "a".to_string());
-        let mut b = 23.0 * &a;
+        let mut b = 23.0 as f64 * &a;
         b.backward();
-        assert_two_float(b.borrow().data, 92.0);
+        assert_float(b.borrow().data, 92.0);
 
         draw_graph(b, "test_a_mul_f64_lhs".to_string());
     }
@@ -940,7 +940,7 @@ mod tests {
         let b = ValueRefV3::new_value(2.0, "b".to_string());
         let mut c = &a / &b;
         c.backward();
-        assert_two_float(c.borrow().data, 2.0);
+        assert_float(c.borrow().data, 2.0);
 
         draw_graph(c, "test_a_div_b".to_string());
     }
@@ -952,7 +952,7 @@ mod tests {
         let mut b = a.exp();
 
         b.backward();
-        assert_two_float(b.borrow().data, expected);
+        assert_float(b.borrow().data, expected);
 
         draw_graph(b, "test_exp_4".to_string());
     }
@@ -965,7 +965,7 @@ mod tests {
         let mut b = a.pow(b);
 
         b.backward();
-        assert_two_float(b.borrow().data, expected);
+        assert_float(b.borrow().data, expected);
 
         draw_graph(b, "test_pow".to_string());
     }
@@ -979,7 +979,7 @@ mod tests {
         c.set_label("c".to_string());
 
         c.backward();
-        assert_two_float(c.borrow().data, expected);
+        assert_float(c.borrow().data, expected);
 
         draw_graph(c, "test_sub".to_string());
     }
@@ -993,9 +993,29 @@ mod tests {
         c.set_label("c".to_string());
 
         c.backward();
-        assert_two_float(c.borrow().data, expected);
+        assert_float(c.borrow().data, expected);
 
         draw_graph(c, "test_sub".to_string());
+    }
+
+    #[test]
+    pub fn test_value_addassign() {
+        let expected = 4.0 + 23.0;
+        let a = ValueRefV3::new_value(4.0, "a".to_string());
+        let mut b = ValueRefV3::new_value(23.0, "b".to_string());
+        b += &a + 0.0;
+        b.backward();
+        assert_float(b.borrow().data, expected);
+    }
+
+    #[test]
+    pub fn test_value_addassign2() {
+        let expected = 4.0 + 23.0;
+        let a = ValueRefV3::new_value(4.0, "a".to_string());
+        let mut b = ValueRefV3::new_value(23.0, "b".to_string());
+        b += &a;
+        b.backward();
+        assert_float(b.borrow().data, expected);
     }
 
     // https://github.com/karpathy/micrograd
@@ -1011,8 +1031,8 @@ mod tests {
         d += 3.0 * &d + (&b - &a).relu(); //         d += 3 * d + (b - a).relu()
         let mut e = &c - &d; //         e = c - d
         let mut f = (&e).pow(2.0); //         f = e**2
-        let mut g = &f / 2.0; //         g = f / 2.0
-        g += 10.0 / &f; //         g += 10.0 / f
+        let mut g = &f / 2.0 as f64; //         g = f / 2.0
+        g += 10.0 as f64 / &f; //         g += 10.0 / f
 
         g.backward();
 
@@ -1053,7 +1073,7 @@ mod tests {
             g.get_data(),
             (g_value_expected - g.get_data()).abs() < EPS
         );
-        assert_two_float(g_value_expected, g.get_data());
+        assert_float(g_value_expected, g.get_data());
 
         println!("grad f expected {}, actual {}   ", f_grad_expected, f.get_grad());
         println!("grad e expected {}, actual {}   ", e_grad_expected, e.get_grad());
@@ -1062,12 +1082,12 @@ mod tests {
         println!("grad b expected {}, actual {}   ", b_grad_expected, b.get_grad());
         println!("grad a expected {}, actual {}   ", a_grad_expected, a.get_grad());
 
-        assert_two_float(f_grad_expected, f.get_grad());
-        assert_two_float(e_grad_expected, e.get_grad());
-        assert_two_float(d_grad_expected, d.get_grad());
-        assert_two_float(c_grad_expected, c.get_grad());
-        assert_two_float(b_grad_expected, b.get_grad());
-        assert_two_float(a_grad_expected, a.get_grad());
+        assert_float(f_grad_expected, f.get_grad());
+        assert_float(e_grad_expected, e.get_grad());
+        assert_float(d_grad_expected, d.get_grad());
+        assert_float(c_grad_expected, c.get_grad());
+        assert_float(b_grad_expected, b.get_grad());
+        assert_float(a_grad_expected, a.get_grad());
 
         // draw_graph(g, "test_all_math_ops_graph".to_string());
     }
@@ -1084,10 +1104,10 @@ mod tests {
         c.set_label("c".to_string());
 
         c.backward();
-        assert_two_float(c.borrow().data, expected);
+        assert_float(c.borrow().data, expected);
 
-        assert_two_float(a.get_grad(), 1.0);
-        assert_two_float(b.get_grad(), 1.0);
+        assert_float(a.get_grad(), 1.0);
+        assert_float(b.get_grad(), 1.0);
     }
 
     #[test]
@@ -1106,10 +1126,10 @@ mod tests {
         println!("c actual  {}  expected {}", c.borrow().data, expected);
         println!("a.grad  {} ", a.get_grad());
         println!("b.grad  {} ", b.get_grad());
-        assert_two_float(c.borrow().data, expected);
+        assert_float(c.borrow().data, expected);
 
-        assert_two_float(a.get_grad(), 1.0);
-        assert_two_float(b.get_grad(), -1.0);
+        assert_float(a.get_grad(), 1.0);
+        assert_float(b.get_grad(), -1.0);
     }
 
     #[test]
@@ -1128,10 +1148,10 @@ mod tests {
         println!("c actual  {}  expected {}", c.borrow().data, expected);
         println!("a.grad  {} ", a.get_grad());
         println!("b.grad  {} ", b.get_grad());
-        assert_two_float(c.borrow().data, expected);
+        assert_float(c.borrow().data, expected);
 
-        assert_two_float(a.get_grad(), b_f64);
-        assert_two_float(b.get_grad(), a_f64);
+        assert_float(a.get_grad(), b_f64);
+        assert_float(b.get_grad(), a_f64);
     }
 
     #[test]
@@ -1150,10 +1170,10 @@ mod tests {
         println!("c actual  {}  expected {}", c.borrow().data, expected);
         println!("a.grad  {} ", a.get_grad());
         println!("b.grad  {} ", b.get_grad());
-        assert_two_float(c.borrow().data, expected);
+        assert_float(c.borrow().data, expected);
 
-        assert_two_float(a.get_grad(), 0.5);
-        assert_two_float(b.get_grad(), -1.75);
+        assert_float(a.get_grad(), 0.5);
+        assert_float(b.get_grad(), -1.75);
     }
 
     pub fn test_relu(a_f64: f64, c_expected: f64, a_grad_expected: f64) {
@@ -1165,9 +1185,9 @@ mod tests {
 
         println!("c actual  {}  expected {}", c.borrow().data, c_expected);
         println!("a.grad  {} ", a.get_grad());
-        assert_two_float(c.borrow().data, c_expected);
+        assert_float(c.borrow().data, c_expected);
 
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1200,8 +1220,8 @@ mod tests {
 
         println!("c actual  {}  expected {}", c.borrow().data, c_expected);
         println!("a.grad  {} ", a.get_grad());
-        assert_two_float(c.get_data(), c_expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(c.get_data(), c_expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1237,8 +1257,8 @@ mod tests {
 
         println!("c actual  {}  expected {}", c.borrow().data, c_expected);
         println!("a.grad  {} ", a.get_grad());
-        assert_two_float(c.borrow().data, c_expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(c.borrow().data, c_expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1289,31 +1309,31 @@ mod tests {
 
         println!("x1 grad  expected {},  actual {}", -1.5, x1.get_grad());
         println!("w1 grad  expected {},  actual {}", 1.0, w1.get_grad());
-        assert_two_float(x1.get_grad(), -1.5);
-        assert_two_float(w1.get_grad(), 1.0);
+        assert_float(x1.get_grad(), -1.5);
+        assert_float(w1.get_grad(), 1.0);
 
         println!("x2 grad  expected {},  actual {}", 0.5, x2.get_grad());
         println!("w2 grad  expected {},  actual {}", 0.0, w2.get_grad());
-        assert_two_float(x2.get_grad(), 0.5);
-        assert_two_float(w2.get_grad(), 0.0);
+        assert_float(x2.get_grad(), 0.5);
+        assert_float(w2.get_grad(), 0.0);
 
         println!("w1x1 data  expected {},  actual {}", -6.0, w1x1.get_data());
         println!("w2x2 data  expected {},  actual {}", 0.0, w2x2.get_data());
 
-        assert_two_float(w1x1.get_data(), -6.0);
-        assert_two_float(w2x2.get_data(), 0.0);
+        assert_float(w1x1.get_data(), -6.0);
+        assert_float(w2x2.get_data(), 0.0);
 
         println!("w1x1 grad  expected {},  actual {}", 0.5, w1x1.get_grad());
         println!("w2x2 grad  expected {},  actual {}", 0.5, w2x2.get_grad());
 
-        assert_two_float(w1x1.get_grad(), 0.5);
-        assert_two_float(w2x2.get_grad(), 0.5);
+        assert_float(w1x1.get_grad(), 0.5);
+        assert_float(w2x2.get_grad(), 0.5);
 
         println!("b  data  expected {},  actual {}", 6.881373587019, b.get_data());
         println!("b  grad  expected {},  actual {}", 0.5, b.get_grad());
 
-        assert_two_float(b.get_data(), 6.881373587019);
-        assert_two_float(b.get_grad(), 0.5);
+        assert_float(b.get_data(), 6.881373587019);
+        assert_float(b.get_grad(), 0.5);
 
         println!(
             "w1x1_plus_w2x2 data  expected {},  actual {}",
@@ -1326,26 +1346,26 @@ mod tests {
             w1x1_plus_w2x2.get_grad()
         );
 
-        assert_two_float(w1x1_plus_w2x2.get_data(), -6.0);
-        assert_two_float(w1x1_plus_w2x2.get_grad(), 0.5);
+        assert_float(w1x1_plus_w2x2.get_data(), -6.0);
+        assert_float(w1x1_plus_w2x2.get_grad(), 0.5);
 
         println!("n data  expected {},  actual {}", 0.8814, n.get_data());
         println!("n grad  expected {},  actual {}", 0.5, n.get_grad());
 
-        assert_two_float(n.get_data(), 0.8814);
-        assert_two_float(n.get_grad(), 0.5);
+        assert_float(n.get_data(), 0.8814);
+        assert_float(n.get_grad(), 0.5);
 
         println!("e data  expected {},  actual {}", 5.8284, e.get_data());
         println!("e grad  expected {},  actual {}", 0.0429, e.get_grad());
 
-        assert_two_float(e.get_data(), 5.8284);
-        assert_two_float(e.get_grad(), 0.0429);
+        assert_float(e.get_data(), 5.8284);
+        assert_float(e.get_grad(), 0.0429);
 
         println!("o data  expected {},  actual {}", SQRT_2 / 2.0, o.get_data());
         println!("o grad  expected {},  actual {}", 1.0, o.get_grad());
 
-        assert_two_float(o.get_data(), SQRT_2 / 2.0);
-        assert_two_float(o.get_grad(), 1.0);
+        assert_float(o.get_data(), SQRT_2 / 2.0);
+        assert_float(o.get_grad(), 1.0);
     }
 
     #[test]
@@ -1372,31 +1392,31 @@ mod tests {
 
         println!("x1 grad  expected {},  actual {}", -1.5, x1.get_grad());
         println!("w1 grad  expected {},  actual {}", 1.0, w1.get_grad());
-        assert_two_float(x1.get_grad(), -1.5);
-        assert_two_float(w1.get_grad(), 1.0);
+        assert_float(x1.get_grad(), -1.5);
+        assert_float(w1.get_grad(), 1.0);
 
         println!("x2 grad  expected {},  actual {}", 0.5, x2.get_grad());
         println!("w2 grad  expected {},  actual {}", 0.0, w2.get_grad());
-        assert_two_float(x2.get_grad(), 0.5);
-        assert_two_float(w2.get_grad(), 0.0);
+        assert_float(x2.get_grad(), 0.5);
+        assert_float(w2.get_grad(), 0.0);
 
         println!("w1x1 data  expected {},  actual {}", -6.0, w1x1.get_data());
         println!("w2x2 data  expected {},  actual {}", 0.0, w2x2.get_data());
 
-        assert_two_float(w1x1.get_data(), -6.0);
-        assert_two_float(w2x2.get_data(), 0.0);
+        assert_float(w1x1.get_data(), -6.0);
+        assert_float(w2x2.get_data(), 0.0);
 
         println!("w1x1 grad  expected {},  actual {}", 0.5, w1x1.get_grad());
         println!("w2x2 grad  expected {},  actual {}", 0.5, w2x2.get_grad());
 
-        assert_two_float(w1x1.get_grad(), 0.5);
-        assert_two_float(w2x2.get_grad(), 0.5);
+        assert_float(w1x1.get_grad(), 0.5);
+        assert_float(w2x2.get_grad(), 0.5);
 
         println!("b  data  expected {},  actual {}", 6.881373587019, b.get_data());
         println!("b  grad  expected {},  actual {}", 0.5, b.get_grad());
 
-        assert_two_float(b.get_data(), 6.881373587019);
-        assert_two_float(b.get_grad(), 0.5);
+        assert_float(b.get_data(), 6.881373587019);
+        assert_float(b.get_grad(), 0.5);
 
         println!(
             "w1x1_plus_w2x2 data  expected {},  actual {}",
@@ -1409,20 +1429,20 @@ mod tests {
             w1x1_plus_w2x2.get_grad()
         );
 
-        assert_two_float(w1x1_plus_w2x2.get_data(), -6.0);
-        assert_two_float(w1x1_plus_w2x2.get_grad(), 0.5);
+        assert_float(w1x1_plus_w2x2.get_data(), -6.0);
+        assert_float(w1x1_plus_w2x2.get_grad(), 0.5);
 
         println!("n data  expected {},  actual {}", 0.8814, n.get_data());
         println!("n grad  expected {},  actual {}", 0.5, n.get_grad());
 
-        assert_two_float(n.get_data(), 0.8814);
-        assert_two_float(n.get_grad(), 0.5);
+        assert_float(n.get_data(), 0.8814);
+        assert_float(n.get_grad(), 0.5);
 
         println!("o data  expected {},  actual {}", SQRT_2 / 2.0, o.get_data());
         println!("o grad  expected {},  actual {}", 1.0, o.get_grad());
 
-        assert_two_float(o.get_data(), SQRT_2 / 2.0);
-        assert_two_float(o.get_grad(), 1.0);
+        assert_float(o.get_data(), SQRT_2 / 2.0);
+        assert_float(o.get_grad(), 1.0);
     }
 
     #[test]
@@ -1435,8 +1455,8 @@ mod tests {
         c.backward();
 
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-        assert_two_float(c.get_data(), expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(c.get_data(), expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1449,8 +1469,8 @@ mod tests {
         c.backward();
 
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-        assert_two_float(c.get_data(), expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(c.get_data(), expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1467,9 +1487,9 @@ mod tests {
 
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
         println!("b.grad   expected {},   actual {}", b_grad_expected, b.get_grad());
-        assert_two_float(c.get_data(), expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
-        assert_two_float(b.get_grad(), b_grad_expected);
+        assert_float(c.get_data(), expected);
+        assert_float(a.get_grad(), a_grad_expected);
+        assert_float(b.get_grad(), b_grad_expected);
 
         let topo = ValueRefV3::traverse(&c);
         topo.iter().for_each(|t| println!("topo   {}", t));
@@ -1479,7 +1499,6 @@ mod tests {
     // see micrograd_test_topo.py
     // he uses a set for the children and in case of an c = a + a
     // the variable a is only once in the children set
-
     #[test]
     pub fn test_mul_same_variable_topo() {
         let a = -5.0_f64;
@@ -1495,8 +1514,8 @@ mod tests {
         c.backward();
 
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-        assert_two_float(c.get_data(), expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(c.get_data(), expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1509,8 +1528,8 @@ mod tests {
         c.backward();
 
         println!("a.grad   expected {},   actual {}", a_grad_expected, a.get_grad());
-        assert_two_float(c.get_data(), expected);
-        assert_two_float(a.get_grad(), a_grad_expected);
+        assert_float(c.get_data(), expected);
+        assert_float(a.get_grad(), a_grad_expected);
     }
 
     #[test]
@@ -1539,13 +1558,13 @@ mod tests {
         println!("a grad {}   expected {}", b.get_grad(), b_grad_expected);
         println!("a grad {}   expected {}", c.get_grad(), c_grad_expected);
 
-        assert_two_float(a.get_data(), a_expected);
-        assert_two_float(b.get_data(), b_expected);
-        assert_two_float(c.get_data(), c_expected);
+        assert_float(a.get_data(), a_expected);
+        assert_float(b.get_data(), b_expected);
+        assert_float(c.get_data(), c_expected);
 
-        assert_two_float(a.get_grad(), a_grad_expected);
-        assert_two_float(b.get_grad(), b_grad_expected);
-        assert_two_float(c.get_grad(), c_grad_expected);
+        assert_float(a.get_grad(), a_grad_expected);
+        assert_float(b.get_grad(), b_grad_expected);
+        assert_float(c.get_grad(), c_grad_expected);
     }
 
     #[test]
@@ -1585,12 +1604,12 @@ mod tests {
         println!("b grad {}   expected {}", b.get_grad(), b_grad_expected);
         println!("c grad {}   expected {}", c.get_grad(), c_grad_expected);
 
-        assert_two_float(a.get_data(), a_expected);
-        assert_two_float(b.get_data(), b_expected);
-        assert_two_float(c.get_data(), c_expected);
+        assert_float(a.get_data(), a_expected);
+        assert_float(b.get_data(), b_expected);
+        assert_float(c.get_data(), c_expected);
 
-        assert_two_float(a.get_grad(), a_grad_expected);
-        assert_two_float(b.get_grad(), b_grad_expected);
-        assert_two_float(c.get_grad(), c_grad_expected);
+        assert_float(a.get_grad(), a_grad_expected);
+        assert_float(b.get_grad(), b_grad_expected);
+        assert_float(c.get_grad(), c_grad_expected);
     }
 }
