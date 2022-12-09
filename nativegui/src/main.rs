@@ -23,21 +23,21 @@ use crate::piston_window::Transformed;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (sender, recv) = unbounded::<TileData>();
 
-    let scene_width = 640;
-    let scene_height = 480;
+    let scene_width = 800;
+    let scene_height = 600;
 
     let render_thread = thread::spawn(move || {
         println!("starting renderer thread");
 
         let (world, camera) = test_soft_shadow_multiple_lights(scene_width, scene_height, false, 3);
 
-        Camera::render_multi_core_tile_producer(&camera, &world, 5, 5, sender);
+        Camera::render_multi_core_tile_producer(&camera, &world, 20, 20, sender);
 
         thread::current().id()
     });
 
-    let win_width = 1080;
-    let win_height = 600;
+    let win_width = (scene_width+100)as u32;
+    let win_height = (scene_height+200)as u32;
     let opengl = piston_window::OpenGL::V4_5;
     let mut window: piston_window::PistonWindow =
         piston_window::WindowSettings::new("piston: image", [win_width, win_height])
@@ -46,12 +46,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .build()
             .unwrap();
 
-    let fps = 25;
+    let fps = 60;
 
     let assets = PathBuf::from("/Users/bumzack/stoff/rust/godot/renderer_benny/res/");
 
     let mut glyphs = window.load_font(assets.join("FiraSans-Regular.ttf")).unwrap();
-    let mut window = window.max_fps(fps * 4);
+    let mut window = window.max_fps(fps * 2);
 
     let mut previous = Instant::now();
     // window.set_lazy(true);
