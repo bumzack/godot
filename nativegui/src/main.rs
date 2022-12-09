@@ -3,18 +3,14 @@ extern crate image;
 extern crate piston_window;
 
 use std::path::PathBuf;
-use std::process::exit;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crossbeam_channel::{unbounded, Receiver, Sender};
-use piston_window::image::Image;
-use piston_window::math::mul;
-use piston_window::{clear, text, Button, Key, PistonWindow, PressEvent, TextureContext, WindowSettings};
+use crossbeam_channel::unbounded;
+use piston_window::{clear, text, Button, Key, PressEvent, TextureContext};
 
-use raytracer_challenge_reference_impl::basics::{Canvas, TileData};
+use raytracer_challenge_reference_impl::basics::TileData;
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;
-use raytracer_challenge_reference_impl::example_scenes::test_soft_shadow_multiple_lights::test_soft_shadow_multiple_lights;
 use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, CanvasOps};
 
 use crate::piston_window::EventLoop;
@@ -28,11 +24,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let render_thread = thread::spawn(move || {
         println!("starting renderer thread");
-
-        let (world, camera) = test_soft_shadow_multiple_lights(scene_width, scene_height, false, 3);
-
+        let (world, camera) = chapter07(scene_width, scene_height);
         Camera::render_multi_core_tile_producer(&camera, &world, 5, 5, sender);
-
         thread::current().id()
     });
 
@@ -101,7 +94,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                         true
                     }
-                    Err(e) => {
+                    Err(_e) => {
                         // println!("no tile available")
                         false
                     }
