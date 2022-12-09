@@ -1,9 +1,9 @@
 # basic install
 ```
+rustup override set nightly-2019-12-12
+
 cargo install ptx-linker 
-
-rustup override set nightly
-
+ 
 rustup target add nvptx64-nvidia-cuda
 ```
 
@@ -25,7 +25,14 @@ export KERNEL_PTX_PATH_RUST_MANDEL=/home/bumzack/stoff/rust/rustmandel_cuda/ptx/
 export KERNEL_PTX_PATH_RUST_RENDER=/home/bumzack/stoff/rust/raytracer-challenge/ptx/cuda_kernel_raytracer.ptx
 ```
 
+# install llvm 8 ?!
 
 #  gfx crate  & metal problems 
 see here for possible solutions: https://github.com/gfx-rs/gfx/issues/2309
 _
+# last working versions ubuntu 18
+- rustc: rustc 1.41.0-nightly (27d6f55f4 2019-12-11)
+ ```rustup override set nightly-2019-12-12```
+  
+- llvm  8.0.0
+- 

@@ -1,4 +1,18 @@
 # Things ToDo
+
+## reference impl
+- [ ] make the uv mapping functions exchangable (currently they are hardcoded in the traits, but one shoould be able to use the ImageTexture functionality with a plane or a sphere or a ...)
+- [ ] this was omitted, due the generics madness that happened -> find a better/easier way
+- [ ] image texture mapping not working as expected
+- [x] chapter07.rs ¯\_(ツ)_/¯
+- [ ] implement additional test in obj_file.rs (see commented code)
+- [ ] chapter14_hexagon looks wierd, although complex shapes like teapot and suzanne seem to work fine   ¯\_(ツ)_/¯
+- [ ] remove accuracy from loss Trait - this is a highly individual computation
+- [ ] the moondata separation example is not working like the python example
+loss function, update parameters,weight inititalization   ¯\_(ツ)_/¯  reg_loss looks resaonably, data_loss is not getting smaller
+
+## future ToDos
+
 - make a Vec with configured backends in Backend. add a ```get_backends()``` which returns a  list
 of available backends. add a ```get_backend(enumType)  -> Result<Backend, Error>``` to get a backend
 

@@ -1,7 +1,12 @@
 [workspace]
 
 members = [
-    "math",
-    "software_renderer",
-    "utils"
+    "raytracer_challenge_reference_impl",
+    "playground/threadpool_fractal",
+    "curves",
+    "webgui/backend",
+    "micrograd-rs",
+    "renderer_benny",
+    "playground/test-serde-perf",
+    "nativegui"
 ]
