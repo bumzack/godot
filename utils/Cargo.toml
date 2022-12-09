@@ -1,0 +1,10 @@
+[package]
+name = "utils"
+version = "0.1.0"
+authors = ["bumzack"]
+edition = "2018"
+
+[dependencies]
+# maybe move png read/write here?
+image = "0.22"
+math = { path = "../math/" }

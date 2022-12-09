@@ -1,7 +1,6 @@
-use crate::prelude::{Color, BLACK};
+use crate::prelude::{BLACK, Color};
 
 #[derive(Clone, Debug)]
-#[cfg_attr(feature = "use_serde", derive(Deserialize, Serialize))]
 pub struct Pixel {
     pub color: Color,
     pub x: usize,
