@@ -1,2 +1,2 @@
-pub  mod game;
-pub  mod game_speedy;
+pub mod game;
+pub mod game_speedy;

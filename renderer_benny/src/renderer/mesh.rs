@@ -69,13 +69,18 @@ impl Mesh {
         }
     }
 
-    pub fn draw_multi_core(&self, context: &mut RenderContext, view_projection: &Matrix, transform: &Matrix, texture: &Canvas) {
+    pub fn draw_multi_core(
+        &self,
+        context: &mut RenderContext,
+        view_projection: &Matrix,
+        transform: &Matrix,
+        texture: &Canvas,
+    ) {
         let mvp = view_projection * transform;
         let num_cores = num_cpus::get();
 
         println!("using {} cores", num_cores);
         let start = Instant::now();
-
 
         let data = Arc::new(Mutex::new(context));
 
@@ -106,15 +111,21 @@ impl Mesh {
                             let mut acti = cloned_act_i.lock().unwrap();
                             i = *acti;
                             *acti += pixels_per_thread;
-                            println!("   thread_id {:?},    i {}    maxi {}     acti = {},", thread::current().id(), i,max_i, acti);
+                            // println!(
+                            //     "   thread_id {:?},    i {}    maxi {}     acti = {},",
+                            //     thread::current().id(),
+                            //     i,
+                            //     max_i,
+                            //     acti
+                            // );
                         }
 
                         if i > max_i {
                             i = max_i;
                         }
-                        let iterations = if i+pixels_per_thread> max_i {
-                            max_i-i
-                        }else {
+                        let iterations = if i + pixels_per_thread > max_i {
+                            max_i - i
+                        } else {
                             pixels_per_thread
                         };
 
@@ -147,9 +158,9 @@ impl Mesh {
                 );
             }
             let dur = Instant::now() - start;
-            println!("draw_mesh_multi_core took {} ms ", dur.as_millis());
+            println!("draw_mesh_multi_core took {:6.4} ms ", dur.as_millis()/1000);
             data.lock().unwrap()
         })
-            .unwrap();
+        .unwrap();
     }
 }

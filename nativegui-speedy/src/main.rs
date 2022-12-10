@@ -1,4 +1,5 @@
 extern crate crossbeam_channel;
+extern crate rayon;
 extern crate speedy2d;
 
 mod raytracer;
@@ -8,11 +9,10 @@ use crossbeam_channel::unbounded;
 use std::path::PathBuf;
 use std::process::exit;
 use std::thread;
-use std::thread::{JoinHandle, ThreadId};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use raytracer_challenge_reference_impl::prelude::TileData;
-use render_benny::prelude::{GameSpeedy, MonkeyDisplaySpeedy};
+use render_benny::prelude::MonkeyDisplaySpeedy;
 use simple_logger::SimpleLogger;
 use speedy2d::dimen::Vector2;
 use speedy2d::font::Font;
@@ -31,6 +31,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn get_raytracer() -> (Window, MyRaytracer) {
     let scene_width = 3840;
     let scene_height = 2160;
+
+    let scene_width = 3840 / 2;
+    let scene_height = 2160 / 2;
 
     let window_with = scene_width + 40;
     let window_height = scene_height + 100;
@@ -69,6 +72,10 @@ fn get_raytracer() -> (Window, MyRaytracer) {
 fn get_renderer() -> (Window, MyRenderer) {
     let scene_width = 3840;
     let scene_height = 2160;
+
+    let scene_width = 3840 / 2;
+    let scene_height = 2160 / 2;
+
     // let scene_width = 1280;
     // let scene_height = 720;
 
@@ -79,7 +86,7 @@ fn get_renderer() -> (Window, MyRenderer) {
 
     let window = Window::new_centered("Renderer", (window_with, window_height)).unwrap();
 
-    let fps = 15;
+    let fps = 60;
     let dur = (1.0 / fps as f32) * 1000.0 * 1000.0;
     let expected_duration_micro_sec = dur as u128;
 

@@ -1,7 +1,10 @@
 extern crate crossbeam_channel;
 extern crate render_benny;
 extern crate speedy2d;
-
+use crate::rayon::iter::IndexedParallelIterator;
+use crate::rayon::iter::IntoParallelRefIterator;
+use crate::rayon::iter::ParallelIterator;
+use rayon::prelude::IntoParallelRefMutIterator;
 use std::path::PathBuf;
 use std::process::exit;
 use std::thread;
@@ -14,7 +17,7 @@ use speedy2d::image::{ImageDataType, ImageHandle, ImageSmoothingMode};
 use speedy2d::window::{KeyScancode, VirtualKeyCode, WindowHandler, WindowHelper, WindowStartupInfo};
 use speedy2d::Graphics2D;
 
-use render_benny::prelude::{CanvasOps, GameSpeedy};
+use render_benny::prelude::GameSpeedy;
 
 pub struct MyRenderer {
     pub(crate) image: Option<ImageHandle>,
@@ -33,15 +36,19 @@ pub struct MyRenderer {
 impl WindowHandler for MyRenderer {
     fn on_draw(&mut self, helper: &mut WindowHelper, graphics: &mut Graphics2D) {
         let s = Instant::now();
-        let mut render_context = self.game.update(1.0_f32);
-        let dur_update = Instant::now()-s;
-        log::info!("update took {} μs  == {} ms", dur_update.as_micros(),dur_update.as_millis());
-        render_context
-            .canvas()
-            .pixels
-            .iter()
+        let render_context = self.game.update(1.0_f32);
+        let dur_update = Instant::now() - s;
+        log::info!(
+            "update took {} μs  == {:6.4} ms",
+            dur_update.as_micros(),
+            dur_update.as_micros() / 1000
+        );
+        let pixels = &render_context.canvas().pixels;
+        self.buffer
+            .par_iter_mut()
             .enumerate()
-            .for_each(|(idx, p)| self.buffer[idx] = (*p * 255.0) as u8);
+            .for_each(|(idx, pp)| *pp = (pixels[idx] * 255.0) as u8);
+
         let image = graphics
             .create_image_from_raw_pixels(
                 ImageDataType::RGBA,
@@ -73,7 +80,7 @@ impl WindowHandler for MyRenderer {
             0
         };
         let dur = format!(
-            "frame {}, duration {:4.2}, avg {:4.2}, pause {:4.2} = {:4.2} - {:4.2}   (expected_dur - actual_duration)",
+            "frame {:6.4}, duration {:8.4}, avg {:8.4}, pause {:8.4} = {:8.4} - {:8.4}   (expected_dur - actual_duration)",
             self.cnt_frames,
             self.duration.as_micros(),
             avg,
@@ -90,16 +97,16 @@ impl WindowHandler for MyRenderer {
         graphics.draw_text(test_pos, Color::BLACK, &text);
 
         log::info!(
-            "pause {} = {} - {}   (expected_dur - actual_duration)",
+            "pause {:6.4} = {:6.4} - {:6.4}   (expected_dur - actual_duration)",
             pause,
             self.expected_duration_micro_sec,
             self.duration.as_micros()
         );
         if pause > 0 {
-            log::info!("{}  sleeping {}", self.cnt_frames, pause);
+            log::info!("{:6.4}  sleeping {:6.4}", self.cnt_frames, pause);
             thread::sleep(Duration::from_micros(pause as u64));
         } else {
-            log::info!("{}, TOO long {}", self.cnt_frames, self.duration.as_micros());
+            log::info!("{:6.4}, TOO long {:6.4}", self.cnt_frames, self.duration.as_micros());
         }
 
         helper.request_redraw();

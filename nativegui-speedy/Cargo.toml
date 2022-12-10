@@ -17,3 +17,5 @@ simple_logger = { version = "4.0.0", default-features = false, features = ["colo
 log = "0.4.17"
 
 render_benny = { path = "../renderer_benny" }
+
+rayon = "1.6.1"

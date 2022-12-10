@@ -2,7 +2,9 @@ use std::f32::consts::PI;
 use std::path::PathBuf;
 use std::time::Instant;
 
-use crate::prelude::{Camera, Canvas, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quaternion, RenderContext, Transform, Tuple, Tuple4D};
+use crate::prelude::{
+    Camera, Canvas, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quaternion, RenderContext, Transform, Tuple, Tuple4D,
+};
 
 pub trait GameSpeedy {
     fn start(&mut self);
@@ -18,10 +20,7 @@ pub struct MonkeyDisplaySpeedy {
     pub width: usize,
     pub height: usize,
     pub texture: Canvas,
-    pub render_context:RenderContext,
-    // pub sender_buffer: Sender<Vec<u8>>,
-    // pub recv_delta: Receiver<f32>,
-    //pub ctx: TextureContext<Factory, Resources, CommandBuffer>,
+    pub render_context: RenderContext,
 }
 
 impl GameSpeedy for MonkeyDisplaySpeedy {
@@ -37,8 +36,8 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
     fn update(&mut self, frame: f32) -> &RenderContext {
         let start = Instant::now();
         self.camera.update(frame);
-        println!("camera.update  duration  {}", (Instant::now()-start).as_millis());
-         let vp = self.camera.get_view_projection();
+        println!("camera.update  duration  {}", (Instant::now() - start).as_millis());
+        let vp = self.camera.get_view_projection();
 
         let start = Instant::now();
         self.transform = self.transform.rotate(Quaternion::new_from_tuple_and_angle(
@@ -52,11 +51,17 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
 
         println!("target  width {} height {}", self.width, self.height);
 
-        self.mesh
-            .draw(&mut self.render_context, &vp, &self.transform.get_transformation(), &self.texture);
+        self.render_context.clear_buffer();
+        self.render_context.clear_depth_buffer();
+        self.mesh.draw_multi_core(
+            &mut self.render_context,
+            &vp,
+            &self.transform.get_transformation(),
+            &self.texture,
+        );
 
-        let _dur = Instant::now() - start;
-        println!("full update function took  {} ms", _dur.as_millis());
+        let dur = Instant::now() - start;
+        println!("full update function took  {:6.4} ms", dur.as_micros()/1000);
 
         &self.render_context
     }
@@ -65,13 +70,6 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
 impl MonkeyDisplaySpeedy {
     pub fn init(width: usize, height: usize) -> MonkeyDisplaySpeedy {
         let assets = PathBuf::from("/Users/bumzack/stoff/rust/godot/renderer_benny/res/");
-        println!("      {:?}", assets);
-
-        // let width = 1280;
-        // let height = 720;
-
-        // let width = 320;
-        // let height = 200;
 
         let texture = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/renderer_benny/res/bricks2.jpg")
             .expect("could not find asset file");
@@ -97,7 +95,7 @@ impl MonkeyDisplaySpeedy {
             width,
             height,
             texture,
-            render_context
+            render_context,
         }
     }
 }

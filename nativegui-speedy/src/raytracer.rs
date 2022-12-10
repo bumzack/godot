@@ -22,7 +22,7 @@ use speedy2d::{Graphics2D, Window};
 use raytracer_challenge_reference_impl::basics::{Canvas, TileData};
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;
 use raytracer_challenge_reference_impl::example_scenes::test_soft_shadow_multiple_lights::test_soft_shadow_multiple_lights;
-use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps, CanvasOps};
+use raytracer_challenge_reference_impl::prelude::{Camera, CameraOps};
 
 pub struct MyRaytracer {
     pub(crate) image: Option<ImageHandle>,
@@ -98,7 +98,7 @@ impl WindowHandler for MyRaytracer {
             0
         };
         let dur = format!(
-            "frame {}, duration {:4.2}, avg {:4.2}, pause {:4.2} = {:4.2} - {:4.2}   (expected_dur - actual_duration)",
+            "frame  {:8}, duration {:8.4}, avg {:8.4}, pause {:8.4} = {:8.4} - {:8.4}   (expected_dur - actual_duration)",
             self.cnt_frames,
             self.duration.as_micros(),
             avg,
@@ -115,7 +115,7 @@ impl WindowHandler for MyRaytracer {
         graphics.draw_text(test_pos, Color::BLACK, &text);
 
         log::info!(
-            "pause {} = {} - {}   (expected_dur - actual_duration)",
+            "pause {:8} = {:8.4} - {:8.4}   (expected_dur - actual_duration)",
             pause,
             self.expected_duration_micro_sec,
             self.duration.as_micros()
