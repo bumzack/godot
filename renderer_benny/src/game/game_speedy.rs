@@ -7,7 +7,7 @@ use crate::prelude::{Camera, Canvas, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quat
 pub trait GameSpeedy {
     fn start(&mut self);
     fn stop(&mut self);
-    fn update(&mut self, delta: f32) -> RenderContext;
+    fn update(&mut self, delta: f32) -> &RenderContext;
 }
 
 pub struct MonkeyDisplaySpeedy {
@@ -18,6 +18,7 @@ pub struct MonkeyDisplaySpeedy {
     pub width: usize,
     pub height: usize,
     pub texture: Canvas,
+    pub render_context:RenderContext,
     // pub sender_buffer: Sender<Vec<u8>>,
     // pub recv_delta: Receiver<f32>,
     //pub ctx: TextureContext<Factory, Resources, CommandBuffer>,
@@ -33,9 +34,11 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
         self.running = false;
     }
 
-    fn update(&mut self, frame: f32) -> RenderContext {
+    fn update(&mut self, frame: f32) -> &RenderContext {
+        let start = Instant::now();
         self.camera.update(frame);
-        let vp = self.camera.get_view_projection();
+        println!("camera.update  duration  {}", (Instant::now()-start).as_millis());
+         let vp = self.camera.get_view_projection();
 
         let start = Instant::now();
         self.transform = self.transform.rotate(Quaternion::new_from_tuple_and_angle(
@@ -48,14 +51,14 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
         let start = Instant::now();
 
         println!("target  width {} height {}", self.width, self.height);
-        let mut target = RenderContext::new(self.width, self.height);
 
         self.mesh
-            .draw(&mut target, &vp, &self.transform.get_transformation(), &self.texture);
+            .draw(&mut self.render_context, &vp, &self.transform.get_transformation(), &self.texture);
 
         let _dur = Instant::now() - start;
+        println!("full update function took  {} ms", _dur.as_millis());
 
-        target
+        &self.render_context
     }
 }
 
@@ -85,6 +88,7 @@ impl MonkeyDisplaySpeedy {
         let m = Matrix::init_perspective(fov, aspect_ratio, z_near, z_far);
         let camera = Camera::new(m);
 
+        let render_context = RenderContext::new(width, height);
         MonkeyDisplaySpeedy {
             camera,
             running: false,
@@ -93,6 +97,7 @@ impl MonkeyDisplaySpeedy {
             width,
             height,
             texture,
+            render_context
         }
     }
 }

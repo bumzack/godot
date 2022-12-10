@@ -2969,6 +2969,7 @@ dependencies = [
  "futures-util",
  "image 0.24.5",
  "log",
+ "num_cpus",
  "piston",
  "piston_window",
  "pretty_env_logger",
