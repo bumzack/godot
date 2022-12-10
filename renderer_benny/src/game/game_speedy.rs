@@ -61,7 +61,7 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
         );
 
         let dur = Instant::now() - start;
-        println!("full update function took  {:6.4} ms", dur.as_micros()/1000);
+        println!("full update function took  {:6.4} ms", dur.as_micros() / 1000);
 
         &self.render_context
     }

@@ -158,7 +158,7 @@ impl Mesh {
                 );
             }
             let dur = Instant::now() - start;
-            println!("draw_mesh_multi_core took {:6.4} ms ", dur.as_millis()/1000);
+            println!("draw_mesh_multi_core took {:6.4} ms ", dur.as_millis() / 1000);
             data.lock().unwrap()
         })
         .unwrap();
