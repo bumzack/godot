@@ -44,6 +44,7 @@ impl Mesh {
         //println!("transform  {}", transform);
         let mvp = view_projection * transform;
         //println!("mvp  {}", mvp);
+
         for i in (0..self.indices.len() - 3).step_by(3) {
             // println!("draw_traingle:   i = {}, self.vertices.len() = {}", i, self.vertices.len());
             let idx1 = self.indices.get(i).unwrap();

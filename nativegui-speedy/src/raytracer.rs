@@ -9,7 +9,6 @@ use std::time::{Duration, Instant};
 
 use crossbeam_channel::{Receiver, Sender};
 use simple_logger::SimpleLogger;
-use speedy2d::{Graphics2D, Window};
 use speedy2d::color::Color;
 use speedy2d::dimen::{UVec2, Vec2, Vector2};
 use speedy2d::font::{Font, TextLayout, TextOptions};
@@ -18,6 +17,7 @@ use speedy2d::window::{
     KeyScancode, ModifiersState, MouseButton, MouseScrollDistance, VirtualKeyCode, WindowHandler, WindowHelper,
     WindowStartupInfo,
 };
+use speedy2d::{Graphics2D, Window};
 
 use raytracer_challenge_reference_impl::basics::{Canvas, TileData};
 use raytracer_challenge_reference_impl::example_scenes::chapter07::chapter07;

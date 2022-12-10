@@ -10,12 +10,9 @@ use std::time::{Duration, Instant};
 use speedy2d::color::Color;
 use speedy2d::dimen::{UVec2, Vec2};
 use speedy2d::font::{Font, TextLayout, TextOptions};
-use speedy2d::Graphics2D;
 use speedy2d::image::{ImageDataType, ImageHandle, ImageSmoothingMode};
-use speedy2d::window::{
-    KeyScancode, VirtualKeyCode, WindowHandler, WindowHelper,
-    WindowStartupInfo,
-};
+use speedy2d::window::{KeyScancode, VirtualKeyCode, WindowHandler, WindowHelper, WindowStartupInfo};
+use speedy2d::Graphics2D;
 
 use render_benny::prelude::{CanvasOps, GameSpeedy};
 
@@ -26,34 +23,31 @@ pub struct MyRenderer {
     pub(crate) duration_total: Duration,
     pub(crate) cnt_frames: u32,
     pub(crate) font: Font,
-    pub(crate) mouse_pos: Vec2,
-    pub(crate) mouse_button_down: bool,
     pub(crate) scene_width: u32,
     pub(crate) scene_height: u32,
     pub(crate) expected_duration_micro_sec: u128,
     pub(crate) game: Box<dyn GameSpeedy>,
+    pub(crate) buffer: Vec<u8>,
 }
 
 impl WindowHandler for MyRenderer {
     fn on_draw(&mut self, helper: &mut WindowHelper, graphics: &mut Graphics2D) {
+        let s = Instant::now();
         let mut render_context = self.game.update(1.0_f32);
-        //  let b =  b.update(self.cnt_frames as f32);
-
-        println!("pixels.len {}    b.width x p.height  {} x {}",
-                 render_context.canvas().pixels.len(),
-                 render_context.canvas().get_width(),
-                 render_context.canvas().get_height()
-        );
-
-        let buffer: Vec<u8> = render_context.canvas().pixels.iter().map(|p| (*p * 255.0) as u8).collect();
-        println!("buffer.len {}", buffer.len());
-        println!("self.scene_width * self.scene_height * 3 {}", self.scene_height * self.scene_width * 4);
+        let dur_update = Instant::now()-s;
+        log::info!("update took {} μs  == {} ms", dur_update.as_micros(),dur_update.as_millis());
+        render_context
+            .canvas()
+            .pixels
+            .iter()
+            .enumerate()
+            .for_each(|(idx, p)| self.buffer[idx] = (*p * 255.0) as u8);
         let image = graphics
             .create_image_from_raw_pixels(
                 ImageDataType::RGBA,
                 ImageSmoothingMode::NearestNeighbor,
                 UVec2::new(self.scene_width, self.scene_height),
-                &buffer,
+                &self.buffer,
             )
             .unwrap();
         self.image = Some(image);
