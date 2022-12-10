@@ -4,6 +4,7 @@ members = [
     "curves",
     "micrograd-rs",
     "nativegui",
+    "nativegui-speedy",
     "playground/test-serde-perf",
     "playground/threadpool_fractal",
     "raytracer_challenge_reference_impl",

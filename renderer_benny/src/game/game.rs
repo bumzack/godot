@@ -100,9 +100,6 @@ impl MonkeyDisplay {
         let width = 1280;
         let height = 720;
 
-        // let width = 320;
-        // let height = 200;
-
         let texture = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/renderer_benny/res/bricks2.jpg")
             .expect("could not find asset file");
         let monkey_mesh = Mesh::read_obj_file("/Users/bumzack/stoff/rust/godot/renderer_benny/res/smoothMonkey0.obj")

@@ -1,6 +1,7 @@
+use rayon::iter::IntoParallelRefMutIterator;
 use crate::math::matrix::{Matrix, MatrixOps};
 use crate::prelude::{Canvas, CanvasOps, Color, ColorOps, Edge, Gradient, Vertex};
-
+use rayon::iter::ParallelIterator;
 #[derive(Clone, Debug)]
 
 pub struct RenderContext {
@@ -29,7 +30,11 @@ impl RenderContext {
     }
 
     pub fn clear_depth_buffer(&mut self) {
-        self.z_buffer.iter_mut().for_each(|v| *v = std::f32::MAX)
+        self.z_buffer.par_iter_mut().for_each(|v| *v = std::f32::MAX)
+    }
+
+    pub fn clear_buffer(&mut self) {
+        self.canvas.pixels.par_iter_mut().for_each(|v| *v = 0.0)
     }
 
     pub fn draw_triangle(&mut self, v1: &Vertex, v2: &Vertex, v3: &Vertex, texture: &Canvas) {

@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let start = Instant::now();
 
                 let s = format!(
-                    "frame {:00000}, dur {:4.2} , exp fps {:4.2} act fps  {:4.2}    Hello Godot! ",
+                    "frame {:00000}, dur {:8.4} , exp fps {:8.4} act fps  {:8.4}    Hello Godot! ",
                     frame,
                     frame_duration.as_millis(),
                     fps,

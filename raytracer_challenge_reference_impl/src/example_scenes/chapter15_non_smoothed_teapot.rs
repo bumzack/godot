@@ -1,8 +1,8 @@
 use std::f64::consts::PI;
 
 use crate::prelude::{
-    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Parser, Sequence, Shape,
-    ShapeOps, Sphere, Tuple, Tuple4D, World, WorldOps,
+    AreaLight, Camera, CameraOps, Color, ColorOps, Light, MaterialOps, Matrix, MatrixOps, Sequence, Shape, ShapeOps,
+    Sphere, Tuple, Tuple4D, World, WorldOps,
 };
 
 pub fn chapter15_non_smoothed_teapot(

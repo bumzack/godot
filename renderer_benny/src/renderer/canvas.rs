@@ -136,21 +136,6 @@ impl CanvasOpsStd for Canvas {
         let _idx = 0;
         let image: RgbImage = ImageBuffer::new(self.get_width() as u32, self.get_height() as u32);
 
-        // for p in self.get_pixels().iter() {
-        //     let pixel = image::Rgb([
-        //         (p..r * 255.0) as f32,
-        //         (p.color.g * 255.0) as u8,
-        //         (p.color.b * 255.0) as u8,
-        //     ]);
-        //     // println!("pixels_vec = {:?}, pixel = {:?}", p, pixel);
-        //     image.put_pixel(x as u32, y as u32, pixel);
-        //     x = x + 1;
-        //     idx = idx + 1;
-        //     if x % self.get_width() == 0 {
-        //         y = y + 1;
-        //         x = 0;
-        //     }
-        // }
         image.save(filename)
     }
 
