@@ -2,21 +2,15 @@ use std::f32::consts::PI;
 use std::path::PathBuf;
 use std::time::Instant;
 
-use image::ImageBuffer;
-use piston_window::{G2dTexture, G2dTextureContext};
+use crate::prelude::{Camera, Canvas, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quaternion, RenderContext, Transform, Tuple, Tuple4D};
 
-use crate::prelude::{
-    Camera, Canvas, CanvasOps, CanvasOpsStd, Matrix, MatrixOps, Mesh, Quaternion, RenderContext, Transform, Tuple,
-    Tuple4D,
-};
-
-pub trait Game {
+pub trait GameSpeedy {
     fn start(&mut self);
     fn stop(&mut self);
-    fn update(&mut self, delta: f32, ctx: &mut G2dTextureContext) -> G2dTexture;
+    fn update(&mut self, delta: f32) -> RenderContext;
 }
 
-pub struct MonkeyDisplay {
+pub struct MonkeyDisplaySpeedy {
     pub mesh: Mesh,
     pub camera: Camera,
     pub running: bool,
@@ -29,7 +23,7 @@ pub struct MonkeyDisplay {
     //pub ctx: TextureContext<Factory, Resources, CommandBuffer>,
 }
 
-impl Game for MonkeyDisplay {
+impl GameSpeedy for MonkeyDisplaySpeedy {
     fn start(&mut self) {
         self.running = true;
         println!("start");
@@ -39,7 +33,7 @@ impl Game for MonkeyDisplay {
         self.running = false;
     }
 
-    fn update(&mut self, frame: f32, ctx: &mut G2dTextureContext) -> G2dTexture {
+    fn update(&mut self, frame: f32) -> RenderContext {
         self.camera.update(frame);
         let vp = self.camera.get_view_projection();
 
@@ -53,53 +47,29 @@ impl Game for MonkeyDisplay {
         //  println!("      frame {}  duration rotate {:?}",frame, dur);
         let start = Instant::now();
 
+        println!("target  width {} height {}", self.width, self.height);
         let mut target = RenderContext::new(self.width, self.height);
 
         self.mesh
             .draw(&mut target, &vp, &self.transform.get_transformation(), &self.texture);
 
         let _dur = Instant::now() - start;
-        //println!("      frame {}    draw mesh rotation {:?}",frame, dur);
-        let start = Instant::now();
-        let mut buffer: Vec<u8> = vec![0; self.width * self.height * 4];
 
-        let x = target.canvas().get_pixels();
-        for (i, p) in x.iter().enumerate() {
-            buffer[i] = (p * 255.0) as u8;
-        }
-
-        let _dur = Instant::now() - start;
-        // println!("      frame {}   copy canvas to u8 Vec buffer {:?}",frame, dur);
-        let start = Instant::now();
-
-        let img = ImageBuffer::from_raw(self.width as u32, self.height as u32, buffer).unwrap();
-
-        // TODO get rid of this, but then the ImageBuffer cant be created
-        // let opengl = piston_window::OpenGL::V3_2;
-        // let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new("piston: image", [800, 600])
-        //     .exit_on_esc(true)
-        //     .graphics_api(opengl)
-        //     .build()
-        //     .unwrap();
-
-        let t: piston_window::G2dTexture =
-            piston_window::Texture::from_image(ctx, &img, &piston_window::TextureSettings::new()).unwrap();
-
-        let _dur = Instant::now() - start;
-        // println!("      frame {}   creating piston image buffer {:?}",frame, dur);
-        t
+        target
     }
 }
 
-impl MonkeyDisplay {
-    // pub fn init(ctx: TextureContext<Factory, Resources, CommandBuffer>) -> MonkeyDisplay {
-    pub fn init() -> MonkeyDisplay {
+impl MonkeyDisplaySpeedy {
+    pub fn init(width: usize, height: usize) -> MonkeyDisplaySpeedy {
         let assets = PathBuf::from("/Users/bumzack/stoff/rust/godot/renderer_benny/res/");
         println!("      {:?}", assets);
 
-        let width = 1280;
-        let height = 720;
-        
+        // let width = 1280;
+        // let height = 720;
+
+        // let width = 320;
+        // let height = 200;
+
         let texture = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/renderer_benny/res/bricks2.jpg")
             .expect("could not find asset file");
         let monkey_mesh = Mesh::read_obj_file("/Users/bumzack/stoff/rust/godot/renderer_benny/res/smoothMonkey0.obj")
@@ -115,7 +85,7 @@ impl MonkeyDisplay {
         let m = Matrix::init_perspective(fov, aspect_ratio, z_near, z_far);
         let camera = Camera::new(m);
 
-        MonkeyDisplay {
+        MonkeyDisplaySpeedy {
             camera,
             running: false,
             mesh: monkey_mesh,
@@ -123,8 +93,6 @@ impl MonkeyDisplay {
             width,
             height,
             texture,
-            // sender_buffer,
-            // recv_delta,
         }
     }
 }

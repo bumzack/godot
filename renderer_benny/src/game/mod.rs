@@ -1,1 +1,2 @@
-pub(crate) mod game;
+pub  mod game;
+pub  mod game_speedy;

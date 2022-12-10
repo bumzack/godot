@@ -15,3 +15,5 @@ raytracer_challenge_reference_impl = { path = "../raytracer_challenge_reference_
 
 simple_logger = { version = "4.0.0", default-features = false, features = ["colors"] }
 log = "0.4.17"
+
+render_benny = { path = "../renderer_benny" }

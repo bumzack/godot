@@ -2029,6 +2029,7 @@ dependencies = [
  "crossbeam-channel",
  "log",
  "raytracer_challenge_reference_impl",
+ "render_benny",
  "simple_logger",
  "speedy2d",
 ]
