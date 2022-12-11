@@ -329,8 +329,8 @@ impl Initializer for RandomUniformInitializer {
     }
 }
 
-impl RandomUniformInitializer {
-    pub fn new() -> RandomUniformInitializer {
+impl Default for RandomUniformInitializer {
+    fn default() -> Self {
         let rng = StdRng::seed_from_u64(1337);
         let normal = Uniform::from(-1.0..1.0);
         RandomUniformInitializer { normal, rng }

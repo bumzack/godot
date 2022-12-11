@@ -83,6 +83,7 @@ fn save_svg(svg: String, filename: String) {
     pixmap.save_png(f).unwrap();
 }
 
+#[cfg(test)]
 mod test {
     use crate::assert_float;
     use crate::graph_v3::draw_graph;

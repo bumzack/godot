@@ -339,7 +339,7 @@ mod tests {
     fn test_ray_cylinder_closed_cylinder() {
         let c = Cylinder::new();
 
-        assert!(c.get_closed() == false);
+        assert!(!c.get_closed());
     }
 
     // page 185
