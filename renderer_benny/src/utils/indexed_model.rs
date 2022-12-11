@@ -140,8 +140,4 @@ impl IndexedModel {
     pub fn indices(self) -> Vec<usize> {
         self.indices
     }
-
-    pub fn indices_borrow(&self) -> &Vec<usize> {
-        &self.indices
-    }
 }

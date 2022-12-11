@@ -77,36 +77,31 @@ impl MathTensor {
     pub fn pow(&self, n: f64) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.powf(n)).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 
     pub fn exp(&self) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.exp()).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 
     pub fn tanh(&self) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.tanh()).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 
     pub fn relu(&self) -> MathTensor {
         let a: Vec<f64> = self.data().iter().map(|a| a.max(0.0)).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 
     pub fn sum(&self) -> MathTensor {
         let sum: f64 = self.data().iter().map(|x| *x).sum();
         let shape = vec![1, 1];
-        let t = MathTensor::new(shape, vec![sum]);
-        t
+        MathTensor::new(shape, vec![sum])
     }
 
     pub(crate) fn set_zero(&mut self) {

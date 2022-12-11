@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 use std::rc::Rc;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum OpEnumV2 {
     NONE,
     ADD,
@@ -791,7 +791,7 @@ mod tests {
 
     #[test]
     pub fn test_mul() {
-        let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
+        let a = ValueRefV2::new_value(2.0, "a".to_string());
         let b = ValueRefV2::new_value(3.0, "b".to_string());
 
         let mut x = &a * &b;
@@ -827,7 +827,7 @@ mod tests {
     #[test]
     pub fn test_value_plus_f64_rhs() {
         let a = ValueRefV2::new_value(3.0, "a".to_string());
-        let mut b = &a + 1.0 as f64;
+        let mut b = &a + 1.0;
         assert_float(b.borrow().data, 4.0);
         b.backward();
         draw_graph(b, "test_a_plus_f64_rhs".to_string());
@@ -836,7 +836,7 @@ mod tests {
     #[test]
     pub fn test_value_plus_f64_lhs() {
         let a = ValueRefV2::new_value(4.0, "a".to_string());
-        let mut b = 23.0 as f64 + &a;
+        let mut b = 23.0 + &a;
         b.backward();
         assert_float(b.borrow().data, 27.0);
 
@@ -846,7 +846,7 @@ mod tests {
     #[test]
     pub fn test_value_mul_f64_rhs() {
         let a = ValueRefV2::new_value(3.0, "a".to_string());
-        let mut b = &a * 3.0 as f64;
+        let mut b = &a * 3.0;
         assert_float(b.borrow().data, 9.0);
         b.backward();
         draw_graph(b, "test_a_mul_f64_rhs".to_string());
@@ -855,7 +855,7 @@ mod tests {
     #[test]
     pub fn test_value_mul_f64_lhs() {
         let a = ValueRefV2::new_value(4.0, "a".to_string());
-        let mut b = 23.0 as f64 * &a;
+        let mut b = 23.0 * &a;
         b.backward();
         assert_float(b.borrow().data, 92.0);
 
@@ -939,8 +939,8 @@ mod tests {
         d += 3.0 * &d + (&b - &a).relu(); //         d += 3 * d + (b - a).relu()
         let mut e = &c - &d; //         e = c - d
         let mut f = (&e).pow(2.0); //         f = e**2
-        let mut g = &f / 2.0 as f64; //         g = f / 2.0
-        g += 10.0 as f64 / &f; //         g += 10.0 / f
+        let mut g = &f / 2.0; //         g = f / 2.0
+        g += 10.0 / &f; //         g += 10.0 / f
 
         g.backward();
 

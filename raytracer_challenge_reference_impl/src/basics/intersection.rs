@@ -364,7 +364,7 @@ mod tests {
         let i = il.hit();
 
         // TODO - how to assert????
-        assert_eq!(i.is_none(), true);
+        assert!(i.is_none());
     }
 
     // page 66 top
@@ -448,7 +448,7 @@ mod tests {
         let i = Intersection::new(4.0, &o);
         let c = Intersection::prepare_computations(&i, &r, &IntersectionList::new());
 
-        assert_eq!(false, c.get_inside());
+        assert!(!c.get_inside());
     }
 
     // page 95 top
@@ -470,7 +470,7 @@ mod tests {
         assert_tuple(&point_expected, c.get_point());
         assert_tuple(&eye_vector_expected, c.get_eye_vector());
         assert_tuple(&normal_vector_expected, c.get_normal_vector());
-        assert_eq!(true, c.get_inside());
+        assert!(c.get_inside());
     }
 
     // page 161

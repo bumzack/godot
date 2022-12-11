@@ -6,20 +6,13 @@ use crate::math::matrix::Matrix;
 use crate::prelude::{Canvas, RenderContext, Vertex};
 use crate::utils::prelude::ObjModel;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Mesh {
     vertices: Vec<Vertex>,
     indices: Vec<usize>,
 }
 
 impl Mesh {
-    pub fn new() -> Mesh {
-        Mesh {
-            vertices: vec![],
-            indices: vec![],
-        }
-    }
-
     pub fn read_obj_file(filename: &str) -> Result<Mesh, Box<dyn std::error::Error>> {
         println!("reading file {:?}", filename);
         let model = ObjModel::read_file(filename)?;
@@ -90,7 +83,7 @@ impl Mesh {
 
         let pixels_per_thread = 99;
 
-        let c = crossbeam::scope(|scope| {
+        let _ = crossbeam::scope(|scope| {
             let mut children = vec![];
 
             for _i in 0..num_cores {
