@@ -10,7 +10,7 @@ fn main() {
 
     let epochs = 100;
 
-    let mut initializer = RandomUniformInitializer::new();
+    let mut initializer = RandomUniformInitializer::default();
     let mut mlp = Network::new();
     let l1 = FC::new(3, 4, true, "input_layer".to_string(), &mut initializer);
     let l2 = FC::new(4, 4, true, "hidden_layer".to_string(), &mut initializer);

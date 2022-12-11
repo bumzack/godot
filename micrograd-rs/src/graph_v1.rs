@@ -98,6 +98,7 @@ fn save_svg(svg: String, filename: String) {
     pixmap.save_png(f).unwrap();
 }
 
+#[cfg(test)]
 mod test {
     use crate::{draw_graph, ValueRefV1};
     use crate::micrograd_rs_v1::assert_two_float;

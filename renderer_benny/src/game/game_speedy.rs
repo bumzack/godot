@@ -1,5 +1,4 @@
 use std::f32::consts::PI;
-use std::path::PathBuf;
 use std::time::Instant;
 
 use crate::prelude::{
@@ -61,7 +60,7 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
         );
 
         let dur = Instant::now() - start;
-        println!("full update function took  {:6.4} ms", dur.as_micros()/1000);
+        println!("full update function took  {:6.4} ms", dur.as_micros() / 1000);
 
         &self.render_context
     }
@@ -69,8 +68,6 @@ impl GameSpeedy for MonkeyDisplaySpeedy {
 
 impl MonkeyDisplaySpeedy {
     pub fn init(width: usize, height: usize) -> MonkeyDisplaySpeedy {
-        let assets = PathBuf::from("/Users/bumzack/stoff/rust/godot/renderer_benny/res/");
-
         let texture = Canvas::read_bitmap("/Users/bumzack/stoff/rust/godot/renderer_benny/res/bricks2.jpg")
             .expect("could not find asset file");
         let monkey_mesh = Mesh::read_obj_file("/Users/bumzack/stoff/rust/godot/renderer_benny/res/smoothMonkey0.obj")

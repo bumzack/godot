@@ -66,7 +66,7 @@ fn main() {
         let n_hidden = 20;
         let nout = 1;
 
-        let mut initializer = RandomUniformInitializer::new();
+        let mut initializer = RandomUniformInitializer::default();
         let input_layer = FC::new(nin, n_hidden, true, "input_layer".to_string(), &mut initializer);
         let hidden_layer1 = FC::new(n_hidden, n_hidden, true, "hidden_layer1".to_string(), &mut initializer);
         let output_layer = FC::new(n_hidden, nout, false, "output_layer".to_string(), &mut initializer);
@@ -82,7 +82,7 @@ fn main() {
         // let n_hidden2 = 8;
         // let nout = 1;
         //
-        // let mut initializer = RandomUniformInitializer::new();
+        // let mut initializer = RandomUniformInitializer::default();
         // let input_layer = FC::new(nin, n_hidden1, true, "input_layer".to_string(), &mut initializer);
         // let hidden_layer1 = FC::new(n_hidden1, n_hidden2, true, "hidden_layer1".to_string(), &mut initializer);
         // let hidden_layer2 = FC::new(n_hidden2, n_hidden2, true, "hidden_layer2".to_string(), &mut initializer);

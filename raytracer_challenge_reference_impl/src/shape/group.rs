@@ -65,8 +65,7 @@ impl Group {
             children: vec![],
         };
         let g = ShapeEnum::GroupEnum(g);
-        let shape = Shape::new_with_name(g, name);
-        shape
+        Shape::new_with_name(g, name)
     }
 
     pub fn new_part_of_group(shapes: &mut ShapeArr) -> ShapeIdx {

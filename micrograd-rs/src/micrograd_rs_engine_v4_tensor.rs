@@ -13,22 +13,22 @@ impl Neuron {
     pub fn new(nin: usize, initializer: &mut dyn Initializer) -> Neuron {
         let init_values = initializer.get_values(nin);
         let weights = MathTensor::new(vec![nin, 1], init_values);
-        let weights = Tensor::from(weights, format!("weight "));
+        let weights = Tensor::from(weights, "weight ".to_string());
 
-        let bias = Tensor::zeroes(vec![1, 1], format!("bias"));
+        let bias = Tensor::zeroes(vec![1, 1], "bias".to_string());
         Neuron { weights, bias }
     }
 
     pub fn new_weights_bias(weights: Vec<f64>, bias: f64) -> Neuron {
         let weights = MathTensor::new(vec![weights.len(), 1], weights);
-        let weights = Tensor::from(weights, format!("weight"));
+        let weights = Tensor::from(weights, "weight".to_string());
 
         let bias = MathTensor::new(vec![1, 1], vec![bias]);
-        let bias = Tensor::from(bias, format!("bias"));
+        let bias = Tensor::from(bias, "bias".to_string());
         Neuron { weights, bias }
     }
 
-    pub fn forward(&self, xinp: &Tensor) -> Tensor {
+    pub fn forward(&self, _xinp: &Tensor) -> Tensor {
         // assert!(xinp.len() == self.weights.len(), "input size does not match layer size");
         // let x_w = xinp * &self.weights;
         // let a = x_w.r().borrow();
@@ -131,7 +131,7 @@ impl Network {
     pub fn new() -> Box<Network> {
         //TODO fix total_epochs = 0 mess
         let optimizer = Box::new(SGD::new(0.9, 0.0));
-        let loss = Box::new(MaxMarginLoss::new());
+        let loss = Box::new(MaxMarginLoss::default());
         Box::new(Network {
             layers: vec![],
             loss,
@@ -151,7 +151,7 @@ impl Network {
         self.layers.push(l);
     }
 
-    fn forward_internal<'a>(&'a self, xinp: &Tensor) -> Tensor {
+    fn forward_internal(&self, xinp: &Tensor) -> Tensor {
         let mut x = xinp.clone();
         for (_idx, l) in self.layers.iter().enumerate() {
             // println!("forward layer idx {}   name {}", _idx, l.name());
@@ -171,8 +171,7 @@ impl Network {
     }
 
     pub fn forward(&self, x: &Tensor) -> Tensor {
-        let y = self.forward_internal(x);
-        y
+        self.forward_internal(x)
     }
 
     pub fn print_params(&self) {
@@ -210,16 +209,11 @@ pub trait Loss {
     fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, parameters: Vec<Tensor>) -> Tensor;
 }
 
+#[derive(Default)]
 pub struct MSELoss {}
 
-impl MSELoss {
-    pub fn new() -> MSELoss {
-        MSELoss {}
-    }
-}
-
 impl Loss for MSELoss {
-    fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, _parameters: Vec<Tensor>) -> Tensor {
+    fn calc_loss(&self, _y_ground_truth: &Tensor, _y_pred: &Tensor, _parameters: Vec<Tensor>) -> Tensor {
         // let loss_vec: Vec<Tensor> = y_pred
         //     .iter()
         //     .zip(y_ground_truth.iter())
@@ -238,20 +232,15 @@ impl Loss for MSELoss {
     }
 }
 
+#[derive(Default)]
 pub struct MaxMarginLoss {}
 
-impl MaxMarginLoss {
-    pub fn new() -> MaxMarginLoss {
-        MaxMarginLoss {}
-    }
-}
-
 impl Loss for MaxMarginLoss {
-    fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, parameters: Vec<Tensor>) -> Tensor {
+    fn calc_loss(&self, y_ground_truth: &Tensor, y_pred: &Tensor, _parameters: Vec<Tensor>) -> Tensor {
         let loss = (1.0 - &(y_ground_truth * y_pred)).relu();
 
-        let los = loss.sum();
-        let mut loss = Tensor::zeroes(vec![1, 1], "loss".to_string());
+        let _los = loss.sum();
+        let mut _loss = Tensor::zeroes(vec![1, 1], "loss".to_string());
         // for l in loss_vec.iter() {
         //     loss = &loss + l;
         // }
@@ -313,12 +302,11 @@ impl SGD {
         let p = p.r().borrow();
         let x = p.t();
         let grad = p.grad();
-        let res = x - &(lr * grad);
-        res
+        x - &(lr * grad)
     }
 }
 
-pub fn print_predictions(y_pred: &Tensor, y_expected: &Tensor) {
+pub fn print_predictions(_y_pred: &Tensor, _y_expected: &Tensor) {
     // y_pred.iter().enumerate().for_each(|(idx, y)| {
     //     // let res = (y.get_data() - y_expected[idx]).abs() < EPS2;
     //     // println!(
@@ -351,8 +339,8 @@ impl Initializer for RandomUniformInitializer {
     }
 }
 
-impl RandomUniformInitializer {
-    pub fn new() -> RandomUniformInitializer {
+impl Default for RandomUniformInitializer {
+    fn default() -> RandomUniformInitializer {
         let rng = StdRng::seed_from_u64(1337);
         let normal = Uniform::from(-1.0..1.0);
         RandomUniformInitializer { normal, rng }

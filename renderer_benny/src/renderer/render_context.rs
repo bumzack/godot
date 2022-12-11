@@ -1,6 +1,6 @@
-use rayon::iter::IntoParallelRefMutIterator;
 use crate::math::matrix::{Matrix, MatrixOps};
 use crate::prelude::{Canvas, CanvasOps, Color, ColorOps, Edge, Gradient, Vertex};
+use rayon::iter::IntoParallelRefMutIterator;
 use rayon::iter::ParallelIterator;
 #[derive(Clone, Debug)]
 

@@ -72,8 +72,7 @@ impl Csg {
             op,
         };
         let g = ShapeEnum::CsgEnum(g);
-        let shape = Shape::new_with_name(g, name);
-        shape
+        Shape::new_with_name(g, name)
     }
 
     pub fn add_child(

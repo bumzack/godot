@@ -127,8 +127,7 @@ impl BackwardTanh {
         let x1 = x1.grad();
         let x2 = out.r().borrow();
         let x2 = x2.grad();
-        let res = x1 + &(&y * x2);
-        res
+        x1 + &(&y * x2)
     }
 }
 
@@ -159,8 +158,7 @@ impl BackwardExp {
         let out = out.r().borrow();
         let y = out.t();
         let z = out.grad();
-        let x1 = x + &(y * z);
-        x1
+        x + &(y * z)
     }
 }
 
@@ -222,8 +220,7 @@ impl BackwardReLU {
         let x = MathTensor::new(shape, data);
         let y = self__.r().borrow();
         let y = y.grad();
-        let res = y + &x;
-        res
+        y + &x
     }
 }
 
@@ -255,8 +252,7 @@ impl BackwardSum {
         let grad = out.grad();
 
         let x = MathTensor::ones(self__.shape_copy());
-        let res = grad + &x;
-        res
+        grad + &x
     }
 }
 
@@ -298,7 +294,7 @@ impl BackwardDot {
 impl Backward for BackwardDot {
     fn apply(&self, out: Tensor) {
         let x1 = out.r().borrow();
-        let t = x1.t();
+        let _t = x1.t();
         let grad = x1.grad();
 
         let w = self.w.clone();
@@ -306,11 +302,11 @@ impl Backward for BackwardDot {
 
         let w = w.r().borrow();
         let w = w.t();
-        let dx = grad ^ &w.transpose();
+        let _dx = grad ^ &w.transpose();
 
         let x = x.r().borrow();
         let x = x.t();
-        let dw = &x.transpose() ^ &x;
+        let _dw = &x.transpose() ^ &x;
 
         // let mut self__ = self.w.clone();
         //
