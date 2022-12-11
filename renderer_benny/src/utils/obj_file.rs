@@ -225,7 +225,7 @@ impl ObjModel {
 
     pub fn parse_obj_index(&mut self, token: &str) {
         let t = token.to_string();
-        let values: Vec<&str> = t.split("/").collect();
+        let values: Vec<&str> = t.split('/').collect();
 
         let mut tex_coord_index = 0;
         let mut normal_index = 0;

@@ -12,11 +12,13 @@ pub struct Transform {
     scale: Tuple4D,
 }
 
-impl Transform {
-    pub fn new() -> Transform {
+impl Default for Transform {
+    fn default() -> Self {
         Transform::new_from_vector(Tuple4D::new_vector(0.0, 0.0, 0.0))
     }
+}
 
+impl Transform {
     pub fn new_from_vector(pos: Tuple4D) -> Transform {
         Transform::new_from_all(
             pos,

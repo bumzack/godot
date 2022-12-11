@@ -12,7 +12,7 @@ use crate::micrograd_rs_v4_backward::{
 use crate::micrograd_rs_v4_mathtensor::MathTensor;
 use crate::micrograd_rs_v4_tensorinternal::TensorInternal;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum OpEnumV4 {
     NONE,
     ADD,
@@ -431,7 +431,7 @@ impl DivAssign for Tensor {
 
 impl DivAssign<&Tensor> for Tensor {
     fn div_assign(&mut self, rhs: &Tensor) {
-        *self = self.clone() * rhs.pow(-1.0).clone()
+        *self = self.clone() * rhs.pow(-1.0)
     }
 }
 
@@ -1135,8 +1135,8 @@ mod tests {
         d += 3.0 * &d + (&b - &a).relu(); //         d += 3 * d + (b - a).relu()
         let mut e = &c - &d; //         e = c - d
         let mut f = (&e).pow(2.0); //         f = e**2
-        let mut g = &f / 2.0 as f64; //         g = f / 2.0
-        g += 10.0 as f64 / &f; //         g += 10.0 / f
+        let mut g = &f / 2.0; //         g = f / 2.0
+        g += 10.0 / &f; //         g += 10.0 / f
 
         g.backward();
 
@@ -1279,7 +1279,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1321,7 +1321,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1365,7 +1365,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1410,7 +1410,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     pub fn test_relu(a: f64, c_expected: f64, a_grad_expected: f64) {
@@ -1439,7 +1439,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1489,7 +1489,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1541,7 +1541,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1597,7 +1597,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1632,7 +1632,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
     //
     // #[test]
@@ -1700,7 +1700,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
 
         let topo = Tensor::traverse(&c);
         topo.iter().for_each(|t| {
@@ -1746,7 +1746,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1808,7 +1808,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
     }
 
     #[test]
@@ -1867,7 +1867,7 @@ mod tests {
         let cc_expected = c_expected.r().borrow();
         let cc_expected = cc_expected.t();
 
-        assert_two_math_tensors(&cc_expected, cc);
+        assert_two_math_tensors(cc_expected, cc);
 
         let topo = Tensor::traverse(&c);
         println!("#################################");
@@ -1924,7 +1924,7 @@ mod tests {
         let c_expected = MathTensor::new(vec![1, 4], c_expected);
 
         let aa = a.r().borrow();
-        let aa = aa.t();
+        let _aa = aa.t();
 
         let mut c = a.sum();
 
@@ -1951,7 +1951,7 @@ mod tests {
 
         let a_grad_expected = MathTensor::ones(vec![1, 4]);
 
-        assert_two_math_tensors(&a_grad_expected, &a_grad);
+        assert_two_math_tensors(&a_grad_expected, a_grad);
     }
 
     // sum([[1,2],[3,4]])
@@ -1965,7 +1965,7 @@ mod tests {
 
         let c = a.sum();
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 2)".to_string();

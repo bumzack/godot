@@ -99,7 +99,7 @@ impl RenderContext {
             if current_inside ^ previous_inside {
                 let lerp_amt = (previous_vertex.w() - previous_component)
                     / ((previous_vertex.w() - previous_component) - (current_vertex.w() - current_component));
-                result.push(previous_vertex.lerp(&current_vertex, lerp_amt));
+                result.push(previous_vertex.lerp(current_vertex, lerp_amt));
             }
             if current_inside {
                 result.push(current_vertex.clone());

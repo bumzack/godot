@@ -84,7 +84,7 @@ mod tests {
         let shapes = vec![];
         let intersections = Shape::intersect_local(&p, r, &shapes);
 
-        assert_eq!(intersections.get_intersections().len() > 0, true);
+        assert!(!intersections.get_intersections().is_empty());
         assert_float(intersections.get_intersections().get(0).unwrap().get_t(), 1.0);
 
         // below
@@ -95,7 +95,7 @@ mod tests {
         let shapes = vec![];
         let intersections = Shape::intersect_local(&p, r, &shapes);
 
-        assert_eq!(intersections.get_intersections().len() > 0, true);
+        assert!(!intersections.get_intersections().is_empty());
         assert_float(intersections.get_intersections().get(0).unwrap().get_t(), 1.0);
     }
 
@@ -153,7 +153,7 @@ mod tests {
 
         let m = Matrix::translation(2.0, 3.0, 4.0);
 
-        assert_matrix(&s.get_transformation(), &m);
+        assert_matrix(s.get_transformation(), &m);
     }
 
     #[test]

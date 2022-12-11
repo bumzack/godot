@@ -706,7 +706,7 @@ mod tests {
         let w = default_world();
         let p = Tuple4D::new_point(0.0, 10.0, 0.0);
         let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
-        assert_eq!(is_shadowed, false);
+        assert!(!is_shadowed);
     }
 
     // page 112 top
@@ -715,7 +715,7 @@ mod tests {
         let w = default_world();
         let p = Tuple4D::new_point(10.0, -10.0, 10.0);
         let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
-        assert_eq!(is_shadowed, true);
+        assert!(is_shadowed);
     }
 
     // page 112 center
@@ -724,7 +724,7 @@ mod tests {
         let w = default_world();
         let p = Tuple4D::new_point(-20.0, 20.0, -20.0);
         let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
-        assert_eq!(is_shadowed, false);
+        assert!(!is_shadowed);
     }
 
     // page 112 bottom
@@ -733,7 +733,7 @@ mod tests {
         let w = default_world();
         let p = Tuple4D::new_point(-2.0, 2.0, -2.0);
         let is_shadowed = World::is_shadowed(&w, w.get_light()[0].get_position(), &p);
-        assert_eq!(is_shadowed, false);
+        assert!(!is_shadowed);
     }
 
     // page 144 to

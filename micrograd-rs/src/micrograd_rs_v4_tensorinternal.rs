@@ -92,7 +92,7 @@ impl TensorInternal {
     }
 
     pub fn shape_vec(&self) -> &Vec<usize> {
-        &self.t.shape_vec()
+        self.t.shape_vec()
     }
 
     pub fn shape_copy(&self) -> Vec<usize> {
@@ -125,26 +125,22 @@ impl TensorInternal {
 
     pub fn exp(&self) -> TensorInternal {
         let exp = self.t().exp();
-        let t = TensorInternal::from(exp, OpEnumV4::EXP, "exp".to_string());
-        t
+        TensorInternal::from(exp, OpEnumV4::EXP, "exp".to_string())
     }
 
     pub fn tanh(&self) -> TensorInternal {
         let tanh = self.t().tanh();
-        let t = TensorInternal::from(tanh, OpEnumV4::TANH, "tanh".to_string());
-        t
+        TensorInternal::from(tanh, OpEnumV4::TANH, "tanh".to_string())
     }
 
     pub fn relu(&self) -> TensorInternal {
         let relu = self.t().relu();
-        let t = TensorInternal::from(relu, OpEnumV4::RELU, "relu".to_string());
-        t
+        TensorInternal::from(relu, OpEnumV4::RELU, "relu".to_string())
     }
 
     pub fn pow(&self, n: f64) -> TensorInternal {
         let pow = self.t().pow(n);
-        let t = TensorInternal::from(pow, OpEnumV4::POW, "pow".to_string());
-        t
+        TensorInternal::from(pow, OpEnumV4::POW, "pow".to_string())
     }
 }
 
@@ -153,8 +149,7 @@ impl Add for &TensorInternal {
 
     fn add(self, rhs: Self) -> Self::Output {
         let sum = self.t() + rhs.t();
-        let t = TensorInternal::from(sum, OpEnumV4::ADD, "add".to_string());
-        t
+        TensorInternal::from(sum, OpEnumV4::ADD, "add".to_string())
     }
 }
 
@@ -163,8 +158,7 @@ impl Add<f64> for &TensorInternal {
 
     fn add(self, rhs: f64) -> Self::Output {
         let sum = self.t() + rhs;
-        let t = TensorInternal::from(sum, OpEnumV4::SUB, "add".to_string());
-        t
+        TensorInternal::from(sum, OpEnumV4::SUB, "add".to_string())
     }
 }
 
@@ -181,8 +175,7 @@ impl Sub for &TensorInternal {
 
     fn sub(self, rhs: Self) -> Self::Output {
         let sum = self.t() - rhs.t();
-        let t = TensorInternal::from(sum, OpEnumV4::SUB, "sub".to_string());
-        t
+        TensorInternal::from(sum, OpEnumV4::SUB, "sub".to_string())
     }
 }
 
@@ -191,8 +184,7 @@ impl Sub<f64> for &TensorInternal {
 
     fn sub(self, rhs: f64) -> Self::Output {
         let sum = self.t() - rhs;
-        let t = TensorInternal::from(sum, OpEnumV4::SUB, "sub".to_string());
-        t
+        TensorInternal::from(sum, OpEnumV4::SUB, "sub".to_string())
     }
 }
 
@@ -209,8 +201,7 @@ impl Neg for &TensorInternal {
 
     fn neg(self) -> Self::Output {
         let neg = -self.t();
-        let t = TensorInternal::from(neg, OpEnumV4::NEG, "sum".to_string());
-        t
+        TensorInternal::from(neg, OpEnumV4::NEG, "sum".to_string())
     }
 }
 
@@ -219,8 +210,7 @@ impl Mul for &TensorInternal {
 
     fn mul(self, rhs: Self) -> Self::Output {
         let prod = self.t() * rhs.t();
-        let t = TensorInternal::from(prod, OpEnumV4::MUL, "mul".to_string());
-        t
+        TensorInternal::from(prod, OpEnumV4::MUL, "mul".to_string())
     }
 }
 
@@ -229,8 +219,7 @@ impl Mul<f64> for &TensorInternal {
 
     fn mul(self, rhs: f64) -> Self::Output {
         let prod = self.t() * rhs;
-        let t = TensorInternal::from(prod, OpEnumV4::MUL, "mul".to_string());
-        t
+        TensorInternal::from(prod, OpEnumV4::MUL, "mul".to_string())
     }
 }
 
@@ -247,8 +236,7 @@ impl BitXor for &TensorInternal {
 
     fn bitxor(self, rhs: Self) -> Self::Output {
         let prod = self.t() ^ rhs.t();
-        let t = TensorInternal::from(prod, OpEnumV4::DOT, "dot".to_string());
-        t
+        TensorInternal::from(prod, OpEnumV4::DOT, "dot".to_string())
     }
 }
 
@@ -276,7 +264,7 @@ mod tests {
 
         let c = &a + &b;
 
-        assert_vec_f64(&c_expected, &c.t().data());
+        assert_vec_f64(&c_expected, c.t().data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();

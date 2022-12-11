@@ -19,13 +19,13 @@ pub enum OpEnumV2 {
 }
 
 trait Backward {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>);
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]);
 }
 
 struct BackwardAdd {}
 
 impl Backward for BackwardAdd {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!(
         //     "ADD out {:?},  'self' {:?}, 'other' {:?}",
         //     out, children[0], children[1]
@@ -42,7 +42,7 @@ impl Backward for BackwardAdd {
 struct BackwardSub {}
 
 impl Backward for BackwardSub {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!(
         //     "SUB out {:?},  'self' {:?}, 'other' {:?}",
         //     out, children[0], children[1]
@@ -59,7 +59,7 @@ impl Backward for BackwardSub {
 struct BackwardMul {}
 
 impl Backward for BackwardMul {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!(
         //     "MUL out {:?},  'self' {:?}, 'other' {:?}",
         //     out, children[0], children[1]
@@ -79,7 +79,7 @@ impl Backward for BackwardMul {
 struct BackwardTanh {}
 
 impl Backward for BackwardTanh {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!("TANH out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         let x = out.get_data();
@@ -91,7 +91,7 @@ impl Backward for BackwardTanh {
 struct BackwardExp {}
 
 impl Backward for BackwardExp {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!("EXP out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         self__.set_grad(self__.get_grad() + out.r.borrow().data() * out.r.borrow().grad());
@@ -101,7 +101,7 @@ impl Backward for BackwardExp {
 struct BackwardPow {}
 
 impl Backward for BackwardPow {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!("POW out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         let other = children[1].clone().borrow().data;
@@ -113,7 +113,7 @@ impl Backward for BackwardPow {
 struct BackwardReLU {}
 
 impl Backward for BackwardReLU {
-    fn apply(&self, out: ValueRefV2, children: &Vec<ValueRefV2>) {
+    fn apply(&self, out: ValueRefV2, children: &[ValueRefV2]) {
         // println!("ReLU out {:?},  'self' {:?} ", out, children[0]);
         let mut self__ = children[0].clone();
         let x = if out.get_data() > 0.0 { out.get_grad() } else { 0.0 };
@@ -761,7 +761,7 @@ mod tests {
     // https://youtu.be/VMj-3S1tku0?t=1875
     #[test]
     pub fn test_video() {
-        let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
+        let a = ValueRefV2::new_value(2.0, "a".to_string());
         let b = ValueRefV2::new_value(-3.0, "b".to_string());
         let c = ValueRefV2::new_value(10.0, "c".to_string());
         let f = ValueRefV2::new_value(-2.0, "f".to_string());
@@ -780,7 +780,7 @@ mod tests {
 
     #[test]
     pub fn test_add() {
-        let a = ValueRefV2::new_value(2.0 as f64, "a".to_string());
+        let a = ValueRefV2::new_value(2.0, "a".to_string());
         let b = ValueRefV2::new_value(3.0, "b".to_string());
 
         let mut x = &a + &b;

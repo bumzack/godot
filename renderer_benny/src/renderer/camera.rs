@@ -16,7 +16,7 @@ pub struct Camera {
 impl Camera {
     pub fn new(projection: Matrix) -> Camera {
         Camera {
-            transform: Transform::new(),
+            transform: Transform::default(),
             projection,
         }
     }

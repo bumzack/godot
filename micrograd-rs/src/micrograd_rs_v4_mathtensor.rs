@@ -2,6 +2,7 @@ use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, BitXor, Mul, Neg, Sub};
 
+#[derive(Default)]
 pub struct MathTensor {
     data: Vec<f64>,
     shape: Vec<usize>,
@@ -150,7 +151,7 @@ enum BroadcastType {
     First,
 }
 
-fn fmt_shape(a: &Vec<usize>) -> String {
+fn fmt_shape(a: &[usize]) -> String {
     let shapes: Vec<String> = a.iter().map(|i| i.to_string()).collect();
     let s = format!("({})", shapes.join(", "));
     s
@@ -228,12 +229,11 @@ impl Add for &MathTensor {
                 };
                 res
             }
-            Err(e) => panic!("can't add shapes  {:?} + {:?} ", &self.shape_vec(), &rhs.shape_vec()),
+            Err(_e) => panic!("can't add shapes  {:?} + {:?} ", &self.shape_vec(), &rhs.shape_vec()),
         };
         assert_eq!(self.shape, rhs.shape);
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -243,8 +243,7 @@ impl Add<f64> for &MathTensor {
     fn add(self, rhs: f64) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| a + rhs).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -263,8 +262,7 @@ impl Sub for &MathTensor {
         assert_eq!(self.shape, rhs.shape);
         let a: Vec<f64> = self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a - b).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -274,8 +272,7 @@ impl Sub<f64> for &MathTensor {
     fn sub(self, rhs: f64) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| a - rhs).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -293,8 +290,7 @@ impl Neg for MathTensor {
     fn neg(self) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| -a).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -304,8 +300,7 @@ impl Neg for &MathTensor {
     fn neg(self) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| -a).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -316,8 +311,7 @@ impl Mul for &MathTensor {
         assert_eq!(self.shape, rhs.shape);
         let a: Vec<f64> = self.data().iter().zip(rhs.data().iter()).map(|(a, b)| a * b).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -327,8 +321,7 @@ impl Mul<f64> for &MathTensor {
     fn mul(self, rhs: f64) -> Self::Output {
         let a: Vec<f64> = self.data().iter().map(|a| a * rhs).collect();
         let shape = self.shape_copy();
-        let t = MathTensor::new(shape, a);
-        t
+        MathTensor::new(shape, a)
     }
 }
 
@@ -359,15 +352,6 @@ impl BitXor for &MathTensor {
             }
         }
         res
-    }
-}
-
-impl Default for MathTensor {
-    fn default() -> Self {
-        MathTensor {
-            data: vec![],
-            shape: vec![],
-        }
     }
 }
 
@@ -428,7 +412,7 @@ mod tests {
 
         let c = &a + &b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -454,7 +438,7 @@ mod tests {
 
         let c = &a + b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -476,7 +460,7 @@ mod tests {
 
         let c = b + &a;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -499,7 +483,7 @@ mod tests {
 
         let c = &a - &b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -525,7 +509,7 @@ mod tests {
 
         let c = &a - b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -547,7 +531,7 @@ mod tests {
 
         let c = b - &a;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -568,7 +552,7 @@ mod tests {
 
         let c = -&a;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -591,7 +575,7 @@ mod tests {
 
         let c = &a * &b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -617,7 +601,7 @@ mod tests {
 
         let c = &a * b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -639,7 +623,7 @@ mod tests {
 
         let c = b * &a;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -667,7 +651,7 @@ mod tests {
 
         let c = &a ^ &b;
 
-        assert_vec_f64(&c_expected.data(), &c.data());
+        assert_vec_f64(c_expected.data(), c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -700,7 +684,7 @@ mod tests {
 
         let c = a.relu();
 
-        assert_vec_f64(&c_expected.data(), &c.data());
+        assert_vec_f64(c_expected.data(), c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -729,7 +713,7 @@ mod tests {
 
         let c = a.tanh();
 
-        assert_vec_f64(&c_expected.data(), &c.data());
+        assert_vec_f64(c_expected.data(), c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -758,7 +742,7 @@ mod tests {
 
         let c = a.exp();
 
-        assert_vec_f64(&c_expected.data(), &c.data());
+        assert_vec_f64(c_expected.data(), c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -787,7 +771,7 @@ mod tests {
 
         let c = a.pow(n);
 
-        assert_vec_f64(&c_expected.data(), &c.data());
+        assert_vec_f64(c_expected.data(), c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 3)".to_string();
@@ -840,7 +824,7 @@ mod tests {
 
         let c = &a + &b;
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 2)".to_string();
@@ -867,7 +851,7 @@ mod tests {
 
         let c = a.sum();
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(1, 4)".to_string();
@@ -891,7 +875,7 @@ mod tests {
 
         let c = a.sum();
 
-        assert_vec_f64(&c_expected, &c.data());
+        assert_vec_f64(&c_expected, c.data());
 
         // not so trivial assertions
         let a_shape_expected = "(2, 2)".to_string();

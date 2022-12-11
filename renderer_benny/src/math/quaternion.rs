@@ -149,7 +149,7 @@ impl Quaternion {
     }
 
     pub fn n_lerp(&self, dest: &Quaternion, lerp_factor: f32, shortest: bool) -> Quaternion {
-        let mut corrected_dest = dest.clone();
+        let mut corrected_dest = *dest;
 
         if shortest && self ^ dest < 0.0 {
             corrected_dest = Quaternion::new(-dest.x(), -dest.y(), -dest.z(), -dest.w());
@@ -160,7 +160,7 @@ impl Quaternion {
 
     pub fn s_lerp(&self, dest: &Quaternion, lerp_factor: f32, shortest: bool) -> Quaternion {
         let mut cos = self ^ dest;
-        let mut corrected_dest = dest.clone();
+        let mut corrected_dest = *dest;
 
         if shortest && cos < 0.0 {
             cos = -cos;
