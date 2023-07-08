@@ -2,6 +2,7 @@
 
 members = [
     "curves",
+    "cyclone-rs",
     "micrograd-rs",
     "nativegui",
     "nativegui-speedy",

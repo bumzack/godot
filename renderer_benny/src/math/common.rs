@@ -15,10 +15,10 @@ pub fn assert_matrix(actual: &Matrix, expected: &Matrix) {
 }
 
 pub fn assert_tuple(actual: &Tuple4D, expected: &Tuple4D) {
-    assert_eq!(assert_two_float(actual.x, expected.x), true);
-    assert_eq!(assert_two_float(actual.y, expected.y), true);
-    assert_eq!(assert_two_float(actual.z, expected.z), true);
-    assert_eq!(assert_two_float(actual.w, expected.w), true);
+    assert!(assert_two_float(actual.x, expected.x));
+    assert!(assert_two_float(actual.y, expected.y));
+    assert!(assert_two_float(actual.z, expected.z));
+    assert!(assert_two_float(actual.w, expected.w));
 }
 
 pub fn assert_two_float(a: f32, b: f32) -> bool {

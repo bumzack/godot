@@ -81,9 +81,9 @@ impl Mesh {
         let act_i_mutex = Arc::new(Mutex::new(act_i));
         let max_i = self.indices.len() - 3;
 
-        let pixels_per_thread = 99;
+        let pixels_per_thread = 400;
 
-        let _ = crossbeam::scope(|scope| {
+        let _test = crossbeam::scope(|scope| {
             let mut children = vec![];
 
             for _i in 0..num_cores {
